@@ -1,148 +1,88 @@
-import { useState, useEffect } from "react";
-import { AudioProvider } from "./context/AudioContext";
-import DialogController from "./controllers/dialogController";
-import ElevenLabsService from "./services/elevenlabsService";
-import GifBackground from "./views/GifBackground";
-import GameContactCard from "./views/GameContactCard";
-import DialogBox from "./views/DialogBox";
-import ElevenLabsSetup from "./views/ElevenLabsSetup";
+import { useState } from 'react';
+import './index.css';
+import GifBackground from './components/GifBackground';
+import DialogBox from './views/DialogBox';
+import GameContactCard from './views/GameContactCard';
+import ElevenLabsSetup from './views/ElevenLabsSetup';
+import ApproachScreen from './views/ApproachScreen';
+import { AudioProvider, useAudio } from './context/AudioContext';
 
-function App() {
-  const [loaded, setLoaded] = useState(false);
-  const [showElevenLabsSetup, setShowElevenLabsSetup] = useState(false);
-  const [showVoiceButton, setShowVoiceButton] = useState(false);
-
-  useEffect(() => {
-    // Set loaded to true after a short delay to allow for smoother initialization
-    const timer = setTimeout(() => {
-      setLoaded(true);
-    }, 100);
-    
-    // Check if ElevenLabs API key is set
-    const elevenlabsService = ElevenLabsService.getInstance();
-    if (!elevenlabsService.getApiKey()) {
-      // Show voice setup button after a delay
-      const setupTimer = setTimeout(() => {
-        setShowVoiceButton(true);
-      }, 3000);
-      
-      return () => {
-        clearTimeout(timer);
-        clearTimeout(setupTimer);
-      };
-    }
-    
-    return () => clearTimeout(timer);
-  }, []);
+function MainApp() {
+  const [showElevenLabsSetup, setShowElevenLabsSetup] = useState<boolean>(false);
+  const [showContactCard, setShowContactCard] = useState<boolean>(false);
+  const [approachClicked, setApproachClicked] = useState<boolean>(false);
+  const { isAudioPlaying, playAudio, pauseAudio, hasInteracted } = useAudio();
 
   const handleDialogComplete = () => {
-    console.log("Dialog sequence completed");
+    setShowContactCard(true);
   };
 
+  const handleApproach = () => {
+    setApproachClicked(true);
+    setShowElevenLabsSetup(true);
+  };
+
+  const handleCloseElevenLabsSetup = () => {
+    setShowElevenLabsSetup(false);
+  };
+
+  // Toggle audio play/pause
+  const toggleAudio = () => {
+    if (isAudioPlaying) {
+      pauseAudio();
+    } else {
+      playAudio();
+    }
+  };
+
+  // If user hasn't approached yet, show the approach screen
+  if (!approachClicked) {
+    return <ApproachScreen onApproach={handleApproach} />;
+  }
+
+  return (
+    <div className="h-screen w-screen overflow-hidden relative">
+      <GifBackground>
+        {/* Audio control button */}
+        {hasInteracted && (
+          <button
+            onClick={toggleAudio}
+            className="absolute top-4 right-4 z-40 bg-black bg-opacity-50 p-2 rounded-full text-amber-500 hover:text-amber-400 transition-colors"
+            title={isAudioPlaying ? "Mute" : "Unmute"}
+          >
+            {isAudioPlaying ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <line x1="23" y1="9" x2="17" y2="15" />
+                <line x1="17" y1="9" x2="23" y2="15" />
+              </svg>
+            )}
+          </button>
+        )}
+        
+        {/* Contact card always shown in the center once the approach is clicked */}
+        <GameContactCard />
+
+        {/* Dialog box at the bottom of the screen */}
+        {!showContactCard && <DialogBox onDialogComplete={handleDialogComplete} />}
+        
+        {/* ElevenLabs setup modal */}
+        {showElevenLabsSetup && <ElevenLabsSetup onClose={handleCloseElevenLabsSetup} />}
+      </GifBackground>
+    </div>
+  );
+}
+
+function App() {
   return (
     <AudioProvider>
-      <div className={`app-container ${loaded ? 'app-loaded' : ''}`}>
-        <GifBackground>
-          <div className="content-container">
-            {/* Dialog Box */}
-            <DialogBox onDialogComplete={handleDialogComplete} />
-            
-            {/* Contact Card / Character Menu */}
-            <GameContactCard />
-            
-            {/* Voice Setup Button */}
-            {showVoiceButton && (
-              <button 
-                className="voice-setup-button"
-                onClick={() => setShowElevenLabsSetup(true)}
-              >
-                Enable Geralt's Voice
-              </button>
-            )}
-            
-            <footer className="footer">
-              <p className="copyright-text">© 2025 Diva Juan Nur Taqarrub. All Rights Reserved.</p>
-            </footer>
-          </div>
-        </GifBackground>
-      </div>
-      
-      {/* ElevenLabs API Setup Modal */}
-      {showElevenLabsSetup && (
-        <ElevenLabsSetup onClose={() => setShowElevenLabsSetup(false)} />
-      )}
-
-      <style>{`
-        .app-container {
-          width: 100%;
-          height: 100vh;
-          opacity: 0;
-          transition: opacity 0.5s ease-in-out;
-        }
-        
-        .app-loaded {
-          opacity: 1;
-        }
-        
-        .content-container {
-          display: flex;
-          flex-direction: column;
-          min-height: 100vh;
-          width: 100%;
-          position: relative;
-          z-index: 20;
-          justify-content: center;
-          align-items: center;
-        }
-        
-        .voice-setup-button {
-          position: fixed;
-          bottom: 80px;
-          right: 20px;
-          background-color: rgba(249, 115, 22, 0.2);
-          color: #f97316;
-          border: 1px solid rgba(249, 115, 22, 0.4);
-          border-radius: 8px;
-          padding: 0.6rem 1rem;
-          font-family: 'VT323', monospace;
-          font-size: 0.95rem;
-          cursor: pointer;
-          z-index: 100;
-          transition: all 0.2s ease;
-          backdrop-filter: blur(4px);
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-        
-        .voice-setup-button:hover {
-          background-color: rgba(249, 115, 22, 0.3);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
-        }
-        
-        .footer {
-          width: 100%;
-          padding: 0.85rem 0;
-          display: flex;
-          justify-content: center;
-          margin-top: auto;
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          background: rgba(15, 23, 42, 0.7);
-          backdrop-filter: blur(5px);
-          z-index: 20;
-          border-top: 1px solid rgba(249, 115, 22, 0.1);
-          box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
-        }
-        
-        .copyright-text {
-          color: rgba(255, 255, 255, 0.85);
-          font-size: 0.875rem;
-          font-weight: 400;
-          letter-spacing: 0.025em;
-          opacity: 0.9;
-        }
-      `}</style>
+      <MainApp />
     </AudioProvider>
   );
 }

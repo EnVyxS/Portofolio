@@ -1,15 +1,21 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+// Gunakan path relatif untuk akses langsung public assets
+const backgroundMusicPath = '/assets/Darksouls-Chill.m4a';
 
 interface AudioContextProps {
   isAudioPlaying: boolean;
   playAudio: () => void;
   pauseAudio: () => void;
+  hasInteracted: boolean;
+  setHasInteracted: (value: boolean) => void;
 }
 
 const AudioContext = createContext<AudioContextProps>({
   isAudioPlaying: false,
   playAudio: () => {},
   pauseAudio: () => {},
+  hasInteracted: false,
+  setHasInteracted: () => {}
 });
 
 export const useAudio = () => useContext(AudioContext);
@@ -19,61 +25,49 @@ interface AudioProviderProps {
 }
 
 export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [audio] = useState<HTMLAudioElement>(new Audio(backgroundMusicPath));
+  const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
+  const [hasInteracted, setHasInteracted] = useState<boolean>(false);
 
+  // Set audio properties
   useEffect(() => {
-    // Create audio element
-    const audioElement = new Audio("/images/Darksouls-Chill.m4a");
-    audioElement.loop = true;
-    audioElement.volume = 0.15;
+    audio.loop = true;
+    audio.volume = 0.3;
     
-    // Add event listeners
-    audioElement.addEventListener("play", () => setIsAudioPlaying(true));
-    audioElement.addEventListener("pause", () => setIsAudioPlaying(false));
-    
-    // Set to state
-    setAudio(audioElement);
-    
-    // Clean up on unmount
+    // Cleanup on unmount
     return () => {
-      audioElement.pause();
-      audioElement.removeEventListener("play", () => setIsAudioPlaying(true));
-      audioElement.removeEventListener("pause", () => setIsAudioPlaying(false));
+      audio.pause();
+      audio.currentTime = 0;
     };
-  }, []);
+  }, [audio]);
 
-  const playAudio = () => {
-    if (!audio) return;
-    
-    if (audio.paused) {
-      const playPromise = audio.play();
-      
-      // Handle autoplay policy
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            // Audio started playing
-            setIsAudioPlaying(true);
-          })
-          .catch(error => {
-            // Autoplay was prevented
-            console.error("Audio play failed:", error);
-            setIsAudioPlaying(false);
-          });
-      }
-    } else {
-      // If already playing, pause
+  // Play audio when hasInteracted changes to true
+  useEffect(() => {
+    if (hasInteracted) {
+      playAudio();
+    }
+  }, [hasInteracted]);
+
+  const playAudio = useCallback(() => {
+    if (!isAudioPlaying) {
+      audio.play()
+        .then(() => {
+          setIsAudioPlaying(true);
+        })
+        .catch(error => {
+          console.error('Failed to play audio:', error);
+          // In some browsers, audio can only play after user interaction
+          setIsAudioPlaying(false);
+        });
+    }
+  }, [audio, isAudioPlaying]);
+
+  const pauseAudio = useCallback(() => {
+    if (isAudioPlaying) {
       audio.pause();
       setIsAudioPlaying(false);
     }
-  };
-
-  const pauseAudio = () => {
-    if (!audio) return;
-    audio.pause();
-    setIsAudioPlaying(false);
-  };
+  }, [audio, isAudioPlaying]);
 
   return (
     <AudioContext.Provider
@@ -81,9 +75,13 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
         isAudioPlaying,
         playAudio,
         pauseAudio,
+        hasInteracted,
+        setHasInteracted
       }}
     >
       {children}
     </AudioContext.Provider>
   );
 };
+
+export default AudioContext;
