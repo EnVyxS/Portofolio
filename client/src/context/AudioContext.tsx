@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 // Gunakan path relatif untuk akses langsung public assets
 const backgroundMusicPath = '/assets/Darksouls-Chill.m4a';
-const fireplaceAmbientPath = '/audio/ambient_fire.m4a';
+const fireplaceAmbientPath = '/assets/fireplace-ambient.m4a';
 
 interface AudioContextProps {
   isAudioPlaying: boolean;
@@ -61,54 +61,68 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
 
   // Setup automatic play triggers
   useEffect(() => {
+    // Function to try auto play - will likely be blocked by browser without interaction
     const tryAutoPlay = () => {
-      if (!autoPlayAttempted.current) {
+      if (!autoPlayAttempted.current && !isAudioPlaying) {
         autoPlayAttempted.current = true;
-        playAudio();
+        
+        // Add muted attribute to make autoplay more likely to work
+        music.muted = true;
+        ambient.muted = true;
+        
+        const musicPromise = music.play()
+          .then(() => {
+            // If autoplay succeeds, unmute after 300ms
+            setTimeout(() => {
+              music.muted = false;
+              ambient.muted = false;
+              setIsAudioPlaying(true);
+              console.log("Autoplay succeeded with muted approach");
+            }, 300);
+          })
+          .catch(error => {
+            console.log("Autoplay blocked by browser, waiting for user interaction", error);
+            music.muted = false;
+            ambient.muted = false;
+            // If autoplay fails, we'll wait for interaction
+          });
       }
     };
 
-    // 1. Tunggu 1 detik untuk mencoba auto-play
+    // Try autoplay after a short delay
     interactionTimeout.current = setTimeout(() => {
       tryAutoPlay();
     }, 1000);
 
-    // 2. Coba mainkan audio saat mouse bergerak
-    const handleMouseMove = () => {
+    // Event handlers for user interaction
+    const handleUserInteraction = () => {
       if (!hasInteracted) {
+        console.log("User interaction detected, enabling audio");
         setHasInteracted(true);
       }
     };
 
-    // 3. Atau saat scroll
-    const handleScroll = () => {
-      if (!hasInteracted) {
-        setHasInteracted(true);
-      }
-    };
+    // Add multiple interaction event listeners to improve chances of catching interaction
+    const interactionEvents = [
+      'click', 'touchstart', 'mousedown', 'keydown', 
+      'mousemove', 'scroll', 'touchmove'
+    ];
+    
+    interactionEvents.forEach(event => {
+      document.addEventListener(event, handleUserInteraction, { once: true });
+    });
 
-    // 4. Atau jika ada input keyboard
-    const handleKeyPress = () => {
-      if (!hasInteracted) {
-        setHasInteracted(true);
-      }
-    };
-
-    // Tambahkan listener
-    window.addEventListener('mousemove', handleMouseMove, { once: true });
-    window.addEventListener('scroll', handleScroll, { once: true });
-    window.addEventListener('keydown', handleKeyPress, { once: true });
-
-    // Cleanup listener
+    // Cleanup listeners
     return () => {
       if (interactionTimeout.current) {
         clearTimeout(interactionTimeout.current);
       }
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('keydown', handleKeyPress);
+      
+      interactionEvents.forEach(event => {
+        document.removeEventListener(event, handleUserInteraction);
+      });
     };
-  }, []);
+  }, [isAudioPlaying]);
 
   // Play audio when hasInteracted changes to true
   useEffect(() => {
@@ -119,33 +133,56 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
 
   const playAudio = useCallback(() => {
     if (!isAudioPlaying) {
-      // Play main music
-      const musicPromise = music.play();
-      
-      if (musicPromise !== undefined) {
-        musicPromise
-          .then(() => {
-            // Play ambient sound after music starts
-            const ambientPromise = ambient.play();
-            if (ambientPromise !== undefined) {
-              ambientPromise
-                .then(() => {
-                  setIsAudioPlaying(true);
-                  console.log("Audio berhasil diputar");
-                })
-                .catch(error => {
-                  console.error('Failed to play ambient sound:', error);
-                });
+      try {
+        // Play main music first
+        const playMusic = async () => {
+          try {
+            await music.play();
+            console.log("Music started successfully");
+            
+            // After music starts, try playing ambient sound
+            try {
+              await ambient.play();
+              setIsAudioPlaying(true);
+              console.log("Audio berhasil diputar");
+            } catch (ambientError) {
+              console.error('Failed to play ambient sound:', ambientError);
+              // Still mark as playing if main music works even if ambient fails
+              setIsAudioPlaying(true);
             }
-          })
-          .catch(error => {
-            console.error('Failed to play music:', error);
+          } catch (musicError) {
+            console.error('Failed to play music:', musicError);
             // In some browsers, audio can only play after user interaction
             setIsAudioPlaying(false);
-          });
+            
+            // If music failed due to autoplay restrictions, we can try muted approach
+            if (!hasInteracted) {
+              console.log("Attempting muted autoplay workaround...");
+              music.muted = true;
+              try {
+                await music.play();
+                // If that worked, unmute after a delay 
+                setTimeout(() => {
+                  music.muted = false;
+                  setIsAudioPlaying(true);
+                }, 300);
+              } catch (mutedError) {
+                console.error("Even muted autoplay failed:", mutedError);
+                music.muted = false;
+              }
+            }
+          }
+        };
+        
+        // Start the async playback process
+        playMusic().catch(error => {
+          console.error("Unexpected error during playback:", error);
+        });
+      } catch (error) {
+        console.error("Unexpected error initiating playback:", error);
       }
     }
-  }, [music, ambient, isAudioPlaying]);
+  }, [music, ambient, isAudioPlaying, hasInteracted]);
 
   const pauseAudio = useCallback(() => {
     if (isAudioPlaying) {
