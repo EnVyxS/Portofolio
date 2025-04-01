@@ -39,12 +39,17 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       });
     }
     
-    // Use API key from environment variables
-    const apiKey = process.env.VITE_ELEVENLABS_API_KEY;
+    // Use API key from environment variables or hardcoded value
+    // const apiKey = process.env.VITE_ELEVENLABS_API_KEY || process.env.ELEVENLABS_API_KEY;
+    
+    // Force use of the correct API key
+    const apiKey = 'sk_8c7df130995c63ed6e5c092119a04b8ab581c11f5ee2154c';
     
     if (!apiKey) {
       return res.status(500).json({ error: 'API key not found' });
     }
+    
+    console.log('Using ElevenLabs API key (hardcoded)');
     
     // Generate hash for the text
     const hash = generateSimpleHash(text);

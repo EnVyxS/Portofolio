@@ -32,7 +32,7 @@ try {
   
   // Hard-code API key to make sure it's available
   if (!process.env.ELEVENLABS_API_KEY) {
-    process.env.ELEVENLABS_API_KEY = 'sk_f64d77d3c40e5b4b292fc19b7f821f9ce03693c239c57647';
+    process.env.ELEVENLABS_API_KEY = 'sk_8c7df130995c63ed6e5c092119a04b8ab581c11f5ee2154c';
     log('Using hardcoded ElevenLabs API key');
   }
 } catch (error) {
