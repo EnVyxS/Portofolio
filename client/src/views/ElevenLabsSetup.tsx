@@ -11,14 +11,21 @@ const ElevenLabsSetup: React.FC<ElevenLabsSetupProps> = ({ onClose }) => {
   
   // Auto-initialize with API key from server
   useEffect(() => {
-    // Sekarang kita menggunakan server API, jadi kita tidak perlu mengatur API key
-    // Tapi kita tetap bisa mengatur API key kosong untuk fungsi lain agar tetap berjalan
-    dialogController.setElevenLabsApiKey("using_server_api");
+    // Menggunakan API key dari .env jika tersedia, atau gunakan audio lokal
+    const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
+    
+    if (apiKey) {
+      console.log("Using ElevenLabs API key from environment");
+      dialogController.setElevenLabsApiKey(apiKey);
+    } else {
+      console.log("No API key found, using local audio files");
+      dialogController.setElevenLabsApiKey("using_local_audio");
+    }
     
     // Automatically close after delay
     setTimeout(() => {
       onClose();
-    }, 1000); // Add a slight delay to show loading animation
+    }, 1500); // Add a slight delay to show loading animation
   }, []);
 
   return (
@@ -30,7 +37,8 @@ const ElevenLabsSetup: React.FC<ElevenLabsSetupProps> = ({ onClose }) => {
     >
       <div className="setup-card">
         <h2>Initializing Voice</h2>
-        <p>Setting up voice synthesis for character dialogue...</p>
+        <p>Setting up voice synthesis for character dialogue using pre-recorded audio files</p>
+        <p className="small-text">Audio files are loaded from local storage for optimal performance</p>
         
         <div className="loading-animation">
           <div className="loading-circle"></div>
@@ -74,6 +82,13 @@ const ElevenLabsSetup: React.FC<ElevenLabsSetupProps> = ({ onClose }) => {
           margin-bottom: 1.5rem;
           text-align: center;
           line-height: 1.5;
+        }
+        
+        .small-text {
+          font-size: 0.85rem;
+          color: rgba(255, 255, 255, 0.6);
+          margin-top: -1rem;
+          margin-bottom: 1rem;
         }
         
         .signup-link {

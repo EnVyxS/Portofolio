@@ -16,6 +16,9 @@ class ElevenLabsService {
 
   // Simpan file audio lokal berdasarkan hash sederhana dari teks
   private audioFilesMap: Record<string, string> = {};
+  
+  // Ambient audio untuk latar belakang
+  private ambientAudio: HTMLAudioElement | null = null;
 
   private constructor() {
     // Check if API key is in env
@@ -259,6 +262,33 @@ class ElevenLabsService {
 
   public isCurrentlyPlaying(): boolean {
     return this.isPlaying;
+  }
+  
+  // Metode untuk memainkan suara ambient api
+  public playAmbientSound(volume: number = 0.2): void {
+    if (!this.ambientAudio) {
+      this.ambientAudio = new Audio('/audio/ambient_fire.m4a');
+      this.ambientAudio.loop = true;
+      this.ambientAudio.volume = volume;
+    }
+    
+    this.ambientAudio.play().catch(error => {
+      console.error('Failed to play ambient sound:', error);
+    });
+  }
+  
+  // Metode untuk menghentikan suara ambient
+  public stopAmbientSound(): void {
+    if (this.ambientAudio) {
+      this.ambientAudio.pause();
+    }
+  }
+  
+  // Menyetel volume suara ambient
+  public setAmbientVolume(volume: number): void {
+    if (this.ambientAudio) {
+      this.ambientAudio.volume = Math.max(0, Math.min(1, volume));
+    }
   }
 }
 
