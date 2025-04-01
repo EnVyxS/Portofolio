@@ -12,6 +12,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const [characterName, setCharacterName] = useState<string>('');
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [isDialogFinished, setIsDialogFinished] = useState<boolean>(false);
+  const [dialogSource, setDialogSource] = useState<'main' | 'hover'>('main');
   const dialogController = DialogController.getInstance();
   const hoverDialogController = HoverDialogController.getInstance();
 
@@ -20,6 +21,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     dialogController.startDialog((text, complete) => {
       setText(text);
       setIsComplete(complete);
+      setDialogSource('main');
       
       // Get current dialog to display character name
       const currentDialog = dialogController.getCurrentDialog();
@@ -29,6 +31,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       
       // Notify HoverDialogController about dialog completion status
       hoverDialogController.setDialogCompleted(complete);
+    });
+    
+    // Set hover dialog callback
+    hoverDialogController.setHoverTextCallback((text, complete) => {
+      setText(text);
+      setIsComplete(complete);
+      setDialogSource('hover');
+      setCharacterName('GERALT'); // Hover dialogs always from Geralt
     });
     
     // Cleanup on unmount
@@ -77,17 +87,22 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      <div className="dialog-box">
-        <div className="character-name">{characterName}</div>
+      <div className={`dialog-box ${dialogSource === 'hover' ? 'hover-dialog' : ''}`}>
+        <div className={`character-name ${dialogSource === 'hover' ? 'hover-character' : ''}`}>
+          {characterName}
+          {dialogSource === 'hover' && <span className="hover-indicator">⟳</span>}
+        </div>
         <div className="dialog-text">{text}</div>
         <div className="dialog-actions">
-          <button 
-            className="dialog-continue"
-            onClick={handleContinue}
-          >
-            {isComplete ? 'Next' : 'Skip'}
-            <span className="continue-indicator">{isComplete ? '▼' : '▶'}</span>
-          </button>
+          {dialogSource === 'main' && (
+            <button 
+              className="dialog-continue"
+              onClick={handleContinue}
+            >
+              {isComplete ? 'Next' : 'Skip'}
+              <span className="continue-indicator">{isComplete ? '▼' : '▶'}</span>
+            </button>
+          )}
         </div>
       </div>
       
@@ -181,6 +196,30 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           100% {
             opacity: 0.3;
           }
+        }
+        
+        /* Styling for hover dialogs */
+        .hover-dialog {
+          border: 1px solid rgba(0, 191, 255, 0.4); /* Different border color for hover dialog */
+          box-shadow: 0 0 15px rgba(0, 191, 255, 0.2);
+        }
+        
+        .hover-character {
+          background: rgba(0, 191, 255, 0.6); /* Different background for hover character name */
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        
+        .hover-indicator {
+          font-size: 0.8rem;
+          animation: spin 2s linear infinite;
+          display: inline-block;
+        }
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
         
         @media (max-width: 768px) {

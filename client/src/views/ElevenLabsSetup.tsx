@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import DialogController from '../controllers/dialogController';
 
@@ -7,43 +7,26 @@ interface ElevenLabsSetupProps {
 }
 
 const ElevenLabsSetup: React.FC<ElevenLabsSetupProps> = ({ onClose }) => {
-  const [apiKey, setApiKey] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
   const dialogController = DialogController.getInstance();
   
-  // Check if we have an API key in .env
+  // Auto-initialize with API key from .env
   useEffect(() => {
-    // This would typically come from environment variables
+    // Get API key from environment variables
     const envApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
     if (envApiKey) {
-      setApiKey(envApiKey);
       dialogController.setElevenLabsApiKey(envApiKey);
+      // Automatically close after setting API key
+      setTimeout(() => {
+        onClose();
+      }, 1000); // Add a slight delay to show loading animation
+    } else {
+      console.error("ElevenLabs API key not found in environment variables");
+      // Still close even if no API key found
+      setTimeout(() => {
+        onClose();
+      }, 1500);
     }
   }, []);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!apiKey.trim()) {
-      setError('Please enter an API key');
-      return;
-    }
-    
-    setLoading(true);
-    setError(null);
-    
-    // Set the API key in the DialogController
-    try {
-      dialogController.setElevenLabsApiKey(apiKey);
-      setLoading(false);
-      onClose();
-    } catch (err) {
-      setLoading(false);
-      setError('Invalid API key or an error occurred');
-      console.error(err);
-    }
-  };
 
   return (
     <motion.div 
@@ -53,49 +36,12 @@ const ElevenLabsSetup: React.FC<ElevenLabsSetupProps> = ({ onClose }) => {
       exit={{ opacity: 0 }}
     >
       <div className="setup-card">
-        <h2>Voice Synthesis Setup</h2>
-        <p>Enter your ElevenLabs API key to enable voice synthesis for character dialogue.</p>
+        <h2>Initializing Voice</h2>
+        <p>Setting up voice synthesis for character dialogue...</p>
         
-        <a 
-          href="https://elevenlabs.io/sign-up" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="signup-link"
-        >
-          Don't have an account? Sign up for free
-        </a>
-        
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="apiKey">API Key</label>
-            <input
-              type="password"
-              id="apiKey"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder="Enter your ElevenLabs API key"
-            />
-          </div>
-          
-          {error && <div className="error-message">{error}</div>}
-          
-          <div className="action-buttons">
-            <button 
-              type="button" 
-              className="skip-button"
-              onClick={onClose}
-            >
-              Skip (Use Text Only)
-            </button>
-            <button 
-              type="submit" 
-              className="submit-button"
-              disabled={loading}
-            >
-              {loading ? 'Verifying...' : 'Enable Voice'}
-            </button>
-          </div>
-        </form>
+        <div className="loading-animation">
+          <div className="loading-circle"></div>
+        </div>
       </div>
       
       <style>{`
@@ -207,22 +153,30 @@ const ElevenLabsSetup: React.FC<ElevenLabsSetupProps> = ({ onClose }) => {
           border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
-        .skip-button:hover {
-          background: rgba(255, 255, 255, 0.1);
-          color: #fff;
+        .loading-animation {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-top: 1rem;
+        }
+        
+        .loading-circle {
+          width: 50px;
+          height: 50px;
+          border: 3px solid rgba(249, 115, 22, 0.2);
+          border-top: 3px solid #f97316;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
         
         @media (max-width: 640px) {
           .setup-card {
             padding: 1.5rem;
-          }
-          
-          .action-buttons {
-            flex-direction: column;
-          }
-          
-          .submit-button, .skip-button {
-            width: 100%;
           }
         }
       `}</style>

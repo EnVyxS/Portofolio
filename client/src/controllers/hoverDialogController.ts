@@ -79,6 +79,14 @@ class HoverDialogController {
     this.debouncedHoverHandler(linkType);
   }
 
+  // Callback untuk dialog text
+  private hoverTextCallback: ((text: string, isComplete: boolean) => void) | null = null;
+
+  // Set callback untuk dialog text
+  public setHoverTextCallback(callback: (text: string, isComplete: boolean) => void): void {
+    this.hoverTextCallback = callback;
+  }
+
   // Implementasi actual dari handler hover setelah debounce
   private async handleHoverDialogActual(linkType: HoverLinkType): Promise<void> {
     this.isHandlingHover = true;
@@ -129,6 +137,11 @@ class HoverDialogController {
     }
 
     if (dialogText) {
+      // Tampilkan dialog di DialogBox jika ada callback
+      if (this.hoverTextCallback) {
+        this.hoverTextCallback(dialogText, true);
+      }
+      
       // Speak the dialog text
       await this.elevenlabsService.speakText(dialogText, 'geralt');
     }
