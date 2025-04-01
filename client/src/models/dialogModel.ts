@@ -209,7 +209,7 @@ class DialogModel {
     {
       id: 34,
       character: "Diva Juan Nur Taqarrub",
-      text: "Nothing's free. Not even dreams,",
+      text: "Nothing's free... Not even dreams,",
       voiceId: "geralt",
     },
     {

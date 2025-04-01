@@ -5,7 +5,7 @@ import DialogBox from './views/DialogBox';
 import GameContactCard from './views/GameContactCard';
 import ElevenLabsSetup from './views/ElevenLabsSetup';
 import ApproachScreen from './views/ApproachScreen';
-import { AudioProvider, useAudio } from './context/AudioContext';
+import { AudioProvider, useAudio } from './context/AudioManager';
 import IdleTimeoutController from './controllers/idleTimeoutController';
 import DramaticEffects, { dramaticEffectsStyles } from './components/DramaticEffects';
 

@@ -14,7 +14,7 @@ interface AudioContextProps {
 }
 
 // Menciptakan konteks dengan nilai default
-const AudioContextInstance = createContext<AudioContextProps>({
+const AudioContextValue = createContext<AudioContextProps>({
   isAudioPlaying: false,
   playAudio: () => {},
   pauseAudio: () => {},
@@ -25,7 +25,7 @@ const AudioContextInstance = createContext<AudioContextProps>({
 });
 
 // Hook untuk menggunakan konteks audio
-export const useAudio = () => useContext(AudioContextInstance);
+export const useAudio = () => useContext(AudioContextValue);
 
 interface AudioProviderProps {
   children: React.ReactNode;
@@ -86,7 +86,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
           // Try to play ambient sound too, but don't worry if it fails
           try {
             await ambient.play();
-          } catch (ambientError) {
+          } catch (error) {
             console.log("Ambient autoplay failed, will try again with user interaction");
           }
         } catch (error) {
@@ -214,7 +214,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
   }, [ambient]);
 
   return (
-    <AudioContextInstance.Provider
+    <AudioContextValue.Provider
       value={{
         isAudioPlaying,
         playAudio,
@@ -226,14 +226,6 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
       }}
     >
       {children}
-    </AudioContextInstance.Provider>
+    </AudioContextValue.Provider>
   );
 };
-
-// Mengekspor konteks - JANGAN ekspor dengan "export default"
-const audioContext = {
-  useAudio,
-  AudioProvider
-};
-
-export default audioContext;
