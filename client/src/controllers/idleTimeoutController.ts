@@ -138,8 +138,43 @@ class IdleTimeoutController {
     this.resetSceneCallback = callback;
   }
   
+  // Cek apakah ada audio atau dialog yang sedang berjalan
+  private isAudioOrDialogActive(): boolean {
+    // Cek apakah ada audio yang sedang diputar
+    const isAudioPlaying = this.elevenlabsService.isCurrentlyPlaying();
+    
+    // Cek apakah ada dialog yang sedang diketik
+    const isDialogTyping = this.dialogController.isCurrentlyTyping();
+    
+    // Pastikan method isCurrentlyTyping ada
+    if (!this.dialogController.isCurrentlyTyping) {
+      console.log("[IdleTimeoutController] isCurrentlyTyping tidak ditemukan di dialogController");
+      return false; // Asumsikan tidak ada dialog yang aktif jika method tidak ada
+    }
+    
+    // Jika salah satu aktif, return true
+    return isAudioPlaying || isDialogTyping;
+  }
+  
   // Memulai penghitungan timeout idle
   public startIdleTimer(): void {
+    // Jika ada audio atau dialog yang aktif, jangan jalankan timer
+    if (this.isAudioOrDialogActive()) {
+      console.log("[IdleTimeoutController] Timer tidak dijadwalkan - audio/dialog sedang aktif");
+      
+      // Cek lagi nanti setelah beberapa detik
+      setTimeout(() => {
+        this.startIdleTimer();
+      }, 5000); // cek setiap 5 detik
+      
+      return;
+    }
+    
+    console.log("[IdleTimeoutController] Idle timers setup - First warning in " + 
+                TIMEOUT_DURATIONS.FIRST_WARNING/1000 + "s, second in " + 
+                TIMEOUT_DURATIONS.SECOND_WARNING/1000 + "s, final in " + 
+                TIMEOUT_DURATIONS.FINAL_WARNING/1000 + "s");
+    
     this.clearAllIdleTimers(); // Bersihkan timer yang ada
     this.setupIdleTimers(); // Setup timer baru
   }
@@ -151,32 +186,56 @@ class IdleTimeoutController {
     // Jika belum menampilkan peringatan pertama
     if (!this.hasShownFirstWarning) {
       this.firstWarningTimer = setTimeout(() => {
-        this.showIdleWarning(IDLE_DIALOGS.FIRST_WARNING);
-        this.hasShownFirstWarning = true;
+        // Cek dulu apakah ada audio/dialog yang aktif sebelum menampilkan peringatan
+        if (!this.isAudioOrDialogActive()) {
+          this.showIdleWarning(IDLE_DIALOGS.FIRST_WARNING);
+          this.hasShownFirstWarning = true;
+        } else {
+          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
+          this.startIdleTimer();
+        }
       }, TIMEOUT_DURATIONS.FIRST_WARNING);
     }
     
     // Jika belum menampilkan peringatan kedua
     if (!this.hasShownSecondWarning) {
       this.secondWarningTimer = setTimeout(() => {
-        this.showIdleWarning(IDLE_DIALOGS.SECOND_WARNING);
-        this.hasShownSecondWarning = true;
+        // Cek dulu apakah ada audio/dialog yang aktif sebelum menampilkan peringatan
+        if (!this.isAudioOrDialogActive()) {
+          this.showIdleWarning(IDLE_DIALOGS.SECOND_WARNING);
+          this.hasShownSecondWarning = true;
+        } else {
+          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
+          this.startIdleTimer();
+        }
       }, TIMEOUT_DURATIONS.SECOND_WARNING);
     }
     
     // Jika belum menampilkan peringatan terakhir
     if (!this.hasShownFinalWarning) {
       this.finalWarningTimer = setTimeout(() => {
-        this.showIdleWarning(IDLE_DIALOGS.FINAL_WARNING);
-        this.hasShownFinalWarning = true;
+        // Cek dulu apakah ada audio/dialog yang aktif sebelum menampilkan peringatan
+        if (!this.isAudioOrDialogActive()) {
+          this.showIdleWarning(IDLE_DIALOGS.FINAL_WARNING);
+          this.hasShownFinalWarning = true;
+        } else {
+          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
+          this.startIdleTimer();
+        }
       }, TIMEOUT_DURATIONS.FINAL_WARNING);
     }
     
     // Jika belum dilempar
     if (!this.hasBeenThrown) {
       this.throwUserTimer = setTimeout(() => {
-        this.throwUser();
-        this.hasBeenThrown = true;
+        // Cek dulu apakah ada audio/dialog yang aktif sebelum melempar user
+        if (!this.isAudioOrDialogActive()) {
+          this.throwUser();
+          this.hasBeenThrown = true;
+        } else {
+          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
+          this.startIdleTimer();
+        }
       }, TIMEOUT_DURATIONS.THROW_USER);
     }
   }
@@ -206,29 +265,60 @@ class IdleTimeoutController {
   
   // Setup timer untuk hover berlebihan
   public startExcessiveHoverTimers(): void {
+    // Jika ada audio atau dialog yang aktif, jangan jalankan timer
+    if (this.isAudioOrDialogActive()) {
+      console.log("[IdleTimeoutController] Hover timer tidak dijadwalkan - audio/dialog sedang aktif");
+      
+      // Cek lagi nanti setelah beberapa detik
+      setTimeout(() => {
+        this.startExcessiveHoverTimers();
+      }, 5000); // cek setiap 5 detik
+      
+      return;
+    }
+    
+    console.log("[IdleTimeoutController] Excessive hover timers setup");
     this.clearAllHoverTimers(); // Bersihkan timer yang ada
     
     // Jika belum menampilkan peringatan hover berlebihan
     if (!this.hasShownExcessiveHoverWarning) {
       this.excessiveHoverTimer = setTimeout(() => {
-        this.showIdleWarning(IDLE_DIALOGS.EXCESSIVE_HOVER_WARNING);
-        this.hasShownExcessiveHoverWarning = true;
+        // Cek dulu apakah ada audio/dialog yang aktif sebelum menampilkan peringatan
+        if (!this.isAudioOrDialogActive()) {
+          this.showIdleWarning(IDLE_DIALOGS.EXCESSIVE_HOVER_WARNING);
+          this.hasShownExcessiveHoverWarning = true;
+        } else {
+          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
+          this.startExcessiveHoverTimers();
+        }
       }, TIMEOUT_DURATIONS.EXCESSIVE_HOVER_WARNING);
     }
     
     // Jika belum menampilkan peringatan hover final
     if (!this.hasShownFinalHoverWarning) {
       this.finalHoverWarningTimer = setTimeout(() => {
-        this.showIdleWarning(IDLE_DIALOGS.FINAL_HOVER_WARNING);
-        this.hasShownFinalHoverWarning = true;
+        // Cek dulu apakah ada audio/dialog yang aktif sebelum menampilkan peringatan
+        if (!this.isAudioOrDialogActive()) {
+          this.showIdleWarning(IDLE_DIALOGS.FINAL_HOVER_WARNING);
+          this.hasShownFinalHoverWarning = true;
+        } else {
+          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
+          this.startExcessiveHoverTimers();
+        }
       }, TIMEOUT_DURATIONS.FINAL_HOVER_WARNING);
     }
     
     // Jika belum dipukul
     if (!this.hasBeenPunched) {
       this.punchUserTimer = setTimeout(() => {
-        this.punchUser();
-        this.hasBeenPunched = true;
+        // Cek dulu apakah ada audio/dialog yang aktif sebelum memukul user
+        if (!this.isAudioOrDialogActive()) {
+          this.punchUser();
+          this.hasBeenPunched = true;
+        } else {
+          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
+          this.startExcessiveHoverTimers();
+        }
       }, TIMEOUT_DURATIONS.PUNCH_USER);
     }
   }
