@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 // Gunakan path relatif untuk akses langsung public assets
 const backgroundMusicPath = '/assets/Darksouls-Chill.m4a';
+const fireplaceAmbientPath = '/assets/fireplace-ambient.m4a';
 
 interface AudioContextProps {
   isAudioPlaying: boolean;
@@ -9,6 +10,7 @@ interface AudioContextProps {
   hasInteracted: boolean;
   setHasInteracted: (value: boolean) => void;
   setVolume: (volume: number) => void;
+  setAmbientVolume: (volume: number) => void;
 }
 
 const AudioContext = createContext<AudioContextProps>({
@@ -17,7 +19,8 @@ const AudioContext = createContext<AudioContextProps>({
   pauseAudio: () => {},
   hasInteracted: false,
   setHasInteracted: () => {},
-  setVolume: () => {}
+  setVolume: () => {},
+  setAmbientVolume: () => {}
 });
 
 export const useAudio = () => useContext(AudioContext);
@@ -27,7 +30,8 @@ interface AudioProviderProps {
 }
 
 export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
-  const [audio] = useState<HTMLAudioElement>(new Audio(backgroundMusicPath));
+  const [music] = useState<HTMLAudioElement>(new Audio(backgroundMusicPath));
+  const [ambient] = useState<HTMLAudioElement>(new Audio(fireplaceAmbientPath));
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const [hasInteracted, setHasInteracted] = useState<boolean>(false);
   const interactionTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -35,18 +39,25 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
 
   // Set audio properties
   useEffect(() => {
-    audio.loop = true;
-    audio.volume = 0.15; // Lebih pelan dari biasanya (15% volume)
+    // Setup main music
+    music.loop = true;
+    music.volume = 0.15; // Lebih pelan dari biasanya (15% volume)
+    
+    // Setup ambient sound
+    ambient.loop = true;
+    ambient.volume = 0.06; // Sekitar 40% dari volume musik utama
     
     // Cleanup on unmount
     return () => {
       if (interactionTimeout.current) {
         clearTimeout(interactionTimeout.current);
       }
-      audio.pause();
-      audio.currentTime = 0;
+      music.pause();
+      music.currentTime = 0;
+      ambient.pause();
+      ambient.currentTime = 0;
     };
-  }, [audio]);
+  }, [music, ambient]);
 
   // Setup automatic play triggers
   useEffect(() => {
@@ -108,35 +119,53 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
 
   const playAudio = useCallback(() => {
     if (!isAudioPlaying) {
-      const playPromise = audio.play();
+      // Play main music
+      const musicPromise = music.play();
       
-      if (playPromise !== undefined) {
-        playPromise
+      if (musicPromise !== undefined) {
+        musicPromise
           .then(() => {
-            setIsAudioPlaying(true);
-            console.log("Audio berhasil diputar");
+            // Play ambient sound after music starts
+            const ambientPromise = ambient.play();
+            if (ambientPromise !== undefined) {
+              ambientPromise
+                .then(() => {
+                  setIsAudioPlaying(true);
+                  console.log("Audio berhasil diputar");
+                })
+                .catch(error => {
+                  console.error('Failed to play ambient sound:', error);
+                });
+            }
           })
           .catch(error => {
-            console.error('Failed to play audio:', error);
+            console.error('Failed to play music:', error);
             // In some browsers, audio can only play after user interaction
             setIsAudioPlaying(false);
           });
       }
     }
-  }, [audio, isAudioPlaying]);
+  }, [music, ambient, isAudioPlaying]);
 
   const pauseAudio = useCallback(() => {
     if (isAudioPlaying) {
-      audio.pause();
+      music.pause();
+      ambient.pause();
       setIsAudioPlaying(false);
     }
-  }, [audio, isAudioPlaying]);
+  }, [music, ambient, isAudioPlaying]);
 
   const setVolume = useCallback((volume: number) => {
     if (volume >= 0 && volume <= 1) {
-      audio.volume = volume;
+      music.volume = volume;
     }
-  }, [audio]);
+  }, [music]);
+  
+  const setAmbientVolume = useCallback((volume: number) => {
+    if (volume >= 0 && volume <= 1) {
+      ambient.volume = volume;
+    }
+  }, [ambient]);
 
   return (
     <AudioContext.Provider
@@ -146,7 +175,8 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
         pauseAudio,
         hasInteracted,
         setHasInteracted,
-        setVolume
+        setVolume,
+        setAmbientVolume
       }}
     >
       {children}
