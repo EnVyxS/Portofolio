@@ -169,23 +169,23 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         }
         
         .dialog-box {
-          background: rgba(15, 23, 42, 0.4); /* Lebih transparan untuk menyatu dengan background */
-          border: 1px solid rgba(0, 165, 255, 0.3); /* Border biru */
-          box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-          border-radius: 6px; /* Border radius lebih kecil untuk gaya game */
+          background: rgba(25, 15, 10, 0.5); /* Background lebih gelap dengan sentuhan merah/coklat */
+          border: 1px solid rgba(255, 140, 0, 0.3); /* Border oranye (warna api) */
+          box-shadow: 0 0 15px rgba(180, 70, 0, 0.2);
+          border-radius: 6px;
           width: 100%;
           max-width: 800px;
           padding: 1.5rem;
           position: relative;
           pointer-events: auto;
-          backdrop-filter: blur(5px); /* Blur lebih halus */
+          backdrop-filter: blur(5px);
         }
         
         .character-name {
           position: absolute;
           top: -1.8rem;
           left: 0;
-          background: rgba(0, 105, 148, 0.8); /* Biru tua untuk karakter normal */
+          background: rgba(180, 60, 0, 0.8); /* Oranye kemerahan untuk karakter */
           color: #fff;
           padding: 0.5rem 1rem;
           border-radius: 4px 4px 0 0;
@@ -193,8 +193,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           font-size: 0.9rem;
           text-transform: uppercase;
           letter-spacing: 1px;
-          box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2); /* Efek bayangan halus */
-          border-top: 1px solid rgba(0, 165, 255, 0.3); /* Border halus atas */
+          box-shadow: 0 -2px 10px rgba(180, 60, 0, 0.3); /* Efek bayangan api */
+          border-top: 1px solid rgba(255, 140, 0, 0.4); /* Border api */
         }
         
         .dialog-text {
@@ -213,7 +213,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         .dialog-continue {
           background: transparent;
           border: none;
-          color: rgba(255, 255, 255, 0.8);
+          color: rgba(255, 235, 205, 0.8); /* Warna teks lebih kecoklatan untuk tema api */
           display: flex;
           align-items: center;
           gap: 0.5rem;
@@ -225,18 +225,20 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         }
         
         .dialog-continue:hover {
-          background: rgba(0, 165, 255, 0.1);
+          background: rgba(255, 140, 0, 0.15); /* Background orange saat hover */
           color: #fff;
+          text-shadow: 0 0 4px rgba(255, 165, 0, 0.6); /* Efek glow saat hover */
         }
         
         /* Styling for hover dialog continue button */
         .hover-continue {
-          color: rgba(0, 191, 255, 0.8);
+          color: rgba(255, 165, 0, 0.8); /* Oranye untuk tombol hover dialog */
         }
         
         .hover-continue:hover {
-          background: rgba(0, 191, 255, 0.1);
+          background: rgba(255, 140, 0, 0.15);
           color: #fff;
+          text-shadow: 0 0 4px rgba(255, 165, 0, 0.6);
         }
         
         .continue-indicator {
@@ -258,12 +260,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         
         /* Styling for hover dialogs */
         .hover-dialog {
-          border: 1px solid rgba(0, 191, 255, 0.4); /* Different border color for hover dialog */
-          box-shadow: 0 0 15px rgba(0, 191, 255, 0.2);
+          border: 1px solid rgba(255, 165, 0, 0.4); /* Border oranye untuk hover dialog */
+          box-shadow: 0 0 15px rgba(255, 140, 0, 0.25);
         }
         
         .hover-character {
-          background: rgba(0, 191, 255, 0.6); /* Different background for hover character name */
+          background: rgba(255, 140, 0, 0.7); /* Background oranye api untuk nama karakter hover */
           display: flex;
           align-items: center;
           gap: 0.5rem;
