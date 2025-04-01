@@ -104,21 +104,20 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     // If file doesn't exist, generate with ElevenLabs API
     console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
     
-    // Petunjuk emosi untuk ElevenLabs
+    // Petunjuk emosi untuk log dan memahami konteks
     let emotionPrompt = '';
-    let cleanText = text;
-    let processedText = '';
-    let finalCleanedText = '';
     
-    // Check if text has emotion marker
+    // Hapus tag emosi dari teks asli untuk dikirim ke ElevenLabs
+    let cleanText = text.replace(/\[(.*?)\]\s*/g, '').trim();
+    
+    // Check if text has emotion marker (untuk logging saja)
     const emotionMatch = text.match(/\[(.*?)\]/);
     if (emotionMatch) {
       emotionPrompt = emotionMatch[1].trim(); // Extract emotion from [emotion]
-      cleanText = text.replace(/\[(.*?)\]/, '').trim(); // Remove [emotion] marker from text
       console.log(`Emotion detected: "${emotionPrompt}" for text: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
     }
     
-    // Prepare emotion prompting based on text content
+    // Prepare emotion prompting based on text content (hanya untuk logging)
     if (!emotionMatch) {
       // Detect emotion from text content if not explicitly marked
       if (text.includes('fucking') || text.includes('shit') || text.includes('damn')) {
@@ -133,15 +132,8 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       }
     }
     
-    // Add emotion prompt to text if any
-    processedText = cleanText;
-    if (emotionPrompt) {
-      // Add emotion as tone instruction at beginning (ElevenLabs format)
-      processedText = `[${emotionPrompt}] ${cleanText}`;
-    }
-    
     // Normalize text - remove excessive whitespace and asterisks
-    finalCleanedText = processedText.replace(/\*/g, "").trim().replace(/\s+/g, ' ');
+    const finalCleanedText = cleanText.replace(/\*/g, "").trim().replace(/\s+/g, ' ');
     
     // Generate hash for the processed text
     const processedHash = generateSimpleHash(finalCleanedText);

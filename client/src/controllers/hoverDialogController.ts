@@ -14,26 +14,26 @@ export type HoverLinkType =
 const HOVER_DIALOGS = {
   // Saat Geralt sedang berbicara (interupsi)
   interruption: {
-    contact: "[irritated] Hmph... In a rush, are we? Fine. Tell me what you need done.",
-    social: "[dismissive] Not listening, huh? Fine. Decide after you've checked.",
+    contact: "Hmph... In a rush, are we? Fine. Tell me what you need done.",
+    social: "Not listening, huh? Fine. Decide after you've checked.",
   },
   // Saat Geralt sudah selesai berbicara
   completed: {
     contact:
-      "[approving] Straight to the point—I like that. Fine. Give me the contract.",
+      "Straight to the point—I like that. Fine. Give me the contract.",
     social:
-      "[neutral] Need to check first before deciding? Fine. Not like I'm in a hurry.",
+      "Need to check first before deciding? Fine. Not like I'm in a hurry.",
   },
   // Transisi antar kategori
   transition: {
     socialToContact:
-      "[impatient] Took your time, didn't you? Fine. Hand me the damn contract.",
-    contactToSocial: "[resigned] Fine. Go ahead, check it first.",
+      "Took your time, didn't you? Fine. Hand me the damn contract.",
+    contactToSocial: "Fine. Go ahead, check it first.",
   },
   // Saat user bermain-main (bolak-balik hover)
   annoyance: {
-    firstLevel: "[annoyed] Talk... You got a job, or just wasting my time?",
-    secondLevel: "[frustrated] Arghh... whatever you want. I'm done.",
+    firstLevel: "Talk... You got a job, or just wasting my time?",
+    secondLevel: "Arghh... whatever you want. I'm done.",
   },
 };
 
