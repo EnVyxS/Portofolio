@@ -104,32 +104,133 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     // If file doesn't exist, generate with ElevenLabs API
     console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
     
-    // Petunjuk emosi untuk log dan memahami konteks
-    let emotionPrompt = '';
+    // Analisis tone emosi Geralt untuk text-to-speech
+    let tone = '';
+    let voiceSettings = null;
     
     // Hapus tag emosi dari teks asli untuk dikirim ke ElevenLabs
     let cleanText = text.replace(/\[(.*?)\]\s*/g, '').trim();
     
-    // Check if text has emotion marker (untuk logging saja)
-    const emotionMatch = text.match(/\[(.*?)\]/);
-    if (emotionMatch) {
-      emotionPrompt = emotionMatch[1].trim(); // Extract emotion from [emotion]
-      console.log(`Emotion detected: "${emotionPrompt}" for text: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
-    }
+    console.log(`Analyzing tone for text: "${cleanText.substring(0, 50)}${cleanText.length > 50 ? '...' : ''}"`); // Added more verbose logging
     
-    // Prepare emotion prompting based on text content (hanya untuk logging)
-    if (!emotionMatch) {
-      // Detect emotion from text content if not explicitly marked
-      if (text.includes('fucking') || text.includes('shit') || text.includes('damn')) {
-        emotionPrompt = 'angry, frustrated';
-        console.log(`Auto-detected emotion: "angry" for text with strong language`);
-      } else if (text.includes('Hmph') || text.includes('Tch') || text.includes('Pfftt')) {
-        emotionPrompt = 'dismissive, irritated';
-        console.log(`Auto-detected emotion: "dismissive" for text with scoffs`);
-      } else if (text.includes('?')) {
-        emotionPrompt = 'questioning, curious';
-        console.log(`Auto-detected emotion: "questioning" for text with question mark`);
-      }
+    // Deteksi tone dari teks (simplifikasi, untuk sistem yang lebih lengkap gunakan getToneForDialog)
+    if (text.includes('fucking') || text.includes('shit') || text.includes('damn')) {
+      tone = 'ANGRY';
+      console.log(`Auto-detected tone: ANGRY for text with strong language`);
+      
+      // Voice settings untuk Angry tone
+      voiceSettings = {
+        stability: 0.25,      // Less stable for anger
+        similarity_boost: 0.75,
+        style: 0.80,          // More stylistic expression
+        use_speaker_boost: true,
+        speaking_rate: 0.85   // Faster speech when angry
+      };
+    } 
+    else if (text.includes('tired') || text.includes('exhausted') || text.includes('Haahhhh')) {
+      tone = 'TIRED';
+      console.log(`Auto-detected tone: TIRED for text with exhaustion markers`);
+      
+      // Voice settings untuk Tired tone
+      voiceSettings = {
+        stability: 0.45,      // More stable when tired
+        similarity_boost: 0.75,
+        style: 0.55,          // Less expression
+        use_speaker_boost: true,
+        speaking_rate: 0.60   // Much slower when tired
+      };
+    }
+    else if (text.includes('Hmph') || text.includes('Tch') || text.includes('waste my time')) {
+      tone = 'ANNOYED';
+      console.log(`Auto-detected tone: ANNOYED for text with Geralt's typical annoyance markers`);
+      
+      // Voice settings untuk Annoyed tone
+      voiceSettings = {
+        stability: 0.30,      // Less stable for annoyance
+        similarity_boost: 0.75,
+        style: 0.70,          // More expressive
+        use_speaker_boost: true,
+        speaking_rate: 0.75   // Slightly faster for impatience
+      };
+    }
+    else if (text.includes('Heh') || text.includes('hilarious') || text.includes('real')) {
+      tone = 'SARCASTIC';
+      console.log(`Auto-detected tone: SARCASTIC for text with Geralt's sarcasm`);
+      
+      // Voice settings untuk Sarcastic tone
+      voiceSettings = {
+        stability: 0.30,      // Less stable for varied tone
+        similarity_boost: 0.75,
+        style: 0.85,          // High stylistic variation
+        use_speaker_boost: true,
+        speaking_rate: 0.72   // Slightly faster for sharp delivery
+      };
+    }
+    else if (text.includes('doesn\'t matter') || text.includes('breathing') || text.includes('Hm')) {
+      tone = 'NUMB';
+      console.log(`Auto-detected tone: NUMB for text with emotional flatness`);
+      
+      // Voice settings untuk Numb tone
+      voiceSettings = {
+        stability: 0.50,      // Very stable for monotone effect
+        similarity_boost: 0.75,
+        style: 0.30,          // Much less expression
+        use_speaker_boost: true,
+        speaking_rate: 0.75   // Normal pace but flat
+      };
+    }
+    else if (text.includes('maybe') || text.includes('why am I') || text.includes('perhaps')) {
+      tone = 'CONTEMPLATIVE';
+      console.log(`Auto-detected tone: CONTEMPLATIVE for thoughtful text`);
+      
+      // Voice settings untuk Contemplative tone
+      voiceSettings = {
+        stability: 0.38,      // Moderate stability
+        similarity_boost: 0.75,
+        style: 0.55,          // Moderate expression
+        use_speaker_boost: true,
+        speaking_rate: 0.65   // Slower, thoughtful pace
+      };
+    }
+    else if (text.includes('what else') || text.includes('that\'s how it is') || text.includes('hoping')) {
+      tone = 'RESIGNED';
+      console.log(`Auto-detected tone: RESIGNED for text showing acceptance`);
+      
+      // Voice settings untuk Resigned tone
+      voiceSettings = {
+        stability: 0.40,      // More stable for resignation
+        similarity_boost: 0.75,
+        style: 0.50,          // Less expressive
+        use_speaker_boost: true,
+        speaking_rate: 0.65   // Slower, resigned pace
+      };
+    }
+    else if (text.includes('empty') || text.includes('nothing') || text.includes('hollow')) {
+      tone = 'HOLLOW';
+      console.log(`Auto-detected tone: HOLLOW for text with emptiness`);
+      
+      // Voice settings untuk Hollow tone
+      voiceSettings = {
+        stability: 0.45,      // More stable for emptiness
+        similarity_boost: 0.75,
+        style: 0.40,          // Less emotional expression
+        use_speaker_boost: true,
+        speaking_rate: 0.68   // Slightly slower, empty
+      };
+    }
+    else {
+      // Default tone is slightly resigned (Geralt's baseline)
+      tone = 'RESIGNED';
+      console.log(`Using default RESIGNED tone for text: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
+      
+      // Default voice settings
+      voiceSettings = {
+        stability: 0.35,      // Balance between consistency and variation
+        similarity_boost: 0.75,
+        style: 0.65,          // Moderate expression
+        use_speaker_boost: true,
+        speaking_rate: 0.70   // Slightly slower like Geralt speaks
+      };
     }
     
     // Normalize text - remove excessive whitespace and asterisks
@@ -159,6 +260,21 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     // ElevenLabs API endpoint
     const apiUrl = `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`;
     
+    // Log voice settings yang digunakan
+    const finalVoiceSettings = voiceSettings || voice_settings || {
+      stability: 0.35, // Sedikit lebih rendah untuk ekspresi lebih natural
+      similarity_boost: 0.75, // Lebih rendah untuk memberikan fleksibilitas emosi
+      style: 0.65, // Dinaikkan untuk memberikan lebih banyak nuansa emosional
+      use_speaker_boost: true,
+      speaking_rate: 0.70, // Sedikit lebih lambat seperti Geralt berbicara
+    };
+    
+    console.log(`Using voice settings for "${tone}" tone:`, {
+      stability: finalVoiceSettings.stability,
+      style: finalVoiceSettings.style,
+      speaking_rate: finalVoiceSettings.speaking_rate
+    });
+    
     const response = await axios({
       method: 'post',
       url: apiUrl,
@@ -170,13 +286,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       data: {
         text: finalCleanedText,
         model_id: 'eleven_monolingual_v1',
-        voice_settings: voice_settings || {
-          stability: 0.35, // Sedikit lebih rendah untuk ekspresi lebih natural
-          similarity_boost: 0.75, // Lebih rendah untuk memberikan fleksibilitas emosi
-          style: 0.65, // Dinaikkan untuk memberikan lebih banyak nuansa emosional
-          use_speaker_boost: true,
-          speaking_rate: 0.70, // Sedikit lebih lambat seperti Geralt berbicara
-        }
+        voice_settings: finalVoiceSettings
       },
       responseType: 'arraybuffer'
     });
