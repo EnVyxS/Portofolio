@@ -39,6 +39,17 @@ function isDialogPersistent(text: string): boolean {
   return text.length > 20;
 }
 
+// Ekstrak emosi dari dialog text - format [EMOSI] di awal text
+function extractEmotion(text: string): { emotion: string | null; cleanText: string } {
+  const emotionMatch = text.match(/^\[(.*?)\]/);
+  if (emotionMatch) {
+    const emotion = emotionMatch[1].trim().toUpperCase();
+    const cleanText = text.replace(emotionMatch[0], '').trim();
+    return { emotion, cleanText };
+  }
+  return { emotion: null, cleanText: text };
+}
+
 interface DialogBoxProps {
   onDialogComplete?: () => void;
 }
@@ -46,6 +57,7 @@ interface DialogBoxProps {
 const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const [text, setText] = useState<string>('');
   const [characterName, setCharacterName] = useState<string>('');
+  const [emotion, setEmotion] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [isDialogFinished, setIsDialogFinished] = useState<boolean>(false);
   const [dialogSource, setDialogSource] = useState<'main' | 'hover'>('main');
@@ -173,7 +185,10 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     // Start the dialog sequence hanya jika user belum berinteraksi dengan hover dialog
     if (!hoverDialogController.hasUserInteractedWithHover()) {
       dialogController.startDialog((text, complete) => {
-        setText(text);
+        // Ekstrak emosi dari text jika ada
+        const { emotion: extractedEmotion, cleanText } = extractEmotion(text);
+        setText(cleanText);
+        setEmotion(extractedEmotion);
         setIsComplete(complete);
         setDialogSource('main');
         
@@ -190,7 +205,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     
     // Set hover dialog callback
     hoverDialogController.setHoverTextCallback((text, complete) => {
-      setText(text);
+      const { emotion: extractedEmotion, cleanText } = extractEmotion(text);
+      setText(cleanText);
+      setEmotion(extractedEmotion);
       setIsComplete(complete);
       setDialogSource('hover');
       setCharacterName('DIVA JUAN NUR TAQARRUB'); // Dialog hover dari DIVA (idle warnings juga)
@@ -218,9 +235,10 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
       <div className={`dialog-box ${dialogSource === 'hover' ? 'hover-dialog' : ''}`}>
-        <div className={`character-name ${dialogSource === 'hover' ? 'hover-character' : ''}`}>
+        <div className={`character-name ${dialogSource === 'hover' ? 'hover-character' : ''} ${emotion ? 'with-emotion' : ''}`}>
           {characterName}
           {dialogSource === 'hover' && <span className="hover-indicator">⟳</span>}
+          {emotion && <span className={`emotion-indicator ${emotion.toLowerCase()}`}>[{emotion}]</span>}
         </div>
         <div className="dialog-text">{text}</div>
         <div className="dialog-actions">
@@ -465,6 +483,49 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           font-size: 0.8rem;
           animation: spin 2s linear infinite;
           display: inline-block;
+        }
+        
+        .with-emotion {
+          min-width: 200px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-right: 0.8rem;
+        }
+        
+        .emotion-indicator {
+          font-size: 0.7rem;
+          font-weight: normal;
+          font-style: italic;
+          margin-left: 0.5rem;
+          letter-spacing: 0.5px;
+          color: rgba(200, 180, 140, 0.8);
+          text-transform: none;
+        }
+        
+        /* Styling untuk berbagai emosi */
+        .emotion-indicator.angry {
+          color: rgba(220, 100, 80, 0.9);
+        }
+        
+        .emotion-indicator.worried,
+        .emotion-indicator.concerned {
+          color: rgba(200, 160, 60, 0.9);
+        }
+        
+        .emotion-indicator.sad,
+        .emotion-indicator.melancholic {
+          color: rgba(100, 150, 220, 0.9);
+        }
+        
+        .emotion-indicator.annoyed,
+        .emotion-indicator.irritated {
+          color: rgba(220, 120, 60, 0.9);
+        }
+        
+        .emotion-indicator.neutral,
+        .emotion-indicator.calm {
+          color: rgba(180, 180, 180, 0.9);
         }
         
         @keyframes spin {
