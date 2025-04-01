@@ -26,7 +26,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     // Request body default
     const requestBody = {
       text: text,
-      model_id: "eleven_turbo_v2", // Model terbaru untuk lebih natural
+      model_id: "b2FFMFMuLlPlyWk5NuQW", // Model ID yang diminta
       voice_settings: voice_settings || {
         stability: 0.5,
         similarity_boost: 0.75,
