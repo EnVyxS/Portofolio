@@ -100,7 +100,7 @@ const GameContactCard: React.FC = () => {
     <div className="layout-container">
       {/* Main container with proper structure */}
       <div className="content-wrapper">
-        {/* Unified card component containing both header and links */}
+        {/* Unified card component containing links */}
         <motion.div
           ref={cardRef}
           className="unified-card"
@@ -108,11 +108,15 @@ const GameContactCard: React.FC = () => {
           animate="visible"
           variants={containerVariants}
           whileHover={{
-            boxShadow: "0 5px 15px rgba(249, 115, 22, 0.1)", // Efek glow lebih minimal
-            scale: 1.01, // Sangat sedikit membesar
+            boxShadow: "0 3px 10px rgba(249, 115, 22, 0.15)", // Subtle glow
+            scale: 1.02, // Slight grow effect
+            opacity: 0.35, // Increase opacity on hover for better visibility
           }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.4 }}
         >
+          {/* Orange accent corner for design element */}
+          <div className="card-accent-corner"></div>
+          
           {/* Social links section */}
           <motion.div className="social-links" variants={itemVariants}>
             {socialLinks.map((link) => (
@@ -122,13 +126,19 @@ const GameContactCard: React.FC = () => {
                 name={link.name}
                 url={link.url}
                 icon={React.cloneElement(link.icon as React.ReactElement, { 
-                  size: "clamp(16px, 4vw, 20px)" // Ukuran ikon lebih kecil
+                  size: "clamp(14px, 3vw, 18px)" // Even smaller icons
                 })}
                 color={link.color}
                 hoverColor={link.hoverColor}
               />
             ))}
           </motion.div>
+          
+          {/* Card corner decorations for Dark Souls aesthetic */}
+          <div className="card-corner top-left"></div>
+          <div className="card-corner top-right"></div>
+          <div className="card-corner bottom-left"></div>
+          <div className="card-corner bottom-right"></div>
         </motion.div>
       </div>
 
@@ -149,21 +159,22 @@ const GameContactCard: React.FC = () => {
           flex-direction: column;
           align-items: center;
           width: 100%;
-          max-width: 600px;
+          max-width: 500px;
           margin: 0 auto;
-          position: relative;
-          padding-top: 10vh; /* Positioned even lower to avoid RPG dialog box overlap */
+          position: absolute;
+          top: 8vh; /* Positioned much higher to avoid dialog box overlap */
+          right: 5vw; /* Position to the right side */
         }
 
         /* Unified card that contains all elements */
         .unified-card {
-          background: rgba(15, 23, 42, 0.2); /* Sangat transparan untuk menampilkan background */
-          border: 1px solid rgba(249, 115, 22, 0.1); /* Border sangat halus dengan aksen api */
-          backdrop-filter: blur(2px); /* Blur lebih halus */
-          opacity: 0.2; /* Opacity sangat rendah seperti diminta */
-          border-radius: 8px; /* Border radius lebih kecil untuk gaya game */
-          padding: clamp(0.8rem, 2vw, 1.5rem) clamp(0.8rem, 2vw, 1.2rem); /* Responsive padding dikurangi */
-          max-width: min(350px, 85%); /* Ukuran maksimal lebih kecil */
+          background: rgba(15, 23, 42, 0.15); /* More transparent to show background */
+          border: 1px solid rgba(249, 115, 22, 0.1); /* Very subtle border */
+          backdrop-filter: blur(1px); /* Very light blur */
+          opacity: 0.25; /* Very low opacity as requested */
+          border-radius: 8px; /* Smaller border radius for game style */
+          padding: clamp(0.5rem, 1.5vw, 0.8rem) clamp(0.5rem, 1.5vw, 0.8rem); /* Smaller padding */
+          max-width: min(260px, 60%); /* Much smaller max width */
           width: 100%;
           box-shadow:
             0 8px 20px rgba(0, 0, 0, 0.15),
@@ -192,39 +203,106 @@ const GameContactCard: React.FC = () => {
           opacity: 0.9;
         }
 
+        /* Dark Souls style corner elements */
+        .card-corner {
+          position: absolute;
+          width: 8px;
+          height: 8px;
+          border: 1px solid rgba(249, 115, 22, 0.4);
+          z-index: 2;
+        }
+        
+        .top-left {
+          top: 3px;
+          left: 3px;
+          border-right: none;
+          border-bottom: none;
+        }
+        
+        .top-right {
+          top: 3px;
+          right: 3px;
+          border-left: none;
+          border-bottom: none;
+        }
+        
+        .bottom-left {
+          bottom: 3px;
+          left: 3px;
+          border-right: none;
+          border-top: none;
+        }
+        
+        .bottom-right {
+          bottom: 3px;
+          right: 3px;
+          border-left: none;
+          border-top: none;
+        }
+        
+        /* Orange accent corner */
+        .card-accent-corner {
+          position: absolute;
+          top: -2px;
+          right: -2px;
+          width: 20px;
+          height: 20px;
+          background: linear-gradient(135deg, transparent 50%, rgba(249, 115, 22, 0.3) 50%);
+          z-index: 2;
+        }
+        
         .social-links {
           display: flex;
           flex-direction: column;
-          gap: 0.8rem; /* Spacing antara link dikurangi */
+          gap: 0.6rem; /* Even smaller spacing between links */
           width: 100%;
-          margin-bottom: 0.8rem; /* Bottom margin dikurangi */
+          margin-bottom: 0.5rem; /* Reduced bottom margin */
         }
 
         /* Media query with simpler clamp and consistent rem/vh usage */
         @media (max-width: 768px) {
           .content-wrapper {
-            padding-top: clamp(30vh, 36vh, 40vh); /* Responsive based on viewport height */
+            top: 12vh; /* Position higher on tablets */
+            right: 2vw; /* Closer to edge on tablets */
+            max-width: 320px;
+          }
+          
+          .unified-card {
+            max-width: min(220px, 80%); /* Slightly wider on tablets but still small */
           }
         }
 
         @media (max-width: 640px) {
+          .content-wrapper {
+            top: 15vh; /* Even higher position on mobile */
+            right: 0; /* Center on small screens */
+            left: 0;
+            margin: 0 auto;
+          }
+          
           .social-links {
-            gap: clamp(0.6rem, 2vh, 1rem); /* Adaptive spacing based on screen size */
+            gap: clamp(0.4rem, 1.5vh, 0.8rem); /* Tighter spacing on mobile */
+          }
+          
+          .unified-card {
+            max-width: min(200px, 70%); /* Even smaller on mobile */
           }
         }
 
         /* Landscape mode on mobile devices */
         @media (max-height: 500px) and (orientation: landscape) {
           .content-wrapper {
-            padding-top: 20vh; /* Lower in landscape mode */
+            top: 10vh; /* Adjust for landscape mode */
+            right: 5vw;
           }
 
           .unified-card {
-            padding: clamp(0.8rem, 2vh, 1.2rem);
+            padding: 0.5rem;
+            max-width: 180px;
           }
 
           .social-links {
-            gap: 0.5rem; /* More compact in landscape */
+            gap: 0.4rem; /* Very compact in landscape */
           }
         }
       `}</style>

@@ -175,27 +175,27 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
         .social-link {
           display: flex;
           align-items: center;
-          padding: clamp(0.6rem, 2vw, 0.85rem) clamp(0.7rem, 3vw, 1rem); /* Responsive padding */
-          border-radius: 6px; /* Lebih kecil untuk kesan game */
+          padding: clamp(0.35rem, 1.2vw, 0.5rem) clamp(0.4rem, 2vw, 0.6rem); /* Smaller padding */
+          border-radius: 4px; /* Smaller border radius */
           text-decoration: none;
-          background-color: rgba(15, 23, 42, 0.3); /* Lebih transparan */
-          transition: all 0.3s ease;
-          border: 1px solid rgba(249, 115, 22, 0.15); /* Warna border kemerahan sesuai api */
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          background-color: rgba(15, 23, 42, 0.2); /* More transparent */
+          transition: all 0.25s ease;
+          border: 1px solid rgba(249, 115, 22, 0.12); /* Subtler border */
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); /* Lighter shadow */
           width: 100%;
-          -webkit-tap-highlight-color: transparent; /* Remove default tap highlight on mobile */
-          touch-action: manipulation; /* More responsive for touch */
-          color: rgba(255, 255, 255, 0.85); /* Warna text lebih menyatu */
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          color: rgba(255, 255, 255, 0.85);
         }
 
         .icon-container {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: clamp(32px, 6vw, 40px); /* Responsive icon size */
-          height: clamp(32px, 6vw, 40px); /* Responsive icon size */
-          border-radius: 8px;
-          margin-right: clamp(0.8rem, 3vw, 1.2rem); /* Responsive margin */
+          width: clamp(22px, 4vw, 28px); /* Smaller icon container */
+          height: clamp(22px, 4vw, 28px); /* Smaller icon container */
+          border-radius: 4px;
+          margin-right: clamp(0.5rem, 2vw, 0.7rem); /* Smaller margin */
           transition: all 0.3s ease;
         }
 
@@ -204,8 +204,8 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
           align-items: center;
           justify-content: space-between;
           flex-grow: 1;
-          gap: clamp(1.5rem, 4vw, 2.5rem); /* Wider gap between name and arrow */
-          font-size: clamp(0.9rem, 3vw, 1rem); /* Responsive font size */
+          gap: clamp(0.8rem, 2vw, 1.2rem); /* Smaller gap */
+          font-size: clamp(0.7rem, 2.5vw, 0.85rem); /* Smaller font */
         }
 
         .glitch {
