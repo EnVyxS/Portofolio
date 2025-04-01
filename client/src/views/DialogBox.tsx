@@ -201,12 +201,20 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         </div>
         <div className="dialog-text">{text}</div>
         <div className="dialog-actions">
+          {isComplete ? (
+            isDialogPersistent(text) ? (
+              <div className="waiting-interaction-hint">Waiting for your action...</div>
+            ) : (
+              <div className="auto-continue-hint">Auto-continues in a moment...</div>
+            )
+          ) : null}
+          
           <button 
             className={`dialog-continue ${dialogSource === 'hover' ? 'hover-continue' : ''}`}
             onClick={handleContinue}
           >
-            {isComplete ? (dialogSource === 'main' ? 'Next' : '') : 'Skip'}
-            <span className="continue-indicator">{isComplete ? (dialogSource === 'main' ? '▼' : '') : '▶'}</span>
+            {isComplete ? (dialogSource === 'main' ? 'Next' : 'Continue') : 'Skip'}
+            <span className="continue-indicator">{isComplete ? (dialogSource === 'main' ? '▼' : '▼') : '▶'}</span>
           </button>
         </div>
       </div>
@@ -282,11 +290,28 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         
         .dialog-actions {
           display: flex;
-          justify-content: flex-end;
+          justify-content: space-between;
+          align-items: center;
           position: relative;
           border-top: 1px solid rgba(150, 130, 100, 0.15);
           padding-top: 0.6rem;
           margin-top: 0.5rem;
+        }
+        
+        .auto-continue-hint {
+          font-size: 0.8rem;
+          color: rgba(180, 160, 120, 0.5);
+          font-style: italic;
+          animation: pulse 2s infinite;
+          padding-left: 1rem;
+        }
+        
+        .waiting-interaction-hint {
+          font-size: 0.8rem;
+          color: rgba(200, 180, 100, 0.7);
+          font-weight: bold;
+          animation: pulse 1.5s infinite;
+          padding-left: 1rem;
         }
         
         /* Ornamen dekoratif untuk tombol continue */
