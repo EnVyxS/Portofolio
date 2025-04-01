@@ -163,22 +163,22 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
 
         .approach-button {
           padding: 1rem 2.2rem;
-          font-family: 'Cinzel', serif;
-          font-size: clamp(1.1rem, 4vw, 1.8rem);
-          font-weight: 700;
-          color: #f8fafc;
-          background: rgba(0, 0, 0, 0.4);
-          border: 1px solid rgba(255, 165, 0, 0.5);
-          border-radius: 4px;
+          font-family: 'Luminari', 'Dragon Hunter', 'Cinzel', serif;
+          font-size: clamp(1rem, 3.5vw, 1.7rem);
+          font-weight: 600;
+          color: rgba(248, 250, 252, 0.8); /* Opacity 0.8 untuk text */
+          background: rgba(0, 0, 0, 0.35);
+          border: 1px solid rgba(255, 165, 0, 0.4);
+          border-radius: 2px;
           cursor: pointer;
           text-transform: uppercase;
-          letter-spacing: 2px;
+          letter-spacing: 3px; /* Sedikit lebih besar letter spacing */
           position: relative;
           overflow: hidden;
           transition: all 0.3s ease;
-          text-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
-          box-shadow: 0 0 25px rgba(249, 115, 22, 0.4), inset 0 0 15px rgba(255, 165, 0, 0.2);
-          backdrop-filter: blur(3px);
+          text-shadow: 0 0 8px rgba(255, 165, 0, 0.4);
+          box-shadow: 0 0 25px rgba(249, 115, 22, 0.3), inset 0 0 15px rgba(255, 165, 0, 0.15);
+          backdrop-filter: blur(2px);
         }
 
         .approach-button::before {
@@ -220,36 +220,18 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
           box-shadow: 0 0 35px rgba(255, 140, 0, 0.7), inset 0 0 20px rgba(255, 140, 0, 0.4);
         }
 
-        /* Floating embers */
-        .floating-ember {
-          position: absolute;
-          background: radial-gradient(circle, rgba(255,140,0,0.8) 0%, rgba(255,69,0,0.4) 70%, rgba(255,69,0,0) 100%);
-          border-radius: 50%;
-          z-index: 2;
-          pointer-events: none;
-        }
+        /* CSS yang tidak digunakan lagi (dihapus) */
         
-        /* Mouse follower glow */
-        .cursor-glow {
-          position: fixed;
-          width: 100px;
-          height: 100px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(255,140,0,0.3) 0%, rgba(255,140,0,0.1) 50%, rgba(255,140,0,0) 100%);
-          pointer-events: none;
-          z-index: 3;
-        }
-        
-        /* Boss name display */
+        /* Boss name display - modernized */
         .boss-name {
-          font-family: 'Cinzel', serif;
-          font-size: 1.8rem;
-          font-weight: 700;
-          color: #f1f1f1;
+          font-family: 'Trajan Pro', 'Luminari', 'Cinzel', serif;
+          font-size: 1.7rem;
+          font-weight: 500;
+          color: rgba(241, 241, 241, 0.85); /* Opacity berkurang untuk text */
           text-transform: uppercase;
-          letter-spacing: 3px;
-          text-shadow: 0 0 10px rgba(255,165,0,0.8);
-          margin-bottom: 1.5rem;
+          letter-spacing: 4px;
+          text-shadow: 0 0 12px rgba(255,165,0,0.6);
+          margin-bottom: 1.7rem;
           position: relative;
           display: inline-block;
         }
@@ -260,10 +242,10 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
           bottom: -10px;
           left: 50%;
           transform: translateX(-50%);
-          width: 120%;
-          height: 6px;
-          background: linear-gradient(90deg, rgba(255,165,0,0) 0%, rgba(255,165,0,0.8) 50%, rgba(255,165,0,0) 100%);
-          border-radius: 3px;
+          width: 130%;
+          height: 4px; /* Lebih tipis dan elegan */
+          background: linear-gradient(90deg, rgba(255,165,0,0) 0%, rgba(255,165,0,0.7) 50%, rgba(255,165,0,0) 100%);
+          border-radius: 2px;
         }
         
         /* Floating embers */
