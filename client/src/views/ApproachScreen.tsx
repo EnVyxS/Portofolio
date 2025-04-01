@@ -54,39 +54,31 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     };
   }, []);
 
-  // Fungsi untuk memainkan efek suara dengan sequence
+  // Fungsi untuk memainkan efek suara
   const playSoulsSound = () => {
     try {
       // Play menu sound first (short select sound)
       if (menuSoundRef.current) {
         menuSoundRef.current.currentTime = 0;
-        menuSoundRef.current.volume = 0.5; // Set volume untuk menu sound
-        
-        // Play menu sound dan tunggu selesai
         menuSoundRef.current.play()
           .then(() => {
             // After menu sound, play item pickup sound
             setTimeout(() => {
               if (itemSoundRef.current) {
                 itemSoundRef.current.currentTime = 0;
-                itemSoundRef.current.volume = 0.6; // Set volume untuk item sound (lebih keras)
-                
-                // Play item sound dan tunggu selesai
                 itemSoundRef.current.play()
                   .then(() => {
                     // After item sound, play bonfire sound
                     setTimeout(() => {
                       if (bonfireSoundRef.current) {
                         bonfireSoundRef.current.currentTime = 0;
-                        bonfireSoundRef.current.volume = 0.4; // Set volume untuk bonfire sound
-                        bonfireSoundRef.current.play()
-                          .catch(e => console.log("Couldn't play bonfire sound:", e));
+                        bonfireSoundRef.current.play().catch(e => console.log("Couldn't play bonfire sound:", e));
                       }
-                    }, 300); // Delay lebih lama untuk efek dramatis
+                    }, 300);
                   })
                   .catch(e => console.log("Couldn't play item sound:", e));
               }
-            }, 200); // Sedikit delay antara menu sound dan item sound
+            }, 100);
           })
           .catch(e => console.log("Couldn't play menu sound:", e));
       }
