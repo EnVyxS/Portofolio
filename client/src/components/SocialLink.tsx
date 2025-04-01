@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface SocialLinkProps {
   name: string;
@@ -12,204 +12,163 @@ interface SocialLinkProps {
 const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverColor }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isGlitching, setIsGlitching] = useState(false);
-
-  const triggerGlitch = () => {
+  
+  // Trigger the glitch effect when hovering
+  const handleMouseEnter = () => {
+    setIsHovered(true);
     setIsGlitching(true);
-    // Random timing for more realistic glitch effect
-    const glitchDuration = 300 + Math.random() * 300; // Between 300-600ms
-    setTimeout(() => setIsGlitching(false), glitchDuration);
+    
+    // Reset glitch after a short time
+    setTimeout(() => {
+      setIsGlitching(false);
+    }, 500);
   };
   
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (url.startsWith('mailto:')) {
-      e.preventDefault();
-      window.location.href = url;
-    }
+  const handleMouseLeave = () => {
+    setIsHovered(false);
   };
-  
+
   return (
     <motion.a
       href={url}
-      target={url.startsWith('mailto:') ? '_self' : '_blank'}
+      target="_blank"
       rel="noopener noreferrer"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className="social-link"
-      onClick={handleClick}
-      onMouseEnter={triggerGlitch}
-      onMouseLeave={triggerGlitch}
-      onTouchStart={triggerGlitch} /* Support for touch devices */
-      onTouchEnd={triggerGlitch} /* Support for touch devices */
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ 
+        type: 'spring', 
+        stiffness: 300, 
+        damping: 20,
+        delay: 0.1
+      }}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '0.75rem',
+        borderRadius: '8px',
+        backgroundColor: isHovered ? `${hoverColor}22` : 'rgba(30, 41, 59, 0.5)',
+        backdropFilter: 'blur(5px)',
+        border: `1px solid ${isHovered ? hoverColor : 'rgba(148, 163, 184, 0.2)'}`,
+        color: isHovered ? hoverColor : color,
+        textDecoration: 'none',
+        transition: 'all 0.3s ease',
+        position: 'relative',
+        overflow: 'hidden',
+        minWidth: '80px',
+      }}
     >
-      <div className={`icon-container ${isGlitching ? "glitch" : ""}`}>
-        <div className="icon" style={{ color: hoverColor }}>
-          {icon}
-        </div>
-      </div>
-      <div className={`link-text ${isGlitching ? "glitch" : ""}`}>
-        <span className="link-name">{name}</span>
-        <motion.span
-          className="link-arrow"
-          animate={{ x: isGlitching ? [0, -2, 2, 0] : 0 }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
+      {/* Icon */}
+      <div 
+        className="social-icon" 
+        style={{ 
+          marginBottom: '0.5rem',
+          position: 'relative',
+          zIndex: 1
+        }}
+      >
+        {/* Normal icon */}
+        <motion.div
+          animate={{
+            opacity: isGlitching ? [1, 0.5, 0.8, 0.2, 1] : 1,
+            x: isGlitching ? [0, -3, 5, -2, 0] : 0,
+            scale: isHovered ? 1.2 : 1
+          }}
+          transition={{
+            duration: isGlitching ? 0.5 : 0.3,
+            times: isGlitching ? [0, 0.2, 0.4, 0.6, 1] : undefined,
+          }}
         >
-          →
-        </motion.span>
+          {icon}
+        </motion.div>
+        
+        {/* Glitch effect - red channel */}
+        {isGlitching && (
+          <motion.div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              color: 'rgba(255,0,0,0.8)',
+              mixBlendMode: 'screen',
+              zIndex: 0,
+            }}
+            animate={{
+              opacity: [0.5, 0.8, 0.5, 0],
+              x: [-2, 1, -1, 0],
+              y: [1, -1, 1, 0]
+            }}
+            transition={{
+              duration: 0.5,
+              times: [0, 0.3, 0.6, 1],
+            }}
+          >
+            {icon}
+          </motion.div>
+        )}
+        
+        {/* Glitch effect - blue channel */}
+        {isGlitching && (
+          <motion.div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              color: 'rgba(0,255,255,0.8)',
+              mixBlendMode: 'screen',
+              zIndex: 0,
+            }}
+            animate={{
+              opacity: [0.5, 0.8, 0.5, 0],
+              x: [2, -1, 1, 0],
+              y: [-1, 1, -1, 0]
+            }}
+            transition={{
+              duration: 0.5,
+              times: [0, 0.3, 0.6, 1],
+            }}
+          >
+            {icon}
+          </motion.div>
+        )}
       </div>
-
-      <style>{`
-        @keyframes glitch {
-          0% {
-            text-shadow:
-              2px 0 rgba(255, 0, 0, 0.75),
-              -2px 0 rgba(0, 0, 255, 0.75);
-            transform: skewX(0deg) scale(1);
-            opacity: 1;
-          }
-          10% {
-            text-shadow:
-              -1.5px 0 rgba(255, 0, 0, 0.75),
-              1.5px 0 rgba(0, 255, 255, 0.75);
-            transform: skewX(2deg) scale(1.01);
-            opacity: 0.9;
-          }
-          20% {
-            text-shadow:
-              1px 0 rgba(255, 0, 0, 0.75),
-              -1px 0 rgba(0, 0, 255, 0.75);
-            transform: skewX(-1.5deg) scale(0.99);
-            opacity: 1;
-          }
-          30% {
-            text-shadow:
-              2.5px 0 rgba(0, 255, 0, 0.75),
-              -2.5px 0 rgba(255, 0, 255, 0.75);
-            transform: skewX(3deg) scale(1.02);
-            opacity: 0.8;
-          }
-          40% {
-            text-shadow:
-              -1px 0 rgba(255, 0, 0, 0.75),
-              1px 0 rgba(0, 0, 255, 0.75);
-            transform: skewX(-2deg) scale(0.98);
-            opacity: 1;
-          }
-          50% {
-            text-shadow:
-              3px 0 rgba(255, 0, 0, 0.6),
-              -3px 0 rgba(0, 255, 255, 0.6);
-            transform: skewX(5deg) scale(1.01);
-            opacity: 0.9;
-          }
-          60% {
-            text-shadow:
-              -2px 0 rgba(255, 0, 0, 0.75),
-              2px 0 rgba(0, 0, 255, 0.75);
-            transform: skewX(-3deg) scale(1);
-            opacity: 1;
-          }
-          70% {
-            text-shadow:
-              2px 0 rgba(0, 255, 0, 0.7),
-              -2px 0 rgba(255, 0, 255, 0.7);
-            transform: skewX(2deg) scale(1.02);
-            opacity: 0.85;
-          }
-          80% {
-            text-shadow:
-              -1px 0 rgba(255, 0, 0, 0.75),
-              1px 0 rgba(0, 0, 255, 0.75);
-            transform: skewX(-1deg) scale(0.98);
-            opacity: 1;
-          }
-          90% {
-            text-shadow:
-              1.5px 0 rgba(255, 0, 0, 0.75),
-              -1.5px 0 rgba(0, 255, 255, 0.75);
-            transform: skewX(1deg) scale(1.01);
-            opacity: 0.9;
-          }
-          100% {
-            text-shadow:
-              2px 0 rgba(255, 0, 0, 0.75),
-              -2px 0 rgba(0, 0, 255, 0.75);
-            transform: skewX(0deg) scale(1);
-            opacity: 1;
-          }
-        }
-
-        .social-link {
-          display: flex;
-          align-items: center;
-          padding: clamp(0.6rem, 2vw, 0.85rem) clamp(0.7rem, 3vw, 1rem); /* Responsive padding */
-          border-radius: 10px;
-          text-decoration: none;
-          background-color: rgba(15, 23, 42, 0.5);
-          transition: all 0.3s ease;
-          border: 1px solid rgba(255, 255, 255, 0.03);
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-          width: 100%;
-          -webkit-tap-highlight-color: transparent; /* Remove default tap highlight on mobile */
-          touch-action: manipulation; /* More responsive for touch */
-        }
-
-        .icon-container {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: clamp(32px, 6vw, 40px); /* Responsive icon size */
-          height: clamp(32px, 6vw, 40px); /* Responsive icon size */
-          border-radius: 8px;
-          margin-right: clamp(0.8rem, 3vw, 1.2rem); /* Responsive margin */
-          transition: all 0.3s ease;
-        }
-
-        .link-text {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          flex-grow: 1;
-          gap: clamp(1.5rem, 4vw, 2.5rem); /* Wider gap between name and arrow */
-          font-size: clamp(0.9rem, 3vw, 1rem); /* Responsive font size */
-        }
-
-        .glitch {
-          animation: glitch 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
-          position: relative;
-        }
-        
-        .glitch::before, .glitch::after {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          opacity: 0.1;
-          mix-blend-mode: overlay;
-          pointer-events: none;
-        }
-        
-        .glitch::before {
-          background: linear-gradient(90deg, transparent 5%, rgba(255, 0, 0, 0.3) 5%, rgba(255, 0, 0, 0.3) 10%, transparent 10%);
-          animation: glitch-stripe 0.3s ease-in-out infinite;
-        }
-        
-        .glitch::after {
-          background: linear-gradient(90deg, transparent 10%, rgba(0, 255, 255, 0.3) 10%, rgba(0, 255, 255, 0.3) 20%, transparent 20%);
-          animation: glitch-stripe 0.3s ease-in-out infinite reverse;
-        }
-        
-        @keyframes glitch-stripe {
-          0% {
-            background-position: 0 0;
-          }
-          100% {
-            background-position: 100% 0;
-          }
-        }
-      `}</style>
+      
+      {/* Name */}
+      <span
+        style={{
+          fontSize: '0.8rem',
+          fontWeight: 500,
+          transition: 'color 0.3s ease',
+          zIndex: 1,
+          position: 'relative'
+        }}
+      >
+        {name}
+      </span>
+      
+      {/* Glow effect on hover */}
+      {isHovered && (
+        <motion.div
+          className="link-glow"
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 0.8, scale: 1.5 }}
+          transition={{ duration: 0.5 }}
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '100%',
+            height: '100%',
+            background: `radial-gradient(circle at center, ${hoverColor}30 0%, ${hoverColor}00 70%)`,
+            zIndex: 0,
+          }}
+        />
+      )}
     </motion.a>
   );
 };
