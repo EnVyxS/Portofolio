@@ -136,8 +136,15 @@ class HoverDialogController {
 
   // Handler untuk hover event dari komponen SocialLink
   public handleHoverDialog(linkType: HoverLinkType): void {
-    // Jika sedang dalam proses hover handling, abaikan
-    if (this.isHandlingHover) return;
+    // Jika tidak ada link yang di-hover, reset saja
+    if (linkType === "none") {
+      return;
+    }
+    
+    // Force reset isHandlingHover jika hover event baru terjadi terlalu cepat setelah yang sebelumnya
+    if (this.isHandlingHover) {
+      this.isHandlingHover = false;
+    }
 
     // Jika sama dengan hover terakhir, abaikan
     if (this.lastHoveredLink === linkType) return;
@@ -163,6 +170,43 @@ class HoverDialogController {
     this.hoverTextCallback = callback;
   }
 
+  // Helper untuk mengecek apakah dialog perlu persistent
+  private isPersistent(text: string): boolean {
+    // Dialog yang mengandung pertanyaan biasanya persistent
+    if (text.includes("?")) {
+      return true;
+    }
+    
+    // Dialog dari kategori social biasanya persistent
+    const socialTexts = [
+      ...HOVER_DIALOGS.completed.social,
+      ...HOVER_DIALOGS.interruption.social
+    ];
+    if (socialTexts.includes(text)) {
+      return true;
+    }
+    
+    // Dialog dari kategori contact biasanya juga persistent
+    const contactTexts = [
+      ...HOVER_DIALOGS.completed.contact,
+      ...HOVER_DIALOGS.interruption.contact
+    ];
+    if (contactTexts.includes(text)) {
+      return true;
+    }
+    
+    // Dialog dari kategori transition tertentu yang persistent
+    const persistentTransitions = [
+      ...HOVER_DIALOGS.transition.contactToSocial
+    ];
+    if (persistentTransitions.includes(text)) {
+      return true;
+    }
+    
+    // Default tidak persistent
+    return false;
+  }
+
   // Typewriter effect untuk hover dialog
   private typeHoverText(text: string): void {
     // Stop any ongoing typing first
@@ -173,6 +217,11 @@ class HoverDialogController {
     this.currentText = "";
     this.charIndex = 0;
     this.isTypingHover = true;
+    
+    // Panggil callback di awal dengan teks kosong untuk memastikan dialog box muncul
+    if (this.hoverTextCallback) {
+      this.hoverTextCallback("", false);
+    }
 
     // Start typewriter effect
     this.typingInterval = setInterval(() => {
@@ -187,6 +236,16 @@ class HoverDialogController {
         this.isTypingHover = false;
         clearInterval(this.typingInterval as NodeJS.Timeout);
         this.typingInterval = null;
+        
+        // Cek apakah dialog ini adalah persistent berdasarkan teksnya
+        const isPersistent = this.isPersistent(this.fullText);
+        
+        if (isPersistent) {
+          console.log("Hover dialog adalah persistent, menunggu interaksi user");
+        } else {
+          console.log(`Hover dialog akan dismiss dalam 3000ms (non-persistent)`);
+        }
+        
         if (this.hoverTextCallback) {
           this.hoverTextCallback(this.currentText, true);
         }
