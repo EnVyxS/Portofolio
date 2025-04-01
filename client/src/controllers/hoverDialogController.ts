@@ -177,54 +177,36 @@ class HoverDialogController {
       return false;
     }
     
-    // Dialog yang mengandung pertanyaan biasanya perlu jawaban
-    if (text.includes('?')) {
-      return true;
-    }
-    
-    // Dialog dari kategori social biasanya persistent kecuali beberapa pengecualian
-    const persistentDialogs = [
-      // Social dialog yang memerlukan persistent
-      "Need to check first before deciding?",
-      "Want to know more about me first?",
-      "Curious about my past work?",
-      "Checking my credentials?",
-      "Due diligence, huh?",
-      
-      // Contact dialog yang memerlukan persistent
-      "Business it is then.",
-      "Contract details?",
-      "Talk business.",
-      
-      // Transisi yang persistent
-      "Satisfied with what you found?",
-      "Seen enough?",
-      "Research complete?",
-      "Not convinced yet?",
-      "Hmm. Still uncertain?"
-    ];
-    
-    for (const dialog of persistentDialogs) {
-      if (text.includes(dialog)) {
-        return true;
-      }
-    }
-    
-    // Dialog yang mengandung kata kunci berikut biasanya adalah statement, tidak perlu persistensi
+    // Dialog yang mengandung kata kunci berikut adalah statement, tidak perlu persistent (autoplay)
     const nonPersistentKeywords = [
-      "Hmm", "Tch", "Whatever", "Go look", "I'm done", "Lost interest",
-      "Not listening", "Cutting to the chase", "My story", "Straight to the",
-      "Hmph", "Not like I'm", "Go on then", "Enough of this"
+      "Hmm", "Tch", "Whatever", "Enough of",
+      "Not listening", "Cutting", "My story", "Straight to",
+      "Hmph", "Not like", "Go on then", "Lost interest", 
+      "I'm done", "I don't care", "what you want", "leave me", 
+      "farewell"
     ];
     
     for (const keyword of nonPersistentKeywords) {
-      if (text.includes(keyword)) {
+      if (text.toLowerCase().includes(keyword.toLowerCase())) {
         return false;
       }
     }
     
-    // Default untuk hover dialog adalah persistent
-    return true;
+    // Dialog yang mengandung pertanyaan biasanya lebih penting
+    if (text.includes('?')) {
+      return true;
+    }
+    
+    // Dialog dari kontrak dan bisnis biasanya memerlukan perhatian
+    const businessKeywords = ["contract", "business", "details", "work", "hire", "professional"];
+    for (const keyword of businessKeywords) {
+      if (text.toLowerCase().includes(keyword.toLowerCase())) {
+        return true;
+      }
+    }
+    
+    // Default untuk hover dialog: auto-dismiss setelah beberapa saat
+    return false;
   }
 
   // Typewriter effect untuk hover dialog
