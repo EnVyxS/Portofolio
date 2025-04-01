@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import './index.css';
 import GifBackground from './components/GifBackground';
 import DialogBox from './views/DialogBox';
@@ -75,7 +75,7 @@ function MainApp() {
   };
   
   // Handler untuk efek throw - ketika Geralt melempar user
-  const handleThrowUser = () => {
+  const handleThrowUser = useCallback(() => {
     setDramaticEffect('throw');
     // Reset semua state setelah beberapa detik
     setTimeout(() => {
@@ -83,66 +83,68 @@ function MainApp() {
       setApproachClicked(false); // Kembali ke approach screen
       setWasReset(true); // Tandai bahwa user telah dilempar
     }, 2000);
-  };
+  }, [setDramaticEffect, setApproachClicked, setWasReset]);
   
   // Handler untuk efek punch - ketika Geralt memukul user
-  const handlePunchUser = () => {
+  const handlePunchUser = useCallback(() => {
     setDramaticEffect('punch');
     // Setelah beberapa detik, redirect ke halaman kosong
     setTimeout(() => {
       window.location.href = "about:blank";
     }, 3000);
-  };
+  }, [setDramaticEffect]);
+  
+  // Reset scene callback
+  const resetSceneCallback = useCallback(() => {
+    setApproachClicked(false); // Kembali ke approach screen
+  }, [setApproachClicked]);
   
   // Inisialisasi IdleTimeoutController
   useEffect(() => {
+    // Jika belum pernah membuat controller dan user sudah mengklik approach
     if (approachClicked && !idleTimeoutControllerRef.current) {
+      console.log("Inisialisasi IdleTimeoutController");
       // Buat instance IdleTimeoutController
       idleTimeoutControllerRef.current = IdleTimeoutController.getInstance();
       
       // Set callback untuk efek dramatik
       idleTimeoutControllerRef.current.setThrowUserCallback(handleThrowUser);
       idleTimeoutControllerRef.current.setPunchUserCallback(handlePunchUser);
-      idleTimeoutControllerRef.current.setResetSceneCallback(() => {
-        setApproachClicked(false); // Kembali ke approach screen
-      });
+      idleTimeoutControllerRef.current.setResetSceneCallback(resetSceneCallback);
       
       // Mulai timer idle
       idleTimeoutControllerRef.current.startIdleTimer();
     }
-    
+  }, [approachClicked, handleThrowUser, handlePunchUser, resetSceneCallback]);
+  
+  // Effect terpisah untuk menangani kasus setelah reset
+  useEffect(() => {
     // Reset timer jika user kembali dari approach screen setelah dilempar
-    if (approachClicked && wasReset) {
-      if (idleTimeoutControllerRef.current) {
-        idleTimeoutControllerRef.current.resetAll();
-        // Mulai timer hover berlebihan
-        idleTimeoutControllerRef.current.startExcessiveHoverTimers();
-      }
+    if (approachClicked && wasReset && idleTimeoutControllerRef.current) {
+      console.log("Resetting idle timers after reset");
+      idleTimeoutControllerRef.current.resetAll();
+      
+      // Mulai timer hover berlebihan
+      setTimeout(() => {
+        if (idleTimeoutControllerRef.current) {
+          idleTimeoutControllerRef.current.startExcessiveHoverTimers();
+        }
+      }, 1500); // Tunggu 1.5 detik untuk memulai timer hover excessive
     }
-    
-    // Cleanup
-    return () => {
-      // Tidak ada yang perlu dibersihkan karena instance IdleTimeoutController adalah singleton
-      // Tapi jika perlu restart timer atau reset state, bisa ditambahkan di sini
-    };
   }, [approachClicked, wasReset]);
   
   // Handler untuk setiap interaksi user
-  const handleUserInteraction = () => {
+  const handleUserInteraction = useCallback(() => {
     // Beritahu IdleTimeoutController bahwa user berinteraksi
     if (idleTimeoutControllerRef.current) {
       idleTimeoutControllerRef.current.handleUserInteraction();
     }
-  };
+  }, []);
 
   // Event listener untuk mendeteksi user interaction
   useEffect(() => {
     // Hanya aktifkan event listener jika sudah approach
     if (approachClicked) {
-      const interactionHandler = () => {
-        handleUserInteraction();
-      };
-      
       // List event yang dianggap sebagai interaksi
       const interactionEvents = [
         'mousemove', 'mousedown', 'click', 'touchstart', 'touchmove', 
@@ -151,29 +153,25 @@ function MainApp() {
       
       // Tambahkan event listener
       interactionEvents.forEach(eventType => {
-        document.addEventListener(eventType, interactionHandler);
+        document.addEventListener(eventType, handleUserInteraction);
       });
       
       // Cleanup
       return () => {
         interactionEvents.forEach(eventType => {
-          document.removeEventListener(eventType, interactionHandler);
+          document.removeEventListener(eventType, handleUserInteraction);
         });
       };
     }
-  }, [approachClicked]);
+  }, [approachClicked, handleUserInteraction]);
   
   // Update approach handler untuk kasus re-approach setelah dilempar
   const handlePostResetApproach = () => {
-    if (wasReset && idleTimeoutControllerRef.current) {
-      // Jika sudah pernah di-reset, Geralt akan mengatakan dialog khusus
-      // dan mulai hover timer
-      handleApproach();
-      idleTimeoutControllerRef.current.startExcessiveHoverTimers();
-    } else {
-      // Normal approach
-      handleApproach();
-    }
+    // Selalu panggil handleApproach terlebih dahulu
+    handleApproach();
+    
+    // Jika sudah pernah di-reset, panggil fungsi startExcessiveHoverTimers pada useEffect berikutnya
+    // Ini mencegah dependensi yang tidak stabil ke idleTimeoutControllerRef.current
   };
   
   // If user hasn't approached yet, show the approach screen
