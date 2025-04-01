@@ -12,7 +12,7 @@ class DialogModel {
       id: 1,
       character: "Diva Juan Nur Taqarrub",
       text: "...Didn't ask for company.",
-      voiceId: "geralt",
+      voiceId: "geralt", // geralt sekarang mengarah ke voice ID b2FFMFMuLlPlyWk5NuQW
     },
     {
       id: 2,

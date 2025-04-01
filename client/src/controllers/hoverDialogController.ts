@@ -200,7 +200,7 @@ class HoverDialogController {
       // Mulai animasi typing untuk dialog hover
       this.typeHoverText(dialogText);
       
-      // Speak the dialog text
+      // Speak the dialog text menggunakan voice ID b2FFMFMuLlPlyWk5NuQW melalui voiceMap
       await this.elevenlabsService.speakText(dialogText, 'geralt');
     }
 

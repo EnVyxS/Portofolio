@@ -6,12 +6,12 @@ class ElevenLabsService {
   private audioCache: Record<string, Blob | null> = {}; // Cache untuk menyimpan audio yang sudah di-generate
   private preloadedAudios: Map<string, HTMLAudioElement> = new Map(); // Map untuk audio yang sudah diload
 
-  // Map character names to ElevenLabs voice IDs (tidak digunakan lagi, tapi disimpan sebagai referensi)
+  // Map character names to ElevenLabs voice IDs (diperbarui sesuai permintaan)
   private voiceMap: Record<string, string> = {
-    'geralt': 'TxGEqnHWrfWFTfGW9XjX', // Adam - deep gravelly voice for Geralt
+    'geralt': 'b2FFMFMuLlPlyWk5NuQW', // ID baru sesuai permintaan user
     'ciri': 'EXAVITQu4vr4xnSDxMaL',   // Bella - young female voice for Ciri
     'yennefer': 'Yko7PKHZNXotIFUBG7I9', // Elli - mature female voice with accent for Yen
-    'default': 'TxGEqnHWrfWFTfGW9XjX'  // Default to Geralt voice
+    'default': 'b2FFMFMuLlPlyWk5NuQW'  // Default ke voice ID yang baru
   };
 
   // Simpan file audio lokal berdasarkan hash sederhana dari teks
