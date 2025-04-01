@@ -9,23 +9,16 @@ interface ElevenLabsSetupProps {
 const ElevenLabsSetup: React.FC<ElevenLabsSetupProps> = ({ onClose }) => {
   const dialogController = DialogController.getInstance();
   
-  // Auto-initialize with API key from .env
+  // Auto-initialize with API key from server
   useEffect(() => {
-    // Get API key from environment variables
-    const envApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
-    if (envApiKey) {
-      dialogController.setElevenLabsApiKey(envApiKey);
-      // Automatically close after setting API key
-      setTimeout(() => {
-        onClose();
-      }, 1000); // Add a slight delay to show loading animation
-    } else {
-      console.error("ElevenLabs API key not found in environment variables");
-      // Still close even if no API key found
-      setTimeout(() => {
-        onClose();
-      }, 1500);
-    }
+    // Sekarang kita menggunakan server API, jadi kita tidak perlu mengatur API key
+    // Tapi kita tetap bisa mengatur API key kosong untuk fungsi lain agar tetap berjalan
+    dialogController.setElevenLabsApiKey("using_server_api");
+    
+    // Automatically close after delay
+    setTimeout(() => {
+      onClose();
+    }, 1000); // Add a slight delay to show loading animation
   }, []);
 
   return (

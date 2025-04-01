@@ -48,11 +48,6 @@ class ElevenLabsService {
   }
 
   public async generateSpeech(text: string, characterVoice: string = 'geralt'): Promise<Blob | null> {
-    if (!this.apiKey) {
-      console.error('ElevenLabs API key not set');
-      return null;
-    }
-
     try {
       // Map character to voice ID
       const voiceId = this.voiceMap[characterVoice.toLowerCase()] || this.voiceMap.default;
@@ -68,21 +63,23 @@ class ElevenLabsService {
       
       console.log("Generating new audio for:", text.substring(0, 20) + "...");
       
-      const requestBody: TTSRequestBody = {
+      // Gunakan endpoint server lokal alih-alih memanggil ElevenLabs langsung
+      // Ini mengatasi masalah CORS dan juga masalah API key
+      const requestBody = {
         text: text,
         voice_id: voiceId,
-        model_id: "b2FFMFMuLlPlyWk5NuQW", // Menggunakan model ID yang diminta
         voice_settings: {
           stability: 0.5,
-          similarity_boost: 0.75
+          similarity_boost: 0.75,
+          style: 0.3,
+          speaking_rate: 0.75
         }
       };
 
-      const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
+      const response = await fetch('/api/elevenlabs/text-to-speech', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'xi-api-key': this.apiKey
         },
         body: JSON.stringify(requestBody)
       });

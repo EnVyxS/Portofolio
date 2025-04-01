@@ -3,8 +3,12 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import fs from 'fs';
 import path from 'path';
+import elevenlabsRoutes from './routes/elevenlabs';
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Register the ElevenLabs API routes
+  app.use('/api/elevenlabs', elevenlabsRoutes);
+  
   // Create the public directory for audio files if it doesn't exist
   const audioDir = path.join(process.cwd(), 'client/public/audio');
   if (!fs.existsSync(audioDir)) {

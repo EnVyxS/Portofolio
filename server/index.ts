@@ -1,6 +1,43 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import fs from 'fs';
+import path from 'path';
+
+// Baca API key dari .env file dan setel ke process.env
+try {
+  // Cek file .env di root dan client/src
+  const envFiles = [
+    path.join(process.cwd(), '.env'),
+    path.join(process.cwd(), 'client/src/.env')
+  ];
+
+  for (const envFile of envFiles) {
+    if (fs.existsSync(envFile)) {
+      const envContent = fs.readFileSync(envFile, 'utf-8');
+      const envLines = envContent.split('\n');
+      
+      for (const line of envLines) {
+        if (line.trim() && !line.startsWith('#')) {
+          const [key, value] = line.split('=');
+          if (key && value) {
+            process.env[key.trim()] = value.trim();
+          }
+        }
+      }
+      
+      log(`Loaded environment variables from ${envFile}`);
+    }
+  }
+  
+  // Hard-code API key to make sure it's available
+  if (!process.env.ELEVENLABS_API_KEY) {
+    process.env.ELEVENLABS_API_KEY = 'sk_f64d77d3c40e5b4b292fc19b7f821f9ce03693c239c57647';
+    log('Using hardcoded ElevenLabs API key');
+  }
+} catch (error) {
+  console.error('Error loading .env file:', error);
+}
 
 const app = express();
 app.use(express.json());
