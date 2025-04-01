@@ -218,15 +218,25 @@ class HoverDialogController {
     }
 
     // Cek apakah dialog ini sudah pernah ditampilkan sebelumnya
-    if (dialogText && !this.processedTexts.has(dialogText)) {
-      // Tambahkan teks ke daftar yang sudah ditampilkan
-      this.processedTexts.add(dialogText);
+    // Jika hoverCount > 5, selalu tampilkan dialog terakhir (walaupun sudah ditampilkan sebelumnya)
+    if (dialogText && (!this.processedTexts.has(dialogText) || this.hoverCount > 5)) {
+      // Kecuali untuk dialog jengkel (Arghh... whatever you want. I'm done),
+      // tambahkan teks ke daftar yang sudah ditampilkan
+      if (dialogText !== HOVER_DIALOGS.annoyance.secondLevel) {
+        this.processedTexts.add(dialogText);
+      }
 
       // Mulai animasi typing untuk dialog hover
       this.typeHoverText(dialogText);
 
-      // Speak the dialog text menggunakan voice ID b2FFMFMuLlPlyWk5NuQW melalui voiceMap
+      // Speak the dialog text menggunakan Geralt voice
       await this.elevenlabsService.speakText(dialogText, "geralt");
+      
+      // Jika dialog jengkel terakhir (Arghh...), ini akan menjadi dialog terakhir sebelum menghilang
+      // Dialog box akan otomatis hilang karena sudah ditandai sebagai non-persistent di dialogToToneMap
+      if (dialogText === HOVER_DIALOGS.annoyance.secondLevel) {
+        console.log("Geralt jengkel dan dialog akan menghilang setelah selesai");
+      }
     }
 
     // Update last hovered link

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import DialogController from '../controllers/dialogController';
 import HoverDialogController from '../controllers/hoverDialogController';
+import { isDialogPersistent } from '../utils/geraltTones';
 
 // Import fungsi hash untuk debugging
 function generateSimpleHash(text: string): string {
@@ -98,17 +99,42 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       // Set new timer untuk auto-continue semua dialog
       const currentDialog = dialogController.getCurrentDialog();
       if (currentDialog) {
-        // Waktu autoplay berdasarkan panjang teks (semakin panjang, semakin lama)
-        const textLength = currentDialog.text.length;
-        const baseDelay = 2000; // 2 detik base delay
-        const charDelay = 50; // 50ms per karakter
-        const autoplayDelay = Math.min(baseDelay + (textLength * charDelay), 8000); // maksimal 8 detik
+        // Periksa apakah dialog ini adalah dialog yang membutuhkan respons (persistent)
+        const shouldPersist = isDialogPersistent(currentDialog.text);
         
-        console.log(`Autoplay untuk dialog ${currentDialog.id} dalam ${autoplayDelay}ms`);
+        if (!shouldPersist) {
+          // Untuk dialog yang tidak perlu persistent, auto-dismiss lebih cepat
+          const textLength = currentDialog.text.length;
+          const baseDelay = 2000; // 2 detik base delay
+          const charDelay = 50; // 50ms per karakter
+          const autoplayDelay = Math.min(baseDelay + (textLength * charDelay), 8000); // maksimal 8 detik
+          
+          console.log(`Autoplay untuk dialog ${currentDialog.id} dalam ${autoplayDelay}ms (non-persistent)`);
+          
+          autoPlayTimerRef.current = setTimeout(() => {
+            handleContinue();
+          }, autoplayDelay);
+        } else {
+          // Dialog yang membutuhkan respons (persistent) tidak auto-continue
+          console.log(`Dialog ${currentDialog.id} adalah persistent, menunggu interaksi user`);
+        }
+      }
+    } else if (isComplete && dialogSource === 'hover') {
+      // Untuk hover dialog, periksa juga persistensi
+      if (!isDialogPersistent(text)) {
+        // Hover dialog yang tidak memerlukan respons seperti "Arghh... whatever you want. I'm done."
+        const dismissDelay = 3000; // 3 detik untuk membaca pesan
+        
+        console.log(`Hover dialog akan dismiss dalam ${dismissDelay}ms (non-persistent)`);
         
         autoPlayTimerRef.current = setTimeout(() => {
-          handleContinue();
-        }, autoplayDelay);
+          // Reset dialog
+          hoverDialogController.resetHoverState();
+          // Tandai dialog sebagai selesai untuk hilangkan kotak dialog
+          setIsDialogFinished(true);
+        }, dismissDelay);
+      } else {
+        console.log(`Hover dialog adalah persistent, menunggu interaksi user`);
       }
     }
     
@@ -118,7 +144,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         clearTimeout(autoPlayTimerRef.current);
       }
     };
-  }, [isComplete, dialogSource, handleContinue, dialogController, hoverDialogController]);
+  }, [isComplete, dialogSource, text, handleContinue, dialogController, hoverDialogController, setIsDialogFinished]);
 
   useEffect(() => {
     // Start the dialog sequence hanya jika user belum berinteraksi dengan hover dialog
