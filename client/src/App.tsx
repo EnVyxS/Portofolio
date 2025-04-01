@@ -8,6 +8,7 @@ import ApproachScreen from './views/ApproachScreen';
 import { AudioProvider, useAudio } from './context/AudioManager';
 import IdleTimeoutController from './controllers/idleTimeoutController';
 import DramaticEffects, { dramaticEffectsStyles } from './components/DramaticEffects';
+import DifficultySelector from './components/DifficultySelector';
 
 function MainApp() {
   const [showElevenLabsSetup, setShowElevenLabsSetup] = useState<boolean>(false);
@@ -224,6 +225,9 @@ function MainApp() {
         
         {/* CSS for dramatic effects */}
         <style dangerouslySetInnerHTML={{ __html: dramaticEffectsStyles }} />
+        
+        {/* Difficulty selector - only shows when approached */}
+        {approachClicked && <DifficultySelector />}
       </GifBackground>
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import HoverDialogController, { HoverLinkType } from "../controllers/hoverDialogController";
+import DifficultyController from "../controllers/difficultyController";
 
 interface SocialLinkProps {
   name: string;
@@ -15,6 +16,7 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
   const [isHovered, setIsHovered] = useState(false);
   const [isGlitching, setIsGlitching] = useState(false);
   const hoverController = HoverDialogController.getInstance();
+  const difficultyController = DifficultyController.getInstance();
 
   // Pemetaan id ke HoverLinkType
   const mapIdToLinkType = (id: string): HoverLinkType => {
@@ -40,6 +42,10 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
   };
   
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Record link click in DifficultyController untuk analisis interaksi pengguna
+    const linkType = mapIdToLinkType(id);
+    difficultyController.recordLinkClick(linkType);
+    
     if (url.startsWith('mailto:')) {
       e.preventDefault();
       window.location.href = url;
@@ -49,8 +55,13 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
   const handleMouseEnter = () => {
     triggerGlitch();
     setIsHovered(true);
+    
+    // Catat hover interaction untuk adaptive difficulty
+    const linkType = mapIdToLinkType(id);
+    difficultyController.recordHoverInteraction(linkType);
+    
     // Trigger hover dialog
-    hoverController.handleHoverDialog(mapIdToLinkType(id));
+    hoverController.handleHoverDialog(linkType);
   };
 
   const handleMouseLeave = () => {

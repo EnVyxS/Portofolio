@@ -1,5 +1,6 @@
 import DialogModel, { Dialog } from '../models/dialogModel';
 import ElevenLabsService from '../services/elevenlabsService';
+import DifficultyController from './difficultyController';
 
 class DialogController {
   private static instance: DialogController;
@@ -76,18 +77,26 @@ class DialogController {
   }
 
   private typeDialog(dialog: Dialog, callback: (text: string, isComplete: boolean) => void): void {
+    // Dapatkan difficulty controller untuk menyesuaikan kecepatan typewriter
+    const difficultyController = DifficultyController.getInstance();
+    
+    // Set speed berdasarkan difficulty level saat ini
+    this.typingSpeed = difficultyController.getTypewriterSpeed();
+    
     this.fullText = dialog.text;
     this.currentText = '';
     this.charIndex = 0;
     this.typewriterCallback = callback;
     this.isTyping = true;
     
+    console.log(`Typewriter speed: ${this.typingSpeed}ms per karakter (difficulty level: ${difficultyController.getCurrentLevel()})`);
+    
     // Try to speak the text if voice is enabled
     if (this.elevenlabsService.getApiKey()) {
       this.elevenlabsService.speakText(dialog.text, dialog.voiceId || 'default');
     }
     
-    // Start typewriter effect
+    // Start typewriter effect with speed adjusted based on difficulty
     this.typingInterval = setInterval(() => {
       if (this.charIndex < this.fullText.length) {
         this.currentText += this.fullText[this.charIndex];

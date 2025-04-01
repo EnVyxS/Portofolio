@@ -398,6 +398,11 @@ class HoverDialogController {
     this.isHandlingHover = false;
   }
 
+  // Akses ke link yang terakhir di-hover untuk tujuan analytics
+  public getLastHoveredLink(): HoverLinkType {
+    return this.lastHoveredLink;
+  }
+
   // Reset hover state (misalnya saat user meninggalkan halaman)
   public resetHoverState(): void {
     this.lastHoveredLink = "none";
