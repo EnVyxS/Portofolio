@@ -26,17 +26,14 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     // Request body default
     const requestBody = {
       text: text,
-      // Menggunakan model turbo dari dokumentasi ElevenLabs
-      model_id: "eleven_turbo_v2",
+      // Menggunakan ID model yang benar dari screenshot user
+      model_id: "b2FFMFMuLlPlyWk5NuQW",
       voice_settings: voice_settings || {
-        stability: 0.45,
-        similarity_boost: 0.8,
+        stability: 0.5,
+        similarity_boost: 0.75,
         style: 0.3,
         use_speaker_boost: true,
-        speaking_rate: 0.75,
-        // Tambahan parameter untuk karakter suara yang lebih berat
-        timbre: 2.7,
-        clarity: 0.35,
+        speaking_rate: 0.8,
       }
     };
     
