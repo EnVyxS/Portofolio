@@ -127,6 +127,22 @@ class DialogController {
   public isCurrentlyTyping(): boolean {
     return this.isTyping;
   }
+  
+  // Method khusus untuk menampilkan dialog timeout/idle
+  public showCustomDialog(text: string, callback: (text: string, isComplete: boolean) => void): void {
+    // Hentikan dialog yang sedang berjalan
+    this.stopTyping();
+    
+    // Buat dialog custom
+    const customDialog: Dialog = {
+      id: 9999, // ID khusus untuk dialog timeout
+      text: text,
+      character: "Diva Juan Nur Taqarrub", // Karakter tetap sama
+    };
+    
+    // Tampilkan dialog custom
+    this.typeDialog(customDialog, callback);
+  }
 }
 
 export default DialogController;
