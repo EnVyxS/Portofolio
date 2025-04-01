@@ -34,41 +34,28 @@ class DialogController {
   }
 
   public nextDialog(callback: (text: string, isComplete: boolean) => void): void {
-    // Stop previous typing
-    this.stopTyping();
-    
-    // Get next dialog
     const nextDialog = this.dialogModel.nextDialog();
     if (nextDialog) {
       this.typeDialog(nextDialog, callback);
     } else {
-      // No more dialogs - inform callback with empty text and complete=true
-      callback('', true);
+      // If no more dialogs, inform the callback
+      callback(this.currentText, true);
     }
   }
 
   public previousDialog(callback: (text: string, isComplete: boolean) => void): void {
-    // Stop previous typing
-    this.stopTyping();
-    
-    // Get previous dialog
     const prevDialog = this.dialogModel.previousDialog();
     if (prevDialog) {
       this.typeDialog(prevDialog, callback);
     } else {
-      // Already at the first dialog - restart current dialog
-      const currentDialog = this.dialogModel.getCurrentDialog();
-      if (currentDialog) {
-        this.typeDialog(currentDialog, callback);
-      }
+      // If no previous dialogs, keep the current one
+      callback(this.currentText, false);
     }
   }
 
   public startDialog(callback: (text: string, isComplete: boolean) => void): void {
-    // Reset dialog to beginning
+    // Reset and start from the beginning
     this.dialogModel.resetDialog();
-    
-    // Get first dialog
     const dialog = this.dialogModel.getCurrentDialog();
     if (dialog) {
       this.typeDialog(dialog, callback);
@@ -76,51 +63,106 @@ class DialogController {
   }
 
   private typeDialog(dialog: Dialog, callback: (text: string, isComplete: boolean) => void): void {
+    // Stop any current typing
+    this.stopTyping();
+    
     this.fullText = dialog.text;
     this.currentText = '';
     this.charIndex = 0;
     this.typewriterCallback = callback;
     this.isTyping = true;
-    
-    // Try to speak the text if voice is enabled
-    if (this.elevenlabsService.getApiKey()) {
-      this.elevenlabsService.speakText(dialog.text, dialog.voiceId || 'default');
+
+    // Try to speak using Elevenlabs if the API key is available
+    if (this.elevenlabsService.getApiKey() && dialog.voiceId) {
+      this.elevenlabsService.speakText(dialog.text, dialog.voiceId).catch(err => {
+        console.error('Error with text-to-speech:', err);
+      });
     }
-    
+
     // Start typewriter effect
     this.typingInterval = setInterval(() => {
-      if (this.charIndex < this.fullText.length) {
-        this.currentText += this.fullText[this.charIndex];
-        this.charIndex++;
+      // Skip if we've reached the end
+      if (this.charIndex >= this.fullText.length) {
+        this.stopTyping();
         if (this.typewriterCallback) {
-          this.typewriterCallback(this.currentText, false);
+          this.typewriterCallback(this.fullText, false);
         }
-      } else {
-        // Typing complete
-        this.isTyping = false;
-        clearInterval(this.typingInterval as NodeJS.Timeout);
-        this.typingInterval = null;
-        if (this.typewriterCallback) {
-          this.typewriterCallback(this.currentText, true);
-        }
+        return;
       }
+
+      // Add character to current text
+      this.currentText += this.fullText.charAt(this.charIndex);
+      this.charIndex++;
+
+      // Call the callback with updated text
+      if (this.typewriterCallback) {
+        this.typewriterCallback(this.currentText, false);
+      }
+
+      // Adjust typing speed based on punctuation
+      const currentChar = this.fullText.charAt(this.charIndex - 1);
+      if (currentChar === '.' || currentChar === '!' || currentChar === '?') {
+        // Pause longer at end of sentences
+        clearInterval(this.typingInterval!);
+        setTimeout(() => {
+          this.typingInterval = setInterval(() => {
+            this.typeCharacter();
+          }, this.typingSpeed);
+        }, 500); // Pause for 500ms at end of sentence
+      } else if (currentChar === ',' || currentChar === ';' || currentChar === ':') {
+        // Slight pause at commas and other mid-sentence punctuation
+        clearInterval(this.typingInterval!);
+        setTimeout(() => {
+          this.typingInterval = setInterval(() => {
+            this.typeCharacter();
+          }, this.typingSpeed);
+        }, 250); // Pause for 250ms at mid-sentence punctuation
+      } else if (currentChar === '\n') {
+        // Pause at new lines for paragraph breaks
+        clearInterval(this.typingInterval!);
+        setTimeout(() => {
+          this.typingInterval = setInterval(() => {
+            this.typeCharacter();
+          }, this.typingSpeed);
+        }, 750); // Pause for 750ms at paragraph breaks
+      }
+
     }, this.typingSpeed);
   }
 
+  private typeCharacter(): void {
+    // Skip if we've reached the end
+    if (this.charIndex >= this.fullText.length) {
+      this.stopTyping();
+      if (this.typewriterCallback) {
+        this.typewriterCallback(this.fullText, false);
+      }
+      return;
+    }
+
+    // Add character to current text
+    this.currentText += this.fullText.charAt(this.charIndex);
+    this.charIndex++;
+
+    // Call the callback with updated text
+    if (this.typewriterCallback) {
+      this.typewriterCallback(this.currentText, false);
+    }
+  }
+
   public stopTyping(): void {
-    this.isTyping = false;
     if (this.typingInterval) {
       clearInterval(this.typingInterval);
       this.typingInterval = null;
     }
-    this.elevenlabsService.stopSpeaking();
+    this.isTyping = false;
   }
 
   public skipToFullText(): void {
     this.stopTyping();
     this.currentText = this.fullText;
     if (this.typewriterCallback) {
-      this.typewriterCallback(this.fullText, true);
+      this.typewriterCallback(this.currentText, false);
     }
   }
 

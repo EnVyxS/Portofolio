@@ -12,18 +12,18 @@ interface SocialLinkProps {
 const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverColor }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isGlitching, setIsGlitching] = useState(false);
-  
-  // Trigger the glitch effect when hovering
+
+  // Create a glitch effect on hover
   const handleMouseEnter = () => {
     setIsHovered(true);
+    // Start glitch effect
     setIsGlitching(true);
-    
-    // Reset glitch after a short time
+    // Stop glitching after a short time
     setTimeout(() => {
       setIsGlitching(false);
-    }, 500);
+    }, 300);
   };
-  
+
   const handleMouseLeave = () => {
     setIsHovered(false);
   };
@@ -33,142 +33,110 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
       href={url}
       target="_blank"
       rel="noopener noreferrer"
+      className="social-link"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="social-link"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ 
-        type: 'spring', 
-        stiffness: 300, 
-        damping: 20,
-        delay: 0.1
-      }}
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.95 }}
       style={{
+        position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '0.75rem',
+        padding: '1rem',
+        backgroundColor: isHovered ? hoverColor : 'rgba(0, 0, 0, 0.3)',
+        border: `1px solid ${isHovered ? hoverColor : 'rgba(255, 255, 255, 0.1)'}`,
         borderRadius: '8px',
-        backgroundColor: isHovered ? `${hoverColor}22` : 'rgba(30, 41, 59, 0.5)',
-        backdropFilter: 'blur(5px)',
-        border: `1px solid ${isHovered ? hoverColor : 'rgba(148, 163, 184, 0.2)'}`,
-        color: isHovered ? hoverColor : color,
-        textDecoration: 'none',
-        transition: 'all 0.3s ease',
-        position: 'relative',
+        transition: 'background-color 0.3s ease, border-color 0.3s ease',
         overflow: 'hidden',
-        minWidth: '80px',
+        gap: '0.5rem',
+        width: '100%',
+        maxWidth: '90px',
+        height: '90px',
       }}
     >
+      {/* Glitch effect overlays */}
+      {isGlitching && (
+        <>
+          <motion.div
+            className="glitch-overlay glitch-overlay-1"
+            initial={{ opacity: 0, x: 0, y: 0 }}
+            animate={{ 
+              opacity: [0, 0.5, 0], 
+              x: [-2, 1, -1, 2, 0], 
+              y: [1, -1, 1, 0] 
+            }}
+            transition={{ duration: 0.3, times: [0, 0.2, 1] }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backgroundColor: color,
+              mixBlendMode: 'overlay',
+              filter: 'hue-rotate(90deg)',
+              zIndex: 1,
+              clipPath: 'polygon(0 0, 100% 0, 100% 30%, 0 60%)',
+            }}
+          />
+          <motion.div
+            className="glitch-overlay glitch-overlay-2"
+            initial={{ opacity: 0, x: 0, y: 0 }}
+            animate={{ 
+              opacity: [0, 0.5, 0], 
+              x: [2, -1, 1, -2, 0], 
+              y: [-1, 1, -1, 0] 
+            }}
+            transition={{ duration: 0.3, times: [0, 0.2, 1], delay: 0.05 }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backgroundColor: color,
+              mixBlendMode: 'color-dodge',
+              filter: 'hue-rotate(-90deg)',
+              zIndex: 2,
+              clipPath: 'polygon(0 40%, 100% 70%, 100% 100%, 0 100%)',
+            }}
+          />
+        </>
+      )}
+      
       {/* Icon */}
-      <div 
-        className="social-icon" 
-        style={{ 
-          marginBottom: '0.5rem',
-          position: 'relative',
-          zIndex: 1
+      <div
+        className="icon-container"
+        style={{
+          fontSize: '1.5rem',
+          color: isHovered ? '#ffffff' : color,
+          transition: 'color 0.3s ease',
+          zIndex: 5,
         }}
       >
-        {/* Normal icon */}
-        <motion.div
-          animate={{
-            opacity: isGlitching ? [1, 0.5, 0.8, 0.2, 1] : 1,
-            x: isGlitching ? [0, -3, 5, -2, 0] : 0,
-            scale: isHovered ? 1.2 : 1
-          }}
-          transition={{
-            duration: isGlitching ? 0.5 : 0.3,
-            times: isGlitching ? [0, 0.2, 0.4, 0.6, 1] : undefined,
-          }}
-        >
-          {icon}
-        </motion.div>
-        
-        {/* Glitch effect - red channel */}
-        {isGlitching && (
-          <motion.div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              color: 'rgba(255,0,0,0.8)',
-              mixBlendMode: 'screen',
-              zIndex: 0,
-            }}
-            animate={{
-              opacity: [0.5, 0.8, 0.5, 0],
-              x: [-2, 1, -1, 0],
-              y: [1, -1, 1, 0]
-            }}
-            transition={{
-              duration: 0.5,
-              times: [0, 0.3, 0.6, 1],
-            }}
-          >
-            {icon}
-          </motion.div>
-        )}
-        
-        {/* Glitch effect - blue channel */}
-        {isGlitching && (
-          <motion.div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              color: 'rgba(0,255,255,0.8)',
-              mixBlendMode: 'screen',
-              zIndex: 0,
-            }}
-            animate={{
-              opacity: [0.5, 0.8, 0.5, 0],
-              x: [2, -1, 1, 0],
-              y: [-1, 1, -1, 0]
-            }}
-            transition={{
-              duration: 0.5,
-              times: [0, 0.3, 0.6, 1],
-            }}
-          >
-            {icon}
-          </motion.div>
-        )}
+        {icon}
       </div>
       
       {/* Name */}
-      <span
+      <div
+        className="name-container"
         style={{
           fontSize: '0.8rem',
           fontWeight: 500,
+          color: isHovered ? '#ffffff' : '#e2e8f0',
           transition: 'color 0.3s ease',
-          zIndex: 1,
-          position: 'relative'
+          zIndex: 5,
+          textAlign: 'center',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          width: '100%',
         }}
       >
         {name}
-      </span>
-      
-      {/* Glow effect on hover */}
-      {isHovered && (
-        <motion.div
-          className="link-glow"
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 0.8, scale: 1.5 }}
-          transition={{ duration: 0.5 }}
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '100%',
-            height: '100%',
-            background: `radial-gradient(circle at center, ${hoverColor}30 0%, ${hoverColor}00 70%)`,
-            zIndex: 0,
-          }}
-        />
-      )}
+      </div>
     </motion.a>
   );
 };
