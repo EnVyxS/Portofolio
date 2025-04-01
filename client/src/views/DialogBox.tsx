@@ -38,41 +38,52 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       setText(text);
       setIsComplete(complete);
       setDialogSource('hover');
-      setCharacterName('GERALT'); // Hover dialogs always from Geralt
+      setCharacterName('GERALT'); // Semua dialog hover dari Geralt
     });
     
     // Cleanup on unmount
     return () => {
       dialogController.stopTyping();
+      hoverDialogController.resetHoverState();
     };
   }, [hoverDialogController]);
 
   const handleContinue = () => {
-    if (!isComplete) {
-      // Skip to the end of the current dialog
-      dialogController.skipToFullText();
-    } else {
-      // Move to the next dialog
-      dialogController.nextDialog((text, complete) => {
-        setText(text);
-        setIsComplete(complete);
-        
-        // Get current dialog to display character name
-        const currentDialog = dialogController.getCurrentDialog();
-        if (currentDialog) {
-          setCharacterName(currentDialog.character);
-          // Update hover dialog controller with completion status
-          hoverDialogController.setDialogCompleted(complete);
-        } else {
-          // No more dialogs - we're finished
-          setIsDialogFinished(true);
-          // Set dialog as fully completed for hover interactions
-          hoverDialogController.setDialogCompleted(true);
-          if (onDialogComplete) {
-            onDialogComplete();
+    if (dialogSource === 'main') {
+      if (!isComplete) {
+        // Skip to the end of the current dialog
+        dialogController.skipToFullText();
+      } else {
+        // Move to the next dialog
+        dialogController.nextDialog((text, complete) => {
+          setText(text);
+          setIsComplete(complete);
+          
+          // Get current dialog to display character name
+          const currentDialog = dialogController.getCurrentDialog();
+          if (currentDialog) {
+            setCharacterName(currentDialog.character);
+            // Update hover dialog controller with completion status
+            hoverDialogController.setDialogCompleted(complete);
+          } else {
+            // No more dialogs - we're finished
+            setIsDialogFinished(true);
+            // Set dialog as fully completed for hover interactions
+            hoverDialogController.setDialogCompleted(true);
+            if (onDialogComplete) {
+              onDialogComplete();
+            }
           }
-        }
-      });
+        });
+      }
+    } else if (dialogSource === 'hover') {
+      // For hover dialogs, immediately skip to full text
+      if (!isComplete) {
+        // Assume hover dialog controller is handling typing
+        hoverDialogController.stopTyping();
+        // Immediately show full text
+        setIsComplete(true);
+      }
     }
   };
 
@@ -94,15 +105,13 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         </div>
         <div className="dialog-text">{text}</div>
         <div className="dialog-actions">
-          {dialogSource === 'main' && (
-            <button 
-              className="dialog-continue"
-              onClick={handleContinue}
-            >
-              {isComplete ? 'Next' : 'Skip'}
-              <span className="continue-indicator">{isComplete ? '▼' : '▶'}</span>
-            </button>
-          )}
+          <button 
+            className={`dialog-continue ${dialogSource === 'hover' ? 'hover-continue' : ''}`}
+            onClick={handleContinue}
+          >
+            {isComplete ? (dialogSource === 'main' ? 'Next' : '') : 'Skip'}
+            <span className="continue-indicator">{isComplete ? (dialogSource === 'main' ? '▼' : '') : '▶'}</span>
+          </button>
         </div>
       </div>
       
@@ -178,6 +187,16 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         
         .dialog-continue:hover {
           background: rgba(249, 115, 22, 0.1);
+          color: #fff;
+        }
+        
+        /* Styling for hover dialog continue button */
+        .hover-continue {
+          color: rgba(0, 191, 255, 0.8);
+        }
+        
+        .hover-continue:hover {
+          background: rgba(0, 191, 255, 0.1);
           color: #fff;
         }
         

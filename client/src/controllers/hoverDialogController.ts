@@ -81,10 +81,56 @@ class HoverDialogController {
 
   // Callback untuk dialog text
   private hoverTextCallback: ((text: string, isComplete: boolean) => void) | null = null;
+  private isTypingHover: boolean = false;
+  private typingSpeed: number = 40; // Sedikit lebih cepat dari dialog utama
+  private typingInterval: NodeJS.Timeout | null = null;
+  private currentText: string = '';
+  private fullText: string = '';
+  private charIndex: number = 0;
 
   // Set callback untuk dialog text
   public setHoverTextCallback(callback: (text: string, isComplete: boolean) => void): void {
     this.hoverTextCallback = callback;
+  }
+  
+  // Typewriter effect untuk hover dialog
+  private typeHoverText(text: string): void {
+    // Stop any ongoing typing first
+    this.stopTyping();
+    
+    // Set up typing variables
+    this.fullText = text;
+    this.currentText = '';
+    this.charIndex = 0;
+    this.isTypingHover = true;
+    
+    // Start typewriter effect
+    this.typingInterval = setInterval(() => {
+      if (this.charIndex < this.fullText.length) {
+        this.currentText += this.fullText[this.charIndex];
+        this.charIndex++;
+        if (this.hoverTextCallback) {
+          this.hoverTextCallback(this.currentText, false);
+        }
+      } else {
+        // Typing complete
+        this.isTypingHover = false;
+        clearInterval(this.typingInterval as NodeJS.Timeout);
+        this.typingInterval = null;
+        if (this.hoverTextCallback) {
+          this.hoverTextCallback(this.currentText, true);
+        }
+      }
+    }, this.typingSpeed);
+  }
+  
+  // Stop typewriter effect
+  public stopTyping(): void {
+    this.isTypingHover = false;
+    if (this.typingInterval) {
+      clearInterval(this.typingInterval);
+      this.typingInterval = null;
+    }
   }
 
   // Implementasi actual dari handler hover setelah debounce
@@ -137,10 +183,8 @@ class HoverDialogController {
     }
 
     if (dialogText) {
-      // Tampilkan dialog di DialogBox jika ada callback
-      if (this.hoverTextCallback) {
-        this.hoverTextCallback(dialogText, true);
-      }
+      // Mulai animasi typing untuk dialog hover
+      this.typeHoverText(dialogText);
       
       // Speak the dialog text
       await this.elevenlabsService.speakText(dialogText, 'geralt');
@@ -156,6 +200,7 @@ class HoverDialogController {
     this.lastHoveredLink = 'none';
     this.hoverCount = 0;
     this.isHandlingHover = false;
+    this.stopTyping(); // Stop typing animation jika ada
   }
 }
 
