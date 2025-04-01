@@ -172,39 +172,59 @@ class HoverDialogController {
 
   // Helper untuk mengecek apakah dialog perlu persistent
   private isPersistent(text: string): boolean {
-    // Dialog yang mengandung pertanyaan biasanya persistent
-    if (text.includes("?")) {
+    // Dialog yang sangat pendek biasanya adalah hanya efek suara
+    if (text.length < 15 || text === "........" || text.startsWith("*")) {
+      return false;
+    }
+    
+    // Dialog yang mengandung pertanyaan biasanya perlu jawaban
+    if (text.includes('?')) {
       return true;
     }
     
-    // Dialog dari kategori social biasanya persistent
-    const socialTexts = [
-      ...HOVER_DIALOGS.completed.social,
-      ...HOVER_DIALOGS.interruption.social
+    // Dialog dari kategori social biasanya persistent kecuali beberapa pengecualian
+    const persistentDialogs = [
+      // Social dialog yang memerlukan persistent
+      "Need to check first before deciding?",
+      "Want to know more about me first?",
+      "Curious about my past work?",
+      "Checking my credentials?",
+      "Due diligence, huh?",
+      
+      // Contact dialog yang memerlukan persistent
+      "Business it is then.",
+      "Contract details?",
+      "Talk business.",
+      
+      // Transisi yang persistent
+      "Satisfied with what you found?",
+      "Seen enough?",
+      "Research complete?",
+      "Not convinced yet?",
+      "Hmm. Still uncertain?"
     ];
-    if (socialTexts.includes(text)) {
-      return true;
+    
+    for (const dialog of persistentDialogs) {
+      if (text.includes(dialog)) {
+        return true;
+      }
     }
     
-    // Dialog dari kategori contact biasanya juga persistent
-    const contactTexts = [
-      ...HOVER_DIALOGS.completed.contact,
-      ...HOVER_DIALOGS.interruption.contact
+    // Dialog yang mengandung kata kunci berikut biasanya adalah statement, tidak perlu persistensi
+    const nonPersistentKeywords = [
+      "Hmm", "Tch", "Whatever", "Go look", "I'm done", "Lost interest",
+      "Not listening", "Cutting to the chase", "My story", "Straight to the",
+      "Hmph", "Not like I'm", "Go on then", "Enough of this"
     ];
-    if (contactTexts.includes(text)) {
-      return true;
+    
+    for (const keyword of nonPersistentKeywords) {
+      if (text.includes(keyword)) {
+        return false;
+      }
     }
     
-    // Dialog dari kategori transition tertentu yang persistent
-    const persistentTransitions = [
-      ...HOVER_DIALOGS.transition.contactToSocial
-    ];
-    if (persistentTransitions.includes(text)) {
-      return true;
-    }
-    
-    // Default tidak persistent
-    return false;
+    // Default untuk hover dialog adalah persistent
+    return true;
   }
 
   // Typewriter effect untuk hover dialog
