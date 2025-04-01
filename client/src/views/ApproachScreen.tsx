@@ -163,22 +163,22 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
 
         .approach-button {
           padding: 1rem 2.2rem;
-          font-family: 'Luminari', 'Dragon Hunter', 'Cinzel', serif;
-          font-size: clamp(1rem, 3.5vw, 1.7rem);
-          font-weight: 600;
-          color: rgba(248, 250, 252, 0.8); /* Opacity 0.8 untuk text */
-          background: rgba(0, 0, 0, 0.35);
-          border: 1px solid rgba(255, 165, 0, 0.4);
-          border-radius: 2px;
+          font-family: 'OptimusPrinceps', 'Trajan Pro', 'Cinzel', serif;
+          font-size: clamp(1rem, 3.5vw, 1.6rem);
+          font-weight: 400;
+          color: rgba(248, 250, 252, 0.7); /* Opacity berkurang untuk text Dark Souls-like */
+          background: rgba(0, 0, 0, 0.4);
+          border: 1px solid rgba(214, 168, 85, 0.35); /* Warna keemasan Dark Souls */
+          border-radius: 0; /* Sharp edges like DS */
           cursor: pointer;
           text-transform: uppercase;
-          letter-spacing: 3px; /* Sedikit lebih besar letter spacing */
+          letter-spacing: 5px; /* Lebih besar letter spacing - DS style */
           position: relative;
           overflow: hidden;
           transition: all 0.3s ease;
-          text-shadow: 0 0 8px rgba(255, 165, 0, 0.4);
-          box-shadow: 0 0 25px rgba(249, 115, 22, 0.3), inset 0 0 15px rgba(255, 165, 0, 0.15);
-          backdrop-filter: blur(2px);
+          text-shadow: 0 0 8px rgba(214, 168, 85, 0.3);
+          box-shadow: 0 0 25px rgba(180, 120, 50, 0.2), inset 0 0 15px rgba(214, 168, 85, 0.1);
+          backdrop-filter: blur(3px);
         }
 
         .approach-button::before {
@@ -222,16 +222,16 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
 
         /* CSS yang tidak digunakan lagi (dihapus) */
         
-        /* Boss name display - modernized */
+        /* Boss name display - Dark Souls style */
         .boss-name {
-          font-family: 'Trajan Pro', 'Luminari', 'Cinzel', serif;
-          font-size: 1.7rem;
-          font-weight: 500;
-          color: rgba(241, 241, 241, 0.85); /* Opacity berkurang untuk text */
+          font-family: 'OptimusPrinceps', 'Trajan Pro', 'Cinzel', serif;
+          font-size: 1.8rem;
+          font-weight: 400;
+          color: rgba(241, 241, 241, 0.75); /* Opacity Dark Souls style */
           text-transform: uppercase;
-          letter-spacing: 4px;
-          text-shadow: 0 0 12px rgba(255,165,0,0.6);
-          margin-bottom: 1.7rem;
+          letter-spacing: 6px; /* Extra wide letter spacing like in DS */
+          text-shadow: 0 0 8px rgba(214, 168, 85, 0.4); /* Gold-like glow */
+          margin-bottom: 2rem;
           position: relative;
           display: inline-block;
         }
@@ -239,13 +239,30 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         .boss-name::after {
           content: '';
           position: absolute;
-          bottom: -10px;
+          bottom: -15px;
           left: 50%;
           transform: translateX(-50%);
-          width: 130%;
-          height: 4px; /* Lebih tipis dan elegan */
-          background: linear-gradient(90deg, rgba(255,165,0,0) 0%, rgba(255,165,0,0.7) 50%, rgba(255,165,0,0) 100%);
-          border-radius: 2px;
+          width: 150%;
+          height: 2px; /* Ultra thin line like DS */
+          background: linear-gradient(90deg, 
+            rgba(214, 168, 85, 0) 0%, 
+            rgba(214, 168, 85, 0.7) 50%, 
+            rgba(214, 168, 85, 0) 100%); /* Gold gradient */
+          border-radius: 0; /* Sharp edges */
+        }
+        
+        .boss-name::before {
+          content: '';
+          position: absolute;
+          bottom: -12px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 100%;
+          height: 1px;
+          background: linear-gradient(90deg, 
+            rgba(214, 168, 85, 0) 0%, 
+            rgba(214, 168, 85, 0.4) 50%, 
+            rgba(214, 168, 85, 0) 100%); /* Second gold line for Dark Souls effect */
         }
         
         /* Floating embers */

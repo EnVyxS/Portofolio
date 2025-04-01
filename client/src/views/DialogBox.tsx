@@ -226,10 +226,10 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         }
         
         .dialog-box {
-          background: rgba(25, 15, 10, 0.5); /* Background lebih gelap dengan sentuhan merah/coklat */
-          border: 1px solid rgba(255, 140, 0, 0.3); /* Border oranye (warna api) */
-          box-shadow: 0 0 15px rgba(180, 70, 0, 0.2);
-          border-radius: 6px;
+          background: rgba(20, 15, 12, 0.7); /* Darker background - DS style */
+          border: 1px solid rgba(214, 168, 85, 0.2); /* Gold border like Dark Souls */
+          box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+          border-radius: 0; /* Sharp edges like DS */
           width: 100%;
           max-width: 800px;
           padding: 1.5rem;
@@ -242,24 +242,31 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           position: absolute;
           top: -1.8rem;
           left: 0;
-          background: rgba(180, 60, 0, 0.8); /* Oranye kemerahan untuk karakter */
-          color: #fff;
-          padding: 0.5rem 1rem;
-          border-radius: 4px 4px 0 0;
-          font-weight: 600;
+          background: rgba(30, 20, 10, 0.9); /* Dark background like DS */
+          color: rgba(214, 168, 85, 0.9); /* Gold text like DS */
+          padding: 0.5rem 1.2rem;
+          border-radius: 0; /* Sharp edges */
+          font-family: 'OptimusPrinceps', 'Trajan Pro', 'Cinzel', serif;
+          font-weight: 400;
           font-size: 0.9rem;
           text-transform: uppercase;
-          letter-spacing: 1px;
-          box-shadow: 0 -2px 10px rgba(180, 60, 0, 0.3); /* Efek bayangan api */
-          border-top: 1px solid rgba(255, 140, 0, 0.4); /* Border api */
+          letter-spacing: 2px; /* Wider spacing like DS */
+          box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+          border-top: 1px solid rgba(214, 168, 85, 0.3);
+          border-left: 1px solid rgba(214, 168, 85, 0.3);
+          border-right: 1px solid rgba(214, 168, 85, 0.3);
         }
         
         .dialog-text {
-          color: #f1f5f9;
+          color: rgba(241, 245, 249, 0.85); /* Slight opacity for Dark Souls feel */
+          font-family: 'OptimusPrinceps', 'Trajan Pro', 'Cinzel', serif;
           font-size: clamp(1rem, 2.5vw, 1.1rem);
-          line-height: 1.6;
+          line-height: 1.7;
           margin-bottom: 1rem;
           min-height: 5rem; /* Ensure consistent height */
+          letter-spacing: 1px; /* Slightly wider spacing for better readability */
+          text-shadow: 0 0 8px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+          font-weight: 400;
         }
         
         .dialog-actions {
@@ -270,32 +277,36 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         .dialog-continue {
           background: transparent;
           border: none;
-          color: rgba(255, 235, 205, 0.8); /* Warna teks lebih kecoklatan untuk tema api */
+          color: rgba(214, 168, 85, 0.7); /* Gold text with opacity - DS style */
           display: flex;
           align-items: center;
           gap: 0.5rem;
           font-size: 0.9rem;
+          font-family: 'OptimusPrinceps', 'Trajan Pro', 'Cinzel', serif;
           cursor: pointer;
           padding: 0.5rem 1rem;
-          border-radius: 4px;
+          border-radius: 0; /* Sharp edges like DS */
           transition: all 0.2s ease;
+          letter-spacing: 1px;
         }
         
         .dialog-continue:hover {
-          background: rgba(255, 140, 0, 0.15); /* Background orange saat hover */
-          color: #fff;
-          text-shadow: 0 0 4px rgba(255, 165, 0, 0.6); /* Efek glow saat hover */
+          background: rgba(214, 168, 85, 0.1); /* Gold background with opacity */
+          color: rgba(214, 168, 85, 0.95); 
+          text-shadow: 0 0 4px rgba(214, 168, 85, 0.4);
         }
         
-        /* Styling for hover dialog continue button */
+        /* Styling for hover dialog continue button - like main but Dark Souls style */
         .hover-continue {
-          color: rgba(255, 235, 205, 0.8); /* sama dengan warna dialog utama */
+          color: rgba(214, 168, 85, 0.7); /* Gold text with opacity - DS style */
+          font-family: 'OptimusPrinceps', 'Trajan Pro', 'Cinzel', serif;
+          letter-spacing: 1px;
         }
         
         .hover-continue:hover {
-          background: rgba(255, 140, 0, 0.15);
-          color: #fff;
-          text-shadow: 0 0 4px rgba(255, 165, 0, 0.6);
+          background: rgba(214, 168, 85, 0.1); /* Gold background with opacity */
+          color: rgba(214, 168, 85, 0.95);
+          text-shadow: 0 0 4px rgba(214, 168, 85, 0.4);
         }
         
         .continue-indicator {
@@ -315,15 +326,24 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           }
         }
         
-        /* Styling for hover dialogs - sama seperti dialog utama */
+        /* Styling for hover dialogs - match main dialog styles for Dark Souls theme */
         .hover-dialog {
-          background: rgba(25, 15, 10, 0.5); 
-          border: 1px solid rgba(255, 140, 0, 0.3);
-          box-shadow: 0 0 15px rgba(180, 70, 0, 0.2);
+          background: rgba(20, 15, 12, 0.7);
+          border: 1px solid rgba(214, 168, 85, 0.2);
+          box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+          border-radius: 0;
         }
         
         .hover-character {
-          background: rgba(180, 60, 0, 0.8); /* sama seperti karakter utama */
+          background: rgba(30, 20, 10, 0.9);
+          color: rgba(214, 168, 85, 0.9);
+          font-family: 'OptimusPrinceps', 'Trajan Pro', 'Cinzel', serif;
+          font-weight: 400;
+          letter-spacing: 2px;
+          border-radius: 0;
+          border-top: 1px solid rgba(214, 168, 85, 0.3);
+          border-left: 1px solid rgba(214, 168, 85, 0.3);
+          border-right: 1px solid rgba(214, 168, 85, 0.3);
           display: flex;
           align-items: center;
           gap: 0.5rem;
