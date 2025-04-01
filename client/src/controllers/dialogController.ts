@@ -137,7 +137,8 @@ class DialogController {
     const customDialog: Dialog = {
       id: 9999, // ID khusus untuk dialog timeout
       text: text,
-      character: "Diva Juan Nur Taqarrub", // Karakter tetap sama
+      character: "Geralt of Rivia", // Karakter untuk dialog timeout/idle (sesuai dengan suara "geralt")
+      voiceId: "geralt" // Voice ID yang sesuai
     };
     
     // Tampilkan dialog custom

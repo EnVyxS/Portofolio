@@ -38,12 +38,38 @@ export const TIMEOUT_DURATIONS = {
 };
 
 // Untuk testing/development, gunakan timeout yang lebih singkat
-const DEBUG_MODE = false;
+const DEBUG_MODE = true; // Aktifkan untuk testing
 if (DEBUG_MODE) {
   Object.keys(TIMEOUT_DURATIONS).forEach(key => {
-    TIMEOUT_DURATIONS[key as keyof typeof TIMEOUT_DURATIONS] = 
-      TIMEOUT_DURATIONS[key as keyof typeof TIMEOUT_DURATIONS] / 60; // 1/60 dari waktu normal (detik, bukan menit)
+    // Gunakan waktu yang lebih singkat untuk testing
+    // FIRST_WARNING: 5 detik
+    // SECOND_WARNING: 10 detik
+    // FINAL_WARNING: 15 detik
+    // THROW_USER: 20 detik
+    // EXCESSIVE_HOVER_WARNING: 5 detik
+    // FINAL_HOVER_WARNING: 10 detik
+    // PUNCH_USER: 15 detik
+    
+    const debugTimeouts: Record<string, number> = {
+      FIRST_WARNING: 5000,
+      SECOND_WARNING: 10000,
+      FINAL_WARNING: 15000,
+      THROW_USER: 20000,
+      EXCESSIVE_HOVER_WARNING: 5000,
+      FINAL_HOVER_WARNING: 10000,
+      PUNCH_USER: 15000
+    };
+    
+    if (key in debugTimeouts) {
+      TIMEOUT_DURATIONS[key as keyof typeof TIMEOUT_DURATIONS] = debugTimeouts[key];
+    } else {
+      // Fallback ke metode lama (1/60 dari waktu normal)
+      TIMEOUT_DURATIONS[key as keyof typeof TIMEOUT_DURATIONS] = 
+        TIMEOUT_DURATIONS[key as keyof typeof TIMEOUT_DURATIONS] / 60;
+    }
   });
+  
+  console.log("[IdleTimeoutController] DEBUG MODE AKTIF - Timeout yang digunakan lebih singkat");
 }
 
 class IdleTimeoutController {
@@ -245,51 +271,71 @@ class IdleTimeoutController {
   
   // Method untuk menampilkan peringatan
   private showIdleWarning(text: string): void {
-    // Menggunakan dialog controller untuk menampilkan peringatan
+    // Hentikan dialog yang sedang berjalan
     this.dialogController.stopTyping();
     this.hoverDialogController.stopTyping();
     
-    // Untuk membuat efek interupsi selalu berhasil, kita reset status lain
+    // Reset hover state agar tidak ada konflik
     this.hoverDialogController.resetHoverState();
+    
+    console.log(`[IdleTimeoutController] Menampilkan peringatan: "${text}"`);
     
     // Tampilkan dialog peringatan dengan text custom
     this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
       if (isComplete) {
-        console.log(`Dialog peringatan selesai: ${text}`);
+        console.log(`[IdleTimeoutController] Dialog peringatan selesai ditampilkan`);
       }
     });
     
-    // Speak the warning text with angry tone
-    this.elevenlabsService.speakText(text, "geralt");
+    // Speak the warning text dengan tone yang sesuai - 'angry' untuk peringatan
+    try {
+      // Untuk peringatan, gunakan tone angry dari Geralt
+      this.elevenlabsService.speakText(text, "geralt");
+      console.log(`[IdleTimeoutController] Memutar suara peringatan dengan tone angry`);
+    } catch (error) {
+      console.error("[IdleTimeoutController] Gagal memutar suara peringatan:", error);
+    }
   }
   
   // Method untuk 'melempar' user
   private throwUser(): void {
-    console.log("Geralt melempar user! Mengembalikan ke scene awal.");
+    console.log("[IdleTimeoutController] Geralt melempar user! Mengembalikan ke scene awal.");
+    
+    // Tambahkan dialog peringatan untuk 'melempar'
+    const throwText = "That's it. GET OUT OF MY SIGHT!";
+    this.showIdleWarning(throwText);
     
     // Tandai bahwa user telah dilempar
     this.hasBeenReset = true;
     this.hasInteractedAfterReset = false;
     
-    // Jalankan callback jika ada
-    if (this.throwUserCallback) {
-      this.throwUserCallback();
-    }
-    
-    // Reset scene
-    if (this.resetSceneCallback) {
-      this.resetSceneCallback();
-    }
+    // Jalankan callback jika ada setelah delay singkat agar dialog dapat dibaca
+    setTimeout(() => {
+      if (this.throwUserCallback) {
+        this.throwUserCallback();
+      }
+      
+      // Reset scene
+      if (this.resetSceneCallback) {
+        this.resetSceneCallback();
+      }
+    }, 2000); // Delay 2 detik agar dialog dapat dibaca sebelum dilempar
   }
   
   // Method untuk 'memukul' user
   private punchUser(): void {
-    console.log("Geralt memukul user! Mengeluarkan dari website.");
+    console.log("[IdleTimeoutController] Geralt memukul user! Mengeluarkan dari website.");
     
-    // Jalankan callback jika ada
-    if (this.punchUserCallback) {
-      this.punchUserCallback();
-    }
+    // Tambahkan dialog peringatan untuk 'memukul'
+    const punchText = "You're really asking for it...";
+    this.showIdleWarning(punchText);
+    
+    // Jalankan callback jika ada setelah delay singkat
+    setTimeout(() => {
+      if (this.punchUserCallback) {
+        this.punchUserCallback();
+      }
+    }, 1000); // Delay 1 detik untuk dialog dapat dibaca
     
     // Setelah beberapa detik, paksa reload website
     setTimeout(() => {
