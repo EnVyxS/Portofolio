@@ -105,9 +105,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     }
   }, [dialogSource, isComplete, dialogController, hoverDialogController, onDialogComplete, setText, setIsComplete, setIsDialogFinished, setCharacterName]);
 
-  // Effect untuk auto-continue ketika dialog selesai - dimodifikasi untuk berjalan untuk semua dialog
+  // Variabel state autoplay
+  const [autoPlayEnabled, setAutoPlayEnabled] = useState<boolean>(false);
+
+  // Effect untuk auto-continue ketika dialog selesai - jika tombol autoplay aktif
   useEffect(() => {
-    if (isComplete && dialogSource === 'main') {
+    if (isComplete && dialogSource === 'main' && autoPlayEnabled) {
       // Clear any existing timer
       if (autoPlayTimerRef.current) {
         clearTimeout(autoPlayTimerRef.current);
@@ -121,11 +124,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       // Set new timer untuk auto-continue semua dialog
       const currentDialog = dialogController.getCurrentDialog();
       if (currentDialog) {
-        // Periksa apakah dialog ini adalah dialog yang membutuhkan respons (persistent)
-        const shouldPersist = isDialogPersistent(currentDialog.text);
-        
-        if (!shouldPersist) {
-          // Untuk dialog yang tidak perlu persistent, auto-dismiss lebih cepat
+        // Periksa apakah dialog ini adalah dialog yang membutuhkan respons
+        if (text.includes('?') || text.length < 20) {
+          // Dialog yang kemungkinan membutuhkan respons (persistent) tidak auto-continue
+          console.log(`Dialog ${currentDialog.id} adalah persistent, menunggu interaksi user`);
+        } else {
+          // Untuk dialog yang tidak perlu persistent, auto-dismiss
           const textLength = currentDialog.text.length;
           const baseDelay = 2000; // 2 detik base delay
           const charDelay = 50; // 50ms per karakter
@@ -136,15 +140,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           autoPlayTimerRef.current = setTimeout(() => {
             handleContinue();
           }, autoplayDelay);
-        } else {
-          // Dialog yang membutuhkan respons (persistent) tidak auto-continue
-          console.log(`Dialog ${currentDialog.id} adalah persistent, menunggu interaksi user`);
         }
       }
     } else if (isComplete && dialogSource === 'hover') {
       // Untuk hover dialog, periksa juga persistensi
-      if (!isDialogPersistent(text)) {
-        // Hover dialog yang tidak memerlukan respons seperti "Arghh... whatever you want. I'm done."
+      if (!(text.includes('?') || text.includes('Check') || text.includes('convinc') || text.includes('need') || text.includes('want'))) {
+        // Hover dialog yang tidak memerlukan respons
         const dismissDelay = 3000; // 3 detik untuk membaca pesan
         
         console.log(`Hover dialog akan dismiss dalam ${dismissDelay}ms (non-persistent)`);
@@ -166,7 +167,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         clearTimeout(autoPlayTimerRef.current);
       }
     };
-  }, [isComplete, dialogSource, text, handleContinue, dialogController, hoverDialogController, setIsDialogFinished]);
+  }, [isComplete, dialogSource, text, handleContinue, dialogController, hoverDialogController, setIsDialogFinished, autoPlayEnabled]);
 
   useEffect(() => {
     // Start the dialog sequence hanya jika user belum berinteraksi dengan hover dialog
@@ -192,7 +193,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       setText(text);
       setIsComplete(complete);
       setDialogSource('hover');
-      setCharacterName('Geralt of Rivia'); // Dialog hover dari Geralt (idle warnings juga)
+      setCharacterName('DIVA JUAN NUR TAQARRUB'); // Dialog hover dari DIVA (idle warnings juga)
     });
     
     // Cleanup on unmount
@@ -223,13 +224,27 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         </div>
         <div className="dialog-text">{text}</div>
         <div className="dialog-actions">
-          {isComplete ? (
-            isDialogPersistent(text) ? (
-              <div className="waiting-interaction-hint">Waiting for your action...</div>
-            ) : (
-              <div className="auto-continue-hint">Auto-continues in a moment...</div>
-            )
-          ) : null}
+          <div className="dialog-controls">
+            {isComplete ? (
+              dialogSource === 'main' && (
+                <button 
+                  className={`autoplay-toggle ${autoPlayEnabled ? 'autoplay-active' : ''}`}
+                  onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
+                  title={autoPlayEnabled ? "Disable autoplay" : "Enable autoplay"}
+                >
+                  {autoPlayEnabled ? "▶ Auto" : "▷ Auto"}
+                </button>
+              )
+            ) : null}
+            
+            {isComplete ? (
+              (text.includes('?') || text.includes('need') || text.includes('check')) ? (
+                <div className="waiting-interaction-hint">Waiting for your action...</div>
+              ) : (
+                autoPlayEnabled && <div className="auto-continue-hint">Auto-continues in a moment...</div>
+              )
+            ) : null}
+          </div>
           
           <button 
             className={`dialog-continue ${dialogSource === 'hover' ? 'hover-continue' : ''}`}
@@ -320,12 +335,42 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           margin-top: 0.5rem;
         }
         
+        .dialog-controls {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
+        
+        .autoplay-toggle {
+          background: transparent;
+          border: 1px solid rgba(150, 130, 100, 0.4);
+          color: rgba(180, 160, 120, 0.7);
+          font-family: 'Trajan Pro', 'Cinzel', 'Garamond', serif;
+          font-size: 0.75rem;
+          padding: 0.25rem 0.6rem;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-transform: uppercase;
+        }
+        
+        .autoplay-toggle:hover {
+          background: rgba(150, 130, 100, 0.15);
+          color: #e8debc;
+          text-shadow: 0 0 4px rgba(150, 130, 100, 0.6);
+        }
+        
+        .autoplay-active {
+          background: rgba(150, 130, 100, 0.25);
+          color: #e8debc;
+          text-shadow: 0 0 4px rgba(150, 130, 100, 0.6);
+        }
+        
         .auto-continue-hint {
           font-size: 0.8rem;
           color: rgba(180, 160, 120, 0.5);
           font-style: italic;
           animation: pulse 2s infinite;
-          padding-left: 1rem;
+          padding-left: 0.5rem;
         }
         
         .waiting-interaction-hint {
@@ -333,7 +378,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           color: rgba(200, 180, 100, 0.7);
           font-weight: bold;
           animation: pulse 1.5s infinite;
-          padding-left: 1rem;
+          padding-left: 0.5rem;
         }
         
         /* Ornamen dekoratif untuk tombol continue */
