@@ -11,49 +11,43 @@ class DialogModel {
     {
       id: 1,
       character: "Geralt",
-      text: "Hmm... a visitor. *Witcher medallion vibrates softly* Not a common occurrence to have someone approach my fire.",
+      text: "Hmm, another wanderer approaching the fire. Welcome to my campsite, traveler.",
       voiceId: "geralt"
     },
     {
       id: 2,
       character: "Geralt",
-      text: "I see you're looking for someone with particular... skills. Perhaps I can be of help. Though my methods are unconventional.",
+      text: "I'm Geralt of Rivia, a witcher by profession. I hunt monsters and solve problems... for the right price.",
       voiceId: "geralt"
     },
     {
       id: 3,
       character: "Geralt",
-      text: "Web development, app architecture, user experience... different beasts than what I'm used to hunting. But every monster has a pattern.",
+      text: "You seem interested in knowing more about me. Well, I've been developing software for quite some time now.",
       voiceId: "geralt"
     },
     {
       id: 4,
       character: "Geralt",
-      text: "Take a look at my previous contracts. They may tell you more about how I work than any words could.",
+      text: "My specialties? Frontend sorcery with React, TypeScript enchantments, and backend rituals with Node.js.",
       voiceId: "geralt"
     },
     {
       id: 5,
       character: "Geralt",
-      text: "If you've got a project that needs someone who sees beyond the obvious, who can track solutions where others see only problems, then perhaps we have a deal to strike.",
+      text: "I've faced many challenges in my journey - complex APIs, tricky UI animations, performance optimizations. All defeated.",
       voiceId: "geralt"
     },
     {
       id: 6,
       character: "Geralt",
-      text: "Contact me through those mystical portals in the card. We'll discuss the details, the payment, everything that matters.",
+      text: "If you need someone with my skills, my contact details are just ahead. Take a look at my previous contracts too.",
       voiceId: "geralt"
     },
     {
       id: 7,
       character: "Geralt",
-      text: "Remember, though... *stares into the fire* Code, like destiny, is a double-edged blade. The choices we make echo through the systems we build.",
-      voiceId: "geralt"
-    },
-    {
-      id: 8,
-      character: "Geralt",
-      text: "Now, go ahead. Reach out if you need a skilled hand for your next digital hunt.",
+      text: "Hmm. That's enough talk for now. Take a look at my portfolio card to learn more or to contact me for work.",
       voiceId: "geralt"
     }
   ];
@@ -69,7 +63,7 @@ class DialogModel {
   }
 
   public getCurrentDialog(): Dialog | undefined {
-    if (this.currentDialogIndex < this.dialogs.length) {
+    if (this.currentDialogIndex >= 0 && this.currentDialogIndex < this.dialogs.length) {
       return this.dialogs[this.currentDialogIndex];
     }
     return undefined;
@@ -94,9 +88,9 @@ class DialogModel {
   public resetDialog(): void {
     this.currentDialogIndex = 0;
   }
-
+  
   public getAllDialogs(): Dialog[] {
-    return [...this.dialogs];
+    return [...this.dialogs]; // Return a copy to prevent external modification
   }
 }
 

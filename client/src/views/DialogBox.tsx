@@ -1,30 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import DialogController from '../controllers/dialogController';
+import DialogModel, { Dialog } from '../models/dialogModel';
+
+interface Message {
+  id: number;
+  character: string;
+  text: string;
+  voiceId?: string;
+}
 
 interface DialogBoxProps {
   onDialogComplete?: () => void;
 }
 
 const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
-  const [text, setText] = useState<string>('');
-  const [characterName, setCharacterName] = useState<string>('');
-  const [isComplete, setIsComplete] = useState<boolean>(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState<number>(0);
+  const [displayedText, setDisplayedText] = useState<string>('');
+  const [isTyping, setIsTyping] = useState<boolean>(true);
   const [isDialogFinished, setIsDialogFinished] = useState<boolean>(false);
   const dialogController = DialogController.getInstance();
+  const dialogModel = DialogModel.getInstance();
 
+  // Load all dialogs on mount
   useEffect(() => {
-    // Start the dialog sequence
-    dialogController.startDialog((text, complete) => {
-      setText(text);
-      setIsComplete(complete);
-      
-      // Get current dialog to display character name
-      const currentDialog = dialogController.getCurrentDialog();
-      if (currentDialog) {
-        setCharacterName(currentDialog.character);
-      }
-    });
+    const allDialogs = dialogModel.getAllDialogs();
+    setMessages(allDialogs.map(dialog => ({
+      id: dialog.id,
+      character: dialog.character,
+      text: dialog.text,
+      voiceId: dialog.voiceId
+    })));
+    
+    // Start typing the first message
+    if (allDialogs.length > 0) {
+      startTyping(allDialogs[0]);
+    }
     
     // Cleanup on unmount
     return () => {
@@ -32,34 +44,48 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     };
   }, []);
 
+  // Function to start typing animation for a dialog
+  const startTyping = (dialog: Dialog) => {
+    setIsTyping(true);
+    dialogController.startDialog((text, complete) => {
+      setDisplayedText(text);
+      if (complete) {
+        setIsTyping(false);
+      }
+    });
+  };
+
   const handleContinue = () => {
-    if (!isComplete) {
-      // Skip to the end of the current dialog
+    if (isTyping) {
+      // Skip to the end of the current message
       dialogController.skipToFullText();
+      setIsTyping(false);
+      return;
+    }
+    
+    // Move to the next message
+    const nextIndex = currentMessageIndex + 1;
+    if (nextIndex < messages.length) {
+      setCurrentMessageIndex(nextIndex);
+      // Get the next dialog from model
+      const nextDialog = dialogModel.nextDialog();
+      if (nextDialog) {
+        startTyping(nextDialog);
+      }
     } else {
-      // Move to the next dialog
-      dialogController.nextDialog((text, complete) => {
-        setText(text);
-        setIsComplete(complete);
-        
-        // Get current dialog to display character name
-        const currentDialog = dialogController.getCurrentDialog();
-        if (currentDialog) {
-          setCharacterName(currentDialog.character);
-        } else {
-          // No more dialogs - we're finished
-          setIsDialogFinished(true);
-          if (onDialogComplete) {
-            onDialogComplete();
-          }
-        }
-      });
+      // No more messages - we're finished
+      setIsDialogFinished(true);
+      if (onDialogComplete) {
+        onDialogComplete();
+      }
     }
   };
 
-  if (isDialogFinished) {
-    return null; // Don't render anything when dialog is finished
+  if (isDialogFinished || messages.length === 0) {
+    return null; // Don't render anything when dialog is finished or no messages
   }
+
+  const currentMessage = messages[currentMessageIndex];
 
   return (
     <motion.div 
@@ -69,15 +95,15 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
       <div className="dialog-box">
-        <div className="character-name">{characterName}</div>
-        <div className="dialog-text">{text}</div>
+        <div className="character-name">{currentMessage.character}</div>
+        <div className="dialog-text">{displayedText}</div>
         <div className="dialog-actions">
           <button 
             className="dialog-continue"
             onClick={handleContinue}
           >
-            {isComplete ? 'Next' : 'Skip'}
-            <span className="continue-indicator">{isComplete ? '▼' : '▶'}</span>
+            {isTyping ? 'Skip' : 'Next'}
+            <span className="continue-indicator">{isTyping ? '▶' : '▼'}</span>
           </button>
         </div>
       </div>
