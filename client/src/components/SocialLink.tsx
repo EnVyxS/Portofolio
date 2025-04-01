@@ -143,15 +143,16 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
           display: flex;
           align-items: center;
           padding: clamp(0.6rem, 2vw, 0.85rem) clamp(0.7rem, 3vw, 1rem); /* Responsive padding */
-          border-radius: 10px;
+          border-radius: 6px; /* Lebih kecil untuk kesan game */
           text-decoration: none;
-          background-color: rgba(15, 23, 42, 0.5);
+          background-color: rgba(15, 23, 42, 0.3); /* Lebih transparan */
           transition: all 0.3s ease;
-          border: 1px solid rgba(255, 255, 255, 0.03);
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+          border: 1px solid rgba(249, 115, 22, 0.15); /* Warna border kemerahan sesuai api */
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
           width: 100%;
           -webkit-tap-highlight-color: transparent; /* Remove default tap highlight on mobile */
           touch-action: manipulation; /* More responsive for touch */
+          color: rgba(255, 255, 255, 0.85); /* Warna text lebih menyatu */
         }
 
         .icon-container {

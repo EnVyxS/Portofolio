@@ -176,16 +176,16 @@ const GameContactCard: React.FC = () => {
 
         /* Unified card that contains all elements */
         .unified-card {
-          background: rgba(15, 23, 42, 0.85);
-          border: 1px solid rgba(255, 255, 255, 0.04);
-          backdrop-filter: blur(8px);
-          border-radius: 15px;
+          background: rgba(15, 23, 42, 0.5); /* Lebih transparan untuk menyatu dengan background */
+          border: 1px solid rgba(249, 115, 22, 0.2); /* Border dengan aksen api */
+          backdrop-filter: blur(5px);
+          border-radius: 8px; /* Border radius lebih kecil untuk gaya game */
           padding: clamp(1.2rem, 3vw, 2rem) clamp(1.2rem, 3vw, 1.7rem); /* Responsive padding */
           max-width: min(400px, 90%); /* Responsive width, smaller on small screens */
           width: 100%;
           box-shadow:
-            0 8px 20px rgba(0, 0, 0, 0.5),
-            0 0 15px rgba(249, 115, 22, 0.1);
+            0 8px 20px rgba(0, 0, 0, 0.3),
+            0 0 15px rgba(249, 115, 22, 0.2);
           display: flex;
           flex-direction: column;
           align-items: center;

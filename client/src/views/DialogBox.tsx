@@ -97,23 +97,23 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         }
         
         .dialog-box {
-          background: rgba(15, 23, 42, 0.9);
-          border: 1px solid rgba(249, 115, 22, 0.6);
-          box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-          border-radius: 8px;
+          background: rgba(15, 23, 42, 0.4); /* Lebih transparan untuk menyatu dengan background */
+          border: 1px solid rgba(249, 115, 22, 0.3); /* Border lebih halus */
+          box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+          border-radius: 6px; /* Border radius lebih kecil untuk gaya game */
           width: 100%;
           max-width: 800px;
           padding: 1.5rem;
           position: relative;
           pointer-events: auto;
-          backdrop-filter: blur(10px);
+          backdrop-filter: blur(5px); /* Blur lebih halus */
         }
         
         .character-name {
           position: absolute;
           top: -1.8rem;
           left: 0;
-          background: rgba(249, 115, 22, 0.9);
+          background: rgba(249, 115, 22, 0.6); /* Lebih transparan untuk efek menyatu */
           color: #fff;
           padding: 0.5rem 1rem;
           border-radius: 4px 4px 0 0;
@@ -121,6 +121,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           font-size: 0.9rem;
           text-transform: uppercase;
           letter-spacing: 1px;
+          box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2); /* Efek bayangan halus */
+          border-top: 1px solid rgba(255, 165, 0, 0.3); /* Border halus atas */
         }
         
         .dialog-text {
