@@ -70,31 +70,58 @@ class ElevenLabsService {
         voice_id: voiceId,
         // Tidak menyertakan model_id dan biarkan server menggunakan model default yang bekerja
         voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.75,
+          stability: 0.45,
+          similarity_boost: 0.8,
           style: 0.3,
-          speaking_rate: 0.75
+          use_speaker_boost: true,
+          speaking_rate: 0.75,
+          // Tambahan parameter untuk karakter suara lebih berat
+          timbre: 2.7,
+          clarity: 0.35,
         }
       };
 
-      const response = await fetch('/api/elevenlabs/text-to-speech', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody)
-      });
+      // Tambahkan timeout untuk menghindari aplikasi menggantung
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik timeout
+      
+      try {
+        const response = await fetch('/api/elevenlabs/text-to-speech', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
 
-      if (!response.ok) {
-        console.error('Failed to generate speech:', await response.text());
+        if (!response.ok) {
+          let errorText = await response.text();
+          try {
+            const errorData = JSON.parse(errorText);
+            console.error('Failed to generate speech:', errorData.error, errorData.details);
+          } catch {
+            console.error('Failed to generate speech:', errorText);
+          }
+          return null;
+        }
+
+        // Simpan hasil ke cache
+        const audioBlob = await response.blob();
+        this.audioCache.set(cacheKey, audioBlob);
+        
+        return audioBlob;
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === 'AbortError') {
+          console.error('Request timeout after 10 seconds');
+        } else {
+          console.error('Fetch error:', fetchError);
+        }
         return null;
       }
-
-      // Simpan hasil ke cache
-      const audioBlob = await response.blob();
-      this.audioCache.set(cacheKey, audioBlob);
-      
-      return audioBlob;
     } catch (error) {
       console.error('Error generating speech:', error);
       return null;

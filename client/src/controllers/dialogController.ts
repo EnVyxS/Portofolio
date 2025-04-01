@@ -84,7 +84,15 @@ class DialogController {
     
     // Try to speak the text if voice is enabled
     if (this.elevenlabsService.getApiKey()) {
-      this.elevenlabsService.speakText(dialog.text, dialog.voiceId || 'default');
+      // Wrap in try-catch to handle potential errors with ElevenLabs API
+      try {
+        this.elevenlabsService.speakText(dialog.text, dialog.voiceId || 'default')
+          .catch(err => {
+            console.warn('Gagal memutar dialog audio, melanjutkan tanpa audio:', err);
+          });
+      } catch (error) {
+        console.warn('Error saat memanggil ElevenLabs service:', error);
+      }
     }
     
     // Start typewriter effect
