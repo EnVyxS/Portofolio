@@ -24,7 +24,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
 
   useEffect(() => {
     // Create audio element
-    const audioElement = new Audio("/audio/darksouls-chill.mp3");
+    const audioElement = new Audio("/images/Darksouls-Chill.m4a");
     audioElement.loop = true;
     audioElement.volume = 0.15;
     
