@@ -14,18 +14,20 @@ class ElevenLabsService {
   private isPlaying: boolean = false;
   private audioElement: HTMLAudioElement | null = null;
 
-  // Map of character voices to ElevenLabs voice IDs
-  // These are example IDs - they should be replaced with actual ElevenLabs voice IDs
+  // Map character names to ElevenLabs voice IDs
   private voiceMap: Record<string, string> = {
-    'geralt': 'MjQrMrXhMQWKXOyF08aB', // Replace with actual voice ID for Geralt
-    'default': 'pNInz6obpgDQGcFmaJgB' // Default voice ID
+    'geralt': 'TxGEqnHWrfWFTfGW9XjX', // Adam - deep gravelly voice for Geralt
+    'ciri': 'EXAVITQu4vr4xnSDxMaL',   // Bella - young female voice for Ciri
+    'yennefer': 'Yko7PKHZNXotIFUBG7I9', // Elli - mature female voice with accent for Yen
+    'default': 'TxGEqnHWrfWFTfGW9XjX'  // Default to Geralt voice
   };
 
   private constructor() {
-    // Check if API key exists in localStorage
-    const storedKey = localStorage.getItem('elevenlabs_api_key');
-    if (storedKey) {
-      this.apiKey = storedKey;
+    // Check if API key is in env
+    const envApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
+    if (envApiKey) {
+      this.apiKey = envApiKey;
+      console.log("API Key initialized:", envApiKey ? "Yes" : "No");
     }
   }
 
@@ -38,7 +40,6 @@ class ElevenLabsService {
 
   public setApiKey(key: string): void {
     this.apiKey = key;
-    localStorage.setItem('elevenlabs_api_key', key);
   }
 
   public getApiKey(): string | null {
@@ -47,26 +48,24 @@ class ElevenLabsService {
 
   public async generateSpeech(text: string, characterVoice: string = 'geralt'): Promise<Blob | null> {
     if (!this.apiKey) {
-      console.warn('No ElevenLabs API key provided');
+      console.error('ElevenLabs API key not set');
       return null;
     }
 
     try {
-      // Get voice ID from the character name
-      const voiceId = this.voiceMap[characterVoice] || this.voiceMap.default;
+      // Map character to voice ID
+      const voiceId = this.voiceMap[characterVoice.toLowerCase()] || this.voiceMap.default;
       
-      // Prepare request body
       const requestBody: TTSRequestBody = {
         text: text,
         voice_id: voiceId,
-        model_id: 'eleven_monolingual_v1', // Using their standard model
+        model_id: "eleven_multilingual_v2", // Use their more capable model
         voice_settings: {
           stability: 0.5,
-          similarity_boost: 0.8
+          similarity_boost: 0.75
         }
       };
 
-      // Make API request to ElevenLabs
       const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
         method: 'POST',
         headers: {
@@ -77,63 +76,61 @@ class ElevenLabsService {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
-        throw new Error(errorData.detail || `Error: ${response.status}`);
+        console.error('Failed to generate speech:', await response.text());
+        return null;
       }
 
-      // Get the audio blob
-      const audioBlob = await response.blob();
-      return audioBlob;
-
+      return await response.blob();
     } catch (error) {
-      console.error('Failed to generate speech:', error);
+      console.error('Error generating speech:', error);
       return null;
     }
   }
 
   public async speakText(text: string, characterVoice: string = 'geralt'): Promise<boolean> {
-    // Stop any currently playing audio
-    this.stopSpeaking();
+    // If already playing, stop first
+    if (this.isPlaying) {
+      this.stopSpeaking();
+    }
+
+    // Generate speech
+    const audioBlob = await this.generateSpeech(text, characterVoice);
+    if (!audioBlob) {
+      return false;
+    }
+
+    // Create audio URL and element
+    const audioUrl = URL.createObjectURL(audioBlob);
+    this.audioElement = new Audio(audioUrl);
     
+    // Play audio
     try {
-      // Generate speech
-      const audioBlob = await this.generateSpeech(text, characterVoice);
-      if (!audioBlob) return false;
+      this.isPlaying = true;
+      await this.audioElement.play();
       
-      // Create a URL for the audio blob
-      const audioUrl = URL.createObjectURL(audioBlob);
-      
-      // Create and play audio element
-      this.audioElement = new Audio(audioUrl);
-      
-      // Clean up when audio is done playing
+      // Clean up when audio ends
       this.audioElement.onended = () => {
         this.isPlaying = false;
         if (this.audioElement) {
-          URL.revokeObjectURL(this.audioElement.src);
+          URL.revokeObjectURL(audioUrl);
           this.audioElement = null;
         }
       };
       
-      // Start playing
-      await this.audioElement.play();
-      this.isPlaying = true;
       return true;
-      
     } catch (error) {
-      console.error('Failed to speak text:', error);
+      console.error('Failed to play audio:', error);
       this.isPlaying = false;
       return false;
     }
   }
 
   public stopSpeaking(): void {
-    if (this.audioElement) {
+    if (this.audioElement && this.isPlaying) {
       this.audioElement.pause();
-      URL.revokeObjectURL(this.audioElement.src);
-      this.audioElement = null;
+      this.audioElement.currentTime = 0;
+      this.isPlaying = false;
     }
-    this.isPlaying = false;
   }
 
   public isCurrentlyPlaying(): boolean {

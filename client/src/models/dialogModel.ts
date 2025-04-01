@@ -10,56 +10,50 @@ class DialogModel {
   private dialogs: Dialog[] = [
     {
       id: 1,
-      character: "Geralt of Rivia",
-      text: "Hmm. Greetings, traveler. You've found yourself at a bonfire. A moment of respite in these dark lands.",
+      character: "Geralt",
+      text: "Hmm... a visitor. *Witcher medallion vibrates softly* Not a common occurrence to have someone approach my fire.",
       voiceId: "geralt"
     },
     {
       id: 2,
-      character: "Geralt of Rivia",
-      text: "I am Geralt. A witcher. You might say I'm a software monster hunter. My blades are code and logic, seeking out bugs and slaying them without mercy.",
+      character: "Geralt",
+      text: "I see you're looking for someone with particular... skills. Perhaps I can be of help. Though my methods are unconventional.",
       voiceId: "geralt"
     },
     {
       id: 3,
-      character: "Geralt of Rivia",
-      text: "You seek knowledge of my skills? Very well.\n\nIn the front realms, I wield React and TypeScript with precision. The dark arts of CSS and animations are tools in my arsenal.",
+      character: "Geralt",
+      text: "Web development, app architecture, user experience... different beasts than what I'm used to hunting. But every monster has a pattern.",
       voiceId: "geralt"
     },
     {
       id: 4,
-      character: "Geralt of Rivia",
-      text: "Behind the veil, Node.js and Express are my silver weapons against the beasts of backend complexity. Databases bend to my will, be they SQL or NoSQL.",
+      character: "Geralt",
+      text: "Take a look at my previous contracts. They may tell you more about how I work than any words could.",
       voiceId: "geralt"
     },
     {
       id: 5,
-      character: "Geralt of Rivia",
-      text: "My path has taken me through quests at various guilds - startups seeking innovation, established kingdoms maintaining order in their digital realms.",
+      character: "Geralt",
+      text: "If you've got a project that needs someone who sees beyond the obvious, who can track solutions where others see only problems, then perhaps we have a deal to strike.",
       voiceId: "geralt"
     },
     {
       id: 6,
-      character: "Geralt of Rivia",
-      text: "Danger lurks in every codebase. Security vulnerabilities, performance issues... I track them down, using the Signs of testing and best practices.",
+      character: "Geralt",
+      text: "Contact me through those mystical portals in the card. We'll discuss the details, the payment, everything that matters.",
       voiceId: "geralt"
     },
     {
       id: 7,
-      character: "Geralt of Rivia",
-      text: "If you wish to enlist my services for your quest, my contact details await you. Choose your method of communication wisely.",
+      character: "Geralt",
+      text: "Remember, though... *stares into the fire* Code, like destiny, is a double-edged blade. The choices we make echo through the systems we build.",
       voiceId: "geralt"
     },
     {
       id: 8,
-      character: "Geralt of Rivia",
-      text: "Remember, in this digital world, a witcher's work is never truly done. There's always another monster to slay, another feature to build.",
-      voiceId: "geralt"
-    },
-    {
-      id: 9,
-      character: "Geralt of Rivia",
-      text: "Now, shall we discuss your project? Or perhaps you'd like to see evidence of my past conquests?",
+      character: "Geralt",
+      text: "Now, go ahead. Reach out if you need a skilled hand for your next digital hunt.",
       voiceId: "geralt"
     }
   ];
@@ -75,10 +69,10 @@ class DialogModel {
   }
 
   public getCurrentDialog(): Dialog | undefined {
-    if (this.currentDialogIndex >= this.dialogs.length) {
-      return undefined;
+    if (this.currentDialogIndex < this.dialogs.length) {
+      return this.dialogs[this.currentDialogIndex];
     }
-    return this.dialogs[this.currentDialogIndex];
+    return undefined;
   }
 
   public nextDialog(): Dialog | undefined {

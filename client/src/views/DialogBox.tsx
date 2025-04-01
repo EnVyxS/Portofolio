@@ -1,207 +1,189 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import DialogController from '../controllers/dialogController';
-import { Dialog } from '../models/dialogModel';
 
 interface DialogBoxProps {
   onDialogComplete?: () => void;
 }
 
 const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
-  const [currentText, setCurrentText] = useState<string>('');
+  const [text, setText] = useState<string>('');
+  const [characterName, setCharacterName] = useState<string>('');
   const [isComplete, setIsComplete] = useState<boolean>(false);
-  const [currentDialog, setCurrentDialog] = useState<Dialog | undefined>();
-  const [emotionalTone, setEmotionalTone] = useState<string>('neutral');
+  const [isDialogFinished, setIsDialogFinished] = useState<boolean>(false);
   const dialogController = DialogController.getInstance();
-  const boxRef = useRef<HTMLDivElement>(null);
 
-  // Start dialog on mount
   useEffect(() => {
-    startDialog();
-  }, []);
-
-  // Detect emotional tone from dialog text
-  useEffect(() => {
-    if (!currentDialog?.text) return;
-    
-    // Simple tone detection based on keywords in the dialog
-    const text = currentDialog.text.toLowerCase();
-    
-    if (text.includes('danger') || text.includes('threat') || text.includes('beware') || text.includes('danger') || text.includes('fear')) {
-      setEmotionalTone('danger');
-    } else if (text.includes('sad') || text.includes('unfortunate') || text.includes('pity') || text.includes('regret')) {
-      setEmotionalTone('sad');
-    } else if (text.includes('happy') || text.includes('joy') || text.includes('celebrate') || text.includes('pleased')) {
-      setEmotionalTone('happy');
-    } else if (text.includes('wise') || text.includes('wisdom') || text.includes('ancient') || text.includes('knowledge')) {
-      setEmotionalTone('wise');
-    } else if (text.includes('quest') || text.includes('journey') || text.includes('adventure') || text.includes('path')) {
-      setEmotionalTone('quest');
-    } else {
-      setEmotionalTone('neutral');
-    }
-  }, [currentDialog]);
-
-  const startDialog = () => {
+    // Start the dialog sequence
     dialogController.startDialog((text, complete) => {
-      setCurrentText(text);
+      setText(text);
       setIsComplete(complete);
       
-      // Update current dialog
-      const dialog = dialogController.getCurrentDialog();
-      if (dialog) {
-        setCurrentDialog(dialog);
-      }
-      
-      // If dialog is complete, notify parent component
-      if (complete && onDialogComplete) {
-        setTimeout(() => {
-          onDialogComplete();
-        }, 1000);
+      // Get current dialog to display character name
+      const currentDialog = dialogController.getCurrentDialog();
+      if (currentDialog) {
+        setCharacterName(currentDialog.character);
       }
     });
-  };
+    
+    // Cleanup on unmount
+    return () => {
+      dialogController.stopTyping();
+    };
+  }, []);
 
-  const handleNext = () => {
-    if (dialogController.isCurrentlyTyping()) {
-      // If currently typing, skip to the end of the current dialog
+  const handleContinue = () => {
+    if (!isComplete) {
+      // Skip to the end of the current dialog
       dialogController.skipToFullText();
     } else {
-      // If typing is complete, proceed to next dialog
+      // Move to the next dialog
       dialogController.nextDialog((text, complete) => {
-        setCurrentText(text);
+        setText(text);
         setIsComplete(complete);
         
-        // Update current dialog
-        const dialog = dialogController.getCurrentDialog();
-        if (dialog) {
-          setCurrentDialog(dialog);
-        }
-        
-        // If dialog is complete, notify parent component
-        if (complete && onDialogComplete) {
-          setTimeout(() => {
+        // Get current dialog to display character name
+        const currentDialog = dialogController.getCurrentDialog();
+        if (currentDialog) {
+          setCharacterName(currentDialog.character);
+        } else {
+          // No more dialogs - we're finished
+          setIsDialogFinished(true);
+          if (onDialogComplete) {
             onDialogComplete();
-          }, 1000);
+          }
         }
       });
     }
   };
 
-  // Map emotional tone to a background color/gradient
-  const getEmotionalBackground = () => {
-    switch (emotionalTone) {
-      case 'danger':
-        return 'linear-gradient(to bottom, rgba(30, 0, 0, 0.95), rgba(20, 0, 0, 0.95))';
-      case 'sad':
-        return 'linear-gradient(to bottom, rgba(0, 14, 36, 0.95), rgba(0, 10, 26, 0.95))';
-      case 'happy':
-        return 'linear-gradient(to bottom, rgba(25, 20, 0, 0.95), rgba(20, 15, 0, 0.95))';
-      case 'wise':
-        return 'linear-gradient(to bottom, rgba(20, 20, 30, 0.95), rgba(15, 15, 25, 0.95))';
-      case 'quest':
-        return 'linear-gradient(to bottom, rgba(15, 25, 15, 0.95), rgba(10, 20, 10, 0.95))';
-      default:
-        return 'linear-gradient(to bottom, rgba(15, 23, 42, 0.95), rgba(10, 15, 30, 0.95))';
-    }
-  };
+  if (isDialogFinished) {
+    return null; // Don't render anything when dialog is finished
+  }
 
   return (
-    <AnimatePresence>
-      <motion.div
-        className="dialog-box-container"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 50 }}
-        transition={{ duration: 0.5, ease: "easeInOut" }}
-        style={{
-          position: 'absolute',
-          bottom: '2rem',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '90%',
-          maxWidth: '800px',
-          zIndex: 50,
-        }}
-      >
-        <div
-          ref={boxRef}
-          className="dialog-box"
-          style={{
-            background: getEmotionalBackground(),
-            backdropFilter: 'blur(8px)',
-            borderRadius: '8px',
-            padding: '1.5rem',
-            boxShadow: '0 0 20px rgba(0, 0, 0, 0.5), 0 0 2px rgba(255, 165, 0, 0.3)',
-            border: '1px solid rgba(255, 165, 0, 0.2)',
-          }}
-        >
-          {/* Character name */}
-          {currentDialog && (
-            <div 
-              className="character-name"
-              style={{
-                color: '#f97316',
-                fontSize: '1.1rem',
-                fontWeight: 600,
-                marginBottom: '0.75rem',
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-                fontFamily: '"Cinzel", serif',
-              }}
-            >
-              {currentDialog.character}
-            </div>
-          )}
-          
-          {/* Dialog text with typewriter effect */}
-          <div 
-            className="dialog-text"
-            style={{
-              color: '#f1f5f9',
-              fontSize: '1rem',
-              lineHeight: 1.6,
-              minHeight: '5rem',
-              fontFamily: 'Georgia, serif',
-              whiteSpace: 'pre-line', // Respect line breaks in dialog
-            }}
+    <motion.div 
+      className="dialog-box-container"
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
+      <div className="dialog-box">
+        <div className="character-name">{characterName}</div>
+        <div className="dialog-text">{text}</div>
+        <div className="dialog-actions">
+          <button 
+            className="dialog-continue"
+            onClick={handleContinue}
           >
-            {currentText}
-          </div>
-          
-          {/* Next button */}
-          <motion.button
-            onClick={handleNext}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            style={{
-              position: 'absolute',
-              bottom: '1rem',
-              right: '1rem',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#f97316',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              fontFamily: '"Cinzel", serif',
-              fontSize: '0.9rem',
-              opacity: isComplete ? 1 : 0.7,
-            }}
-          >
-            {dialogController.isCurrentlyTyping() ? (
-              'Skip'
-            ) : (
-              'Continue'
-            )} 
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </motion.button>
+            {isComplete ? 'Next' : 'Skip'}
+            <span className="continue-indicator">{isComplete ? '▼' : '▶'}</span>
+          </button>
         </div>
-      </motion.div>
-    </AnimatePresence>
+      </div>
+      
+      <style>{`
+        .dialog-box-container {
+          position: fixed;
+          bottom: 2rem;
+          left: 0;
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 50;
+          pointer-events: none;
+          padding: 0 1rem;
+        }
+        
+        .dialog-box {
+          background: rgba(15, 23, 42, 0.9);
+          border: 1px solid rgba(249, 115, 22, 0.6);
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+          border-radius: 8px;
+          width: 100%;
+          max-width: 800px;
+          padding: 1.5rem;
+          position: relative;
+          pointer-events: auto;
+          backdrop-filter: blur(10px);
+        }
+        
+        .character-name {
+          position: absolute;
+          top: -1.8rem;
+          left: 0;
+          background: rgba(249, 115, 22, 0.9);
+          color: #fff;
+          padding: 0.5rem 1rem;
+          border-radius: 4px 4px 0 0;
+          font-weight: 600;
+          font-size: 0.9rem;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        
+        .dialog-text {
+          color: #f1f5f9;
+          font-size: clamp(1rem, 2.5vw, 1.1rem);
+          line-height: 1.6;
+          margin-bottom: 1rem;
+          min-height: 5rem; /* Ensure consistent height */
+        }
+        
+        .dialog-actions {
+          display: flex;
+          justify-content: flex-end;
+        }
+        
+        .dialog-continue {
+          background: transparent;
+          border: none;
+          color: rgba(255, 255, 255, 0.8);
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.9rem;
+          cursor: pointer;
+          padding: 0.5rem 1rem;
+          border-radius: 4px;
+          transition: all 0.2s ease;
+        }
+        
+        .dialog-continue:hover {
+          background: rgba(249, 115, 22, 0.1);
+          color: #fff;
+        }
+        
+        .continue-indicator {
+          font-size: 0.8rem;
+          animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+          0% {
+            opacity: 0.3;
+          }
+          50% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0.3;
+          }
+        }
+        
+        @media (max-width: 768px) {
+          .dialog-box {
+            padding: 1rem;
+          }
+          
+          .dialog-text {
+            min-height: 3.5rem;
+            margin-bottom: 0.5rem;
+          }
+        }
+      `}</style>
+    </motion.div>
   );
 };
 

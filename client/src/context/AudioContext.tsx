@@ -1,4 +1,6 @@
-import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+// Gunakan path relatif untuk akses langsung public assets
+const backgroundMusicPath = '/assets/Darksouls-Chill.m4a';
 
 interface AudioContextProps {
   isAudioPlaying: boolean;
@@ -13,7 +15,7 @@ const AudioContext = createContext<AudioContextProps>({
   playAudio: () => {},
   pauseAudio: () => {},
   hasInteracted: false,
-  setHasInteracted: () => {},
+  setHasInteracted: () => {}
 });
 
 export const useAudio = () => useContext(AudioContext);
@@ -23,72 +25,49 @@ interface AudioProviderProps {
 }
 
 export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
+  const [audio] = useState<HTMLAudioElement>(new Audio(backgroundMusicPath));
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const [hasInteracted, setHasInteracted] = useState<boolean>(false);
-  const [isAudioInitialized, setIsAudioInitialized] = useState<boolean>(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Initialize audio element
+  // Set audio properties
   useEffect(() => {
-    // Only initialize if it hasn't been initialized yet
-    if (!isAudioInitialized) {
-      const audio = new Audio('/assets/Darksouls-Chill.m4a');
-      audio.volume = 0.15; // Lower initial volume
-      audio.loop = true;
-      
-      audioRef.current = audio;
-      setIsAudioInitialized(true);
-      
-      // Check if audio was previously playing from localStorage
-      const wasPlaying = localStorage.getItem('isAudioPlaying') === 'true';
-      setIsAudioPlaying(wasPlaying);
-      
-      // Cleanup
-      return () => {
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current = null;
-        }
-      };
+    audio.loop = true;
+    audio.volume = 0.3;
+    
+    // Cleanup on unmount
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [audio]);
+
+  // Play audio when hasInteracted changes to true
+  useEffect(() => {
+    if (hasInteracted) {
+      playAudio();
     }
-  }, [isAudioInitialized]);
+  }, [hasInteracted]);
 
-  // Handle auto-play when user has interacted
-  useEffect(() => {
-    if (hasInteracted && audioRef.current && isAudioPlaying) {
-      // Try to play audio - browser might block it until user interaction
-      audioRef.current.play().catch(error => {
-        console.warn('Auto-play prevented:', error);
-        setIsAudioPlaying(false);
-      });
+  const playAudio = useCallback(() => {
+    if (!isAudioPlaying) {
+      audio.play()
+        .then(() => {
+          setIsAudioPlaying(true);
+        })
+        .catch(error => {
+          console.error('Failed to play audio:', error);
+          // In some browsers, audio can only play after user interaction
+          setIsAudioPlaying(false);
+        });
     }
-  }, [hasInteracted, isAudioPlaying]);
+  }, [audio, isAudioPlaying]);
 
-  // Handle playing/pausing based on isAudioPlaying state
-  useEffect(() => {
-    if (!audioRef.current) return;
-
+  const pauseAudio = useCallback(() => {
     if (isAudioPlaying) {
-      audioRef.current.play().catch(error => {
-        console.warn('Play prevented:', error);
-        setIsAudioPlaying(false);
-      });
-      // Save preference to localStorage
-      localStorage.setItem('isAudioPlaying', 'true');
-    } else {
-      audioRef.current.pause();
-      // Save preference to localStorage
-      localStorage.setItem('isAudioPlaying', 'false');
+      audio.pause();
+      setIsAudioPlaying(false);
     }
-  }, [isAudioPlaying]);
-
-  const playAudio = () => {
-    setIsAudioPlaying(true);
-  };
-
-  const pauseAudio = () => {
-    setIsAudioPlaying(false);
-  };
+  }, [audio, isAudioPlaying]);
 
   return (
     <AudioContext.Provider
@@ -97,7 +76,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
         playAudio,
         pauseAudio,
         hasInteracted,
-        setHasInteracted,
+        setHasInteracted
       }}
     >
       {children}
