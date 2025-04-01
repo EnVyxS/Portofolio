@@ -28,7 +28,7 @@ function App() {
         </GifBackground>
       </div>
 
-      <style jsx="true">{`
+      <style>{`
         .app-container {
           width: 100%;
           height: 100vh;

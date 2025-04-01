@@ -87,7 +87,7 @@ const ContactCard: React.FC = () => {
         </div>
       </div>
 
-      <style jsx="true">{`
+      <style>{`
         .contact-card {
           width: 100%;
           max-width: 450px;

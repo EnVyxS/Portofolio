@@ -365,7 +365,7 @@ const GifBackground: React.FC<GifBackgroundProps> = ({ children }) => {
       {/* Background image/gif */}
       <div className="bg-image">
         <img 
-          src="https://i.imgur.com/2LhmtGY.gif" 
+          src="/images/darksouls.gif" 
           alt="Dark Souls campfire scene" 
           className="campfire-gif"
         />
@@ -417,7 +417,7 @@ const GifBackground: React.FC<GifBackgroundProps> = ({ children }) => {
         {children}
       </div>
       
-      <style jsx="true">{`
+      <style>{`
         .gif-background-container {
           position: relative;
           width: 100%;

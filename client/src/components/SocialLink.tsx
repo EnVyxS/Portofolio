@@ -64,7 +64,7 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
         </motion.span>
       </div>
 
-      <style jsx="true">{`
+      <style>{`
         @keyframes glitch {
           0% {
             text-shadow:
