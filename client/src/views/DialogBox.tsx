@@ -69,7 +69,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     }
   }, [dialogSource, isComplete, dialogController, hoverDialogController, onDialogComplete, setText, setIsComplete, setIsDialogFinished, setCharacterName]);
 
-  // Effect untuk auto-continue ketika dialog selesai
+  // Effect untuk auto-continue ketika dialog selesai - dimodifikasi untuk hanya menampilkan sekali
   useEffect(() => {
     if (isComplete && dialogSource === 'main') {
       // Clear any existing timer
@@ -77,10 +77,13 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         clearTimeout(autoPlayTimerRef.current);
       }
       
-      // Set new timer to auto-continue
-      autoPlayTimerRef.current = setTimeout(() => {
-        handleContinue();
-      }, 2000); // Tunggu 2 detik sebelum melanjutkan
+      // Set new timer to auto-continue - hanya untuk dialog pertama
+      const currentDialog = dialogController.getCurrentDialog();
+      if (currentDialog && currentDialog.id < 2) { // Hanya lanjut jika dialog saat ini adalah yang pertama
+        autoPlayTimerRef.current = setTimeout(() => {
+          handleContinue();
+        }, 3500); // Waktu lebih lama (3.5 detik) untuk membaca
+      }
     }
     
     // Cleanup timer when unmounting or when dependencies change
@@ -89,7 +92,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         clearTimeout(autoPlayTimerRef.current);
       }
     };
-  }, [isComplete, dialogSource, handleContinue]);
+  }, [isComplete, dialogSource, handleContinue, dialogController]);
 
   useEffect(() => {
     // Start the dialog sequence
