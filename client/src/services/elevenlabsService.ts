@@ -161,19 +161,26 @@ class ElevenLabsService {
     return this.apiKey;
   }
 
-  public async generateSpeech(text: string, characterVoice: string = 'character'): Promise<Blob | null> {
+  public async generateSpeech(text: string, characterVoice: string = 'character', forceRefresh: boolean = false): Promise<Blob | null> {
     try {
       // Buat cache key berdasarkan text
       const cacheKey = text;
       
-      // Cek apakah audio sudah ada di cache memory
-      if (cacheKey in this.audioCache) {
+      // Cek apakah audio sudah ada di cache memory (kecuali jika forceRefresh = true)
+      if (!forceRefresh && cacheKey in this.audioCache) {
         console.log("Using in-memory cached audio for:", text.substring(0, 20) + "...");
         const cachedBlob = this.audioCache[cacheKey];
         return cachedBlob;
       }
       
-      console.log("Requesting audio for:", text.substring(0, 20) + "...");
+      // Log whether we're forcing a refresh
+      if (forceRefresh) {
+        console.log("Force refreshing audio for:", text.substring(0, 20) + "...");
+        // Clear in-memory cache for this item if we're forcing a refresh
+        delete this.audioCache[cacheKey];
+      } else {
+        console.log("Requesting audio for:", text.substring(0, 20) + "...");
+      }
       
       // Jika ini adalah teks kosong atau ellipsis, gunakan silent.mp3
       if (text.trim() === '.....' || text.trim() === '...') {
@@ -192,7 +199,7 @@ class ElevenLabsService {
       }
       
       // Untuk teks normal, gunakan endpoint server yang akan melakukan:
-      // 1. Memeriksa jika file ada di sistem file lokal
+      // 1. Memeriksa jika file ada di sistem file lokal (kecuali jika forceRefresh = true)
       // 2. Jika tidak, generate menggunakan ElevenLabs API dan simpan
       try {
         const response = await fetch('/api/elevenlabs/text-to-speech', {
@@ -202,7 +209,8 @@ class ElevenLabsService {
           },
           body: JSON.stringify({ 
             text,
-            voice_id: this.voiceMap[characterVoice] || this.voiceMap['default']
+            voice_id: this.voiceMap[characterVoice] || this.voiceMap['default'],
+            forceRefresh // Pass forceRefresh parameter to API
           })
         });
         
@@ -272,14 +280,14 @@ class ElevenLabsService {
     }
   }
 
-  public async speakText(text: string, characterVoice: string = 'character'): Promise<boolean> {
+  public async speakText(text: string, characterVoice: string = 'character', forceRefresh: boolean = false): Promise<boolean> {
     // If already playing, stop first
     if (this.isPlaying) {
       this.stopSpeaking();
     }
 
     // Generate speech
-    const audioBlob = await this.generateSpeech(text, characterVoice);
+    const audioBlob = await this.generateSpeech(text, characterVoice, forceRefresh);
     if (!audioBlob) {
       return false;
     }

@@ -22,7 +22,7 @@ function generateSimpleHash(input: string): string {
 router.post('/text-to-speech', async (req: Request, res: Response) => {
   try {
     // Get text and voice_id from the request body
-    const { text, voice_id = 'L9oqKdX7JyDJa0dK6AzN', voice_settings } = req.body;
+    const { text, voice_id = 'L9oqKdX7JyDJa0dK6AzN', voice_settings, forceRefresh = false } = req.body;
     
     // Validate input
     if (!text) {
@@ -68,35 +68,51 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     const originalAudioFilePath = path.join(audioDir, originalFileName);
     const originalAudioPublicPath = `/audio/character/${originalFileName}`;
     
-    // Check original file cache first
-    if (fs.existsSync(originalAudioFilePath)) {
-      console.log(`Audio file found for original text: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
-      return res.status(200).json({ 
-        success: true, 
-        audioPath: originalAudioPublicPath,
-        cached: true,
-        message: 'Using cached audio file (original)'
-      });
-    }
-    
-    // Check other folders for reuse (to save API credit)
-    const geraltsVoiceFolder = path.join(publicDir, 'audio/geralt');
-    if (fs.existsSync(geraltsVoiceFolder)) {
-      const originalInGeraltsFolder = path.join(geraltsVoiceFolder, originalFileName);
-      if (fs.existsSync(originalInGeraltsFolder)) {
-        // Copy the file to character folder to make future lookups faster
+    // Check if we should use cached files or force a refresh from API
+    if (!forceRefresh) {
+      // Check original file cache first (only if not forcing refresh)
+      if (fs.existsSync(originalAudioFilePath)) {
+        console.log(`Audio file found for original text: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
+        return res.status(200).json({ 
+          success: true, 
+          audioPath: originalAudioPublicPath,
+          cached: true,
+          message: 'Using cached audio file (original)'
+        });
+      }
+      
+      // Check other folders for reuse (to save API credit) - only if not forcing refresh
+      const geraltsVoiceFolder = path.join(publicDir, 'audio/geralt');
+      if (fs.existsSync(geraltsVoiceFolder)) {
+        const originalInGeraltsFolder = path.join(geraltsVoiceFolder, originalFileName);
+        if (fs.existsSync(originalInGeraltsFolder)) {
+          // Copy the file to character folder to make future lookups faster
+          try {
+            fs.copyFileSync(originalInGeraltsFolder, originalAudioFilePath);
+            console.log(`Reused audio from geralt folder for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
+            return res.status(200).json({ 
+              success: true, 
+              audioPath: originalAudioPublicPath,
+              cached: true,
+              message: 'Reused audio from geralt folder'
+            });
+          } catch (copyErr) {
+            console.error('Error copying file from geralt folder:', copyErr);
+            // Continue to API if copy fails
+          }
+        }
+      }
+    } else {
+      console.log(`Force refresh requested, bypassing cache for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
+      
+      // If file exists and we're forcing refresh, delete it first
+      if (fs.existsSync(originalAudioFilePath)) {
         try {
-          fs.copyFileSync(originalInGeraltsFolder, originalAudioFilePath);
-          console.log(`Reused audio from geralt folder for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
-          return res.status(200).json({ 
-            success: true, 
-            audioPath: originalAudioPublicPath,
-            cached: true,
-            message: 'Reused audio from geralt folder'
-          });
-        } catch (copyErr) {
-          console.error('Error copying file from geralt folder:', copyErr);
-          // Continue to API if copy fails
+          fs.unlinkSync(originalAudioFilePath);
+          console.log(`Deleted existing audio file for refresh: ${originalAudioFilePath}`);
+        } catch (deleteErr) {
+          console.error('Error deleting existing file:', deleteErr);
+          // Continue even if delete fails
         }
       }
     }
@@ -242,8 +258,8 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     const processedAudioFilePath = path.join(audioDir, processedFileName);
     const processedAudioPublicPath = `/audio/character/${processedFileName}`;
     
-    // Check for processed text in cache
-    if (finalCleanedText !== text && fs.existsSync(processedAudioFilePath)) {
+    // Check for processed text in cache - only if not forcing refresh
+    if (!forceRefresh && finalCleanedText !== text && fs.existsSync(processedAudioFilePath)) {
       console.log(`Audio file found for processed text with emotions: "${finalCleanedText.substring(0, 30)}${finalCleanedText.length > 30 ? '...' : ''}"`);
       return res.status(200).json({ 
         success: true, 
@@ -251,6 +267,17 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
         cached: true,
         message: 'Using cached audio file (with emotion)'
       });
+    }
+    
+    // If we're forcing refresh and the processed file exists, delete it first
+    if (forceRefresh && fs.existsSync(processedAudioFilePath)) {
+      try {
+        fs.unlinkSync(processedAudioFilePath);
+        console.log(`Deleted processed audio file for refresh: ${processedAudioFilePath}`);
+      } catch (deleteErr) {
+        console.error('Error deleting processed file:', deleteErr);
+        // Continue even if delete fails
+      }
     }
     
     // Final audio file paths
