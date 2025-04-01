@@ -3,6 +3,16 @@ import { motion } from 'framer-motion';
 import DialogController from '../controllers/dialogController';
 import HoverDialogController from '../controllers/hoverDialogController';
 
+// Import fungsi hash untuk debugging
+function generateSimpleHash(text: string): string {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = ((hash << 5) - hash) + text.charCodeAt(i);
+    hash = hash & hash;
+  }
+  return Math.abs(hash).toString();
+}
+
 interface DialogBoxProps {
   onDialogComplete?: () => void;
 }
