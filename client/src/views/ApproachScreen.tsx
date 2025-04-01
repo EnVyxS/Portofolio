@@ -48,7 +48,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
           initial={{ scale: 1 }}
           whileHover={{ 
             scale: 1.05,
-            textShadow: "0 0 8px rgba(255, 255, 255, 0.8)"
+            textShadow: "0 0 8px rgba(200, 180, 120, 0.8)"
           }}
           whileTap={{ scale: 0.95 }}
           animate={isClicked ? { 
@@ -60,7 +60,10 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
             times: [0, 0.4, 1] 
           } : {}}
         >
+          {/* Ornamen dekoratif kiri dan kanan ala Souls */}
+          <span className="ornament left">•</span>
           {isClicked ? "APPROACHING..." : "APPROACH HIM"}
+          <span className="ornament right">•</span>
         </motion.button>
       </motion.div>
       <style>{`
@@ -112,22 +115,22 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         }
 
         .approach-button {
-          padding: 1rem 2.2rem;
-          font-family: 'Cinzel', serif;
-          font-size: clamp(1.1rem, 4vw, 1.8rem);
-          font-weight: 700;
-          color: #f8fafc;
-          background: rgba(0, 0, 0, 0.4);
-          border: 1px solid rgba(255, 165, 0, 0.5);
-          border-radius: 4px;
+          padding: 1.2rem 2.5rem;
+          font-family: 'Trajan Pro', 'Cinzel', 'Garamond', serif;
+          font-size: clamp(1.2rem, 4vw, 2rem);
+          font-weight: 600;
+          color: #d4c9a8; /* Warna emas pudar khas Souls */
+          background: rgba(0, 0, 0, 0.6);
+          border: 1px solid rgba(150, 125, 80, 0.6); /* Border gold pudar */
+          border-radius: 0; /* Souls-like tidak menggunakan rounded corners */
           cursor: pointer;
           text-transform: uppercase;
-          letter-spacing: 2px;
+          letter-spacing: 4px;
           position: relative;
           overflow: hidden;
           transition: all 0.3s ease;
-          text-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
-          box-shadow: 0 0 25px rgba(249, 115, 22, 0.4), inset 0 0 15px rgba(255, 165, 0, 0.2);
+          text-shadow: 0 0 5px rgba(100, 80, 40, 0.8); /* Text shadow gelap */
+          box-shadow: 0 0 25px rgba(100, 80, 40, 0.4), inset 0 0 15px rgba(80, 60, 30, 0.3);
           backdrop-filter: blur(3px);
         }
 
@@ -141,10 +144,26 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
           background: linear-gradient(
             90deg,
             transparent,
-            rgba(255, 165, 0, 0.2),
+            rgba(180, 160, 120, 0.15), /* Warna cahaya emas pudar khas Souls */
             transparent
           );
           transition: all 0.4s ease;
+        }
+
+        /* Efek dekorasi ala Souls-like */
+        .approach-button::after {
+          content: '';
+          position: absolute;
+          bottom: -2px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 80%;
+          height: 1px;
+          background: linear-gradient(90deg, 
+            transparent, 
+            rgba(180, 160, 120, 0.6), 
+            transparent
+          );
         }
 
         .approach-button.hovered::before {
@@ -153,10 +172,12 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         }
 
         .approach-button:hover {
-          background: rgba(30, 10, 0, 0.5);
-          border-color: rgba(255, 165, 0, 0.8);
+          background: rgba(20, 15, 10, 0.7);
+          border-color: rgba(180, 160, 100, 0.8);
+          color: #e8debc; /* Warna emas yang lebih terang */
           transform: translateY(-2px);
-          box-shadow: 0 0 30px rgba(255, 165, 0, 0.6), inset 0 0 15px rgba(255, 165, 0, 0.3);
+          box-shadow: 0 0 30px rgba(100, 80, 40, 0.6), inset 0 0 15px rgba(80, 60, 40, 0.4);
+          text-shadow: 0 0 8px rgba(180, 160, 120, 0.8);
         }
 
         .approach-button:disabled {
@@ -164,10 +185,43 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         }
 
         .approach-button.clicked {
-          border-color: rgba(255, 140, 0, 0.9);
-          color: #ff8c00;
-          background: rgba(40, 10, 0, 0.6);
-          box-shadow: 0 0 35px rgba(255, 140, 0, 0.7), inset 0 0 20px rgba(255, 140, 0, 0.4);
+          border-color: rgba(200, 180, 120, 0.9);
+          color: #f0e6c9; /* Warna emas lebih cerah */
+          background: rgba(40, 30, 20, 0.8);
+          box-shadow: 0 0 35px rgba(150, 130, 80, 0.7), inset 0 0 20px rgba(120, 100, 60, 0.5);
+          letter-spacing: 6px; /* Memperbesar jarak huruf saat diklik */
+        }
+
+        /* Styling untuk ornamen dekoratif */
+        .ornament {
+          display: inline-block;
+          color: rgba(180, 160, 100, 0.6);
+          font-size: 1.5rem;
+          margin: 0 12px;
+          position: relative;
+          top: -1px;
+          transform: translateY(2px);
+          text-shadow: 0 0 6px rgba(150, 130, 80, 0.4);
+          transition: all 0.3s ease;
+        }
+        
+        .ornament.left {
+          margin-right: 18px;
+        }
+        
+        .ornament.right {
+          margin-left: 18px;
+        }
+        
+        .approach-button:hover .ornament {
+          color: rgba(220, 200, 150, 0.8);
+          text-shadow: 0 0 10px rgba(200, 180, 120, 0.6);
+        }
+        
+        .approach-button.clicked .ornament {
+          opacity: 0;
+          transform: scale(0);
+          transition: all 0.3s ease;
         }
 
         @media (max-width: 640px) {
@@ -175,6 +229,19 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
             padding: 1rem 2rem;
             font-size: 1.2rem;
             letter-spacing: 2px;
+          }
+          
+          .ornament {
+            font-size: 1.2rem;
+            margin: 0 8px;
+          }
+          
+          .ornament.left {
+            margin-right: 12px;
+          }
+          
+          .ornament.right {
+            margin-left: 12px;
           }
         }
       `}</style>

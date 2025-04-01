@@ -226,76 +226,113 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         }
         
         .dialog-box {
-          background: rgba(25, 15, 10, 0.5); /* Background lebih gelap dengan sentuhan merah/coklat */
-          border: 1px solid rgba(255, 140, 0, 0.3); /* Border oranye (warna api) */
-          box-shadow: 0 0 15px rgba(180, 70, 0, 0.2);
-          border-radius: 6px;
+          background: rgba(15, 12, 10, 0.7); /* Warna gelap khas Souls */
+          border: 1px solid rgba(150, 130, 100, 0.3); /* Border emas pudar */
+          box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+          border-radius: 0; /* No rounded corners untuk Souls-like */
           width: 100%;
           max-width: 800px;
-          padding: 1.5rem;
+          padding: 1.8rem 2rem;
           position: relative;
           pointer-events: auto;
           backdrop-filter: blur(5px);
+          /* Tambahkan dekorasi border tipis di dalamnya */
+          box-sizing: border-box;
+        }
+        
+        /* Tambahkan pseudo-element untuk inner border ornament */
+        .dialog-box::before {
+          content: '';
+          position: absolute;
+          top: 5px;
+          left: 5px;
+          right: 5px;
+          bottom: 5px;
+          border: 1px solid rgba(150, 130, 100, 0.15);
+          pointer-events: none;
         }
         
         .character-name {
           position: absolute;
-          top: -1.8rem;
-          left: 0;
-          background: rgba(180, 60, 0, 0.8); /* Oranye kemerahan untuk karakter */
-          color: #fff;
-          padding: 0.5rem 1rem;
-          border-radius: 4px 4px 0 0;
-          font-weight: 600;
+          top: -1.2rem;
+          left: 1rem;
+          background: rgba(30, 25, 20, 0.9); /* Warna gelap */
+          color: #d4c9a8; /* Warna emas redup */
+          padding: 0.35rem 1.2rem;
+          border-radius: 0; /* No rounded corners */
+          font-weight: 500;
           font-size: 0.9rem;
+          font-family: 'Trajan Pro', 'Cinzel', 'Garamond', serif;
           text-transform: uppercase;
-          letter-spacing: 1px;
-          box-shadow: 0 -2px 10px rgba(180, 60, 0, 0.3); /* Efek bayangan api */
-          border-top: 1px solid rgba(255, 140, 0, 0.4); /* Border api */
+          letter-spacing: 1.5px;
+          box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4);
+          border: 1px solid rgba(150, 130, 100, 0.4);
         }
         
         .dialog-text {
-          color: #f1f5f9;
+          color: #e8e0cf; /* Warna text emas pucat */
+          font-family: 'Garamond', 'Times New Roman', serif; /* Font serif untuk dialog */
           font-size: clamp(1rem, 2.5vw, 1.1rem);
-          line-height: 1.6;
-          margin-bottom: 1rem;
+          line-height: 1.7;
+          margin-bottom: 1.2rem;
           min-height: 5rem; /* Ensure consistent height */
+          text-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+          letter-spacing: 0.3px;
         }
         
         .dialog-actions {
           display: flex;
           justify-content: flex-end;
+          position: relative;
+          border-top: 1px solid rgba(150, 130, 100, 0.15);
+          padding-top: 0.6rem;
+          margin-top: 0.5rem;
+        }
+        
+        /* Ornamen dekoratif untuk tombol continue */
+        .dialog-actions::before {
+          content: '';
+          position: absolute;
+          top: -2px;
+          right: 45px;
+          width: 40px;
+          height: 3px;
+          background: rgba(150, 130, 100, 0.2);
         }
         
         .dialog-continue {
           background: transparent;
           border: none;
-          color: rgba(255, 235, 205, 0.8); /* Warna teks lebih kecoklatan untuk tema api */
+          color: rgba(200, 180, 140, 0.7); /* Warna emas pudar */
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.6rem;
           font-size: 0.9rem;
+          font-family: 'Trajan Pro', 'Cinzel', 'Garamond', serif;
+          text-transform: uppercase;
+          letter-spacing: 1px;
           cursor: pointer;
-          padding: 0.5rem 1rem;
-          border-radius: 4px;
+          padding: 0.4rem 0.8rem;
+          border-radius: 0; /* No rounded corners */
           transition: all 0.2s ease;
         }
         
         .dialog-continue:hover {
-          background: rgba(255, 140, 0, 0.15); /* Background orange saat hover */
-          color: #fff;
-          text-shadow: 0 0 4px rgba(255, 165, 0, 0.6); /* Efek glow saat hover */
+          background: rgba(150, 130, 100, 0.15); /* Background emas saat hover */
+          color: #e8debc; /* Warna emas yang lebih terang */
+          text-shadow: 0 0 4px rgba(150, 130, 100, 0.6); /* Efek glow saat hover */
         }
         
         /* Styling for hover dialog continue button */
         .hover-continue {
-          color: rgba(255, 235, 205, 0.8); /* sama dengan warna dialog utama */
+          color: rgba(200, 180, 140, 0.7); /* Sama dengan warna dialog utama */
+          font-family: 'Trajan Pro', 'Cinzel', 'Garamond', serif;
         }
         
         .hover-continue:hover {
-          background: rgba(255, 140, 0, 0.15);
-          color: #fff;
-          text-shadow: 0 0 4px rgba(255, 165, 0, 0.6);
+          background: rgba(150, 130, 100, 0.15); /* Warna emas yang lebih gelap */
+          color: #e8debc;
+          text-shadow: 0 0 4px rgba(150, 130, 100, 0.6);
         }
         
         .continue-indicator {
@@ -315,18 +352,21 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           }
         }
         
-        /* Styling for hover dialogs - sama seperti dialog utama */
+        /* Styling for hover dialogs - konsisten dengan tema */
         .hover-dialog {
-          background: rgba(25, 15, 10, 0.5); 
-          border: 1px solid rgba(255, 140, 0, 0.3);
-          box-shadow: 0 0 15px rgba(180, 70, 0, 0.2);
+          background: rgba(15, 12, 10, 0.7); /* Konsisten dengan dialog utama */
+          border: 1px solid rgba(150, 130, 100, 0.3);
+          box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
         }
         
         .hover-character {
-          background: rgba(180, 60, 0, 0.8); /* sama seperti karakter utama */
+          background: rgba(30, 25, 20, 0.9); /* Konsisten dengan dialog utama */
+          color: #d4c9a8;
+          font-family: 'Trajan Pro', 'Cinzel', 'Garamond', serif;
           display: flex;
           align-items: center;
           gap: 0.5rem;
+          border: 1px solid rgba(150, 130, 100, 0.4);
         }
         
         .hover-indicator {
