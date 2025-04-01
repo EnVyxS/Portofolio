@@ -1,4 +1,4 @@
-import DialogModel, { Dialog } from '../models/updatedDialogModel';
+import DialogModel, { Dialog } from '../models/dialogModel';
 import ElevenLabsService from '../services/elevenlabsService';
 
 class DialogController {
