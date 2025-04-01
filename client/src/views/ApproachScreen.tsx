@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { useAudio } from '../context/AudioContext';
+import { useAudio } from '../context/AudioManager';
 import gifPath from '/assets/darksouls.gif';
 
 interface ApproachScreenProps {
@@ -12,15 +12,87 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
   const [isClicked, setIsClicked] = useState(false);
   const { isAudioPlaying, playAudio, pauseAudio, setHasInteracted, hasInteracted } = useAudio();
   const [isVisible, setIsVisible] = useState(false);
+  const bonfireSoundRef = useRef<HTMLAudioElement | null>(null);
+  const menuSoundRef = useRef<HTMLAudioElement | null>(null);
+  const itemSoundRef = useRef<HTMLAudioElement | null>(null);
+  const hoverSoundRef = useRef<HTMLAudioElement | null>(null);
 
   // Efek fade-in untuk komponen setelah load
   useEffect(() => {
+    // Preload sounds
+    bonfireSoundRef.current = new Audio('/assets/sounds/souls-bonfire.mp3');
+    menuSoundRef.current = new Audio('/assets/sounds/souls-menu.mp3');
+    itemSoundRef.current = new Audio('/assets/sounds/souls-item.mp3');
+    hoverSoundRef.current = new Audio('/assets/sounds/souls-menu.mp3'); // Menggunakan menu sound juga untuk hover
+    
+    // Set volume untuk sound effects
+    if (bonfireSoundRef.current) bonfireSoundRef.current.volume = 0.3;
+    if (menuSoundRef.current) menuSoundRef.current.volume = 0.4;
+    if (itemSoundRef.current) itemSoundRef.current.volume = 0.4;
+    if (hoverSoundRef.current) hoverSoundRef.current.volume = 0.2; // Volume lebih kecil untuk hover
+    
     setIsVisible(true);
+    
+    // Cleanup
+    return () => {
+      if (bonfireSoundRef.current) {
+        bonfireSoundRef.current.pause();
+        bonfireSoundRef.current = null;
+      }
+      if (menuSoundRef.current) {
+        menuSoundRef.current.pause();
+        menuSoundRef.current = null;
+      }
+      if (itemSoundRef.current) {
+        itemSoundRef.current.pause();
+        itemSoundRef.current = null;
+      }
+      if (hoverSoundRef.current) {
+        hoverSoundRef.current.pause();
+        hoverSoundRef.current = null;
+      }
+    };
   }, []);
+
+  // Fungsi untuk memainkan efek suara
+  const playSoulsSound = () => {
+    try {
+      // Play menu sound first (short select sound)
+      if (menuSoundRef.current) {
+        menuSoundRef.current.currentTime = 0;
+        menuSoundRef.current.play()
+          .then(() => {
+            // After menu sound, play item pickup sound
+            setTimeout(() => {
+              if (itemSoundRef.current) {
+                itemSoundRef.current.currentTime = 0;
+                itemSoundRef.current.play()
+                  .then(() => {
+                    // After item sound, play bonfire sound
+                    setTimeout(() => {
+                      if (bonfireSoundRef.current) {
+                        bonfireSoundRef.current.currentTime = 0;
+                        bonfireSoundRef.current.play().catch(e => console.log("Couldn't play bonfire sound:", e));
+                      }
+                    }, 300);
+                  })
+                  .catch(e => console.log("Couldn't play item sound:", e));
+              }
+            }, 100);
+          })
+          .catch(e => console.log("Couldn't play menu sound:", e));
+      }
+    } catch (error) {
+      console.log("Error playing souls sounds:", error);
+    }
+  };
 
   const handleApproach = () => {
     setIsClicked(true);
     setHasInteracted(true); // Trigger audio to play with volume full
+    
+    // Mainkan efek suara souls-like
+    playSoulsSound();
     
     // Add a delay for the animation to complete before proceeding
     setTimeout(() => {
@@ -75,7 +147,13 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
       >
         <motion.button
           className={`approach-button ${isHovered ? 'hovered' : ''} ${isClicked ? 'clicked' : ''}`}
-          onMouseEnter={() => setIsHovered(true)}
+          onMouseEnter={() => {
+            if (!isClicked && hoverSoundRef.current) {
+              hoverSoundRef.current.currentTime = 0;
+              hoverSoundRef.current.play().catch(e => console.log("Couldn't play hover sound:", e));
+            }
+            setIsHovered(true);
+          }}
           onMouseLeave={() => setIsHovered(false)}
           onClick={handleApproach}
           disabled={isClicked}
