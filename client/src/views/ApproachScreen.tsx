@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAudio } from '../context/AudioContext';
+import gifPath from '/assets/darksouls.gif';
 
 interface ApproachScreenProps {
   onApproach: () => void;
@@ -10,10 +11,16 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const { setHasInteracted } = useAudio();
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Efek fade-in untuk komponen setelah load
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   const handleApproach = () => {
     setIsClicked(true);
-    setHasInteracted(true); // Trigger audio to play
+    setHasInteracted(true); // Trigger audio to play with volume full
     
     // Add a delay for the animation to complete before proceeding
     setTimeout(() => {
@@ -23,11 +30,14 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
 
   return (
     <div className="approach-screen">
+      {/* Background dari kejauhan dengan efek zoom */}
+      <div className="distant-background"></div>
+      
       <motion.div 
         className="approach-container"
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: "easeOut", delay: 0.5 }}
+        animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
+        transition={{ duration: 1.5, ease: "easeOut", delay: 0.8 }}
       >
         <motion.button
           className={`approach-button ${isHovered ? 'hovered' : ''} ${isClicked ? 'clicked' : ''}`}
@@ -64,11 +74,41 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
           justify-content: center;
           align-items: center;
           z-index: 100;
-          background: rgba(0, 0, 0, 0.1); /* Opacity sangat rendah untuk memperlihatkan background */
+          background: rgba(0, 0, 0, 0.85); /* Background gelap */
+          overflow: hidden;
+        }
+
+        .distant-background {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) scale(0.5); /* Tampilkan background lebih kecil (dari jauh) */
+          width: 100%;
+          height: 100%;
+          background-image: url(${gifPath});
+          background-size: cover;
+          background-position: center;
+          opacity: 0.3; /* Dari kejauhan terlihat samar */
+          filter: blur(3px) brightness(0.4); /* Efek blur karena dari jauh */
+          z-index: -1;
+          animation: breathe 8s infinite ease-in-out; /* Efek nafas api dari jauh */
+        }
+
+        @keyframes breathe {
+          0%, 100% {
+            transform: translate(-50%, -50%) scale(0.5);
+            filter: blur(3px) brightness(0.4);
+          }
+          50% {
+            transform: translate(-50%, -50%) scale(0.52);
+            filter: blur(2.5px) brightness(0.45);
+          }
         }
 
         .approach-container {
           text-align: center;
+          position: relative;
+          z-index: 5;
         }
 
         .approach-button {

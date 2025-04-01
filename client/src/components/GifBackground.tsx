@@ -16,6 +16,18 @@ interface Ember {
 
 const GifBackground: React.FC<GifBackgroundProps> = ({ children }) => {
   const [embers, setEmbers] = useState<Ember[]>([]);
+  const [isZoomingIn, setIsZoomingIn] = useState(true);
+  
+  // Efek zoom in saat pertama kali masuk ke halaman
+  useEffect(() => {
+    setIsZoomingIn(true);
+    // Setelah animasi selesai, atur zoomingIn ke false
+    const timer = setTimeout(() => {
+      setIsZoomingIn(false);
+    }, 1500); // Durasi zoom in dalam milidetik
+    
+    return () => clearTimeout(timer);
+  }, []);
   
   useEffect(() => {
     // Create floating embers effect
@@ -47,7 +59,7 @@ const GifBackground: React.FC<GifBackgroundProps> = ({ children }) => {
     <div className="fixed inset-0 w-full h-full overflow-hidden">
       {/* Dark background with gif overlay */}
       <div 
-        className="absolute inset-0 z-0 bg-black"
+        className={`absolute inset-0 z-0 bg-black transition-transform ${isZoomingIn ? 'zoom-in-effect' : ''}`}
         style={{
           backgroundImage: `url(${gifPath})`,
           backgroundSize: 'cover',
@@ -82,6 +94,9 @@ const GifBackground: React.FC<GifBackgroundProps> = ({ children }) => {
         }}
       />
       
+      {/* Transition overlay yang akan menghilang */}
+      <div className={`absolute inset-0 z-25 transition-opacity ${isZoomingIn ? 'transition-overlay' : 'opacity-0'}`} />
+      
       {/* Content */}
       <div className="relative z-30 w-full h-full">
         {children}
@@ -99,6 +114,39 @@ const GifBackground: React.FC<GifBackgroundProps> = ({ children }) => {
           }
           100% {
             transform: translateY(-80vh);
+            opacity: 0;
+          }
+        }
+        
+        .zoom-in-effect {
+          animation: zoomIn 1.5s ease-out forwards;
+        }
+        
+        @keyframes zoomIn {
+          0% {
+            transform: scale(0.6);
+            filter: brightness(0.3) contrast(1) blur(4px);
+          }
+          100% {
+            transform: scale(1);
+            filter: brightness(0.6) contrast(1.2) blur(0px);
+          }
+        }
+        
+        .transition-overlay {
+          background-color: black;
+          opacity: 1;
+          animation: fadeOut 1.5s ease-out forwards;
+        }
+        
+        @keyframes fadeOut {
+          0% {
+            opacity: 1;
+          }
+          30% {
+            opacity: 0.8;
+          }
+          100% {
             opacity: 0;
           }
         }

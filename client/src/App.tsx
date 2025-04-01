@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './index.css';
 import GifBackground from './components/GifBackground';
 import DialogBox from './views/DialogBox';
@@ -11,15 +11,47 @@ function MainApp() {
   const [showElevenLabsSetup, setShowElevenLabsSetup] = useState<boolean>(false);
   const [showContactCard, setShowContactCard] = useState<boolean>(false);
   const [approachClicked, setApproachClicked] = useState<boolean>(false);
-  const { isAudioPlaying, playAudio, pauseAudio, hasInteracted } = useAudio();
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+  const { isAudioPlaying, playAudio, pauseAudio, hasInteracted, setVolume } = useAudio();
 
   const handleDialogComplete = () => {
     setShowContactCard(true);
   };
 
+  // Saat approach, naikkan volume musik secara bertahap
+  useEffect(() => {
+    if (approachClicked && isTransitioning) {
+      // Mulai dari volume rendah dan naikkan secara bertahap
+      let currentVolume = 0.15; // Volume awal (saat dari jauh)
+      const targetVolume = 0.3; // Volume target (saat sudah dekat)
+      const step = 0.01; // Kenaikan volume per langkah
+      const interval = 50; // Interval waktu antara langkah (ms)
+      
+      const fadeInterval = setInterval(() => {
+        if (currentVolume < targetVolume) {
+          currentVolume += step;
+          setVolume(currentVolume);
+        } else {
+          clearInterval(fadeInterval);
+          setIsTransitioning(false);
+        }
+      }, interval);
+      
+      return () => {
+        clearInterval(fadeInterval);
+      };
+    }
+  }, [approachClicked, isTransitioning, setVolume]);
+
   const handleApproach = () => {
+    setIsTransitioning(true);
     setApproachClicked(true);
-    setShowElevenLabsSetup(true);
+    // setShowElevenLabsSetup akan dipanggil setelah transisi selesai
+    
+    // Delay menampilkan ElevenLabs setup agar bisa melihat transisi terlebih dahulu
+    setTimeout(() => {
+      setShowElevenLabsSetup(true);
+    }, 1500);
   };
 
   const handleCloseElevenLabsSetup = () => {
