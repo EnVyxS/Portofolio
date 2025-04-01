@@ -127,9 +127,20 @@ class ElevenLabsService {
   // Preload silent audio untuk dialog kosong
   private preloadSilentAudio(): void {
     // Gunakan audio kosong berdurasi pendek untuk teks yang hanya berisi ellipsis
-    const silentAudio = new Audio('/audio/geralt/silent.mp3');
-    this.preloadedAudios.set('.....', silentAudio);
-    this.preloadedAudios.set('...', silentAudio);
+    fetch('/audio/geralt/silent.mp3', { method: 'HEAD' })
+      .then(response => {
+        if (response.ok) {
+          console.log("Silent audio file found, preloading");
+          const silentAudio = new Audio('/audio/geralt/silent.mp3');
+          this.preloadedAudios.set('.....', silentAudio);
+          this.preloadedAudios.set('...', silentAudio);
+        } else {
+          console.log("Silent audio file not found, will use on-demand");
+        }
+      })
+      .catch(() => {
+        console.log("Unable to check silent audio file, will use on-demand");
+      });
   }
 
   public static getInstance(): ElevenLabsService {

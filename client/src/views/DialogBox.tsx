@@ -170,7 +170,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         
         .dialog-box {
           background: rgba(15, 23, 42, 0.4); /* Lebih transparan untuk menyatu dengan background */
-          border: 1px solid rgba(249, 115, 22, 0.3); /* Border lebih halus */
+          border: 1px solid rgba(0, 165, 255, 0.3); /* Border biru */
           box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
           border-radius: 6px; /* Border radius lebih kecil untuk gaya game */
           width: 100%;
@@ -185,7 +185,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           position: absolute;
           top: -1.8rem;
           left: 0;
-          background: rgba(249, 115, 22, 0.6); /* Lebih transparan untuk efek menyatu */
+          background: rgba(0, 105, 148, 0.8); /* Biru tua untuk karakter normal */
           color: #fff;
           padding: 0.5rem 1rem;
           border-radius: 4px 4px 0 0;
@@ -194,7 +194,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           text-transform: uppercase;
           letter-spacing: 1px;
           box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2); /* Efek bayangan halus */
-          border-top: 1px solid rgba(255, 165, 0, 0.3); /* Border halus atas */
+          border-top: 1px solid rgba(0, 165, 255, 0.3); /* Border halus atas */
         }
         
         .dialog-text {
@@ -225,7 +225,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         }
         
         .dialog-continue:hover {
-          background: rgba(249, 115, 22, 0.1);
+          background: rgba(0, 165, 255, 0.1);
           color: #fff;
         }
         
