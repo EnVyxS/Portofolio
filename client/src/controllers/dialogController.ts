@@ -34,31 +34,29 @@ class DialogController {
   }
 
   public nextDialog(callback: (text: string, isComplete: boolean) => void): void {
-    // Stop current typing if in progress
+    // Stop previous typing
     this.stopTyping();
     
-    // Move to next dialog
+    // Get next dialog
     const nextDialog = this.dialogModel.nextDialog();
-    
     if (nextDialog) {
       this.typeDialog(nextDialog, callback);
     } else {
-      // We've reached the end of the dialog
-      callback(this.currentText, true);
+      // No more dialogs - inform callback with empty text and complete=true
+      callback('', true);
     }
   }
 
   public previousDialog(callback: (text: string, isComplete: boolean) => void): void {
-    // Stop current typing if in progress
+    // Stop previous typing
     this.stopTyping();
     
-    // Move to previous dialog
+    // Get previous dialog
     const prevDialog = this.dialogModel.previousDialog();
-    
     if (prevDialog) {
       this.typeDialog(prevDialog, callback);
     } else {
-      // We're at the beginning, just restart the current dialog
+      // Already at the first dialog - restart current dialog
       const currentDialog = this.dialogModel.getCurrentDialog();
       if (currentDialog) {
         this.typeDialog(currentDialog, callback);
@@ -67,46 +65,41 @@ class DialogController {
   }
 
   public startDialog(callback: (text: string, isComplete: boolean) => void): void {
-    // Reset to the beginning of dialog
+    // Reset dialog to beginning
     this.dialogModel.resetDialog();
     
-    // Get current dialog
-    const currentDialog = this.dialogModel.getCurrentDialog();
-    
-    if (currentDialog) {
-      this.typeDialog(currentDialog, callback);
+    // Get first dialog
+    const dialog = this.dialogModel.getCurrentDialog();
+    if (dialog) {
+      this.typeDialog(dialog, callback);
     }
   }
 
   private typeDialog(dialog: Dialog, callback: (text: string, isComplete: boolean) => void): void {
-    this.isTyping = true;
-    this.typewriterCallback = callback;
     this.fullText = dialog.text;
     this.currentText = '';
     this.charIndex = 0;
+    this.typewriterCallback = callback;
+    this.isTyping = true;
     
-    // Start the voice synthesis if we have an API key and voice ID
-    if (this.elevenlabsService.getApiKey() && dialog.voiceId) {
-      this.elevenlabsService.speakText(dialog.text, dialog.voiceId);
+    // Try to speak the text if voice is enabled
+    if (this.elevenlabsService.getApiKey()) {
+      this.elevenlabsService.speakText(dialog.text, dialog.voiceId || 'default');
     }
     
-    // Start the typewriter effect
+    // Start typewriter effect
     this.typingInterval = setInterval(() => {
       if (this.charIndex < this.fullText.length) {
-        this.currentText += this.fullText.charAt(this.charIndex);
+        this.currentText += this.fullText[this.charIndex];
         this.charIndex++;
-        
         if (this.typewriterCallback) {
           this.typewriterCallback(this.currentText, false);
         }
       } else {
-        // Text is complete
+        // Typing complete
         this.isTyping = false;
-        if (this.typingInterval) {
-          clearInterval(this.typingInterval);
-          this.typingInterval = null;
-        }
-        
+        clearInterval(this.typingInterval as NodeJS.Timeout);
+        this.typingInterval = null;
         if (this.typewriterCallback) {
           this.typewriterCallback(this.currentText, true);
         }
@@ -115,29 +108,19 @@ class DialogController {
   }
 
   public stopTyping(): void {
+    this.isTyping = false;
     if (this.typingInterval) {
       clearInterval(this.typingInterval);
       this.typingInterval = null;
     }
-    
-    this.isTyping = false;
     this.elevenlabsService.stopSpeaking();
   }
 
   public skipToFullText(): void {
-    if (this.isTyping && this.typewriterCallback) {
-      // Clear the typing interval
-      if (this.typingInterval) {
-        clearInterval(this.typingInterval);
-        this.typingInterval = null;
-      }
-      
-      // Set text to full text
-      this.currentText = this.fullText;
-      this.isTyping = false;
-      
-      // Call the callback with the full text
-      this.typewriterCallback(this.currentText, true);
+    this.stopTyping();
+    this.currentText = this.fullText;
+    if (this.typewriterCallback) {
+      this.typewriterCallback(this.fullText, true);
     }
   }
 

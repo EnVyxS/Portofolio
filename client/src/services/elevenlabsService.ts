@@ -13,115 +13,126 @@ class ElevenLabsService {
   private apiKey: string | null = null;
   private isPlaying: boolean = false;
   private audioElement: HTMLAudioElement | null = null;
-  
+
   // Map character names to ElevenLabs voice IDs
   private voiceMap: Record<string, string> = {
-    'geralt': 'pNInz6obpgDQGcFmaJgB', // ElevenLabs' Antoni voice for Geralt
-    'default': 'pNInz6obpgDQGcFmaJgB'
+    'geralt': 'TxGEqnHWrfWFTfGW9XjX', // Adam - deep gravelly voice for Geralt
+    'ciri': 'EXAVITQu4vr4xnSDxMaL',   // Bella - young female voice for Ciri
+    'yennefer': 'Yko7PKHZNXotIFUBG7I9', // Elli - mature female voice with accent for Yen
+    'default': 'TxGEqnHWrfWFTfGW9XjX'  // Default to Geralt voice
   };
-  
+
   private constructor() {
-    // Initialize API key from environment variable
-    this.apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY as string;
-    console.log("API Key initialized:", this.apiKey ? "Yes" : "No");
+    // Check if API key is in env
+    const envApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
+    if (envApiKey) {
+      this.apiKey = envApiKey;
+      console.log("API Key initialized:", envApiKey ? "Yes" : "No");
+    }
   }
-  
+
   public static getInstance(): ElevenLabsService {
     if (!ElevenLabsService.instance) {
       ElevenLabsService.instance = new ElevenLabsService();
     }
     return ElevenLabsService.instance;
   }
-  
+
   public setApiKey(key: string): void {
     this.apiKey = key;
   }
-  
+
   public getApiKey(): string | null {
     return this.apiKey;
   }
-  
+
   public async generateSpeech(text: string, characterVoice: string = 'geralt'): Promise<Blob | null> {
     if (!this.apiKey) {
-      console.error('ElevenLabs API key is not set.');
+      console.error('ElevenLabs API key not set');
       return null;
     }
-    
+
     try {
-      // Map character voice to actual voice ID
-      const voiceId = this.voiceMap[characterVoice] || this.voiceMap.default;
+      // Map character to voice ID
+      const voiceId = this.voiceMap[characterVoice.toLowerCase()] || this.voiceMap.default;
       
       const requestBody: TTSRequestBody = {
         text: text,
         voice_id: voiceId,
-        model_id: 'eleven_monolingual_v1'
+        model_id: "eleven_multilingual_v2", // Use their more capable model
+        voice_settings: {
+          stability: 0.5,
+          similarity_boost: 0.75
+        }
       };
-      
+
       const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Xi-Api-Key': this.apiKey
+          'xi-api-key': this.apiKey
         },
         body: JSON.stringify(requestBody)
       });
-      
+
       if (!response.ok) {
-        throw new Error(`ElevenLabs API error: ${response.status} ${response.statusText}`);
+        console.error('Failed to generate speech:', await response.text());
+        return null;
       }
-      
+
       return await response.blob();
     } catch (error) {
       console.error('Error generating speech:', error);
       return null;
     }
   }
-  
+
   public async speakText(text: string, characterVoice: string = 'geralt'): Promise<boolean> {
-    const audioBlob = await this.generateSpeech(text, characterVoice);
-    if (!audioBlob) return false;
-    
-    try {
-      // Stop any currently playing audio
+    // If already playing, stop first
+    if (this.isPlaying) {
       this.stopSpeaking();
+    }
+
+    // Generate speech
+    const audioBlob = await this.generateSpeech(text, characterVoice);
+    if (!audioBlob) {
+      return false;
+    }
+
+    // Create audio URL and element
+    const audioUrl = URL.createObjectURL(audioBlob);
+    this.audioElement = new Audio(audioUrl);
+    
+    // Play audio
+    try {
+      this.isPlaying = true;
+      await this.audioElement.play();
       
-      // Create audio URL and play it
-      const audioUrl = URL.createObjectURL(audioBlob);
-      this.audioElement = new Audio(audioUrl);
-      
-      // Set event listeners
-      this.audioElement.onplay = () => { this.isPlaying = true; };
-      this.audioElement.onended = () => { 
+      // Clean up when audio ends
+      this.audioElement.onended = () => {
         this.isPlaying = false;
         if (this.audioElement) {
-          URL.revokeObjectURL(this.audioElement.src);
+          URL.revokeObjectURL(audioUrl);
           this.audioElement = null;
         }
       };
-      this.audioElement.onerror = (e) => { 
-        console.error('Audio playback error:', e);
-        this.isPlaying = false;
-        this.audioElement = null;
-      };
       
-      // Play the audio
-      await this.audioElement.play();
       return true;
     } catch (error) {
-      console.error('Error playing speech:', error);
+      console.error('Failed to play audio:', error);
+      this.isPlaying = false;
       return false;
     }
   }
-  
+
   public stopSpeaking(): void {
-    if (this.audioElement) {
+    if (this.audioElement && this.isPlaying) {
       this.audioElement.pause();
-      URL.revokeObjectURL(this.audioElement.src);
-      this.audioElement = null;
+      this.audioElement.currentTime = 0;
       this.isPlaying = false;
     }
   }
-  
+
   public isCurrentlyPlaying(): boolean {
     return this.isPlaying;
   }
