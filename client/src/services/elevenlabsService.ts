@@ -161,7 +161,7 @@ class ElevenLabsService {
     return this.apiKey;
   }
 
-  public async generateSpeech(text: string, characterVoice: string = 'character', forceRefresh: boolean = false): Promise<Blob | null> {
+  public async generateSpeech(text: string, characterVoice: string = 'character', forceRefresh: boolean = true): Promise<Blob | null> {
     try {
       // Buat cache key berdasarkan text
       const cacheKey = text;
@@ -280,7 +280,7 @@ class ElevenLabsService {
     }
   }
 
-  public async speakText(text: string, characterVoice: string = 'character', forceRefresh: boolean = false): Promise<boolean> {
+  public async speakText(text: string, characterVoice: string = 'character', forceRefresh: boolean = true): Promise<boolean> {
     // If already playing, stop first
     if (this.isPlaying) {
       this.stopSpeaking();

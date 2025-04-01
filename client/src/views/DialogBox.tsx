@@ -133,17 +133,29 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         const shouldPersist = isDialogPersistent(currentDialog.text);
         
         if (!shouldPersist) {
-          // Untuk dialog yang tidak perlu persistent, auto-dismiss lebih cepat
-          const textLength = currentDialog.text.length;
-          const baseDelay = 2000; // 2 detik base delay
-          const charDelay = 50; // 50ms per karakter
-          const autoplayDelay = Math.min(baseDelay + (textLength * charDelay), 8000); // maksimal 8 detik
-          
-          console.log(`Autoplay untuk dialog ${currentDialog.id} dalam ${autoplayDelay}ms (non-persistent)`);
-          
-          autoPlayTimerRef.current = setTimeout(() => {
-            handleContinue();
-          }, autoplayDelay);
+          // Cek apakah ini adalah dialog terakhir dalam dialogModel
+          // Jika id > 40, ini kemungkinan besar adalah dialog terakhir
+          if (currentDialog.id >= 44) {
+            // Dialog terakhir dari dialogModel.ts - berikan jeda
+            const textLength = currentDialog.text.length;
+            const baseDelay = 2000; // 2 detik base delay
+            const charDelay = 50; // 50ms per karakter
+            const autoplayDelay = Math.min(baseDelay + (textLength * charDelay), 8000); // maksimal 8 detik
+            
+            console.log(`Dialog terakhir ${currentDialog.id} - berikan jeda ${autoplayDelay}ms (non-persistent)`);
+            
+            autoPlayTimerRef.current = setTimeout(() => {
+              handleContinue();
+            }, autoplayDelay);
+          } else {
+            // Dialog normal - langsung lanjutkan tanpa delay
+            console.log(`Autoplay untuk dialog ${currentDialog.id} tanpa delay (non-persistent)`);
+            
+            // Gunakan setTimeout dengan delay 0 untuk memberikan waktu pada browser memproses event loop
+            autoPlayTimerRef.current = setTimeout(() => {
+              handleContinue();
+            }, 0);
+          }
         } else {
           // Dialog yang membutuhkan respons (persistent) tidak auto-continue
           console.log(`Dialog ${currentDialog.id} adalah persistent, menunggu interaksi user`);
@@ -231,18 +243,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         </div>
         <div className="dialog-text">{text}</div>
         <div className="dialog-actions">
-          {/* Refresh voice button - hanya tampil untuk main dialog */}
-          {dialogSource === 'main' && (
-            <button 
-              className={`refresh-voice ${isRefreshing ? 'is-refreshing' : ''}`}
-              onClick={handleRefreshVoice}
-              disabled={isRefreshing}
-              title="Refresh voice from API"
-            >
-              <span className={`refresh-icon ${isRefreshing ? 'spinning' : ''}`}>⟳</span>
-              {isRefreshing ? 'Refreshing...' : 'Refresh Voice'}
-            </button>
-          )}
+          {/* Refresh voice button dihilangkan karena menggunakan refresh otomatis */}
           
           <button 
             className={`dialog-continue ${dialogSource === 'hover' ? 'hover-continue' : ''}`}
@@ -325,7 +326,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         
         .dialog-actions {
           display: flex;
-          justify-content: space-between;
+          justify-content: flex-end;  /* Karena tombol refresh dihilangkan */
           position: relative;
           border-top: 1px solid rgba(150, 130, 100, 0.15);
           padding-top: 0.6rem;
