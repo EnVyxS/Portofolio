@@ -74,7 +74,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
           justify-content: center;
           align-items: center;
           z-index: 100;
-          background: rgba(0, 0, 0, 0.85); /* Background gelap */
+          background: rgba(0, 0, 0, 0.45); /* Background lebih transparan agar terlihat api */
           overflow: hidden;
         }
 
@@ -82,26 +82,26 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
           position: absolute;
           top: 50%;
           left: 50%;
-          transform: translate(-50%, -50%) scale(0.5); /* Tampilkan background lebih kecil (dari jauh) */
+          transform: translate(-50%, -50%) scale(0.8); /* Tampilkan background lebih besar agar lebih jelas */
           width: 100%;
           height: 100%;
           background-image: url(${gifPath});
           background-size: cover;
           background-position: center;
-          opacity: 0.3; /* Dari kejauhan terlihat samar */
-          filter: blur(3px) brightness(0.4); /* Efek blur karena dari jauh */
+          opacity: 0.6; /* Lebih jelas terlihat */
+          filter: blur(2px) brightness(0.6); /* Kurangi blur agar lebih jelas */
           z-index: -1;
-          animation: breathe 8s infinite ease-in-out; /* Efek nafas api dari jauh */
+          animation: breathe 10s infinite ease-in-out; /* Efek nafas api dari jauh */
         }
 
         @keyframes breathe {
           0%, 100% {
-            transform: translate(-50%, -50%) scale(0.5);
-            filter: blur(3px) brightness(0.4);
+            transform: translate(-50%, -50%) scale(0.8);
+            filter: blur(2px) brightness(0.6);
           }
           50% {
-            transform: translate(-50%, -50%) scale(0.52);
-            filter: blur(2.5px) brightness(0.45);
+            transform: translate(-50%, -50%) scale(0.83);
+            filter: blur(1.5px) brightness(0.65);
           }
         }
 
@@ -112,22 +112,23 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         }
 
         .approach-button {
-          padding: 1.2rem 2.5rem;
+          padding: 1rem 2.2rem;
           font-family: 'Cinzel', serif;
-          font-size: clamp(1.2rem, 5vw, 2rem);
+          font-size: clamp(1.1rem, 4vw, 1.8rem);
           font-weight: 700;
-          color: #f1f5f9;
-          background: transparent;
-          border: 2px solid rgba(255, 255, 255, 0.6);
-          border-radius: 2px;
+          color: #f8fafc;
+          background: rgba(0, 0, 0, 0.4);
+          border: 1px solid rgba(255, 165, 0, 0.5);
+          border-radius: 4px;
           cursor: pointer;
           text-transform: uppercase;
-          letter-spacing: 4px;
+          letter-spacing: 2px;
           position: relative;
           overflow: hidden;
           transition: all 0.3s ease;
-          text-shadow: 0 0 3px rgba(255, 255, 255, 0.4);
-          box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+          text-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
+          box-shadow: 0 0 25px rgba(249, 115, 22, 0.4), inset 0 0 15px rgba(255, 165, 0, 0.2);
+          backdrop-filter: blur(3px);
         }
 
         .approach-button::before {
@@ -140,7 +141,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
           background: linear-gradient(
             90deg,
             transparent,
-            rgba(255, 255, 255, 0.2),
+            rgba(255, 165, 0, 0.2),
             transparent
           );
           transition: all 0.4s ease;
@@ -151,14 +152,22 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
           transition: all 0.8s ease;
         }
 
+        .approach-button:hover {
+          background: rgba(30, 10, 0, 0.5);
+          border-color: rgba(255, 165, 0, 0.8);
+          transform: translateY(-2px);
+          box-shadow: 0 0 30px rgba(255, 165, 0, 0.6), inset 0 0 15px rgba(255, 165, 0, 0.3);
+        }
+
         .approach-button:disabled {
           cursor: default;
         }
 
         .approach-button.clicked {
-          border-color: rgba(249, 115, 22, 0.8);
-          color: #f97316;
-          box-shadow: 0 0 30px rgba(249, 115, 22, 0.6);
+          border-color: rgba(255, 140, 0, 0.9);
+          color: #ff8c00;
+          background: rgba(40, 10, 0, 0.6);
+          box-shadow: 0 0 35px rgba(255, 140, 0, 0.7), inset 0 0 20px rgba(255, 140, 0, 0.4);
         }
 
         @media (max-width: 640px) {
