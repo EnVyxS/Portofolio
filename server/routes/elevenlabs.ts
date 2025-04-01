@@ -1,73 +1,134 @@
-import express, { Request, Response } from 'express';
+import { Router, Request, Response } from 'express';
+import fs from 'fs';
+import path from 'path';
+import axios from 'axios';
 
-const router = express.Router();
+const router = Router();
 
+// Hash function for generating filenames from text
+function generateSimpleHash(input: string): string {
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    hash = ((hash << 5) - hash) + input.charCodeAt(i);
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash).toString();
+}
+
+/**
+ * Endpoint for elevenlabs text-to-speech service
+ * Integrates caching mechanism to save API credits
+ */
 router.post('/text-to-speech', async (req: Request, res: Response) => {
   try {
-    // Ambil data dari body request
-    const { text, voice_id, voice_settings } = req.body;
+    // Get text and voice_id from the request body
+    const { text, voice_id = 'TxGEqnHWrfWFTfGW9XjX', voice_settings } = req.body;
     
-    // Validasi input
-    if (!text || !voice_id) {
-      return res.status(400).json({ error: 'Missing required parameters' });
+    // Validate input
+    if (!text) {
+      return res.status(400).json({ error: 'Text is required' });
     }
     
-    // Gunakan API key dari environment variables
-    const apiKey = process.env.ELEVENLABS_API_KEY || 'sk_f64d77d3c40e5b4b292fc19b7f821f9ce03693c239c57647';
-    
-    if (!apiKey) {
-      console.error('ElevenLabs API key not found in environment variables');
-      return res.status(500).json({ error: 'API key not found' });
-    }
-    
-    // ElevenLabs API endpoint untuk text-to-speech
-    const apiUrl = `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`;
-    
-    // Request body default
-    const requestBody = {
-      text: text,
-      model_id: "eleven_turbo_v2", // Model terbaru untuk lebih natural
-      voice_settings: voice_settings || {
-        stability: 0.5,
-        similarity_boost: 0.75,
-        style: 0.3,
-        use_speaker_boost: true,
-        speaking_rate: 0.8,
-      }
-    };
-    
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Accept': 'audio/mpeg',
-        'Content-Type': 'application/json',
-        'xi-api-key': apiKey,
-      },
-      body: JSON.stringify(requestBody),
-    });
-    
-    // Jika ada error dari API
-    if (!response.ok) {
-      console.error(`ElevenLabs API error: ${response.status} - ${response.statusText}`);
-      return res.status(response.status).json({ 
-        error: `ElevenLabs API error: ${response.statusText}`,
-        details: await response.text()
+    // Skip processing for text with only ellipsis (character is listening)
+    if (text.trim() === '...' || text.trim() === '.....') {
+      // Return path to silent.mp3
+      return res.status(200).json({ 
+        success: true, 
+        audioPath: '/audio/geralt/silent.mp3',
+        message: 'Using silent audio for ellipsis'
       });
     }
     
-    // Dapatkan audio data (binary)
-    const audioBuffer = await response.arrayBuffer();
+    // Use API key from environment variables
+    const apiKey = process.env.VITE_ELEVENLABS_API_KEY;
     
-    // Set header untuk audio
-    res.setHeader('Content-Type', 'audio/mpeg');
-    res.setHeader('Content-Length', audioBuffer.byteLength);
+    if (!apiKey) {
+      return res.status(500).json({ error: 'API key not found' });
+    }
     
-    // Kirim audio data
-    res.send(Buffer.from(audioBuffer));
+    // Generate hash for the text
+    const hash = generateSimpleHash(text);
+    const fileName = `dialog_${hash}.mp3`;
     
+    // Define directories for audio files
+    const publicDir = path.resolve(__dirname, '../../client/public');
+    const audioDir = path.join(publicDir, 'audio/geralt');
+    const audioFilePath = path.join(audioDir, fileName);
+    const audioPublicPath = `/audio/geralt/${fileName}`;
+    
+    // Create directories if they don't exist
+    if (!fs.existsSync(audioDir)) {
+      fs.mkdirSync(audioDir, { recursive: true });
+    }
+    
+    // Check if the file already exists (cached)
+    if (fs.existsSync(audioFilePath)) {
+      console.log(`Audio file found for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
+      return res.status(200).json({ 
+        success: true, 
+        audioPath: audioPublicPath,
+        cached: true,
+        message: 'Using cached audio file'
+      });
+    }
+    
+    // If file doesn't exist, generate with ElevenLabs API
+    console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
+    
+    // Normalize text - remove excessive whitespace
+    const cleanedText = text.replace(/\*/g, "").trim().replace(/\s+/g, ' ');
+    
+    // ElevenLabs API endpoint
+    const apiUrl = `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`;
+    
+    const response = await axios({
+      method: 'post',
+      url: apiUrl,
+      headers: {
+        'Accept': 'audio/mpeg',
+        'Content-Type': 'application/json',
+        'xi-api-key': apiKey
+      },
+      data: {
+        text: cleanedText,
+        model_id: 'eleven_monolingual_v1',
+        voice_settings: voice_settings || {
+          stability: 0.45,
+          similarity_boost: 0.80,
+          style: 0.30,
+          use_speaker_boost: true,
+          speaking_rate: 0.75,
+        }
+      },
+      responseType: 'arraybuffer'
+    });
+    
+    // If successful, save the audio file
+    if (response.status === 200) {
+      fs.writeFileSync(audioFilePath, response.data);
+      console.log(`Audio saved to: ${audioFilePath}`);
+      
+      return res.status(200).json({ 
+        success: true, 
+        audioPath: audioPublicPath,
+        cached: false,
+        message: 'Generated new audio file'
+      });
+    } else {
+      // If API request failed, return error
+      return res.status(response.status).json({ 
+        error: 'Failed to generate audio',
+        details: response.statusText,
+        fallback: true
+      });
+    }
   } catch (error) {
-    console.error('Error in text-to-speech endpoint:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error generating audio:', error);
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error',
+      fallback: true
+    });
   }
 });
 

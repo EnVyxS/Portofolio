@@ -152,18 +152,16 @@ class ElevenLabsService {
       // Buat cache key berdasarkan text
       const cacheKey = text;
       
-      // Cek apakah audio sudah ada di cache
+      // Cek apakah audio sudah ada di cache memory
       if (cacheKey in this.audioCache) {
-        console.log("Using cached audio for:", text.substring(0, 20) + "...");
+        console.log("Using in-memory cached audio for:", text.substring(0, 20) + "...");
         const cachedBlob = this.audioCache[cacheKey];
         return cachedBlob;
       }
       
-      console.log("Loading audio for:", text.substring(0, 20) + "...");
+      console.log("Requesting audio for:", text.substring(0, 20) + "...");
       
-      // Gunakan file lokal alih-alih memanggil API
-      
-      // Cek apakah ini adalah text kosong
+      // Jika ini adalah teks kosong atau ellipsis, gunakan silent.mp3
       if (text.trim() === '.....' || text.trim() === '...') {
         console.log("Using silent audio for:", text.trim());
         // Gunakan "silent.mp3" untuk teks kosong
@@ -179,33 +177,79 @@ class ElevenLabsService {
         return audioBlob;
       }
       
-      // Jika bukan ellipsis, coba cari file audio yang sesuai
-      const hash = this.generateSimpleHash(text);
-      const audioFile = `/audio/geralt/dialog_${hash}.mp3`;
-      
-      // Coba cari file audio
-      const response = await fetch(audioFile);
-      
-      // Jika file tidak ditemukan
-      if (!response.ok) {
-        console.log('Audio file not found, using silent audio instead');
-        const silentResponse = await fetch('/audio/geralt/silent.mp3');
+      // Untuk teks normal, gunakan endpoint server yang akan melakukan:
+      // 1. Memeriksa jika file ada di sistem file lokal
+      // 2. Jika tidak, generate menggunakan ElevenLabs API dan simpan
+      try {
+        const response = await fetch('/api/elevenlabs/text-to-speech', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            text,
+            voice_id: this.voiceMap[characterVoice] || this.voiceMap['default']
+          })
+        });
         
-        if (!silentResponse.ok) {
-          console.error('Silent audio file not found');
-          return null;
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Text-to-speech API error:', errorData);
+          
+          // Kembali ke silent.mp3 jika tidak bisa generate
+          console.log('Falling back to silent audio');
+          const silentResponse = await fetch('/audio/geralt/silent.mp3');
+          const silentBlob = await silentResponse.blob();
+          this.audioCache[cacheKey] = silentBlob;
+          return silentBlob;
         }
         
+        // Dapatkan response JSON yang berisi path ke file audio
+        const result = await response.json();
+        
+        if (result.success) {
+          // Jika berhasil, ambil file audio dari path yang diberikan
+          const audioResponse = await fetch(result.audioPath);
+          if (audioResponse.ok) {
+            const audioBlob = await audioResponse.blob();
+            this.audioCache[cacheKey] = audioBlob;
+            return audioBlob;
+          }
+        }
+        
+        // Jika gagal, gunakan silent.mp3
+        console.log('Audio request failed, using silent audio instead');
+        const fallbackResponse = await fetch('/audio/geralt/silent.mp3');
+        const fallbackBlob = await fallbackResponse.blob();
+        this.audioCache[cacheKey] = fallbackBlob;
+        return fallbackBlob;
+      } catch (apiError) {
+        console.error('Error calling text-to-speech API:', apiError);
+        
+        // Coba gunakan file audio lokal jika API gagal
+        // Mendukung degradasi agar aplikasi tetap berfungsi
+        const hash = this.generateSimpleHash(text);
+        const audioFile = `/audio/geralt/dialog_${hash}.mp3`;
+        
+        try {
+          // Coba cari file audio lokal
+          const localResponse = await fetch(audioFile);
+          if (localResponse.ok) {
+            console.log('Found local audio file:', audioFile);
+            const localBlob = await localResponse.blob();
+            this.audioCache[cacheKey] = localBlob;
+            return localBlob;
+          }
+        } catch (localError) {
+          console.error('Error loading local audio:', localError);
+        }
+        
+        // Jika semua gagal, gunakan silent.mp3
+        const silentResponse = await fetch('/audio/geralt/silent.mp3');
         const silentBlob = await silentResponse.blob();
         this.audioCache[cacheKey] = silentBlob;
         return silentBlob;
       }
-      
-      // Jika file ditemukan
-      const audioBlob = await response.blob();
-      this.audioCache[cacheKey] = audioBlob;
-      return audioBlob;
-      
     } catch (error) {
       console.error('Error loading speech audio:', error);
       // Return null in case of error
