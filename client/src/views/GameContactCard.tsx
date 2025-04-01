@@ -137,7 +137,7 @@ const GameContactCard: React.FC = () => {
                 name={link.name}
                 url={link.url}
                 icon={React.cloneElement(link.icon as React.ReactElement, { 
-                  size: "clamp(18px, 5vw, 24px)" // Responsive icon size
+                  size: "clamp(16px, 4vw, 20px)" // Ukuran ikon lebih kecil
                 })}
                 color={link.color}
                 hoverColor={link.hoverColor}
@@ -185,8 +185,8 @@ const GameContactCard: React.FC = () => {
           border: 1px solid rgba(249, 115, 22, 0.1); /* Border sangat halus dengan aksen api */
           backdrop-filter: blur(3px); /* Blur lebih halus */
           border-radius: 8px; /* Border radius lebih kecil untuk gaya game */
-          padding: clamp(1.2rem, 3vw, 2rem) clamp(1.2rem, 3vw, 1.7rem); /* Responsive padding */
-          max-width: min(400px, 90%); /* Responsive width, smaller on small screens */
+          padding: clamp(0.8rem, 2vw, 1.5rem) clamp(0.8rem, 2vw, 1.2rem); /* Responsive padding dikurangi */
+          max-width: min(350px, 85%); /* Ukuran maksimal lebih kecil */
           width: 100%;
           box-shadow:
             0 8px 20px rgba(0, 0, 0, 0.15),
@@ -218,9 +218,9 @@ const GameContactCard: React.FC = () => {
         .social-links {
           display: flex;
           flex-direction: column;
-          gap: 1.5rem; /* Increased spacing between links */
+          gap: 0.8rem; /* Spacing antara link dikurangi */
           width: 100%;
-          margin-bottom: 1.2rem; /* Reduced bottom margin */
+          margin-bottom: 0.8rem; /* Bottom margin dikurangi */
         }
 
         /* Media query with simpler clamp and consistent rem/vh usage */
