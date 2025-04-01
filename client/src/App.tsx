@@ -135,11 +135,6 @@ function MainApp() {
     }
   };
 
-  // If user hasn't approached yet, show the approach screen
-  if (!approachClicked) {
-    return <ApproachScreen onApproach={handleApproach} />;
-  }
-
   // Event listener untuk mendeteksi user interaction
   useEffect(() => {
     // Hanya aktifkan event listener jika sudah approach

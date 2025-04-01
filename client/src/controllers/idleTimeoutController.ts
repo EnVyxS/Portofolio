@@ -1,6 +1,6 @@
 import DialogController from './dialogController';
 import HoverDialogController from './hoverDialogController';
-import { motion } from 'framer-motion';
+import ElevenLabsService from '../services/elevenlabsService';
 
 // Dialog yang akan ditampilkan pada timeout tertentu
 export const IDLE_DIALOGS = {
@@ -50,6 +50,7 @@ class IdleTimeoutController {
   private static instance: IdleTimeoutController;
   private dialogController: DialogController;
   private hoverDialogController: HoverDialogController;
+  private elevenlabsService: ElevenLabsService;
   
   // Timer untuk timeout
   private firstWarningTimer: NodeJS.Timeout | null = null;
@@ -88,6 +89,7 @@ class IdleTimeoutController {
   private constructor() {
     this.dialogController = DialogController.getInstance();
     this.hoverDialogController = HoverDialogController.getInstance();
+    this.elevenlabsService = ElevenLabsService.getInstance();
   }
   
   public static getInstance(): IdleTimeoutController {
