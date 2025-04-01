@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 // Gunakan path relatif untuk akses langsung public assets
 const backgroundMusicPath = '/assets/Darksouls-Chill.m4a';
-const fireplaceAmbientPath = '/assets/fireplace-ambient.m4a';
+const fireplaceAmbientPath = '/assets/audio/ambient_fire.m4a';
 
 interface AudioContextProps {
   isAudioPlaying: boolean;

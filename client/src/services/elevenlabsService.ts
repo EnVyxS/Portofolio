@@ -61,14 +61,42 @@ class ElevenLabsService {
         return this.audioCache.get(cacheKey)!;
       }
       
-      console.log("Generating new audio for:", text.substring(0, 20) + "...");
+      console.log("Loading audio for:", text.substring(0, 20) + "...");
       
-      // Gunakan endpoint server lokal alih-alih memanggil ElevenLabs langsung
-      // Ini mengatasi masalah CORS dan juga masalah API key
+      // Gunakan fallback audio (silence.mp3) jika teks hanya berisi "....." atau "*..."
+      if (text.trim() === "....." || text.startsWith("*") || text.length < 3) {
+        console.log("Using silent audio for:", text);
+        const fallbackAudioUrl = "/assets/silence.mp3";
+        const silenceResponse = await fetch(fallbackAudioUrl);
+        if (silenceResponse.ok) {
+          const silenceBlob = await silenceResponse.blob();
+          this.audioCache.set(cacheKey, silenceBlob);
+          return silenceBlob;
+        }
+      }
+
+      // Buat hash sederhana dari teks untuk digunakan sebagai nama file
+      const textHash = this.hashText(text);
+      const audioFileUrl = `/audio/geralt/dialog_${textHash}.mp3`;
+      
+      try {
+        // Coba ambil file audio yang sudah ada
+        const audioResponse = await fetch(audioFileUrl);
+        if (audioResponse.ok) {
+          console.log("Found existing audio file:", audioFileUrl);
+          const audioBlob = await audioResponse.blob();
+          this.audioCache.set(cacheKey, audioBlob);
+          return audioBlob;
+        }
+      } catch (e) {
+        console.log("Audio file not found:", audioFileUrl);
+      }
+      
+      // Jika tidak ada file audio yang sesuai, gunakan server untuk generate
+      console.log("Fallback to server generation for:", text.substring(0, 20) + "...");
       const requestBody = {
         text: text,
         voice_id: voiceId,
-        // Tidak menyertakan model_id dan biarkan server menggunakan model default yang bekerja
         voice_settings: {
           stability: 0.5,
           similarity_boost: 0.75,
@@ -87,6 +115,8 @@ class ElevenLabsService {
 
       if (!response.ok) {
         console.error('Failed to generate speech:', await response.text());
+        // Gunakan audio default/fallback untuk dialog
+        console.log("Using default voice fallback");
         return null;
       }
 
@@ -99,6 +129,21 @@ class ElevenLabsService {
       console.error('Error generating speech:', error);
       return null;
     }
+  }
+  
+  // Fungsi sederhana untuk menghasilkan hash dari teks
+  private hashText(text: string): string {
+    let hash = 0;
+    if (text.length === 0) return hash.toString();
+    
+    for (let i = 0; i < text.length; i++) {
+      const char = text.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    
+    // Gunakan nilai absolut dan batasi panjang
+    return Math.abs(hash).toString().substring(0, 8);
   }
 
   public async speakText(text: string, characterVoice: string = 'geralt'): Promise<boolean> {
