@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import DialogController from '../controllers/dialogController';
 import HoverDialogController from '../controllers/hoverDialogController';
@@ -26,39 +26,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const dialogController = DialogController.getInstance();
   const hoverDialogController = HoverDialogController.getInstance();
 
-  useEffect(() => {
-    // Start the dialog sequence
-    dialogController.startDialog((text, complete) => {
-      setText(text);
-      setIsComplete(complete);
-      setDialogSource('main');
-      
-      // Get current dialog to display character name
-      const currentDialog = dialogController.getCurrentDialog();
-      if (currentDialog) {
-        setCharacterName(currentDialog.character);
-      }
-      
-      // Notify HoverDialogController about dialog completion status
-      hoverDialogController.setDialogCompleted(complete);
-    });
-    
-    // Set hover dialog callback
-    hoverDialogController.setHoverTextCallback((text, complete) => {
-      setText(text);
-      setIsComplete(complete);
-      setDialogSource('hover');
-      setCharacterName('GERALT'); // Semua dialog hover dari Geralt
-    });
-    
-    // Cleanup on unmount
-    return () => {
-      dialogController.stopTyping();
-      hoverDialogController.resetHoverState();
-    };
-  }, [hoverDialogController]);
+  // Timer reference untuk auto-continue
+  const autoPlayTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  const handleContinue = () => {
+  // Handle Continue sebagai useCallback untuk dapat digunakan dalam useEffect
+  const handleContinue = useCallback(() => {
     if (dialogSource === 'main') {
       if (!isComplete) {
         // Skip to the end of the current dialog
@@ -95,7 +67,64 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         setIsComplete(true);
       }
     }
-  };
+  }, [dialogSource, isComplete, dialogController, hoverDialogController, onDialogComplete, setText, setIsComplete, setIsDialogFinished, setCharacterName]);
+
+  // Effect untuk auto-continue ketika dialog selesai
+  useEffect(() => {
+    if (isComplete && dialogSource === 'main') {
+      // Clear any existing timer
+      if (autoPlayTimerRef.current) {
+        clearTimeout(autoPlayTimerRef.current);
+      }
+      
+      // Set new timer to auto-continue
+      autoPlayTimerRef.current = setTimeout(() => {
+        handleContinue();
+      }, 2000); // Tunggu 2 detik sebelum melanjutkan
+    }
+    
+    // Cleanup timer when unmounting or when dependencies change
+    return () => {
+      if (autoPlayTimerRef.current) {
+        clearTimeout(autoPlayTimerRef.current);
+      }
+    };
+  }, [isComplete, dialogSource, handleContinue]);
+
+  useEffect(() => {
+    // Start the dialog sequence
+    dialogController.startDialog((text, complete) => {
+      setText(text);
+      setIsComplete(complete);
+      setDialogSource('main');
+      
+      // Get current dialog to display character name
+      const currentDialog = dialogController.getCurrentDialog();
+      if (currentDialog) {
+        setCharacterName(currentDialog.character);
+      }
+      
+      // Notify HoverDialogController about dialog completion status
+      hoverDialogController.setDialogCompleted(complete);
+    });
+    
+    // Set hover dialog callback
+    hoverDialogController.setHoverTextCallback((text, complete) => {
+      setText(text);
+      setIsComplete(complete);
+      setDialogSource('hover');
+      setCharacterName('GERALT'); // Semua dialog hover dari Geralt
+    });
+    
+    // Cleanup on unmount
+    return () => {
+      dialogController.stopTyping();
+      hoverDialogController.resetHoverState();
+      if (autoPlayTimerRef.current) {
+        clearTimeout(autoPlayTimerRef.current);
+      }
+    };
+  }, []);
 
   if (isDialogFinished) {
     return null; // Don't render anything when dialog is finished

@@ -51,7 +51,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     const fileName = `dialog_${hash}.mp3`;
     
     // Define directories for audio files
-    const publicDir = path.resolve(__dirname, '../../client/public');
+    const publicDir = path.resolve(process.cwd(), 'client/public');
     const audioDir = path.join(publicDir, 'audio/geralt');
     const audioFilePath = path.join(audioDir, fileName);
     const audioPublicPath = `/audio/geralt/${fileName}`;
