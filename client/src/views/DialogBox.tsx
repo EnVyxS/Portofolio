@@ -27,41 +27,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [isDialogFinished, setIsDialogFinished] = useState<boolean>(false);
   const [dialogSource, setDialogSource] = useState<'main' | 'hover'>('main');
-  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const dialogController = DialogController.getInstance();
   const hoverDialogController = HoverDialogController.getInstance();
 
   // Timer reference untuk auto-continue
   const autoPlayTimerRef = React.useRef<NodeJS.Timeout | null>(null);
-  
-  // Handle refresh voice - regenerate audio using ElevenLabs API
-  const handleRefreshVoice = useCallback(async () => {
-    if (isRefreshing) return; // Prevent multiple clicks
-    
-    setIsRefreshing(true);
-    
-    try {
-      const currentDialog = dialogController.getCurrentDialog();
-      if (currentDialog) {
-        // Menggunakan elevenlabsService dari dialogController untuk regenerate suara
-        const elevenlabsService = await import('../services/elevenlabsService').then(m => m.default.getInstance());
-        
-        console.log('Refreshing voice for current dialog...');
-        
-        // Stop any playing audio first
-        elevenlabsService.stopSpeaking();
-        
-        // Regenerate dan play audio dengan forceRefresh=true
-        await elevenlabsService.speakText(currentDialog.text, currentDialog.character, true);
-        
-        console.log('Voice refreshed successfully!');
-      }
-    } catch (error) {
-      console.error('Failed to refresh voice:', error);
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [dialogController, isRefreshing]);
 
   // Handle Continue sebagai useCallback untuk dapat digunakan dalam useEffect
   const handleContinue = useCallback(() => {
@@ -231,19 +201,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         </div>
         <div className="dialog-text">{text}</div>
         <div className="dialog-actions">
-          {/* Refresh voice button - hanya tampil untuk main dialog */}
-          {dialogSource === 'main' && (
-            <button 
-              className={`refresh-voice ${isRefreshing ? 'is-refreshing' : ''}`}
-              onClick={handleRefreshVoice}
-              disabled={isRefreshing}
-              title="Refresh voice from API"
-            >
-              <span className={`refresh-icon ${isRefreshing ? 'spinning' : ''}`}>⟳</span>
-              {isRefreshing ? 'Refreshing...' : 'Refresh Voice'}
-            </button>
-          )}
-          
           <button 
             className={`dialog-continue ${dialogSource === 'hover' ? 'hover-continue' : ''}`}
             onClick={handleContinue}
@@ -325,48 +282,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         
         .dialog-actions {
           display: flex;
-          justify-content: space-between;
+          justify-content: flex-end;
           position: relative;
           border-top: 1px solid rgba(150, 130, 100, 0.15);
           padding-top: 0.6rem;
           margin-top: 0.5rem;
-        }
-        
-        /* Styling untuk tombol refresh voice */
-        .refresh-voice {
-          background: rgba(20, 18, 16, 0.6);
-          border: 1px solid rgba(150, 130, 100, 0.3);
-          color: rgba(200, 180, 140, 0.7);
-          font-family: 'Trajan Pro', 'Cinzel', 'Garamond', serif;
-          font-size: 0.85rem;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          padding: 0.3rem 0.8rem;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          transition: all 0.2s;
-        }
-        
-        .refresh-voice:hover {
-          background: rgba(40, 35, 30, 0.7);
-          color: #e8debc;
-          text-shadow: 0 0 4px rgba(150, 130, 100, 0.6);
-        }
-        
-        .refresh-voice.is-refreshing {
-          opacity: 0.7;
-          cursor: not-allowed;
-        }
-        
-        .refresh-icon {
-          display: inline-block;
-          font-size: 1rem;
-        }
-        
-        .refresh-icon.spinning {
-          animation: spin 1s linear infinite;
         }
         
         /* Ornamen dekoratif untuk tombol continue */
