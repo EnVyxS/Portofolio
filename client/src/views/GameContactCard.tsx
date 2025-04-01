@@ -168,17 +168,17 @@ const GameContactCard: React.FC = () => {
 
         /* Unified card that contains all elements */
         .unified-card {
-          background: rgba(15, 23, 42, 0.15); /* More transparent to show background */
-          border: 1px solid rgba(249, 115, 22, 0.1); /* Very subtle border */
+          background: rgba(15, 12, 10, 0.25); /* Sesuaikan warna dengan tema Souls-like */
+          border: 1px solid rgba(150, 130, 100, 0.2); /* Border emas pudar seperti APPROACH HIM */
           backdrop-filter: blur(1px); /* Very light blur */
-          opacity: 0.25; /* Very low opacity as requested */
-          border-radius: 8px; /* Smaller border radius for game style */
+          opacity: 0.3; /* Sedikit tingkatkan opacity */
+          border-radius: 0; /* No rounded corners ala Souls-like */
           padding: clamp(0.5rem, 1.5vw, 0.8rem) clamp(0.5rem, 1.5vw, 0.8rem); /* Smaller padding */
           max-width: min(260px, 60%); /* Much smaller max width */
           width: 100%;
           box-shadow:
-            0 8px 20px rgba(0, 0, 0, 0.15),
-            0 0 15px rgba(249, 115, 22, 0.1);
+            0 8px 20px rgba(0, 0, 0, 0.2),
+            0 0 15px rgba(150, 130, 100, 0.15); /* Shadow emas pudar */
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -198,9 +198,9 @@ const GameContactCard: React.FC = () => {
           left: 0;
           right: 0;
           height: 2px;
-          background: linear-gradient(90deg, #f97316, #fb923c);
+          background: linear-gradient(90deg, rgba(180, 160, 120, 0.6), rgba(150, 130, 100, 0.3)); /* Gradien emas pudar */
           z-index: 1;
-          opacity: 0.9;
+          opacity: 0.8;
         }
 
         /* Dark Souls style corner elements */
@@ -208,7 +208,7 @@ const GameContactCard: React.FC = () => {
           position: absolute;
           width: 8px;
           height: 8px;
-          border: 1px solid rgba(249, 115, 22, 0.4);
+          border: 1px solid rgba(150, 130, 100, 0.5); /* Sesuaikan dengan warna emas pudar */
           z-index: 2;
         }
         
@@ -240,14 +240,14 @@ const GameContactCard: React.FC = () => {
           border-top: none;
         }
         
-        /* Orange accent corner */
+        /* Accent corner - sesuaikan dengan emas pudar */
         .card-accent-corner {
           position: absolute;
           top: -2px;
           right: -2px;
           width: 20px;
           height: 20px;
-          background: linear-gradient(135deg, transparent 50%, rgba(249, 115, 22, 0.3) 50%);
+          background: linear-gradient(135deg, transparent 50%, rgba(150, 130, 100, 0.25) 50%);
           z-index: 2;
         }
         

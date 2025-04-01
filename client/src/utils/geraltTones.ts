@@ -25,95 +25,96 @@ export type GeraltTone = keyof typeof GERALT_TONE;
  * @returns Pengaturan voice yang sesuai untuk API ElevenLabs
  */
 export function getVoiceSettings(tone: GeraltTone) {
-  // Default voice settings
+  // Default voice settings - konsistensi pitch
   const defaultSettings = {
-    stability: 0.35,
+    stability: 0.35,          // Nilai stability konsisten
     similarity_boost: 0.75,
-    style: 0.65,
+    style: 0.65,              // Style moderate agar tidak terlalu bervariasi
     use_speaker_boost: true,
-    speaking_rate: 0.70
+    speaking_rate: 0.70       // Speaking rate moderate
   };
   
-  // Sesuaikan pengaturan berdasarkan tone
+  // Sesuaikan pengaturan berdasarkan tone, tetapi dengan variasi minimal
+  // Jaga nilai stabilitas dan style tetap relatif konsisten untuk mencegah variasi pitch yang drastis
   switch (tone) {
     case "ANGRY":
       return {
         ...defaultSettings,
-        stability: 0.25,        // Less stable for anger
-        style: 0.80,            // More stylistic expression
-        speaking_rate: 0.85     // Faster speech when angry
+        stability: 0.35,        // Sama dengan default
+        style: 0.70,            // Sedikit lebih ekspresif
+        speaking_rate: 0.75     // Sedikit lebih cepat ketika marah
       };
       
     case "TIRED":
       return {
         ...defaultSettings,
-        stability: 0.45,        // More stable when tired
-        style: 0.55,            // Less expression
-        speaking_rate: 0.60     // Much slower when tired
+        stability: 0.35,        // Sama dengan default
+        style: 0.60,            // Sedikit kurang ekspresif
+        speaking_rate: 0.65     // Sedikit lebih lambat ketika lelah
       };
       
     case "DRUNK":
       return {
         ...defaultSettings,
-        stability: 0.20,        // Very unstable for slurring
-        style: 0.70,            // More stylized for drunk effect
-        speaking_rate: 0.65     // Slightly slower, uneven pace
+        stability: 0.35,        // Sama dengan default
+        style: 0.65,            // Sama dengan default
+        speaking_rate: 0.68     // Hampir sama dengan default
       };
       
     case "NUMB":
       return {
         ...defaultSettings,
-        stability: 0.50,        // Very stable for monotone effect
-        style: 0.30,            // Much less expression
-        speaking_rate: 0.75     // Normal pace but flat
+        stability: 0.35,        // Sama dengan default
+        style: 0.60,            // Sedikit kurang ekspresif
+        speaking_rate: 0.70     // Sama dengan default
       };
       
     case "SARCASTIC":
       return {
         ...defaultSettings,
-        stability: 0.30,        // Less stable for varied tone
-        style: 0.85,            // High stylistic variation
-        speaking_rate: 0.72     // Slightly faster for sharp delivery
+        stability: 0.35,        // Sama dengan default
+        style: 0.68,            // Sedikit lebih ekspresif
+        speaking_rate: 0.72     // Hampir sama dengan default
       };
       
     case "RESIGNED":
       return {
         ...defaultSettings,
-        stability: 0.40,        // More stable for resignation
-        style: 0.50,            // Less expressive
-        speaking_rate: 0.65     // Slower, resigned pace
+        stability: 0.35,        // Sama dengan default
+        style: 0.62,            // Sedikit kurang ekspresif
+        speaking_rate: 0.68     // Hampir sama dengan default
       };
       
     case "HOLLOW":
       return {
         ...defaultSettings,
-        stability: 0.45,        // More stable for emptiness
-        style: 0.40,            // Less emotional expression
-        speaking_rate: 0.68     // Slightly slower, empty
+        stability: 0.35,        // Sama dengan default
+        style: 0.60,            // Sedikit kurang ekspresif
+        speaking_rate: 0.70     // Sama dengan default
       };
       
     case "ANNOYED":
       return {
         ...defaultSettings,
-        stability: 0.30,        // Less stable for annoyance
-        style: 0.70,            // More expressive
-        speaking_rate: 0.75     // Slightly faster for impatience
+        stability: 0.35,        // Sama dengan default
+        style: 0.67,            // Sedikit lebih ekspresif
+        speaking_rate: 0.72     // Sedikit lebih cepat karena tidak sabar
       };
       
     case "CONTEMPLATIVE":
       return {
         ...defaultSettings,
-        stability: 0.38,        // Moderate stability
-        style: 0.55,            // Moderate expression
-        speaking_rate: 0.65     // Slower, thoughtful pace
+        stability: 0.35,        // Sama dengan default
+        style: 0.62,            // Sedikit kurang ekspresif
+        speaking_rate: 0.68     // Sedikit lebih lambat
       };
       
     case "BITTER":
       return {
         ...defaultSettings,
-        stability: 0.35,        // Average stability
-        style: 0.75,            // More expressive for bitterness
-        speaking_rate: 0.67     // Slightly slower, heavy
+        stability: 0.35,        // Sama dengan default
+        style: 0.67,            // Sedikit lebih ekspresif
+        speaking_rate: 0.68     // Sedikit lebih lambat
       };
       
     default:
