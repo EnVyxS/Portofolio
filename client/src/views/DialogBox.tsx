@@ -113,7 +113,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       setText(text);
       setIsComplete(complete);
       setDialogSource('hover');
-      setCharacterName('GERALT'); // Semua dialog hover dari Geralt
+      setCharacterName('Diva Juan Nur Taqarrub'); // Semua dialog hover dari karakter utama
     });
     
     // Cleanup on unmount

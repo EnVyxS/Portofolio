@@ -127,11 +127,11 @@ class ElevenLabsService {
   // Preload silent audio untuk dialog kosong
   private preloadSilentAudio(): void {
     // Gunakan audio kosong berdurasi pendek untuk teks yang hanya berisi ellipsis
-    fetch('/audio/geralt/silent.mp3', { method: 'HEAD' })
+    fetch('/audio/character/silent.mp3', { method: 'HEAD' })
       .then(response => {
         if (response.ok) {
           console.log("Silent audio file found, preloading");
-          const silentAudio = new Audio('/audio/geralt/silent.mp3');
+          const silentAudio = new Audio('/audio/character/silent.mp3');
           this.preloadedAudios.set('.....', silentAudio);
           this.preloadedAudios.set('...', silentAudio);
         } else {
@@ -158,7 +158,7 @@ class ElevenLabsService {
     return this.apiKey;
   }
 
-  public async generateSpeech(text: string, characterVoice: string = 'geralt'): Promise<Blob | null> {
+  public async generateSpeech(text: string, characterVoice: string = 'character'): Promise<Blob | null> {
     try {
       // Buat cache key berdasarkan text
       const cacheKey = text;
@@ -176,7 +176,7 @@ class ElevenLabsService {
       if (text.trim() === '.....' || text.trim() === '...') {
         console.log("Using silent audio for:", text.trim());
         // Gunakan "silent.mp3" untuk teks kosong
-        const response = await fetch('/audio/geralt/silent.mp3');
+        const response = await fetch('/audio/character/silent.mp3');
         
         if (!response.ok) {
           console.error('Silent audio file not found');
@@ -209,7 +209,7 @@ class ElevenLabsService {
           
           // Kembali ke silent.mp3 jika tidak bisa generate
           console.log('Falling back to silent audio');
-          const silentResponse = await fetch('/audio/geralt/silent.mp3');
+          const silentResponse = await fetch('/audio/character/silent.mp3');
           const silentBlob = await silentResponse.blob();
           this.audioCache[cacheKey] = silentBlob;
           return silentBlob;
@@ -230,7 +230,7 @@ class ElevenLabsService {
         
         // Jika gagal, gunakan silent.mp3
         console.log('Audio request failed, using silent audio instead');
-        const fallbackResponse = await fetch('/audio/geralt/silent.mp3');
+        const fallbackResponse = await fetch('/audio/character/silent.mp3');
         const fallbackBlob = await fallbackResponse.blob();
         this.audioCache[cacheKey] = fallbackBlob;
         return fallbackBlob;
@@ -240,7 +240,7 @@ class ElevenLabsService {
         // Coba gunakan file audio lokal jika API gagal
         // Mendukung degradasi agar aplikasi tetap berfungsi
         const hash = this.generateSimpleHash(text);
-        const audioFile = `/audio/geralt/dialog_${hash}.mp3`;
+        const audioFile = `/audio/character/dialog_${hash}.mp3`;
         
         try {
           // Coba cari file audio lokal
@@ -256,7 +256,7 @@ class ElevenLabsService {
         }
         
         // Jika semua gagal, gunakan silent.mp3
-        const silentResponse = await fetch('/audio/geralt/silent.mp3');
+        const silentResponse = await fetch('/audio/character/silent.mp3');
         const silentBlob = await silentResponse.blob();
         this.audioCache[cacheKey] = silentBlob;
         return silentBlob;
@@ -269,7 +269,7 @@ class ElevenLabsService {
     }
   }
 
-  public async speakText(text: string, characterVoice: string = 'geralt'): Promise<boolean> {
+  public async speakText(text: string, characterVoice: string = 'character'): Promise<boolean> {
     // If already playing, stop first
     if (this.isPlaying) {
       this.stopSpeaking();

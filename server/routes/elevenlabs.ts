@@ -34,7 +34,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       // Return path to silent.mp3
       return res.status(200).json({ 
         success: true, 
-        audioPath: '/audio/geralt/silent.mp3',
+        audioPath: '/audio/character/silent.mp3',
         message: 'Using silent audio for ellipsis'
       });
     }
@@ -52,9 +52,9 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     
     // Define directories for audio files
     const publicDir = path.resolve(process.cwd(), 'client/public');
-    const audioDir = path.join(publicDir, 'audio/geralt');
+    const audioDir = path.join(publicDir, 'audio/character');
     const audioFilePath = path.join(audioDir, fileName);
-    const audioPublicPath = `/audio/geralt/${fileName}`;
+    const audioPublicPath = `/audio/character/${fileName}`;
     
     // Create directories if they don't exist
     if (!fs.existsSync(audioDir)) {
