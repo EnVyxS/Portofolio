@@ -68,7 +68,7 @@ class ElevenLabsService {
       const requestBody = {
         text: text,
         voice_id: voiceId,
-        model_id: "b2FFMFMuLlPlyWk5NuQW", // Model ID yang diminta
+        // Tidak menyertakan model_id dan biarkan server menggunakan model default yang bekerja
         voice_settings: {
           stability: 0.5,
           similarity_boost: 0.75,
