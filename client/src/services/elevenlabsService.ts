@@ -61,39 +61,10 @@ class ElevenLabsService {
         return this.audioCache.get(cacheKey)!;
       }
       
-      console.log("Loading audio for:", text.substring(0, 20) + "...");
+      console.log("Generating new audio for:", text.substring(0, 20) + "...");
       
-      // Gunakan fallback audio (silence.mp3) jika teks hanya berisi "....." atau "*..."
-      if (text.trim() === "....." || text.startsWith("*") || text.length < 3) {
-        console.log("Using silent audio for:", text);
-        const fallbackAudioUrl = "/assets/silence.mp3";
-        const silenceResponse = await fetch(fallbackAudioUrl);
-        if (silenceResponse.ok) {
-          const silenceBlob = await silenceResponse.blob();
-          this.audioCache.set(cacheKey, silenceBlob);
-          return silenceBlob;
-        }
-      }
-
-      // Buat hash sederhana dari teks untuk digunakan sebagai nama file
-      const textHash = this.hashText(text);
-      const audioFileUrl = `/audio/geralt/dialog_${textHash}.mp3`;
-      
-      try {
-        // Coba ambil file audio yang sudah ada
-        const audioResponse = await fetch(audioFileUrl);
-        if (audioResponse.ok) {
-          console.log("Found existing audio file:", audioFileUrl);
-          const audioBlob = await audioResponse.blob();
-          this.audioCache.set(cacheKey, audioBlob);
-          return audioBlob;
-        }
-      } catch (e) {
-        console.log("Audio file not found:", audioFileUrl);
-      }
-      
-      // Jika tidak ada file audio yang sesuai, gunakan server untuk generate
-      console.log("Fallback to server generation for:", text.substring(0, 20) + "...");
+      // Gunakan endpoint server lokal alih-alih memanggil ElevenLabs langsung
+      // Ini mengatasi masalah CORS dan juga masalah API key
       const requestBody = {
         text: text,
         voice_id: voiceId,
@@ -115,8 +86,6 @@ class ElevenLabsService {
 
       if (!response.ok) {
         console.error('Failed to generate speech:', await response.text());
-        // Gunakan audio default/fallback untuk dialog
-        console.log("Using default voice fallback");
         return null;
       }
 
@@ -130,21 +99,6 @@ class ElevenLabsService {
       return null;
     }
   }
-  
-  // Fungsi sederhana untuk menghasilkan hash dari teks
-  private hashText(text: string): string {
-    let hash = 0;
-    if (text.length === 0) return hash.toString();
-    
-    for (let i = 0; i < text.length; i++) {
-      const char = text.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32bit integer
-    }
-    
-    // Gunakan nilai absolut dan batasi panjang
-    return Math.abs(hash).toString().substring(0, 8);
-  }
 
   public async speakText(text: string, characterVoice: string = 'geralt'): Promise<boolean> {
     // If already playing, stop first
@@ -152,75 +106,35 @@ class ElevenLabsService {
       this.stopSpeaking();
     }
 
-    try {
-      // Generate speech
-      const audioBlob = await this.generateSpeech(text, characterVoice);
-      
-      if (!audioBlob) {
-        console.log("Fallback to pre-generated audio");
-        // Gunakan file audio yang sudah di-generate (fixed path)
-        // Buat hash dari teks untuk mendapatkan nama file yang sama dengan endpoint
-        const textHash = this.hashText(text);
-        let audioPath = '';
-        
-        // Cek jika teks pendek, gunakan file silence
-        if (text.trim() === '.....' || text.startsWith('*') || text.length < 3) {
-          audioPath = '/audio/geralt/dialog_silence.mp3';
-        } else {
-          audioPath = `/audio/geralt/dialog_${textHash}.mp3`;
-        }
-        
-        // Buat audio element langsung dengan path
-        this.audioElement = new Audio(audioPath);
-        this.isPlaying = true;
-        
-        // Play audio
-        try {
-          await this.audioElement.play();
-        } catch (e) {
-          console.log("Failed to play audio from path:", e);
-          // Tetap menampilkan dialog meskipun tidak ada suara
-          return true;
-        }
-        
-        // Clean up when audio ends
-        this.audioElement.onended = () => {
-          this.isPlaying = false;
-          this.audioElement = null;
-        };
-        
-        return true;
-      }
+    // Generate speech
+    const audioBlob = await this.generateSpeech(text, characterVoice);
+    if (!audioBlob) {
+      return false;
+    }
 
-      // Create audio URL and element
-      const audioUrl = URL.createObjectURL(audioBlob);
-      this.audioElement = new Audio(audioUrl);
+    // Create audio URL and element
+    const audioUrl = URL.createObjectURL(audioBlob);
+    this.audioElement = new Audio(audioUrl);
+    
+    // Play audio
+    try {
+      this.isPlaying = true;
+      await this.audioElement.play();
       
-      // Play audio
-      try {
-        this.isPlaying = true;
-        await this.audioElement.play();
-        
-        // Clean up when audio ends
-        this.audioElement.onended = () => {
-          this.isPlaying = false;
-          if (this.audioElement) {
-            URL.revokeObjectURL(audioUrl);
-            this.audioElement = null;
-          }
-        };
-        
-        return true;
-      } catch (error) {
-        console.error('Failed to play audio from blob:', error);
-        // Fallback ke dialog tanpa suara
+      // Clean up when audio ends
+      this.audioElement.onended = () => {
         this.isPlaying = false;
-        return true; // Tetap mengembalikan true agar dialog tetap berjalan
-      }
-    } catch (error) {
-      console.error('Error in speakText:', error);
-      // Jangan biarkan kegagalan audio mengganggu alur dialog
+        if (this.audioElement) {
+          URL.revokeObjectURL(audioUrl);
+          this.audioElement = null;
+        }
+      };
+      
       return true;
+    } catch (error) {
+      console.error('Failed to play audio:', error);
+      this.isPlaying = false;
+      return false;
     }
   }
 
