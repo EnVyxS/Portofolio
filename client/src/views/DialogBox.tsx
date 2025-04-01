@@ -16,15 +16,24 @@ function generateSimpleHash(text: string): string {
   return Math.abs(hash).toString();
 }
 
-import DifficultyController from '../controllers/difficultyController';
-
 // Helper untuk menentukan apakah dialog perlu persistensi (tetap terbuka)
-// Menggunakan DifficultyController untuk keputusan adaptif
+// Versi sederhana: semua dialog autoplay kecuali yang memiliki pola tertentu
 function isDialogPersistent(text: string): boolean {
-  const difficultyController = DifficultyController.getInstance();
+  // Dialog dari dialogModel.ts hampir semua non-persistent
+  // kita menggunakan pola false secara default
   
-  // Gunakan difficulty controller untuk menentukan persistensi
-  return difficultyController.shouldDialogBePersistent(text);
+  // Dialog khusus (dari hover) yang perlu persistent
+  if (text.includes('?') && 
+      (text.includes('credentials') || 
+       text.includes('check') || 
+       text.includes('want to know') || 
+       text.includes('need to') || 
+       text.includes('convinced'))) {
+    return true;
+  }
+  
+  // Default: semua dialog regular autoplay (non-persistent)
+  return false;
 }
 
 interface DialogBoxProps {
@@ -45,13 +54,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
   // Handle Continue sebagai useCallback untuk dapat digunakan dalam useEffect
   const handleContinue = useCallback(() => {
-    const difficultyController = DifficultyController.getInstance();
-    
     if (dialogSource === 'main') {
       if (!isComplete) {
-        // Catat bahwa user melakukan skip dialog (menunjukkan keinginan untuk pace lebih cepat)
-        difficultyController.recordDialogSkip();
-        
         // Skip to the end of the current dialog
         dialogController.skipToFullText();
       } else {
@@ -64,9 +68,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           }
           return;
         }
-        
-        // Catat bahwa user membaca dialog sampai selesai (positif untuk tracking)
-        difficultyController.recordDialogReadComplete();
         
         // Move to the next dialog
         dialogController.nextDialog((text, complete) => {
@@ -93,11 +94,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     } else if (dialogSource === 'hover') {
       // For hover dialogs, immediately skip to full text
       if (!isComplete) {
-        // Catat bahwa user melakukan interaksi dengan hover dialog
-        difficultyController.recordHoverInteraction(
-          hoverDialogController.getLastHoveredLink()
-        );
-        
         // Assume hover dialog controller is handling typing
         hoverDialogController.stopTyping();
         // Immediately show full text
@@ -106,10 +102,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     }
   }, [dialogSource, isComplete, dialogController, hoverDialogController, onDialogComplete, setText, setIsComplete, setIsDialogFinished, setCharacterName]);
 
-  // Effect untuk auto-continue ketika dialog selesai - menggunakan DifficultyController
+  // Effect untuk auto-continue ketika dialog selesai - dimodifikasi untuk berjalan untuk semua dialog
   useEffect(() => {
-    const difficultyController = DifficultyController.getInstance();
-    
     if (isComplete && dialogSource === 'main') {
       // Clear any existing timer
       if (autoPlayTimerRef.current) {
@@ -125,18 +119,18 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       const currentDialog = dialogController.getCurrentDialog();
       if (currentDialog) {
         // Periksa apakah dialog ini adalah dialog yang membutuhkan respons (persistent)
-        const shouldPersist = difficultyController.shouldDialogBePersistent(currentDialog.text);
+        const shouldPersist = isDialogPersistent(currentDialog.text);
         
         if (!shouldPersist) {
-          // Dapatkan delay berdasarkan difficulty setting
+          // Untuk dialog yang tidak perlu persistent, auto-dismiss lebih cepat
           const textLength = currentDialog.text.length;
-          const autoplayDelay = difficultyController.getAutoplayDelay(textLength);
+          const baseDelay = 2000; // 2 detik base delay
+          const charDelay = 50; // 50ms per karakter
+          const autoplayDelay = Math.min(baseDelay + (textLength * charDelay), 8000); // maksimal 8 detik
           
           console.log(`Autoplay untuk dialog ${currentDialog.id} dalam ${autoplayDelay}ms (non-persistent)`);
           
           autoPlayTimerRef.current = setTimeout(() => {
-            // Catat bahwa dialog selesai dibaca untuk difficulty tracking
-            difficultyController.recordDialogReadComplete();
             handleContinue();
           }, autoplayDelay);
         } else {
@@ -146,9 +140,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       }
     } else if (isComplete && dialogSource === 'hover') {
       // Untuk hover dialog, periksa juga persistensi
-      if (!difficultyController.shouldDialogBePersistent(text)) {
-        // Dapatkan delay berdasarkan difficulty setting
-        const dismissDelay = difficultyController.getHoverDialogDelay();
+      if (!isDialogPersistent(text)) {
+        // Hover dialog yang tidak memerlukan respons seperti "Arghh... whatever you want. I'm done."
+        const dismissDelay = 3000; // 3 detik untuk membaca pesan
         
         console.log(`Hover dialog akan dismiss dalam ${dismissDelay}ms (non-persistent)`);
         

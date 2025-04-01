@@ -1,7 +1,6 @@
 import DialogController from './dialogController';
 import HoverDialogController from './hoverDialogController';
 import ElevenLabsService from '../services/elevenlabsService';
-import DifficultyController from './difficultyController';
 
 // Dialog yang akan ditampilkan pada timeout tertentu
 export const IDLE_DIALOGS = {
@@ -141,52 +140,20 @@ class IdleTimeoutController {
   
   // Memulai penghitungan timeout idle
   public startIdleTimer(): void {
-    // Bersihkan timer yang ada
-    this.clearAllIdleTimers(); 
-
-    // Reset status-status
-    this.hasShownFirstWarning = false;
-    this.hasShownSecondWarning = false;
-    this.hasShownFinalWarning = false;
-    this.hasBeenThrown = false;
-    this.hasBeenReset = false;
-    this.hasInteractedAfterReset = false;
-    
-    // Setup timer baru dengan difficulty controller
-    this.setupIdleTimers();
-    
-    // Update timestamp interaksi terakhir
-    this.lastInteractionTime = Date.now();
+    this.clearAllIdleTimers(); // Bersihkan timer yang ada
+    this.setupIdleTimers(); // Setup timer baru
   }
   
-  // Setup timer idle dengan mempertimbangkan difficulty level
+  // Setup timer idle
   private setupIdleTimers(): void {
-    const difficultyController = DifficultyController.getInstance();
     const now = Date.now();
-    
-    // Dapatkan delay untuk idle warning berdasarkan difficulty setting
-    const idleWarningDelay = difficultyController.getIdleWarningDelay();
-    
-    // Faktor pengali untuk setiap level peringatan
-    const firstWarningMultiplier = 1.0;  // base delay
-    const secondWarningMultiplier = 2.5; // 2.5x dari base delay
-    const finalWarningMultiplier = 4.5;  // 4.5x dari base delay
-    const throwUserMultiplier = 5.0;     // 5x dari base delay
-    
-    // Hitung delay aktual untuk setiap level peringatan berdasarkan difficulty
-    const firstWarningDelay = idleWarningDelay * firstWarningMultiplier;
-    const secondWarningDelay = idleWarningDelay * secondWarningMultiplier;
-    const finalWarningDelay = idleWarningDelay * finalWarningMultiplier;
-    const throwUserDelay = idleWarningDelay * throwUserMultiplier;
     
     // Jika belum menampilkan peringatan pertama
     if (!this.hasShownFirstWarning) {
       this.firstWarningTimer = setTimeout(() => {
         this.showIdleWarning(IDLE_DIALOGS.FIRST_WARNING);
         this.hasShownFirstWarning = true;
-        // Catat idle event untuk meningkatkan tracking difficulty
-        difficultyController.recordIdle();
-      }, firstWarningDelay);
+      }, TIMEOUT_DURATIONS.FIRST_WARNING);
     }
     
     // Jika belum menampilkan peringatan kedua
@@ -194,9 +161,7 @@ class IdleTimeoutController {
       this.secondWarningTimer = setTimeout(() => {
         this.showIdleWarning(IDLE_DIALOGS.SECOND_WARNING);
         this.hasShownSecondWarning = true;
-        // Catat idle event lagi (multiple idle warnings)
-        difficultyController.recordIdle();
-      }, secondWarningDelay);
+      }, TIMEOUT_DURATIONS.SECOND_WARNING);
     }
     
     // Jika belum menampilkan peringatan terakhir
@@ -204,9 +169,7 @@ class IdleTimeoutController {
       this.finalWarningTimer = setTimeout(() => {
         this.showIdleWarning(IDLE_DIALOGS.FINAL_WARNING);
         this.hasShownFinalWarning = true;
-        // Catat idle event lagi (benar-benar tidak aktif)
-        difficultyController.recordIdle();
-      }, finalWarningDelay);
+      }, TIMEOUT_DURATIONS.FINAL_WARNING);
     }
     
     // Jika belum dilempar
@@ -214,10 +177,8 @@ class IdleTimeoutController {
       this.throwUserTimer = setTimeout(() => {
         this.throwUser();
         this.hasBeenThrown = true;
-      }, throwUserDelay);
+      }, TIMEOUT_DURATIONS.THROW_USER);
     }
-    
-    console.log(`[IdleTimeoutController] Idle timers setup - First warning in ${(firstWarningDelay/1000).toFixed(1)}s, second in ${(secondWarningDelay/1000).toFixed(1)}s, final in ${(finalWarningDelay/1000).toFixed(1)}s`);
   }
   
   // Bersihkan semua timer idle
@@ -243,39 +204,16 @@ class IdleTimeoutController {
     }
   }
   
-  // Setup timer untuk hover berlebihan dengan mempertimbangkan difficulty
+  // Setup timer untuk hover berlebihan
   public startExcessiveHoverTimers(): void {
-    const difficultyController = DifficultyController.getInstance();
-    
     this.clearAllHoverTimers(); // Bersihkan timer yang ada
-    
-    // Reset status-status hover
-    this.hasShownExcessiveHoverWarning = false;
-    this.hasShownFinalHoverWarning = false;
-    this.hasBeenPunched = false;
-    
-    // Dapatkan delay untuk idle warning berdasarkan difficulty setting
-    const idleWarningDelay = difficultyController.getIdleWarningDelay();
-    
-    // Faktor pengali untuk hover warnings lebih agresif daripada idle warnings
-    const excessiveHoverMultiplier = 0.8;  // 80% dari base idle delay
-    const finalHoverMultiplier = 1.5;     // 1.5x dari base idle delay
-    const punchUserMultiplier = 2.0;      // 2x dari base idle delay
-    
-    // Hitung delay aktual untuk warnings
-    const excessiveHoverDelay = idleWarningDelay * excessiveHoverMultiplier;
-    const finalHoverDelay = idleWarningDelay * finalHoverMultiplier;
-    const punchUserDelay = idleWarningDelay * punchUserMultiplier;
     
     // Jika belum menampilkan peringatan hover berlebihan
     if (!this.hasShownExcessiveHoverWarning) {
       this.excessiveHoverTimer = setTimeout(() => {
         this.showIdleWarning(IDLE_DIALOGS.EXCESSIVE_HOVER_WARNING);
         this.hasShownExcessiveHoverWarning = true;
-        
-        // Catat idle event untuk difficulty adjustment
-        difficultyController.recordIdle();
-      }, excessiveHoverDelay);
+      }, TIMEOUT_DURATIONS.EXCESSIVE_HOVER_WARNING);
     }
     
     // Jika belum menampilkan peringatan hover final
@@ -283,10 +221,7 @@ class IdleTimeoutController {
       this.finalHoverWarningTimer = setTimeout(() => {
         this.showIdleWarning(IDLE_DIALOGS.FINAL_HOVER_WARNING);
         this.hasShownFinalHoverWarning = true;
-        
-        // Catat idle event lagi
-        difficultyController.recordIdle();
-      }, finalHoverDelay);
+      }, TIMEOUT_DURATIONS.FINAL_HOVER_WARNING);
     }
     
     // Jika belum dipukul
@@ -294,10 +229,8 @@ class IdleTimeoutController {
       this.punchUserTimer = setTimeout(() => {
         this.punchUser();
         this.hasBeenPunched = true;
-      }, punchUserDelay);
+      }, TIMEOUT_DURATIONS.PUNCH_USER);
     }
-    
-    console.log(`[IdleTimeoutController] Hover timers setup - Excessive warning in ${(excessiveHoverDelay/1000).toFixed(1)}s, final in ${(finalHoverDelay/1000).toFixed(1)}s`);
   }
   
   // Bersihkan semua timer hover
@@ -320,9 +253,6 @@ class IdleTimeoutController {
   
   // Handler untuk interaksi user
   public handleUserInteraction(): void {
-    const difficultyController = DifficultyController.getInstance();
-    
-    // Update timestamp interaksi terakhir
     this.lastInteractionTime = Date.now();
     
     if (this.hasBeenReset && !this.hasInteractedAfterReset) {
@@ -336,12 +266,6 @@ class IdleTimeoutController {
       // Reset timer idle jika belum di-reset
       this.clearAllIdleTimers();
       this.setupIdleTimers();
-    }
-    
-    // Rekam interaksi ini untuk DifficultyController - menganggap ini sebagai interaksi positif
-    // Digunakan untuk melacak keterlibatan pengguna dan menyesuaikan difficulty
-    if (!this.hasBeenReset) {
-      difficultyController.recordHoverInteraction('none'); // Generic positive interaction
     }
   }
   
