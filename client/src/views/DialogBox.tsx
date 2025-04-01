@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import DialogController from '../controllers/dialogController';
+import HoverDialogController from '../controllers/hoverDialogController';
 
 interface DialogBoxProps {
   onDialogComplete?: () => void;
@@ -12,6 +13,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [isDialogFinished, setIsDialogFinished] = useState<boolean>(false);
   const dialogController = DialogController.getInstance();
+  const hoverDialogController = HoverDialogController.getInstance();
 
   useEffect(() => {
     // Start the dialog sequence
@@ -24,13 +26,16 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       if (currentDialog) {
         setCharacterName(currentDialog.character);
       }
+      
+      // Notify HoverDialogController about dialog completion status
+      hoverDialogController.setDialogCompleted(complete);
     });
     
     // Cleanup on unmount
     return () => {
       dialogController.stopTyping();
     };
-  }, []);
+  }, [hoverDialogController]);
 
   const handleContinue = () => {
     if (!isComplete) {
@@ -46,9 +51,13 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         const currentDialog = dialogController.getCurrentDialog();
         if (currentDialog) {
           setCharacterName(currentDialog.character);
+          // Update hover dialog controller with completion status
+          hoverDialogController.setDialogCompleted(complete);
         } else {
           // No more dialogs - we're finished
           setIsDialogFinished(true);
+          // Set dialog as fully completed for hover interactions
+          hoverDialogController.setDialogCompleted(true);
           if (onDialogComplete) {
             onDialogComplete();
           }

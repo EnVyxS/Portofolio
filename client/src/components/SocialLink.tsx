@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import HoverDialogController, { HoverLinkType } from "../controllers/hoverDialogController";
 
 interface SocialLinkProps {
   name: string;
@@ -7,11 +8,29 @@ interface SocialLinkProps {
   icon: React.ReactNode;
   color: string;
   hoverColor: string;
+  id: string; // ID yang bisa dipetakan ke HoverLinkType
 }
 
-const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverColor }) => {
+const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverColor, id }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isGlitching, setIsGlitching] = useState(false);
+  const hoverController = HoverDialogController.getInstance();
+
+  // Pemetaan id ke HoverLinkType
+  const mapIdToLinkType = (id: string): HoverLinkType => {
+    switch (id) {
+      case 'whatsapp':
+        return 'whatsapp';
+      case 'email':
+        return 'email';
+      case 'linkedin':
+        return 'linkedin';
+      case 'github':
+        return 'github';
+      default:
+        return 'none';
+    }
+  };
 
   const triggerGlitch = () => {
     setIsGlitching(true);
@@ -26,6 +45,20 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
       window.location.href = url;
     }
   };
+
+  const handleMouseEnter = () => {
+    triggerGlitch();
+    setIsHovered(true);
+    // Trigger hover dialog
+    hoverController.handleHoverDialog(mapIdToLinkType(id));
+  };
+
+  const handleMouseLeave = () => {
+    triggerGlitch();
+    setIsHovered(false);
+    // Reset hover state to none when mouse leaves
+    hoverController.handleHoverDialog('none');
+  };
   
   return (
     <motion.a
@@ -34,10 +67,10 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
       rel="noopener noreferrer"
       className="social-link"
       onClick={handleClick}
-      onMouseEnter={triggerGlitch}
-      onMouseLeave={triggerGlitch}
-      onTouchStart={triggerGlitch} /* Support for touch devices */
-      onTouchEnd={triggerGlitch} /* Support for touch devices */
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onTouchStart={handleMouseEnter} /* Support for touch devices */
+      onTouchEnd={handleMouseLeave} /* Support for touch devices */
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.2, ease: "easeOut" }}

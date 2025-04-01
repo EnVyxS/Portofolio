@@ -118,6 +118,7 @@ const GameContactCard: React.FC = () => {
             {socialLinks.map((link) => (
               <SocialLink
                 key={link.id}
+                id={link.id}
                 name={link.name}
                 url={link.url}
                 icon={React.cloneElement(link.icon as React.ReactElement, { 

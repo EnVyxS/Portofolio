@@ -7,6 +7,7 @@ const ContactCard: React.FC = () => {
   // List of social links with their respective icons and colors
   const socialLinks = [
     {
+      id: "github",
       name: "GitHub",
       url: "https://github.com/EnVyxS",
       icon: <FaGithub size="1.5em" />,
@@ -14,6 +15,7 @@ const ContactCard: React.FC = () => {
       hoverColor: "#fb923c"
     },
     {
+      id: "linkedin",
       name: "LinkedIn",
       url: "https://www.linkedin.com/in/diva-juan-nur-taqarrub",
       icon: <FaLinkedin size="1.5em" />,
@@ -21,6 +23,7 @@ const ContactCard: React.FC = () => {
       hoverColor: "#0A85C9"
     },
     {
+      id: "whatsapp",
       name: "WhatsApp",
       url: "https://wa.me/+62895380768824",
       icon: <FaWhatsapp size="1.5em" />,
@@ -28,6 +31,7 @@ const ContactCard: React.FC = () => {
       hoverColor: "#34E476"
     },
     {
+      id: "email",
       name: "Email",
       url: "mailto:111202012560@mhs.dinus.ac.id?subject=JOB",
       icon: <FaEnvelope size="1.5em" />,
@@ -76,6 +80,7 @@ const ContactCard: React.FC = () => {
           {socialLinks.map((link, index) => (
             <motion.div key={link.name} variants={itemVariants}>
               <SocialLink 
+                id={link.id}
                 name={link.name}
                 url={link.url}
                 icon={link.icon}
