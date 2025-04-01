@@ -18,6 +18,11 @@ function generateSimpleHash(text: string): string {
 
 // Helper untuk menentukan apakah dialog perlu persistensi (tetap terbuka)
 function isDialogPersistent(text: string): boolean {
+  // Dialog yang sangat pendek biasanya adalah hanya efek suara atau statement biasa
+  if (text.length < 15 || text === "........" || text.startsWith("*")) {
+    return false;
+  }
+  
   // Dialog yang mengandung pertanyaan biasanya perlu jawaban
   if (text.includes('?')) {
     return true;
@@ -26,7 +31,7 @@ function isDialogPersistent(text: string): boolean {
   // Dialog yang mengandung kata kunci tertentu perlu persistensi
   const persistentKeywords = [
     "need", "want", "tell me", "let me know", "choose", "decide", 
-    "check", "verify", "convinced", "Smart", "Fine", "satisfy"
+    "check", "verify", "convinced", "look me up", "credentials"
   ];
   
   for (const keyword of persistentKeywords) {
@@ -35,8 +40,21 @@ function isDialogPersistent(text: string): boolean {
     }
   }
   
-  // Default: jika mengandung < 20 karakter, biasanya pernyataan biasa
-  return text.length > 20;
+  // Dialog yang mengandung kata kunci berikut biasanya adalah statement, tidak perlu persistensi
+  const nonPersistentKeywords = [
+    "Hmm", "Tch", "Always", "Fire's", "Hmph", "sigh", "Fine", "warm", 
+    "didn't ask", "don't care", "not like I", "whatever", "I'm done", 
+    "leave me be", "farewell"
+  ];
+  
+  for (const keyword of nonPersistentKeywords) {
+    if (text.includes(keyword)) {
+      return false;
+    }
+  }
+  
+  // Default: jika tidak ada pattern yang cocok, defaultnya persistent
+  return true;
 }
 
 interface DialogBoxProps {
