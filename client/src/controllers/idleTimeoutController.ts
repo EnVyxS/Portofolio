@@ -38,7 +38,7 @@ export const TIMEOUT_DURATIONS = {
 };
 
 // Untuk testing/development, gunakan timeout yang lebih singkat
-const DEBUG_MODE = true; // Aktifkan untuk testing
+const DEBUG_MODE = false; // Nonaktifkan untuk mode produksi
 if (DEBUG_MODE) {
   Object.keys(TIMEOUT_DURATIONS).forEach(key => {
     // Gunakan waktu yang lebih singkat untuk testing
