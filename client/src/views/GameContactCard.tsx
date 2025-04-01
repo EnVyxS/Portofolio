@@ -25,26 +25,10 @@ const GameContactCard: React.FC = () => {
   const cardRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
-  // GSAP animation for card movement - made more responsive with viewport height
+  // Tidak ada animasi gerakan pada card lagi
   useEffect(() => {
-    // Use relative values based on viewport height for consistent movement
-    const setResponsiveAnimation = () => {
-      if (!cardRef.current) return;
-      
-      // Simple floating animation using CSS - sangat lambat untuk gerakan minimal
-      cardRef.current.style.animation = "float 8s ease-in-out infinite alternate";
-    };
-
-    // Set initial animation
-    setResponsiveAnimation();
-    
-    // Update animation when screen size changes
-    window.addEventListener('resize', setResponsiveAnimation);
-    
-    // Cleanup
-    return () => {
-      window.removeEventListener('resize', setResponsiveAnimation);
-    };
+    // Tidak perlu animasi, card tetap diam
+    console.log("Contact card initialized without animations");
   }, []);
 
   // Social media links data
@@ -148,15 +132,6 @@ const GameContactCard: React.FC = () => {
       </div>
 
       <style>{`
-        @keyframes float {
-          0% {
-            transform: translateY(0);
-          }
-          100% {
-            transform: translateY(-3px); /* Gerakan sangat minimal, hanya 3px */
-          }
-        }
-        
         .layout-container {
           display: flex;
           flex-direction: column;
@@ -183,7 +158,8 @@ const GameContactCard: React.FC = () => {
         .unified-card {
           background: rgba(15, 23, 42, 0.2); /* Sangat transparan untuk menampilkan background */
           border: 1px solid rgba(249, 115, 22, 0.1); /* Border sangat halus dengan aksen api */
-          backdrop-filter: blur(3px); /* Blur lebih halus */
+          backdrop-filter: blur(2px); /* Blur lebih halus */
+          opacity: 0.2; /* Opacity sangat rendah seperti diminta */
           border-radius: 8px; /* Border radius lebih kecil untuk gaya game */
           padding: clamp(0.8rem, 2vw, 1.5rem) clamp(0.8rem, 2vw, 1.2rem); /* Responsive padding dikurangi */
           max-width: min(350px, 85%); /* Ukuran maksimal lebih kecil */

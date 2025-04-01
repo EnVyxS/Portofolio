@@ -13,6 +13,7 @@ class ElevenLabsService {
   private apiKey: string | null = null;
   private isPlaying: boolean = false;
   private audioElement: HTMLAudioElement | null = null;
+  private audioCache: Map<string, Blob> = new Map(); // Cache untuk menyimpan audio yang sudah di-generate
 
   // Map character names to ElevenLabs voice IDs
   private voiceMap: Record<string, string> = {
@@ -56,10 +57,21 @@ class ElevenLabsService {
       // Map character to voice ID
       const voiceId = this.voiceMap[characterVoice.toLowerCase()] || this.voiceMap.default;
       
+      // Buat cache key berdasarkan text dan voice ID
+      const cacheKey = `${text}_${voiceId}`;
+      
+      // Cek apakah audio sudah ada di cache
+      if (this.audioCache.has(cacheKey)) {
+        console.log("Using cached audio for:", text.substring(0, 20) + "...");
+        return this.audioCache.get(cacheKey)!;
+      }
+      
+      console.log("Generating new audio for:", text.substring(0, 20) + "...");
+      
       const requestBody: TTSRequestBody = {
         text: text,
         voice_id: voiceId,
-        model_id: "eleven_multilingual_v2", // Use their more capable model
+        model_id: "b2FFMFMuLlPlyWk5NuQW", // Menggunakan model ID yang diminta
         voice_settings: {
           stability: 0.5,
           similarity_boost: 0.75
@@ -80,7 +92,11 @@ class ElevenLabsService {
         return null;
       }
 
-      return await response.blob();
+      // Simpan hasil ke cache
+      const audioBlob = await response.blob();
+      this.audioCache.set(cacheKey, audioBlob);
+      
+      return audioBlob;
     } catch (error) {
       console.error('Error generating speech:', error);
       return null;

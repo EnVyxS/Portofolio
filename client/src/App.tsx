@@ -66,11 +66,11 @@ function MainApp() {
           </button>
         )}
         
-        {/* Contact card always shown in the center once the approach is clicked */}
+        {/* Contact card selalu ditampilkan, tidak bergantung pada showContactCard */}
         <GameContactCard />
 
-        {/* Dialog box at the bottom of the screen */}
-        {!showContactCard && <DialogBox onDialogComplete={handleDialogComplete} />}
+        {/* Dialog box di bagian bawah layar, sekarang tidak memengaruhi keberadaan contact card */}
+        {<DialogBox onDialogComplete={handleDialogComplete} />}
         
         {/* ElevenLabs setup modal */}
         {showElevenLabsSetup && <ElevenLabsSetup onClose={handleCloseElevenLabsSetup} />}
