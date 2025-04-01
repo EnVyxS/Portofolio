@@ -35,7 +35,7 @@ class DialogModel {
     {
       id: 5,
       character: "Diva Juan Nur Taqarrub",
-      text: "Curiosity?... Hmph... Doesn’t pay the bills...",
+      text: "[dismissive] Curiosity?... Hmph... Doesn't pay the bills...",
       voiceId: "geralt",
     },
     {
@@ -47,7 +47,7 @@ class DialogModel {
     {
       id: 7,
       character: "Diva Juan Nur Taqarrub",
-      text: "Pfftt... Waiting... Drinking... What else is there?",
+      text: "[cynical, bitter] Pfftt... Waiting... Drinking... What else is there?",
       voiceId: "geralt",
     },
     {
@@ -59,7 +59,7 @@ class DialogModel {
     {
       id: 9,
       character: "Diva Juan Nur Taqarrub",
-      text: "A job?.., A way out?.., Some miracle?..",
+      text: "[hopeless] A job?.., A way out?.., Some miracle?..",
       voiceId: "geralt",
     },
     {
@@ -71,13 +71,13 @@ class DialogModel {
     {
       id: 11,
       character: "Diva Juan Nur Taqarrub",
-      text: "Heh... Yeah, real fucking hilarious, isn't it?",
+      text: "[sarcastic, angry] Heh... Yeah, real fucking hilarious, isn't it?",
       voiceId: "geralt",
     },
     {
       id: 12,
       character: "Diva Juan Nur Taqarrub",
-      text: "...You got a name?",
+      text: "[curious] ...You got a name?",
       voiceId: "geralt",
     },
     {
@@ -89,13 +89,13 @@ class DialogModel {
     {
       id: 14,
       character: "Diva Juan Nur Taqarrub",
-      text: "Hm. Not that it matters,",
+      text: "[indifferent] Hm. Not that it matters,",
       voiceId: "geralt",
     },
     {
       id: 15,
       character: "Diva Juan Nur Taqarrub",
-      text: "Diva Juan Nur Taqarrub , , Call me what you want. Doesn't do shit,",
+      text: "[flat] Diva Juan Nur Taqarrub , , Call me what you want. Doesn't do shit,",
       voiceId: "geralt",
     },
     {
@@ -107,19 +107,19 @@ class DialogModel {
     {
       id: 17,
       character: "Diva Juan Nur Taqarrub",
-      text: "Hmph... why am I even here?..",
+      text: "[contemplative] Hmph... why am I even here?..",
       voiceId: "geralt",
     },
     {
       id: 18,
       character: "Diva Juan Nur Taqarrub",
-      text: "Anything that keeps me breathing,",
+      text: "[resigned] Anything that keeps me breathing,",
       voiceId: "geralt",
     },
     {
       id: 19,
       character: "Diva Juan Nur Taqarrub",
-      text: "Hunting work's like hunting a ghost. No signs, no tracks, just hope and a headache,",
+      text: "[weary] Hunting work's like hunting a ghost. No signs, no tracks, just hope and a headache,",
       voiceId: "geralt",
     },
     {
@@ -131,13 +131,13 @@ class DialogModel {
     {
       id: 21,
       character: "Diva Juan Nur Taqarrub",
-      text: "Graduated. Computer Science. 2024,",
+      text: "[matter-of-fact] Graduated. Computer Science. 2024,",
       voiceId: "geralt",
     },
     {
       id: 22,
       character: "Diva Juan Nur Taqarrub",
-      text: "Yeah... Cum laude. Thought it'd mean something.. Turns out it's worth less than a stiff drink,",
+      text: "[bitter] Yeah... Cum laude. Thought it'd mean something.. Turns out it's worth less than a stiff drink,",
       voiceId: "geralt",
     },
     {
@@ -149,37 +149,37 @@ class DialogModel {
     {
       id: 24,
       character: "Diva Juan Nur Taqarrub",
-      text: "Backend. Java. Databases. Know my way around. Not that anyone cares,",
+      text: "[flat] Backend. Java. Databases. Know my way around. Not that anyone cares,",
       voiceId: "geralt",
     },
     {
       id: 25,
       character: "Diva Juan Nur Taqarrub",
-      text: "Made a game for my thesis. Thought it'd mean something. It didn't,",
+      text: "[dejected] Made a game for my thesis. Thought it'd mean something. It didn't,",
       voiceId: "geralt",
     },
     {
       id: 26,
       character: "Diva Juan Nur Taqarrub",
-      text: "Editing too. Years of it. Doesn't put food on the table,",
+      text: "[tired] Editing too. Years of it. Doesn't put food on the table,",
       voiceId: "geralt",
     },
     {
       id: 27,
       character: "Diva Juan Nur Taqarrub",
-      text: "Vegas Pro. After Effects. Cut, stitch, fix. Life's not that simple,",
+      text: "[monotone] Vegas Pro. After Effects. Cut, stitch, fix. Life's not that simple,",
       voiceId: "geralt",
     },
     {
       id: 28,
       character: "Diva Juan Nur Taqarrub",
-      text: "SQL... PostgreSQL... MySQL... Data's just numbers. Like debts. Like failures,",
+      text: "[cynical] SQL... PostgreSQL... MySQL... Data's just numbers. Like debts. Like failures,",
       voiceId: "geralt",
     },
     {
       id: 29,
       character: "Diva Juan Nur Taqarrub",
-      text: "Used to like puzzles. Now? Just another thing that doesn't pay,",
+      text: "[melancholic] Used to like puzzles. Now? Just another thing that doesn't pay,",
       voiceId: "geralt",
     },
     {
@@ -191,25 +191,25 @@ class DialogModel {
     {
       id: 31,
       character: "Diva Juan Nur Taqarrub",
-      text: "...Leaving this place?",
+      text: "[skeptical] ...Leaving this place?",
       voiceId: "geralt",
     },
     {
       id: 32,
       character: "Diva Juan Nur Taqarrub",
-      text: "Huhhhh... Like that's so easy,",
+      text: "[dismissive scoff] Huhhhh... Like that's so easy,",
       voiceId: "geralt",
     },
     {
       id: 33,
       character: "Diva Juan Nur Taqarrub",
-      text: "Go where? With what? Got coin to spare?,",
+      text: "[challenging] Go where? With what? Got coin to spare?,",
       voiceId: "geralt",
     },
     {
       id: 34,
       character: "Diva Juan Nur Taqarrub",
-      text: "Nothing's free. Not even dreams,",
+      text: "[philosophical] Nothing's free. Not even dreams,",
       voiceId: "geralt",
     },
     {
@@ -221,7 +221,7 @@ class DialogModel {
     {
       id: 36,
       character: "Diva Juan Nur Taqarrub",
-      text: "But if the pay's right… maybe,",
+      text: "[hint of interest] But if the pay's right… maybe,",
       voiceId: "geralt",
     },
     {
@@ -233,7 +233,7 @@ class DialogModel {
     {
       id: 38,
       character: "Diva Juan Nur Taqarrub",
-      text: "For now? I drink. Sit. Hope the fire lasts longer than the night,",
+      text: "[resigned] For now? I drink. Sit. Hope the fire lasts longer than the night,",
       voiceId: "geralt",
     },
     {
@@ -245,31 +245,31 @@ class DialogModel {
     {
       id: 40,
       character: "Diva Juan Nur Taqarrub",
-      text: "Hmph... You fight... you bleed... you try...,",
+      text: "[low, intense] Hmph... You fight... you bleed... you try...,",
       voiceId: "geralt",
     },
     {
       id: 41,
       character: "Diva Juan Nur Taqarrub",
-      text: "And in the end, still nothing,",
+      text: "[defeated] And in the end, still nothing,",
       voiceId: "geralt",
     },
     {
       id: 42,
       character: "Diva Juan Nur Taqarrub",
-      text: "...Enough about me",
+      text: "[abrupt, tired] ...Enough about me",
       voiceId: "geralt",
     },
     {
       id: 43,
       character: "Diva Juan Nur Taqarrub",
-      text: "What do you want?..",
+      text: "[direct] What do you want?..",
       voiceId: "geralt",
     },
     {
       id: 44,
       character: "Diva Juan Nur Taqarrub",
-      text: "Talk... You got a job, or just wasting my time?..",
+      text: "[impatient] Talk... You got a job, or just wasting my time?..",
       voiceId: "geralt",
     },
   ];
