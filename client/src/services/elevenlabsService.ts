@@ -8,10 +8,10 @@ class ElevenLabsService {
 
   // Map character names to ElevenLabs voice IDs (diperbarui sesuai permintaan)
   private voiceMap: Record<string, string> = {
-    'geralt': 'b2FFMFMuLlPlyWk5NuQW', // ID baru sesuai permintaan user
+    'geralt': 'L9oqKdX7JyDJa0dK6AzN', // ID baru sesuai permintaan user
     'ciri': 'EXAVITQu4vr4xnSDxMaL',   // Bella - young female voice for Ciri
     'yennefer': 'Yko7PKHZNXotIFUBG7I9', // Elli - mature female voice with accent for Yen
-    'default': 'b2FFMFMuLlPlyWk5NuQW'  // Default ke voice ID yang baru
+    'default': 'L9oqKdX7JyDJa0dK6AzN'  // Default ke voice ID yang baru
   };
 
   // Simpan file audio lokal berdasarkan hash sederhana dari teks

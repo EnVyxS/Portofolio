@@ -22,7 +22,7 @@ function generateSimpleHash(input: string): string {
 router.post('/text-to-speech', async (req: Request, res: Response) => {
   try {
     // Get text and voice_id from the request body
-    const { text, voice_id = 'b2FFMFMuLlPlyWk5NuQW', voice_settings } = req.body;
+    const { text, voice_id = 'L9oqKdX7JyDJa0dK6AzN', voice_settings } = req.body;
     
     // Validate input
     if (!text) {
