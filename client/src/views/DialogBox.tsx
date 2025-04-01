@@ -79,7 +79,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     }
   }, [dialogSource, isComplete, dialogController, hoverDialogController, onDialogComplete, setText, setIsComplete, setIsDialogFinished, setCharacterName]);
 
-  // Effect untuk auto-continue ketika dialog selesai - dimodifikasi untuk hanya menampilkan sekali
+  // Effect untuk auto-continue ketika dialog selesai - dimodifikasi untuk berjalan untuk semua dialog
   useEffect(() => {
     if (isComplete && dialogSource === 'main') {
       // Clear any existing timer
@@ -87,12 +87,25 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         clearTimeout(autoPlayTimerRef.current);
       }
       
-      // Set new timer to auto-continue - hanya untuk dialog pertama
+      // Cek jika user sudah berinteraksi dengan hover dialog
+      if (hoverDialogController.hasUserInteractedWithHover()) {
+        return; // Jangan autoplay jika sudah ada interaksi hover
+      }
+      
+      // Set new timer untuk auto-continue semua dialog
       const currentDialog = dialogController.getCurrentDialog();
-      if (currentDialog && currentDialog.id < 2) { // Hanya lanjut jika dialog saat ini adalah yang pertama
+      if (currentDialog) {
+        // Waktu autoplay berdasarkan panjang teks (semakin panjang, semakin lama)
+        const textLength = currentDialog.text.length;
+        const baseDelay = 2000; // 2 detik base delay
+        const charDelay = 50; // 50ms per karakter
+        const autoplayDelay = Math.min(baseDelay + (textLength * charDelay), 8000); // maksimal 8 detik
+        
+        console.log(`Autoplay untuk dialog ${currentDialog.id} dalam ${autoplayDelay}ms`);
+        
         autoPlayTimerRef.current = setTimeout(() => {
           handleContinue();
-        }, 3500); // Waktu lebih lama (3.5 detik) untuk membaca
+        }, autoplayDelay);
       }
     }
     
@@ -102,7 +115,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         clearTimeout(autoPlayTimerRef.current);
       }
     };
-  }, [isComplete, dialogSource, handleContinue, dialogController]);
+  }, [isComplete, dialogSource, handleContinue, dialogController, hoverDialogController]);
 
   useEffect(() => {
     // Start the dialog sequence hanya jika user belum berinteraksi dengan hover dialog
@@ -247,7 +260,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         
         /* Styling for hover dialog continue button */
         .hover-continue {
-          color: rgba(255, 165, 0, 0.8); /* Oranye untuk tombol hover dialog */
+          color: rgba(255, 235, 205, 0.8); /* sama dengan warna dialog utama */
         }
         
         .hover-continue:hover {
@@ -273,14 +286,15 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           }
         }
         
-        /* Styling for hover dialogs */
+        /* Styling for hover dialogs - sama seperti dialog utama */
         .hover-dialog {
-          border: 1px solid rgba(255, 165, 0, 0.4); /* Border oranye untuk hover dialog */
-          box-shadow: 0 0 15px rgba(255, 140, 0, 0.25);
+          background: rgba(25, 15, 10, 0.5); 
+          border: 1px solid rgba(255, 140, 0, 0.3);
+          box-shadow: 0 0 15px rgba(180, 70, 0, 0.2);
         }
         
         .hover-character {
-          background: rgba(255, 140, 0, 0.7); /* Background oranye api untuk nama karakter hover */
+          background: rgba(180, 60, 0, 0.8); /* sama seperti karakter utama */
           display: flex;
           align-items: center;
           gap: 0.5rem;
