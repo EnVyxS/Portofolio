@@ -12,268 +12,268 @@ class DialogModel {
       id: 1,
       character: "Diva Juan Nur Taqarrub",
       text: "...Didn't ask for company.",
-      voiceId: "geralt",
+      voiceId: "geralt"
     },
     {
       id: 2,
       character: "Diva Juan Nur Taqarrub",
       text: "Tch... Fire's warm. Always brings strays.",
-      voiceId: "geralt",
+      voiceId: "geralt"
     },
     {
       id: 3,
       character: "Diva Juan Nur Taqarrub",
       text: "Haahhhh... You need something or are you just here to waste my time?",
-      voiceId: "geralt",
+      voiceId: "geralt"
     },
     {
       id: 4,
       character: "Diva Juan Nur Taqarrub",
       text: ".....",
-      voiceId: "geralt",
+      voiceId: "geralt"
     },
     {
       id: 5,
       character: "Diva Juan Nur Taqarrub",
-      text: "Curiosity?... Hmph... Doesn’t pay the bills...",
-      voiceId: "geralt",
+      text: "Curiosity?... Hmph... Doesn't pay the bills...",
+      voiceId: "geralt"
     },
     {
       id: 6,
       character: "Diva Juan Nur Taqarrub",
       text: ".....",
-      voiceId: "geralt",
+      voiceId: "geralt"
     },
     {
       id: 7,
       character: "Diva Juan Nur Taqarrub",
       text: "Pfftt... Waiting... Drinking... What else is there?",
-      voiceId: "geralt",
+      voiceId: "geralt"
     },
     {
       id: 8,
       character: "Diva Juan Nur Taqarrub",
-      text: ".....",
-      voiceId: "geralt",
+      text: "Hmm... Got a handful of coins and a longsword. That's all a man like me needs...",
+      voiceId: "geralt"
     },
     {
       id: 9,
       character: "Diva Juan Nur Taqarrub",
-      text: "A job?.., A way out?.., Some miracle?..",
-      voiceId: "geralt",
+      text: ".....",
+      voiceId: "geralt"
     },
     {
       id: 10,
       character: "Diva Juan Nur Taqarrub",
-      text: ".....",
-      voiceId: "geralt",
+      text: "There's a contract I'll have to deal with come sunrise. Some beast's been picking off villagers near the old mill...",
+      voiceId: "geralt"
     },
     {
       id: 11,
       character: "Diva Juan Nur Taqarrub",
-      text: "Heh... Yeah, real fucking hilarious, isn't it?",
-      voiceId: "geralt",
+      text: "You want to know more about me? Hmmm... Why would you care?",
+      voiceId: "geralt"
     },
     {
       id: 12,
       character: "Diva Juan Nur Taqarrub",
-      text: "...You got a name?",
-      voiceId: "geralt",
+      text: "Witcher by trade. Monster hunter. I follow the Path.",
+      voiceId: "geralt"
     },
     {
       id: 13,
       character: "Diva Juan Nur Taqarrub",
-      text: ".....",
-      voiceId: "geralt",
+      text: "I see by your eyes you've heard the tales. Yes, they're all true. The mutations. The training.",
+      voiceId: "geralt"
     },
     {
       id: 14,
       character: "Diva Juan Nur Taqarrub",
-      text: "Hm. Not that it matters,",
-      voiceId: "geralt",
+      text: "Not many of us left. Most don't make it through the Trial of Grasses. I was... lucky. Or cursed. Depends who you ask.",
+      voiceId: "geralt"
     },
     {
       id: 15,
       character: "Diva Juan Nur Taqarrub",
-      text: "Diva Juan Nur Taqarrub , , Call me what you want. Doesn't do shit,",
-      voiceId: "geralt",
+      text: ".....",
+      voiceId: "geralt"
     },
     {
       id: 16,
       character: "Diva Juan Nur Taqarrub",
-      text: ".....",
-      voiceId: "geralt",
+      text: "I don't talk much about my past. No point dwelling on what's done.",
+      voiceId: "geralt"
     },
     {
       id: 17,
       character: "Diva Juan Nur Taqarrub",
-      text: "Hmph... why am I even here?..",
-      voiceId: "geralt",
+      text: "What's that look for? Expected something more? *grunts* Don't we all...",
+      voiceId: "geralt"
     },
     {
       id: 18,
       character: "Diva Juan Nur Taqarrub",
-      text: "Anything that keeps me breathing,",
-      voiceId: "geralt",
+      text: "The Path is a lonely one. That's just how it is.",
+      voiceId: "geralt"
     },
     {
       id: 19,
       character: "Diva Juan Nur Taqarrub",
-      text: "Hunting work's like hunting a ghost. No signs, no tracks, just hope and a headache,",
-      voiceId: "geralt",
+      text: ".....",
+      voiceId: "geralt"
     },
     {
       id: 20,
       character: "Diva Juan Nur Taqarrub",
-      text: ".....",
-      voiceId: "geralt",
+      text: "If you're looking to hire me, I'm not cheap. But I'm good at what I do.",
+      voiceId: "geralt"
     },
     {
       id: 21,
       character: "Diva Juan Nur Taqarrub",
-      text: "Graduated. Computer Science. 2024,",
-      voiceId: "geralt",
+      text: "Hmm... I notice you're still here. You're either brave or stupid. Most people keep their distance.",
+      voiceId: "geralt"
     },
     {
       id: 22,
       character: "Diva Juan Nur Taqarrub",
-      text: "Yeah... Cum laude. Thought it'd mean something.. Turns out it's worth less than a stiff drink,",
-      voiceId: "geralt",
+      text: ".....",
+      voiceId: "geralt"
     },
     {
       id: 23,
       character: "Diva Juan Nur Taqarrub",
-      text: ".....",
-      voiceId: "geralt",
+      text: "You can find me on the Path. Or through Kaer Morhen, when winter comes.",
+      voiceId: "geralt"
     },
     {
       id: 24,
       character: "Diva Juan Nur Taqarrub",
-      text: "Backend. Java. Databases. Know my way around. Not that anyone cares,",
-      voiceId: "geralt",
+      text: "I've left my mark in several places. Some remember me. Others... prefer to forget.",
+      voiceId: "geralt"
     },
     {
       id: 25,
       character: "Diva Juan Nur Taqarrub",
-      text: "Made a game for my thesis. Thought it'd mean something. It didn't,",
-      voiceId: "geralt",
+      text: "There are ways to reach me if you truly need a witcher's services. Just follow the rumors of monsters slain.",
+      voiceId: "geralt"
     },
     {
       id: 26,
       character: "Diva Juan Nur Taqarrub",
-      text: "Editing too. Years of it. Doesn't put food on the table,",
-      voiceId: "geralt",
+      text: "Or perhaps you'd prefer more direct methods...",
+      voiceId: "geralt"
     },
     {
       id: 27,
       character: "Diva Juan Nur Taqarrub",
-      text: "Vegas Pro. After Effects. Cut, stitch, fix. Life's not that simple,",
-      voiceId: "geralt",
+      text: ".....",
+      voiceId: "geralt"
     },
     {
       id: 28,
       character: "Diva Juan Nur Taqarrub",
-      text: "SQL... PostgreSQL... MySQL... Data's just numbers. Like debts. Like failures,",
-      voiceId: "geralt",
+      text: "There's a code among witchers. We don't kill humans. Not without reason.",
+      voiceId: "geralt"
     },
     {
       id: 29,
       character: "Diva Juan Nur Taqarrub",
-      text: "Used to like puzzles. Now? Just another thing that doesn't pay,",
-      voiceId: "geralt",
+      text: "Sometimes, though, the monsters look just like you and me.",
+      voiceId: "geralt"
     },
     {
       id: 30,
       character: "Diva Juan Nur Taqarrub",
       text: ".....",
-      voiceId: "geralt",
+      voiceId: "geralt"
     },
     {
       id: 31,
       character: "Diva Juan Nur Taqarrub",
-      text: "...Leaving this place?",
-      voiceId: "geralt",
+      text: "The fire's dying. And I've said more than I usually do in a month.",
+      voiceId: "geralt"
     },
     {
       id: 32,
       character: "Diva Juan Nur Taqarrub",
-      text: "Huhhhh... Like that's so easy,",
-      voiceId: "geralt",
+      text: "Take what you need from our conversation. I'll be here until dawn.",
+      voiceId: "geralt"
     },
     {
       id: 33,
       character: "Diva Juan Nur Taqarrub",
-      text: "Go where? With what? Got coin to spare?,",
-      voiceId: "geralt",
+      text: "After that, the Path calls again.",
+      voiceId: "geralt"
     },
     {
       id: 34,
       character: "Diva Juan Nur Taqarrub",
-      text: "Nothing's free. Not even dreams,",
-      voiceId: "geralt",
+      text: ".....",
+      voiceId: "geralt"
     },
     {
       id: 35,
       character: "Diva Juan Nur Taqarrub",
-      text: ".....",
-      voiceId: "geralt",
+      text: "Do what you will with my words. Just remember, a witcher never forgets a face.",
+      voiceId: "geralt"
     },
     {
       id: 36,
       character: "Diva Juan Nur Taqarrub",
-      text: "But if the pay's right… maybe,",
-      voiceId: "geralt",
+      text: "Now leave me be. I've had enough talk for one night.",
+      voiceId: "geralt"
     },
     {
       id: 37,
       character: "Diva Juan Nur Taqarrub",
-      text: ".....",
-      voiceId: "geralt",
+      text: "Hmm.",
+      voiceId: "geralt"
     },
     {
       id: 38,
       character: "Diva Juan Nur Taqarrub",
-      text: "For now? I drink. Sit. Hope the fire lasts longer than the night,",
-      voiceId: "geralt",
+      text: "*stares into the fire*",
+      voiceId: "geralt"
     },
     {
       id: 39,
       character: "Diva Juan Nur Taqarrub",
       text: ".....",
-      voiceId: "geralt",
+      voiceId: "geralt"
     },
     {
       id: 40,
       character: "Diva Juan Nur Taqarrub",
-      text: "Hmph... You fight... you bleed... you try...,",
-      voiceId: "geralt",
+      text: "*sighs* One last word of advice: in this world, it's rarely about the monsters. It's about the men. Remember that.",
+      voiceId: "geralt"
     },
     {
       id: 41,
       character: "Diva Juan Nur Taqarrub",
-      text: "And in the end, still nothing,",
-      voiceId: "geralt",
+      text: "Farewell, stranger.",
+      voiceId: "geralt"
     },
     {
       id: 42,
       character: "Diva Juan Nur Taqarrub",
-      text: "...Enough about me",
-      voiceId: "geralt",
+      text: "*turns back to the fire*",
+      voiceId: "geralt"
     },
     {
       id: 43,
       character: "Diva Juan Nur Taqarrub",
-      text: "What do you want?..",
-      voiceId: "geralt",
+      text: ".....",
+      voiceId: "geralt"
     },
     {
       id: 44,
       character: "Diva Juan Nur Taqarrub",
-      text: "Talk... You got a job, or just wasting my time?..",
-      voiceId: "geralt",
-    },
+      text: "*end of conversation*",
+      voiceId: "geralt"
+    }
   ];
-
+  
   private currentDialogIndex: number = 0;
 
   private constructor() {}
