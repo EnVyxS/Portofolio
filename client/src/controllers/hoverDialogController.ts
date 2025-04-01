@@ -37,6 +37,8 @@ class HoverDialogController {
   private hoverCount: number = 0;
   private dialogCompleted: boolean = false;
   private isHandlingHover: boolean = false;
+  private hasInteractedWithHover: boolean = false;
+  private processedTexts: Set<string> = new Set(); // Menyimpan teks yang sudah ditampilkan
   
   // Debounce function untuk menghindari terlalu banyak trigger saat hover
   private debouncedHoverHandler = debounce(this.handleHoverDialogActual.bind(this), 300);
@@ -56,6 +58,11 @@ class HoverDialogController {
   // Method ini dipanggil saat dialog normal selesai
   public setDialogCompleted(completed: boolean): void {
     this.dialogCompleted = completed;
+  }
+  
+  // Method untuk mengecek apakah user sudah berinteraksi dengan hover dialog
+  public hasUserInteractedWithHover(): boolean {
+    return this.hasInteractedWithHover;
   }
 
   // Method untuk menentukan apakah link termasuk kategori kontak atau sosial
@@ -147,6 +154,9 @@ class HoverDialogController {
     this.dialogController.stopTyping();
     this.elevenlabsService.stopSpeaking();
 
+    // Tandai bahwa user sudah berinteraksi dengan hover dialog
+    this.hasInteractedWithHover = true;
+
     // Tentukan kategori link yang di-hover sekarang dan sebelumnya
     const currentCategory = this.getLinkCategory(linkType);
     const previousCategory = this.getLinkCategory(this.lastHoveredLink);
@@ -182,7 +192,11 @@ class HoverDialogController {
       }
     }
 
-    if (dialogText) {
+    // Cek apakah dialog ini sudah pernah ditampilkan sebelumnya
+    if (dialogText && !this.processedTexts.has(dialogText)) {
+      // Tambahkan teks ke daftar yang sudah ditampilkan
+      this.processedTexts.add(dialogText);
+      
       // Mulai animasi typing untuk dialog hover
       this.typeHoverText(dialogText);
       
@@ -201,6 +215,17 @@ class HoverDialogController {
     this.hoverCount = 0;
     this.isHandlingHover = false;
     this.stopTyping(); // Stop typing animation jika ada
+    // tidak reset processedTexts agar dialog tidak diulang
+  }
+  
+  // Digunakan saat halaman di-refresh
+  public resetAllState(): void {
+    this.lastHoveredLink = 'none';
+    this.hoverCount = 0;
+    this.isHandlingHover = false;
+    this.hasInteractedWithHover = false;
+    this.processedTexts.clear(); // Clear set teks yang sudah ditampilkan
+    this.stopTyping();
   }
 }
 

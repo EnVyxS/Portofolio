@@ -36,6 +36,16 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         // Skip to the end of the current dialog
         dialogController.skipToFullText();
       } else {
+        // Cek apakah user sudah berinteraksi dengan hover dialog
+        if (hoverDialogController.hasUserInteractedWithHover()) {
+          // Jika user sudah berinteraksi dengan hover dialog, jangan tampilkan dialog utama lagi
+          setIsDialogFinished(true);
+          if (onDialogComplete) {
+            onDialogComplete();
+          }
+          return;
+        }
+        
         // Move to the next dialog
         dialogController.nextDialog((text, complete) => {
           setText(text);
@@ -95,21 +105,23 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   }, [isComplete, dialogSource, handleContinue, dialogController]);
 
   useEffect(() => {
-    // Start the dialog sequence
-    dialogController.startDialog((text, complete) => {
-      setText(text);
-      setIsComplete(complete);
-      setDialogSource('main');
-      
-      // Get current dialog to display character name
-      const currentDialog = dialogController.getCurrentDialog();
-      if (currentDialog) {
-        setCharacterName(currentDialog.character);
-      }
-      
-      // Notify HoverDialogController about dialog completion status
-      hoverDialogController.setDialogCompleted(complete);
-    });
+    // Start the dialog sequence hanya jika user belum berinteraksi dengan hover dialog
+    if (!hoverDialogController.hasUserInteractedWithHover()) {
+      dialogController.startDialog((text, complete) => {
+        setText(text);
+        setIsComplete(complete);
+        setDialogSource('main');
+        
+        // Get current dialog to display character name
+        const currentDialog = dialogController.getCurrentDialog();
+        if (currentDialog) {
+          setCharacterName(currentDialog.character);
+        }
+        
+        // Notify HoverDialogController about dialog completion status
+        hoverDialogController.setDialogCompleted(complete);
+      });
+    }
     
     // Set hover dialog callback
     hoverDialogController.setHoverTextCallback((text, complete) => {
