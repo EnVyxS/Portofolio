@@ -51,37 +51,118 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     
     console.log('Using ElevenLabs API key (hardcoded)');
     
-    // Generate hash for the text
-    const hash = generateSimpleHash(text);
-    const fileName = `dialog_${hash}.mp3`;
+    // Generate hash for the original text (for lookup in existing files)
+    const originalHash = generateSimpleHash(text);
+    const originalFileName = `dialog_${originalHash}.mp3`;
     
     // Define directories for audio files
     const publicDir = path.resolve(process.cwd(), 'client/public');
     const audioDir = path.join(publicDir, 'audio/character');
-    const audioFilePath = path.join(audioDir, fileName);
-    const audioPublicPath = `/audio/character/${fileName}`;
     
-    // Create directories if they don't exist
+    // Ensure directory exists
     if (!fs.existsSync(audioDir)) {
       fs.mkdirSync(audioDir, { recursive: true });
     }
     
-    // Check if the file already exists (cached)
-    if (fs.existsSync(audioFilePath)) {
-      console.log(`Audio file found for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
+    // Original audio paths (without emotion processing)
+    const originalAudioFilePath = path.join(audioDir, originalFileName);
+    const originalAudioPublicPath = `/audio/character/${originalFileName}`;
+    
+    // Check original file cache first
+    if (fs.existsSync(originalAudioFilePath)) {
+      console.log(`Audio file found for original text: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
       return res.status(200).json({ 
         success: true, 
-        audioPath: audioPublicPath,
+        audioPath: originalAudioPublicPath,
         cached: true,
-        message: 'Using cached audio file'
+        message: 'Using cached audio file (original)'
       });
+    }
+    
+    // Check other folders for reuse (to save API credit)
+    const geraltsVoiceFolder = path.join(publicDir, 'audio/geralt');
+    if (fs.existsSync(geraltsVoiceFolder)) {
+      const originalInGeraltsFolder = path.join(geraltsVoiceFolder, originalFileName);
+      if (fs.existsSync(originalInGeraltsFolder)) {
+        // Copy the file to character folder to make future lookups faster
+        try {
+          fs.copyFileSync(originalInGeraltsFolder, originalAudioFilePath);
+          console.log(`Reused audio from geralt folder for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
+          return res.status(200).json({ 
+            success: true, 
+            audioPath: originalAudioPublicPath,
+            cached: true,
+            message: 'Reused audio from geralt folder'
+          });
+        } catch (copyErr) {
+          console.error('Error copying file from geralt folder:', copyErr);
+          // Continue to API if copy fails
+        }
+      }
     }
     
     // If file doesn't exist, generate with ElevenLabs API
     console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
     
-    // Normalize text - remove excessive whitespace
-    const cleanedText = text.replace(/\*/g, "").trim().replace(/\s+/g, ' ');
+    // Petunjuk emosi untuk ElevenLabs
+    let emotionPrompt = '';
+    let cleanText = text;
+    let processedText = '';
+    let finalCleanedText = '';
+    
+    // Check if text has emotion marker
+    const emotionMatch = text.match(/\[(.*?)\]/);
+    if (emotionMatch) {
+      emotionPrompt = emotionMatch[1].trim(); // Extract emotion from [emotion]
+      cleanText = text.replace(/\[(.*?)\]/, '').trim(); // Remove [emotion] marker from text
+      console.log(`Emotion detected: "${emotionPrompt}" for text: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
+    }
+    
+    // Prepare emotion prompting based on text content
+    if (!emotionMatch) {
+      // Detect emotion from text content if not explicitly marked
+      if (text.includes('fucking') || text.includes('shit') || text.includes('damn')) {
+        emotionPrompt = 'angry, frustrated';
+        console.log(`Auto-detected emotion: "angry" for text with strong language`);
+      } else if (text.includes('Hmph') || text.includes('Tch') || text.includes('Pfftt')) {
+        emotionPrompt = 'dismissive, irritated';
+        console.log(`Auto-detected emotion: "dismissive" for text with scoffs`);
+      } else if (text.includes('?')) {
+        emotionPrompt = 'questioning, curious';
+        console.log(`Auto-detected emotion: "questioning" for text with question mark`);
+      }
+    }
+    
+    // Add emotion prompt to text if any
+    processedText = cleanText;
+    if (emotionPrompt) {
+      // Add emotion as tone instruction at beginning (ElevenLabs format)
+      processedText = `[${emotionPrompt}] ${cleanText}`;
+    }
+    
+    // Normalize text - remove excessive whitespace and asterisks
+    finalCleanedText = processedText.replace(/\*/g, "").trim().replace(/\s+/g, ' ');
+    
+    // Generate hash for the processed text
+    const processedHash = generateSimpleHash(finalCleanedText);
+    const processedFileName = `dialog_${processedHash}.mp3`;
+    const processedAudioFilePath = path.join(audioDir, processedFileName);
+    const processedAudioPublicPath = `/audio/character/${processedFileName}`;
+    
+    // Check for processed text in cache
+    if (finalCleanedText !== text && fs.existsSync(processedAudioFilePath)) {
+      console.log(`Audio file found for processed text with emotions: "${finalCleanedText.substring(0, 30)}${finalCleanedText.length > 30 ? '...' : ''}"`);
+      return res.status(200).json({ 
+        success: true, 
+        audioPath: processedAudioPublicPath,
+        cached: true,
+        message: 'Using cached audio file (with emotion)'
+      });
+    }
+    
+    // Final audio file paths
+    const finalFilePath = processedAudioFilePath; // Use processed version to save
+    const finalPublicPath = processedAudioPublicPath;
     
     // ElevenLabs API endpoint
     const apiUrl = `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`;
@@ -95,14 +176,14 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
         'xi-api-key': apiKey
       },
       data: {
-        text: cleanedText,
+        text: finalCleanedText,
         model_id: 'eleven_monolingual_v1',
         voice_settings: voice_settings || {
-          stability: 0.45,
-          similarity_boost: 0.80,
-          style: 0.30,
+          stability: 0.35, // Sedikit lebih rendah untuk ekspresi lebih natural
+          similarity_boost: 0.75, // Lebih rendah untuk memberikan fleksibilitas emosi
+          style: 0.65, // Dinaikkan untuk memberikan lebih banyak nuansa emosional
           use_speaker_boost: true,
-          speaking_rate: 0.75,
+          speaking_rate: 0.70, // Sedikit lebih lambat seperti Geralt berbicara
         }
       },
       responseType: 'arraybuffer'
@@ -110,12 +191,23 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     
     // If successful, save the audio file
     if (response.status === 200) {
-      fs.writeFileSync(audioFilePath, response.data);
-      console.log(`Audio saved to: ${audioFilePath}`);
+      fs.writeFileSync(finalFilePath, response.data);
+      console.log(`Audio saved to: ${finalFilePath}`);
+      
+      // Also save as original text version for future lookups
+      if (originalAudioFilePath !== finalFilePath) {
+        try {
+          fs.copyFileSync(finalFilePath, originalAudioFilePath);
+          console.log(`Also saved as original text version: ${originalAudioFilePath}`);
+        } catch (copyErr) {
+          console.error('Error saving original version:', copyErr);
+          // Continue even if this fails
+        }
+      }
       
       return res.status(200).json({ 
         success: true, 
-        audioPath: audioPublicPath,
+        audioPath: finalPublicPath,
         cached: false,
         message: 'Generated new audio file'
       });

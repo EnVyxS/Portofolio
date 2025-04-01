@@ -11,19 +11,19 @@ class DialogModel {
     {
       id: 1,
       character: "Diva Juan Nur Taqarrub",
-      text: "...Didn't ask for company.",
-      voiceId: "geralt", // geralt sekarang mengarah ke voice ID b2FFMFMuLlPlyWk5NuQW
+      text: "[annoyed] ...Didn't ask for company.",
+      voiceId: "geralt", // geralt sekarang mengarah ke voice ID L9oqKdX7JyDJa0dK6AzN
     },
     {
       id: 2,
       character: "Diva Juan Nur Taqarrub",
-      text: "Tch... Fire's warm. Always brings strays.",
+      text: "[irritated] Tch... Fire's warm. Always brings strays.",
       voiceId: "geralt",
     },
     {
       id: 3,
       character: "Diva Juan Nur Taqarrub",
-      text: "Haahhhh... You need something or are you just here to waste my time?",
+      text: "[cynical, tired] Haahhhh... You need something or are you just here to waste my time?",
       voiceId: "geralt",
     },
     {
