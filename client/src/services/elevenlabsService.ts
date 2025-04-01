@@ -152,35 +152,75 @@ class ElevenLabsService {
       this.stopSpeaking();
     }
 
-    // Generate speech
-    const audioBlob = await this.generateSpeech(text, characterVoice);
-    if (!audioBlob) {
-      return false;
-    }
-
-    // Create audio URL and element
-    const audioUrl = URL.createObjectURL(audioBlob);
-    this.audioElement = new Audio(audioUrl);
-    
-    // Play audio
     try {
-      this.isPlaying = true;
-      await this.audioElement.play();
+      // Generate speech
+      const audioBlob = await this.generateSpeech(text, characterVoice);
       
-      // Clean up when audio ends
-      this.audioElement.onended = () => {
-        this.isPlaying = false;
-        if (this.audioElement) {
-          URL.revokeObjectURL(audioUrl);
-          this.audioElement = null;
+      if (!audioBlob) {
+        console.log("Fallback to pre-generated audio");
+        // Gunakan file audio yang sudah di-generate (fixed path)
+        // Buat hash dari teks untuk mendapatkan nama file yang sama dengan endpoint
+        const textHash = this.hashText(text);
+        let audioPath = '';
+        
+        // Cek jika teks pendek, gunakan file silence
+        if (text.trim() === '.....' || text.startsWith('*') || text.length < 3) {
+          audioPath = '/audio/geralt/dialog_silence.mp3';
+        } else {
+          audioPath = `/audio/geralt/dialog_${textHash}.mp3`;
         }
-      };
+        
+        // Buat audio element langsung dengan path
+        this.audioElement = new Audio(audioPath);
+        this.isPlaying = true;
+        
+        // Play audio
+        try {
+          await this.audioElement.play();
+        } catch (e) {
+          console.log("Failed to play audio from path:", e);
+          // Tetap menampilkan dialog meskipun tidak ada suara
+          return true;
+        }
+        
+        // Clean up when audio ends
+        this.audioElement.onended = () => {
+          this.isPlaying = false;
+          this.audioElement = null;
+        };
+        
+        return true;
+      }
+
+      // Create audio URL and element
+      const audioUrl = URL.createObjectURL(audioBlob);
+      this.audioElement = new Audio(audioUrl);
       
-      return true;
+      // Play audio
+      try {
+        this.isPlaying = true;
+        await this.audioElement.play();
+        
+        // Clean up when audio ends
+        this.audioElement.onended = () => {
+          this.isPlaying = false;
+          if (this.audioElement) {
+            URL.revokeObjectURL(audioUrl);
+            this.audioElement = null;
+          }
+        };
+        
+        return true;
+      } catch (error) {
+        console.error('Failed to play audio from blob:', error);
+        // Fallback ke dialog tanpa suara
+        this.isPlaying = false;
+        return true; // Tetap mengembalikan true agar dialog tetap berjalan
+      }
     } catch (error) {
-      console.error('Failed to play audio:', error);
-      this.isPlaying = false;
-      return false;
+      console.error('Error in speakText:', error);
+      // Jangan biarkan kegagalan audio mengganggu alur dialog
+      return true;
     }
   }
 
