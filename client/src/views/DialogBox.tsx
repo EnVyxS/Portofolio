@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import DialogController from '../controllers/dialogController';
 import HoverDialogController from '../controllers/hoverDialogController';
-import { isDialogPersistent } from '../utils/geraltTones';
 
 // Import fungsi hash untuk debugging
 function generateSimpleHash(text: string): string {
@@ -15,6 +14,29 @@ function generateSimpleHash(text: string): string {
     hash = hash & hash;
   }
   return Math.abs(hash).toString();
+}
+
+// Helper untuk menentukan apakah dialog perlu persistensi (tetap terbuka)
+function isDialogPersistent(text: string): boolean {
+  // Dialog yang mengandung pertanyaan biasanya perlu jawaban
+  if (text.includes('?')) {
+    return true;
+  }
+  
+  // Dialog yang mengandung kata kunci tertentu perlu persistensi
+  const persistentKeywords = [
+    "need", "want", "tell me", "let me know", "choose", "decide", 
+    "check", "verify", "convinced", "Smart", "Fine", "satisfy"
+  ];
+  
+  for (const keyword of persistentKeywords) {
+    if (text.toLowerCase().includes(keyword.toLowerCase())) {
+      return true;
+    }
+  }
+  
+  // Default: jika mengandung < 20 karakter, biasanya pernyataan biasa
+  return text.length > 20;
 }
 
 interface DialogBoxProps {
