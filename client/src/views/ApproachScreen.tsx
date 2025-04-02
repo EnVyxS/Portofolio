@@ -122,6 +122,9 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         footstepsSoundRef.current.play()
           .catch(e => console.log("Couldn't play delayed footsteps:", e));
       }
+
+      // Mulai zoom in effect pada background
+      startZoomEffect();
     }, 1000); // Delay hanya 1 detik sebelum memulai langkah kaki
     
     // Transition lebih cepat - total waktu hanya 3 detik
@@ -148,6 +151,53 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         onApproach();
       }
     }, 3000); // Total waktu: 3 detik (1 detik jeda + 2 detik berjalan)
+  };
+  
+  // Fungsi untuk membuat efek zoom in yang halus
+  const startZoomEffect = () => {
+    // Dapatkan elemen background
+    const bgElement = document.querySelector('.distant-background') as HTMLElement;
+    if (!bgElement) return;
+    
+    // Posisi awal
+    const startScale = 0.8;
+    // Posisi akhir (zoom in pelan)
+    const endScale = 0.95;
+    
+    // Durasi total efek dalam ms
+    const duration = 2000; 
+    // Interval animasi
+    const interval = 20;
+    // Jumlah langkah
+    const steps = duration / interval;
+    // Penambahan skala per langkah
+    const scaleStep = (endScale - startScale) / steps;
+    
+    // Scale dan blur saat ini
+    let currentScale = startScale;
+    let currentStep = 0;
+    
+    // Fungsi animasi
+    const animate = () => {
+      currentStep++;
+      
+      if (currentStep <= steps) {
+        currentScale += scaleStep;
+        
+        // Menerapkan transform dengan nilai scale yang sesuai
+        bgElement.style.transform = `translate(-50%, -50%) scale(${currentScale})`;
+        
+        // Kurangi blur sedikit seiring zoom in
+        const blurValue = Math.max(0.5, 2 - (currentStep / steps) * 1.5);
+        bgElement.style.filter = `blur(${blurValue}px) brightness(${0.6 + (currentStep / steps) * 0.1})`;
+        
+        // Lanjutkan animasi
+        requestAnimationFrame(animate);
+      }
+    };
+    
+    // Mulai animasi
+    requestAnimationFrame(animate);
   };
   
   // Toggle audio play/pause
