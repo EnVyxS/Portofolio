@@ -200,7 +200,7 @@ class ElevenLabsService {
     return this.apiKey;
   }
 
-  public async generateSpeech(text: string, characterVoice: string = 'character'): Promise<Blob | null> {
+  public async generateSpeech(text: string, characterVoice: string = 'character'): Promise<{blob: Blob | null, source?: string}> {
     try {
       // Buat cache key berdasarkan text
       const cacheKey = text;
@@ -209,7 +209,7 @@ class ElevenLabsService {
       if (cacheKey in this.audioCache) {
         console.log("Using in-memory cached audio for:", text.substring(0, 20) + "...");
         const cachedBlob = this.audioCache[cacheKey];
-        return cachedBlob;
+        return { blob: cachedBlob, source: "memory-cache" };
       }
       
       console.log("Requesting audio for:", text.substring(0, 20) + "...");
@@ -228,13 +228,13 @@ class ElevenLabsService {
           
           if (!response.ok) {
             console.error('Silent audio file not found in either folder');
-            return null;
+            return { blob: null, source: "error-no-silent-file" };
           }
         }
         
         const audioBlob = await response.blob();
         this.audioCache[cacheKey] = audioBlob;
-        return audioBlob;
+        return { blob: audioBlob, source: "silent-audio" };
       }
       
       // Untuk teks normal, gunakan endpoint server yang akan melakukan:
@@ -270,13 +270,13 @@ class ElevenLabsService {
             
             if (!silentResponse.ok) {
               console.error('Silent audio file not found in either folder');
-              return null;
+              return { blob: null, source: "error-no-audio" };
             }
           }
           
           const silentBlob = await silentResponse.blob();
           this.audioCache[cacheKey] = silentBlob;
-          return silentBlob;
+          return { blob: silentBlob, source: "fallback-silent" };
         }
         
         // Dapatkan response JSON yang berisi path ke file audio
@@ -288,7 +288,17 @@ class ElevenLabsService {
           if (audioResponse.ok) {
             const audioBlob = await audioResponse.blob();
             this.audioCache[cacheKey] = audioBlob;
-            return audioBlob;
+            
+            // Menentukan sumber audio berdasarkan response
+            let source = "api-new";
+            if (result.cached) {
+              source = "file-cache";
+            }
+            if (result.message && result.message.includes("backup")) {
+              source = "file-backup";
+            }
+            
+            return { blob: audioBlob, source };
           }
         }
         
@@ -305,13 +315,13 @@ class ElevenLabsService {
           
           if (!fallbackResponse.ok) {
             console.error('Silent audio file not found in either folder');
-            return null;
+            return { blob: null, source: "error-no-audio" };
           }
         }
         
         const fallbackBlob = await fallbackResponse.blob();
         this.audioCache[cacheKey] = fallbackBlob;
-        return fallbackBlob;
+        return { blob: fallbackBlob, source: "fallback-silent" };
       } catch (apiError) {
         console.error('Error calling text-to-speech API:', apiError);
         
@@ -328,7 +338,7 @@ class ElevenLabsService {
             console.log('Found local audio file in character folder:', characterAudioFile);
             const localBlob = await localResponse.blob();
             this.audioCache[cacheKey] = localBlob;
-            return localBlob;
+            return { blob: localBlob, source: "local-character-file" };
           }
           
           // Coba cari di folder geralt jika tidak ada di character
@@ -337,7 +347,7 @@ class ElevenLabsService {
             console.log('Found local audio file in geralt folder:', geraltAudioFile);
             const localBlob = await localResponse.blob();
             this.audioCache[cacheKey] = localBlob;
-            return localBlob;
+            return { blob: localBlob, source: "local-geralt-file" };
           }
           
           console.log('Audio file not found in either character or geralt folders');
@@ -356,19 +366,19 @@ class ElevenLabsService {
           
           if (!silentResponse.ok) {
             console.error('Silent audio file not found in either folder');
-            return null;
+            return { blob: null, source: "error-no-audio" };
           }
         }
         
         const silentBlob = await silentResponse.blob();
         this.audioCache[cacheKey] = silentBlob;
-        return silentBlob;
+        return { blob: silentBlob, source: "fallback-silent" };
       }
     } catch (error) {
       console.error('Error loading speech audio:', error);
       // Return null in case of error
       this.audioCache[text] = null;
-      return null;
+      return { blob: null, source: "error-exception" };
     }
   }
 
@@ -432,18 +442,25 @@ class ElevenLabsService {
     const maxRetries = 2;
     let success = false;
     let lastError = null;
-    let audioBlob = null;
+    let audioResult = null;
     
     while (retryCount <= maxRetries && !success) {
       try {
         // Generate speech
-        audioBlob = await this.generateSpeech(text, characterVoice);
-        if (!audioBlob) {
+        const result = await this.generateSpeech(text, characterVoice);
+        audioResult = result;
+        
+        if (!result || !result.blob) {
           console.warn(`Failed to generate speech (attempt ${retryCount+1}/${maxRetries+1}) for: ${text.substring(0, 30)}...`);
           retryCount++;
           // Short delay before retry
           await new Promise(resolve => setTimeout(resolve, 250));
           continue;
+        }
+        
+        // Log source of audio (cached, backup, or API generated)
+        if (result.source) {
+          console.log(`Audio source: ${result.source}`);
         }
         
         // Break out of loop if we got a valid audio blob
@@ -458,14 +475,14 @@ class ElevenLabsService {
     }
     
     // Check if we successfully got an audio blob after retries
-    if (!audioBlob) {
+    if (!audioResult || !audioResult.blob) {
       console.error(`Failed to generate speech after ${maxRetries+1} attempts:`, lastError);
       this.isPlaying = false;
       return false;
     }
 
     // Create audio URL and element
-    const audioUrl = URL.createObjectURL(audioBlob);
+    const audioUrl = URL.createObjectURL(audioResult.blob);
     this.audioElement = new Audio(audioUrl);
     
     // Set audio properties untuk pengalaman yang lebih baik

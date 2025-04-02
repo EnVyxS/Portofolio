@@ -130,8 +130,101 @@ function copyExistingAudioFiles() {
   }
 }
 
+// Fungsi untuk mencadangkan file audio yang telah dihasilkan ke folder backup
+// Ini untuk mencegah penggunaan API yang berlebihan jika folder character terhapus
+function backupAudioFiles() {
+  try {
+    console.log('Checking for audio files to backup...');
+    
+    // Pastikan folder backup ada
+    const backupDir = path.join(publicDir, 'audio/backup');
+    if (!fs.existsSync(backupDir)) {
+      fs.mkdirSync(backupDir, { recursive: true });
+      console.log('Created backup audio directory');
+    }
+    
+    // Jika folder character ada, cadangkan semua file ke backup
+    if (fs.existsSync(characterAudioDir)) {
+      const characterFiles = fs.readdirSync(characterAudioDir);
+      let backedUpCount = 0;
+      
+      // Salin file yang belum ada di folder backup
+      for (const file of characterFiles) {
+        if (file.endsWith('.mp3')) {
+          const sourceFile = path.join(characterAudioDir, file);
+          const destFile = path.join(backupDir, file);
+          
+          // Hanya backup file yang belum dicadangkan atau lebih baru dari cadangan
+          if (!fs.existsSync(destFile) || 
+              fs.statSync(sourceFile).mtime > fs.statSync(destFile).mtime) {
+            fs.copyFileSync(sourceFile, destFile);
+            backedUpCount++;
+          }
+        }
+      }
+      
+      console.log(`Backed up ${backedUpCount} audio files to backup folder`);
+    }
+  } catch (error) {
+    console.error('Error backing up audio files:', error);
+  }
+}
+
+// Fungsi untuk memeriksa dan memulihkan file audio dari backup jika folder character kosong atau terhapus
+function restoreFromBackupIfNeeded() {
+  try {
+    console.log('Checking if audio files need to be restored from backup...');
+    
+    // Cek apakah folder character ada
+    if (!fs.existsSync(characterAudioDir)) {
+      fs.mkdirSync(characterAudioDir, { recursive: true });
+      console.log('Created character audio directory');
+    }
+    
+    // Hitung file yang ada di folder character
+    const characterFilesCount = fs.existsSync(characterAudioDir) ? 
+      fs.readdirSync(characterAudioDir).filter(f => f.endsWith('.mp3')).length : 0;
+    
+    // Jika sedikit file atau folder kosong, coba pulihkan dari backup
+    if (characterFilesCount < 5) {
+      const backupDir = path.join(publicDir, 'audio/backup');
+      if (fs.existsSync(backupDir)) {
+        const backupFiles = fs.readdirSync(backupDir);
+        let restoredCount = 0;
+        
+        // Salin file dari backup ke character
+        for (const file of backupFiles) {
+          if (file.endsWith('.mp3')) {
+            const sourceFile = path.join(backupDir, file);
+            const destFile = path.join(characterAudioDir, file);
+            
+            if (!fs.existsSync(destFile)) {
+              fs.copyFileSync(sourceFile, destFile);
+              restoredCount++;
+            }
+          }
+        }
+        
+        console.log(`Restored ${restoredCount} audio files from backup folder`);
+      } else {
+        console.log('No backup folder found. Cannot restore audio files.');
+      }
+    } else {
+      console.log(`Character folder has ${characterFilesCount} files. No restoration needed.`);
+    }
+  } catch (error) {
+    console.error('Error restoring audio files from backup:', error);
+  }
+}
+
 // Jalankan fungsi saat server pertama kali dijalankan
 copyExistingAudioFiles();
+
+// Cek dan pulihkan dari backup jika perlu
+restoreFromBackupIfNeeded();
+
+// Cadangkan file yang ada saat ini
+backupAudioFiles();
 
 // Inisialisasi cache audio
 initializeAudioCache();
@@ -264,7 +357,32 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       }
     }
     
-    // If file doesn't exist, generate with ElevenLabs API
+    // Check backup folder before generating with API
+    const backupDir = path.join(publicDir, 'audio/backup');
+    const backupFilePath = path.join(backupDir, originalFileName);
+    
+    if (fs.existsSync(backupFilePath)) {
+      try {
+        // Copy from backup to character folder
+        fs.copyFileSync(backupFilePath, originalAudioFilePath);
+        console.log(`Restored audio from backup for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
+        
+        // Update cache
+        textHashCache.set(originalHash, originalFileName);
+        
+        return res.status(200).json({ 
+          success: true, 
+          audioPath: originalAudioPublicPath,
+          cached: true,
+          message: 'Restored from backup audio file'
+        });
+      } catch (backupErr) {
+        console.error('Error restoring from backup:', backupErr);
+        // Continue to API if restore fails
+      }
+    }
+    
+    // If file doesn't exist anywhere, generate with ElevenLabs API
     console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
     
     // Analisis tone emosi Geralt untuk text-to-speech
@@ -576,6 +694,30 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
           console.error('Error saving original version:', copyErr);
           // Continue even if this fails
         }
+      }
+      
+      // Backup the new audio file to avoid future API calls
+      try {
+        // Create backup directory if it doesn't exist
+        const backupDir = path.join(publicDir, 'audio/backup');
+        if (!fs.existsSync(backupDir)) {
+          fs.mkdirSync(backupDir, { recursive: true });
+        }
+        
+        // Save to backup with both the processed and original names
+        const backupProcessedPath = path.join(backupDir, processedFileName);
+        fs.writeFileSync(backupProcessedPath, response.data);
+        console.log(`Backed up audio to: ${backupProcessedPath}`);
+        
+        // If using different filenames, backup the original version too
+        if (originalFileName !== processedFileName) {
+          const backupOriginalPath = path.join(backupDir, originalFileName);
+          fs.copyFileSync(backupProcessedPath, backupOriginalPath);
+          console.log(`Also backed up as original version: ${backupOriginalPath}`);
+        }
+      } catch (backupErr) {
+        console.error('Error backing up new audio file:', backupErr);
+        // Continue even if backup fails
       }
       
       return res.status(200).json({ 
