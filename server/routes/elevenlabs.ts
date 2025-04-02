@@ -285,7 +285,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       },
       data: {
         text: finalCleanedText,
-        model_id: 'eleven_monolingual_v1',
+        model_id: '3Cka3TLKjahfz6KX4ckZ',
         voice_settings: finalVoiceSettings
       },
       responseType: 'arraybuffer'
