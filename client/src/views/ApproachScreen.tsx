@@ -161,8 +161,8 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     
     // Posisi awal
     const startScale = 0.8;
-    // Posisi akhir (zoom in lebih besar untuk efek yang lebih terlihat)
-    const endScale = 1.2;
+    // Posisi akhir (zoom lebih kecil agar tidak terlalu dekat dengan Geralt)
+    const endScale = 0.95;
     
     // Durasi total efek dalam ms (diperlambat untuk efek yang lebih terasa)
     const duration = 5000; 
@@ -198,10 +198,10 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         // Menerapkan transform dengan nilai scale yang sesuai
         bgElement.style.transform = `translate(-50%, -50%) scale(${currentScale})`;
         
-        // Kurangi blur secara signifikan seiring zoom in
-        const blurValue = Math.max(0, 2 - (easedProgress * 2));
-        // Tingkatkan brightness lebih banyak untuk kesan mendekati api
-        const brightnessValue = 0.6 + (easedProgress * 0.35);
+        // Kurangi blur secara lebih halus
+        const blurValue = Math.max(1, 2 - (easedProgress * 1));
+        // Tingkatkan brightness secukupnya agar tidak terlalu terang
+        const brightnessValue = 0.6 + (easedProgress * 0.15);
         
         bgElement.style.filter = `blur(${blurValue}px) brightness(${brightnessValue})`;
         
