@@ -108,14 +108,20 @@ const GameContactCard: React.FC = () => {
           animate="visible"
           variants={containerVariants}
           whileHover={{
-            boxShadow: "0 3px 10px rgba(249, 115, 22, 0.15)", // Subtle glow
-            scale: 1.02, // Slight grow effect
-            opacity: 0.35, // Increase opacity on hover for better visibility
+            boxShadow: "0 5px 15px rgba(255, 185, 100, 0.25), 0 0 10px rgba(255, 185, 100, 0.15)", // Enhanced glow
+            scale: 1.03, // Slightly more noticeable grow effect
+            opacity: 1, // Full opacity on hover
+            rotateY: -5, // Increase 3D rotation effect slightly
           }}
           transition={{ duration: 0.4 }}
         >
           {/* Orange accent corner for design element */}
           <div className="card-accent-corner"></div>
+          <div className="card-glow"></div>
+          <div className="card-corner top-left"></div>
+          <div className="card-corner top-right"></div>
+          <div className="card-corner bottom-left"></div>
+          <div className="card-corner bottom-right"></div>
           
           {/* Social links section */}
           <motion.div className="social-links" variants={itemVariants}>
@@ -134,11 +140,7 @@ const GameContactCard: React.FC = () => {
             ))}
           </motion.div>
           
-          {/* Card corner decorations for Dark Souls aesthetic */}
-          <div className="card-corner top-left"></div>
-          <div className="card-corner top-right"></div>
-          <div className="card-corner bottom-left"></div>
-          <div className="card-corner bottom-right"></div>
+          {/* Hapus duplikat card corner decorations */}
         </motion.div>
       </div>
 
@@ -159,19 +161,20 @@ const GameContactCard: React.FC = () => {
           pointer-events: all;
         }
 
-        /* Unified card that contains all elements */
+        /* Unified card with enhanced design */
         .unified-card {
-          background: rgba(15, 12, 10, 0.25); /* Sesuaikan warna dengan tema Souls-like */
-          border: 1px solid rgba(150, 130, 100, 0.2); /* Border emas pudar seperti APPROACH HIM */
-          backdrop-filter: blur(1px); /* Very light blur */
-          opacity: 0.6; /* Tingkatkan opacity agar lebih terlihat */
+          background: rgba(20, 15, 12, 0.4); /* Darker, more opaque background */
+          border: 1px solid rgba(180, 150, 100, 0.3); /* Lebih jelas border emasnya */
+          backdrop-filter: blur(3px); /* Enhanced blur for better contrast */
+          opacity: 1; /* Full opacity */
           border-radius: 0; /* No rounded corners ala Souls-like */
-          padding: clamp(0.5rem, 1.5vw, 0.8rem) clamp(0.5rem, 1.5vw, 0.8rem); /* Smaller padding */
+          padding: clamp(0.7rem, 1.5vw, 1rem); /* Slightly larger padding */
           width: auto;
-          min-width: 180px;
+          min-width: 200px;
           box-shadow:
-            0 8px 20px rgba(0, 0, 0, 0.2),
-            0 0 15px rgba(150, 130, 100, 0.15); /* Shadow emas pudar */
+            0 10px 25px rgba(0, 0, 0, 0.3),
+            0 0 20px rgba(180, 150, 100, 0.2), /* Enhanced golden shadow */
+            inset 0 0 1px rgba(255, 220, 180, 0.15); /* Inner glow */
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -180,8 +183,9 @@ const GameContactCard: React.FC = () => {
           overflow: hidden;
           margin: 0 auto;
           z-index: 30;
-          touch-action: manipulation; /* More responsive touch */
-          -webkit-tap-highlight-color: transparent; /* Remove default browser mobile highlight */
+          touch-action: manipulation;
+          -webkit-tap-highlight-color: transparent;
+          transform: perspective(800px) rotateY(-2deg); /* Subtle 3D effect */
         }
 
         .unified-card::before {
@@ -191,7 +195,7 @@ const GameContactCard: React.FC = () => {
           left: 0;
           right: 0;
           height: 2px;
-          background: linear-gradient(90deg, rgba(180, 160, 120, 0.6), rgba(150, 130, 100, 0.3)); /* Gradien emas pudar */
+          background: linear-gradient(90deg, rgba(220, 180, 120, 0.7), rgba(180, 150, 100, 0.4)); /* Enhanced golden gradient */
           z-index: 1;
           opacity: 0.8;
         }
@@ -201,7 +205,7 @@ const GameContactCard: React.FC = () => {
           position: absolute;
           width: 8px;
           height: 8px;
-          border: 1px solid rgba(150, 130, 100, 0.5); /* Sesuaikan dengan warna emas pudar */
+          border: 1px solid rgba(190, 160, 110, 0.65); /* Enhanced golden corners */
           z-index: 2;
         }
         
@@ -240,8 +244,19 @@ const GameContactCard: React.FC = () => {
           right: -2px;
           width: 20px;
           height: 20px;
-          background: linear-gradient(135deg, transparent 50%, rgba(150, 130, 100, 0.25) 50%);
+          background: linear-gradient(135deg, transparent 50%, rgba(210, 180, 120, 0.35) 50%);
           z-index: 2;
+        }
+        
+        .card-glow {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(circle at 70% 30%, rgba(255, 200, 100, 0.08), transparent 70%);
+          z-index: 1;
+          pointer-events: none;
         }
         
         .social-links {

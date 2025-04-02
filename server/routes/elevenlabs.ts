@@ -5,6 +5,30 @@ import axios from 'axios';
 
 const router = Router();
 
+// Rate limiting implementation untuk mencegah overload API
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 menit dalam milliseconds
+const MAX_REQUESTS_PER_WINDOW = 10; // Maksimal 10 request per menit
+const requestTimestamps: number[] = [];
+
+// Fungsi untuk memeriksa rate limit
+function checkRateLimit(): boolean {
+  const now = Date.now();
+  // Filter timestamps yang berada dalam window saat ini
+  const validTimestamps = requestTimestamps.filter(
+    timestamp => now - timestamp < RATE_LIMIT_WINDOW
+  );
+  
+  // Update array timestamp dengan yang masih valid
+  requestTimestamps.length = 0;
+  requestTimestamps.push(...validTimestamps);
+  
+  // Tambahkan timestamp saat ini
+  requestTimestamps.push(now);
+  
+  // Cek apakah sudah melewati batas
+  return requestTimestamps.length <= MAX_REQUESTS_PER_WINDOW;
+}
+
 // Define common paths that will be used throughout the file
 const publicDir = path.resolve(process.cwd(), 'client/public');
 const characterAudioDir = path.join(publicDir, 'audio/character');
@@ -218,6 +242,16 @@ function generateSimpleHash(input: string): string {
  */
 router.post('/text-to-speech', async (req: Request, res: Response) => {
   try {
+    // Cek rate limit sebelum melanjutkan (untuk menghindari overload API)
+    if (!checkRateLimit()) {
+      console.warn("Rate limit exceeded, too many requests in a short period");
+      return res.status(429).json({ 
+        error: 'Too many requests',
+        details: 'Rate limit exceeded. Please try again in a moment.',
+        fallback: true
+      });
+    }
+    
     // Get text and voice_id from the request body
     const { text, voice_id = '3Cka3TLKjahfz6KX4ckZ', voice_settings, model_id: clientModelId } = req.body;
     console.log("Using ElevenLabs API key from environment variable");
@@ -334,8 +368,17 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     let tone = '';
     let voiceSettings = null;
     
-    // Hapus tag emosi dari teks asli untuk dikirim ke ElevenLabs
-    let cleanText = text.replace(/\[(.*?)\]\s*/g, '').trim();
+    // Preprocessing text awal - hapus dan normalkan karakter khusus
+    // Hapus tag emosi dari teks asli dan lakukan basic preprocessing
+    let cleanText = text
+      .replace(/\[(.*?)\]\s*/g, '') // Hapus tag emosi [angry], [sad], dll
+      .replace(/[^\w\s.,!?;:'"()-]/g, '') // Hapus karakter non-alphanumeric yang bisa merusak
+      .replace(/"/g, '"')
+      .replace(/"/g, '"')
+      .replace(/'/g, "'")
+      .replace(/'/g, "'")
+      .replace(/…/g, "...")
+      .trim();
     
     console.log(`Analyzing tone for text: "${cleanText.substring(0, 50)}${cleanText.length > 50 ? '...' : ''}"`); // Added more verbose logging
     
@@ -585,6 +628,24 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     
     // If successful, save the audio file
     if (response.status === 200) {
+      // Pastikan kita mendapatkan response data yang valid
+      if (!response.data || response.data.length < 1000) {
+        console.error("Error: Received invalid or too small audio data from API");
+        throw new Error("Received invalid audio data (file too small)");
+      }
+      
+      // Verifikasi file adalah audio mp3 yang valid - cek header MP3
+      const isValidMp3 = response.data.length > 100 && 
+                         response.data[0] === 0x49 && 
+                         response.data[1] === 0x44 && 
+                         response.data[2] === 0x33;
+                        
+      if (!isValidMp3) {
+        console.error("Error: Response data doesn't appear to be a valid MP3 file");
+        throw new Error("Generated audio is not a valid MP3 file");
+      }
+      
+      // Simpan file audio baru
       fs.writeFileSync(finalFilePath, response.data);
       console.log(`Audio saved to: ${finalFilePath}`);
       
