@@ -9,6 +9,7 @@ const router = Router();
 const publicDir = path.resolve(process.cwd(), 'client/public');
 const characterAudioDir = path.join(publicDir, 'audio/character');
 const geraltAudioDir = path.join(publicDir, 'audio/geralt');
+const backupAudioDir = path.join(publicDir, 'audio/backup');
 
 // Cache untuk menyimpan hash teks ke nama file
 const textHashCache = new Map<string, string>();
@@ -130,11 +131,73 @@ function copyExistingAudioFiles() {
   }
 }
 
+// Fungsi untuk memastikan folder backup ada dan menduplikasi file audio ke folder backup
+function backupAudioFiles() {
+  try {
+    console.log('Checking and ensuring backup folder exists...');
+    
+    // Pastikan folder backup ada
+    if (!fs.existsSync(backupAudioDir)) {
+      fs.mkdirSync(backupAudioDir, { recursive: true });
+      console.log('Created backup audio directory');
+    }
+    
+    // Cek folder character untuk file-file yang perlu dibackup
+    if (fs.existsSync(characterAudioDir)) {
+      const files = fs.readdirSync(characterAudioDir);
+      let backupCount = 0;
+      
+      for (const file of files) {
+        if (file.endsWith('.mp3') && file.startsWith('dialog_')) {
+          const sourceFile = path.join(characterAudioDir, file);
+          const destFile = path.join(backupAudioDir, file);
+          
+          // Jika file belum ada di backup atau ukurannya berbeda, lakukan backup
+          if (!fs.existsSync(destFile) || 
+              fs.statSync(sourceFile).size !== fs.statSync(destFile).size) {
+            fs.copyFileSync(sourceFile, destFile);
+            backupCount++;
+          }
+        }
+      }
+      
+      console.log(`Backed up ${backupCount} audio files from character folder to backup folder`);
+    }
+    
+    // Juga cek folder geralt untuk file-file yang belum ada di backup
+    if (fs.existsSync(geraltAudioDir)) {
+      const files = fs.readdirSync(geraltAudioDir);
+      let backupCount = 0;
+      
+      for (const file of files) {
+        if (file.endsWith('.mp3') && file.startsWith('dialog_')) {
+          const sourceFile = path.join(geraltAudioDir, file);
+          const destFile = path.join(backupAudioDir, file);
+          
+          // Jika file belum ada di backup atau ukurannya berbeda, lakukan backup
+          if (!fs.existsSync(destFile) || 
+              fs.statSync(sourceFile).size !== fs.statSync(destFile).size) {
+            fs.copyFileSync(sourceFile, destFile);
+            backupCount++;
+          }
+        }
+      }
+      
+      console.log(`Backed up ${backupCount} audio files from geralt folder to backup folder`);
+    }
+  } catch (error) {
+    console.error('Error backing up audio files:', error);
+  }
+}
+
 // Jalankan fungsi saat server pertama kali dijalankan
 copyExistingAudioFiles();
 
 // Inisialisasi cache audio
 initializeAudioCache();
+
+// Backup semua audio file
+backupAudioFiles();
 
 // Definisi model valid yang tersedia di ElevenLabs
 const VALID_MODEL = 'eleven_multilingual_v2';
@@ -498,6 +561,16 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       fs.writeFileSync(finalFilePath, response.data);
       console.log(`Audio saved to: ${finalFilePath}`);
       
+      // Backup the file
+      try {
+        const backupFilePath = path.join(backupAudioDir, processedFileName);
+        fs.writeFileSync(backupFilePath, response.data);
+        console.log(`Backed up audio to: ${backupFilePath}`);
+      } catch (backupErr) {
+        console.error('Error backing up audio file:', backupErr);
+        // Continue even if backup fails
+      }
+      
       // Add to memory cache for future lookups
       textHashCache.set(processedHash, processedFileName);
       
@@ -506,6 +579,17 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
         try {
           fs.copyFileSync(finalFilePath, originalAudioFilePath);
           console.log(`Also saved as original text version: ${originalAudioFilePath}`);
+          
+          // Backup the original version too
+          try {
+            const backupOriginalFilePath = path.join(backupAudioDir, originalFileName);
+            fs.copyFileSync(finalFilePath, backupOriginalFilePath);
+            console.log(`Backed up original version to: ${backupOriginalFilePath}`);
+          } catch (backupErr) {
+            console.error('Error backing up original version:', backupErr);
+            // Continue even if backup fails
+          }
+          
           // Also add original hash to cache
           textHashCache.set(originalHash, originalFileName);
         } catch (copyErr) {

@@ -52,46 +52,126 @@ class ElevenLabsService {
   
   // Inisialisasi hash dialog untuk semua dialog yang mungkin
   private initializeDialogHashes(): void {
-    // Dialog dari Geralt yang mungkin muncul
+    // Dialog dari Geralt yang mungkin muncul (dari dialogModel.ts dan history ElevenLabs)
     const possibleDialogs = [
+      // Main Dialog dari dialogModel.ts
       "...Didn't ask for company.",
-      "Tch... Fire's warm. Always brings strays.",
+      "Fire's warm... Always brings strays....",
       "Haahhhh... You need something or are you just here to waste my time?",
       ".....",
       "Curiosity?... Hmph... Doesn't pay the bills...",
       "Pfftt... Waiting... Drinking... What else is there?",
-      "Hmm... Got a handful of coins and a longsword. That's all a man like me needs...",
-      "There's a contract I'll have to deal with come sunrise. Some beast's been picking off villagers near the old mill...",
-      "You want to know more about me? Hmmm... Why would you care?",
-      "Witcher by trade. Monster hunter. I follow the Path.",
-      "I see by your eyes you've heard the tales. Yes, they're all true. The mutations. The training.",
-      "Not many of us left. Most don't make it through the Trial of Grasses. I was... lucky. Or cursed. Depends who you ask.",
-      "I don't talk much about my past. No point dwelling on what's done.",
-      "What's that look for? Expected something more? *grunts* Don't we all...",
-      "The Path is a lonely one. That's just how it is.",
-      "If you're looking to hire me, I'm not cheap. But I'm good at what I do.",
-      "Hmm... I notice you're still here. You're either brave or stupid. Most people keep their distance.",
-      "You can find me on the Path. Or through Kaer Morhen, when winter comes.",
-      "I've left my mark in several places. Some remember me. Others... prefer to forget.",
-      "There are ways to reach me if you truly need a witcher's services. Just follow the rumors of monsters slain.",
-      "Or perhaps you'd prefer more direct methods...",
-      "There's a code among witchers. We don't kill humans. Not without reason.",
-      "Sometimes, though, the monsters look just like you and me.",
-      "The fire's dying. And I've said more than I usually do in a month.",
-      "Take what you need from our conversation. I'll be here until dawn.",
-      "After that, the Path calls again.",
-      "Do what you will with my words. Just remember, a witcher never forgets a face.",
-      "Now leave me be. I've had enough talk for one night.",
-      "Hmm.",
-      "*stares into the fire*",
-      "*sighs* One last word of advice: in this world, it's rarely about the monsters. It's about the men. Remember that.",
-      "Farewell, stranger.",
-      "*turns back to the fire*",
-      "*end of conversation*"
+      "A job?.., A way out?.., Some miracle?..",
+      "Heh... Yeah, real fucking hilarious, isn't it?",
+      "...You got a name?",
+      "Hm. Not that it matters,",
+      "Diva Juan Nur Taqarrub , , Call me what you want. Doesn't do shit,",
+      "Hmm... Why.. am I even here?..",
+      "Anything that keeps me breathing,",
+      "Hunting work's like hunting a ghost. No signs, no tracks, just hope and a headache,",
+      "Graduated. Computer Science. 2024,",
+      "Yeah... Cum laude. Thought it'd mean something.. Turns out it's worth less than a stiff drink,",
+      "Backend. Java. Databases. Know my way around. Not that anyone cares,",
+      "Made a game for my thesis. Thought it'd mean something. It didn't,",
+      "Editing too. Years of it. Doesn't put food on the table,",
+      "Vegas Pro. After Effects. Cut, stitch, fix. Life's not that simple,",
+      "SQL... PostgreSQL... MySQL... Data's just numbers. Like debts. Like failures,",
+      "Used to like puzzles. Now? Just another thing that doesn't pay,",
+      "...Leaving this place?",
+      "Huhhhh... Like that's so easy,",
+      "Go where? With what? Got coin to spare?,",
+      "Nothing's free... Not even dreams,",
+      "But if the pay's right… maybe,",
+      "For now? I drink. Sit. Hope the fire lasts longer than the night,",
+      "Hmph... You fight... you bleed... you try...,",
+      "And in the end, still nothing,",
+      "...Enough about me",
+      "What do you want?..",
+      "Talk... You got a job, or just wasting my time?..",
+      
+      // HoverDialogController dialog options
+      "Hmph... In a rush, are we? Fine. Tell me what you need done.",
+      "Can't wait till I'm done talking? Fine. What do you want?",
+      "Interrupting me? Rude. But I'm listening.",
+      "Not even letting me finish? Fine, what's the contract?",
+      "Hmm. Impatient, aren't you? What is it?",
+      "Not listening, huh? Fine. Decide after you've checked.",
+      "My story's boring you? Go on then, look elsewhere.",
+      "Hmm. Distracted already? Go ahead, check it out.",
+      "Prefer looking around than listening? Your choice.",
+      "Lost interest so quickly? Whatever. Go look.",
+      "Straight to the point—I like that. Fine. Give me the contract.",
+      "Business it is then. What's the job?",
+      "Contract details? Let's hear it.",
+      "Talk business. I'm listening.",
+      "Hmm. Cutting to the chase. Good.",
+      "Need to check first before deciding? Fine. Not like I'm in a hurry.",
+      "Want to know more about me first? Suit yourself.",
+      "Curious about my past work? Take a look.",
+      "Checking my credentials? Smart. Not that I care.",
+      "Due diligence, huh? Look all you want.",
+      "Took your time, didn't you? Fine. Hand me the damn contract.",
+      "Done looking? Ready for business now?",
+      "Satisfied with what you found? Let's talk work.",
+      "Seen enough? What's the job then?",
+      "Research complete? Let's hear about the contract.",
+      "Fine. Go ahead, check it first.",
+      "Having second thoughts? Look around then.",
+      "Changed your mind? Go on, look me up.",
+      "Not convinced yet? See for yourself.",
+      "Hmm. Still uncertain? Check my background.",
+      "Make up your mind. I don't have all day.",
+      "Hmm. This back and forth is getting irritating.",
+      "Decide already. Contract or not?",
+      "Getting annoyed with the indecision here.",
+      "Arghh... whatever you want. I'm done.",
+      "That's it. I'm done with this nonsense.",
+      "Enough of this. Make a choice or leave me be.",
+      "*sighs deeply* I've lost my patience. We're done here.",
+      "I'm through with this game. Decide or go away.",
+      
+      // IdleTimeoutController dialog options
+      "What the hell are you staring at?.. Got something to say!?",
+      "You really gonna keep ignoring me? I'm not in the mood for this.",
+      "You think this is funny?.. Staring at me for nine damn minutes?.. Fuck you!!",
+      "Now what, you little filth!?..",
+      "Hmph... Finally, you decide to move... Suit yourself. You want to check it or just get on with signing the damn contract?",
+      "So this is how it is? You think you can play me for a fool?",
+      "ENOUGH",
+      "That's it. GET OUT OF MY SIGHT!",
+      "You're really asking for it..."
     ];
     
+    // Dialog dari history ElevenLabs yang sudah terlihat ada di gambar
+    // (history terlihat di screenshot yang dikirimkan)
+    const elevenlabsHistoryDialogs = [
+      "Vegas Pro. After Effects. Cut, stitch, fix. Life's not that simple,",
+      "Used to like puzzles. Now? Just another thing that doesn't pay,",
+      "Graduated. Computer Science. 2024,",
+      "Heh... Yeah, real fucking hilarious, isn't it?",
+      "Nothing's free... Not even dreams,",
+      "Go where? With what? Got coin to spare?,"
+    ];
+    
+    // Gabungkan semua dialog yang mungkin (hapus duplikat dengan cara manual)
+    const allPossibleDialogs: string[] = [];
+    
+    // Tambahkan dialog dari possibleDialogs
+    possibleDialogs.forEach(dialog => {
+      if (!allPossibleDialogs.includes(dialog)) {
+        allPossibleDialogs.push(dialog);
+      }
+    });
+    
+    // Tambahkan dialog dari elevenlabsHistoryDialogs
+    elevenlabsHistoryDialogs.forEach(dialog => {
+      if (!allPossibleDialogs.includes(dialog)) {
+        allPossibleDialogs.push(dialog);
+      }
+    });
+    
     // Generate hash for each dialog
-    possibleDialogs.forEach(text => {
+    allPossibleDialogs.forEach(text => {
       const hash = this.generateSimpleHash(text);
       this.audioFilesMap[text] = `dialog_${hash}`;
       
