@@ -107,7 +107,7 @@ class DialogModel {
     {
       id: 17,
       character: "Diva Juan Nur Taqarrub",
-      text: "Hmph... why am I even here?..",
+      text: "Hmm... Why.. am I even here?..",
       voiceId: "geralt",
     },
     {

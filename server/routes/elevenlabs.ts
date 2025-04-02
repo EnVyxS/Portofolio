@@ -5,6 +5,75 @@ import axios from 'axios';
 
 const router = Router();
 
+// Define common paths that will be used throughout the file
+const publicDir = path.resolve(process.cwd(), 'client/public');
+const characterAudioDir = path.join(publicDir, 'audio/character');
+const geraltAudioDir = path.join(publicDir, 'audio/geralt');
+
+// Fungsi untuk menyalin audio files dari folder geralt ke folder character saat server pertama kali dijalankan
+function copyExistingAudioFiles() {
+  try {
+    console.log('Checking for existing audio files to copy from geralt to character folder...');
+    
+    // Pastikan folder character ada
+    if (!fs.existsSync(characterAudioDir)) {
+      fs.mkdirSync(characterAudioDir, { recursive: true });
+      console.log('Created character audio directory');
+    }
+    
+    // Pastikan silent.mp3 ada di folder character
+    const silentDestFile = path.join(characterAudioDir, 'silent.mp3');
+    if (!fs.existsSync(silentDestFile)) {
+      try {
+        // Cek apakah ada di folder geralt
+        const silentSourceFile = path.join(geraltAudioDir, 'silent.mp3');
+        if (fs.existsSync(silentSourceFile)) {
+          fs.copyFileSync(silentSourceFile, silentDestFile);
+          console.log('Copied silent.mp3 from geralt to character folder');
+        } else {
+          // Jika tidak ada, buat silent.mp3 kosong
+          // Ini hanya placeholder, idealnya ada file audio kosong berdurasi 1-2 detik
+          console.log('Creating empty silent.mp3 file');
+          // Buat file kosong sebagai fallback
+          fs.writeFileSync(silentDestFile, Buffer.alloc(0));
+        }
+      } catch (error) {
+        console.error('Error creating silent.mp3:', error);
+      }
+    }
+    
+    // Cek apakah folder geralt ada
+    if (!fs.existsSync(geraltAudioDir)) {
+      console.log('No geralt audio directory found. Skipping copy operation.');
+      return;
+    }
+    
+    // Baca semua file di folder geralt
+    const geraltFiles = fs.readdirSync(geraltAudioDir);
+    let copiedCount = 0;
+    
+    // Salin file yang belum ada di folder character
+    for (const file of geraltFiles) {
+      if (file.endsWith('.mp3')) {
+        const sourceFile = path.join(geraltAudioDir, file);
+        const destFile = path.join(characterAudioDir, file);
+        
+        if (!fs.existsSync(destFile)) {
+          fs.copyFileSync(sourceFile, destFile);
+          copiedCount++;
+        }
+      }
+    }
+    
+    console.log(`Copied ${copiedCount} audio files from geralt to character folder`);
+  } catch (error) {
+    console.error('Error copying audio files:', error);
+  }
+}
+
+// Jalankan fungsi saat server pertama kali dijalankan
+copyExistingAudioFiles();
+
 // Definisi model valid yang tersedia di ElevenLabs
 const VALID_MODEL = 'eleven_multilingual_v2';
 
@@ -39,12 +108,30 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Text is required' });
     }
     
+    // Ensure character directory exists
+    if (!fs.existsSync(characterAudioDir)) {
+      fs.mkdirSync(characterAudioDir, { recursive: true });
+    }
+    
     // Skip processing for text with only ellipsis (character is listening)
     if (text.trim() === '...' || text.trim() === '.....') {
+      // Check if silent.mp3 exists in character folder
+      const characterSilentPath = path.join(characterAudioDir, 'silent.mp3');
+      const geraltSilentPath = path.join(geraltAudioDir, 'silent.mp3');
+      
+      // Default path to return
+      let silentAudioPath = '/audio/character/silent.mp3';
+      
+      // If not in character folder but exists in geralt folder, use that
+      if (!fs.existsSync(characterSilentPath) && fs.existsSync(geraltSilentPath)) {
+        silentAudioPath = '/audio/geralt/silent.mp3';
+        console.log('Using silent.mp3 from geralt folder');
+      }
+      
       // Return path to silent.mp3
       return res.status(200).json({ 
         success: true, 
-        audioPath: '/audio/character/silent.mp3',
+        audioPath: silentAudioPath,
         message: 'Using silent audio for ellipsis'
       });
     }
@@ -62,14 +149,8 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     const originalHash = generateSimpleHash(text);
     const originalFileName = `dialog_${originalHash}.mp3`;
     
-    // Define directories for audio files
-    const publicDir = path.resolve(process.cwd(), 'client/public');
-    const audioDir = path.join(publicDir, 'audio/character');
-    
-    // Ensure directory exists
-    if (!fs.existsSync(audioDir)) {
-      fs.mkdirSync(audioDir, { recursive: true });
-    }
+    // Define audio character directory with constant from above
+    const audioDir = characterAudioDir;
     
     // Original audio paths (without emotion processing)
     const originalAudioFilePath = path.join(audioDir, originalFileName);
@@ -87,9 +168,8 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     }
     
     // Check other folders for reuse (to save API credit)
-    const geraltsVoiceFolder = path.join(publicDir, 'audio/geralt');
-    if (fs.existsSync(geraltsVoiceFolder)) {
-      const originalInGeraltsFolder = path.join(geraltsVoiceFolder, originalFileName);
+    if (fs.existsSync(geraltAudioDir)) {
+      const originalInGeraltsFolder = path.join(geraltAudioDir, originalFileName);
       if (fs.existsSync(originalInGeraltsFolder)) {
         // Copy the file to character folder to make future lookups faster
         try {
