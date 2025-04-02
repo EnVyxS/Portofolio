@@ -42,8 +42,9 @@ export function getVoiceSettings(tone: GeraltTone) {
     case "ANGRY":
       return {
         ...defaultSettings,
-        style: 0.65,            // Sedikit lebih ekspresif untuk menunjukkan emosi marah Geralt
-        speaking_rate: 0.98     // Sedikit lebih cepat ketika marah
+        stability: 0.85,        // Meningkatkan stability agar tidak rancau
+        style: 0.60,            // Menurunkan sedikit ekspresivitas agar tidak terlalu berlebihan
+        speaking_rate: 0.95     // Gunakan speaking rate standar sesuai permintaan
       };
       
     case "TIRED":
@@ -171,8 +172,16 @@ export function analyzeToneFromText(text: string): GeraltTone {
     return "NUMB";
   }
   
-  // Check for sarcastic markers
+  // Check for sarcastic markers - lebih hati-hati
   if (
+    // Jika ada kombinasi kata makian dengan sarkasme, gunakan ANGRY sebagai prioritas
+    // karena tone ANGRY lebih stabil daripada SARCASTIC untuk suara
+    (lowercase.includes('heh') && 
+     (lowercase.includes('fuck') || lowercase.includes('shit') || lowercase.includes('damn')))
+  ) {
+    return "ANGRY"; // Prioritaskan ANGRY untuk kata kasar + sarkasme
+  }
+  else if (
     lowercase.includes('heh') || 
     lowercase.includes('hilarious') ||
     lowercase.includes('real funny')
@@ -250,7 +259,7 @@ export const dialogToToneMap: Record<string, DialogInfo> = {
   "Curiosity?... Hmph... Doesn't pay the bills...": { tone: "SARCASTIC", persistent: false },
   "Pfftt... Waiting... Drinking... What else is there?": { tone: "RESIGNED", persistent: false },
   "A job?.., A way out?.., Some miracle?..": { tone: "HOLLOW", persistent: false },
-  "Heh... Yeah, real fucking hilarious, isn't it?": { tone: "SARCASTIC", persistent: false },
+  "Heh... Yeah, real fucking hilarious, isn't it?": { tone: "ANGRY", persistent: false }, // Diubah dari SARCASTIC ke ANGRY agar suara tidak rancau
   "...You got a name?": { tone: "CONTEMPLATIVE", persistent: true }, // Pertanyaan
   "Hm. Not that it matters,": { tone: "NUMB", persistent: false },
   "Diva Juan Nur Taqarrub , , Call me what you want. Doesn't do shit,": { tone: "BITTER", persistent: false },
