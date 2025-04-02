@@ -38,13 +38,13 @@ class ElevenLabsService {
   
   // Buat hash sederhana dari teks untuk digunakan sebagai id file audio
   private generateSimpleHash(text: string): string {
-    // Remove emotion tags for hashing to maintain compatibility
-    const cleanText = text.replace(/\[(.*?)\]/g, '').trim();
+    // Gunakan teks asli tanpa modifikasi apapun
+    // Tidak menghapus tag emosi atau apapun, pastikan 100% sama dengan yang digunakan server
     
     // Sangat sederhana, hanya untuk demo
     let hash = 0;
-    for (let i = 0; i < cleanText.length; i++) {
-      hash = ((hash << 5) - hash) + cleanText.charCodeAt(i);
+    for (let i = 0; i < text.length; i++) {
+      hash = ((hash << 5) - hash) + text.charCodeAt(i);
       hash = hash & hash; // Convert to 32bit integer
     }
     return Math.abs(hash).toString();

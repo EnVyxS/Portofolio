@@ -334,12 +334,11 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     // If file doesn't exist, generate with ElevenLabs API
     console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
     
-    // Simpan teks asli tanpa modifikasi apapun
+    // Gunakan teks asli tanpa modifikasi apapun
     let finalCleanedText = text;
     
-    // Jika ada tag emosi, kita hapus hanya untuk log
-    const textForLog = text.replace(/\[(.*?)\]\s*/g, '').trim();
-    console.log(`Processing exact text: "${textForLog.substring(0, 50)}${textForLog.length > 50 ? '...' : ''}"`);
+    // Tanpa manipulasi teks apapun
+    console.log(`Processing exact text: "${text}"`);
     
     // Gunakan pengaturan default untuk semua jenis dialog
     const voiceSettings = getDefaultVoiceSettings();
@@ -369,16 +368,17 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       });
     }
     
-    // Check for processed text in cache
-    if (finalCleanedText !== text && fs.existsSync(processedAudioFilePath)) {
-      console.log(`Audio file found for processed text with emotions: "${finalCleanedText.substring(0, 30)}${finalCleanedText.length > 30 ? '...' : ''}"`);
+    // Catatan: finalCleanedText dan text seharusnya sama, tidak ada modifikasi
+    // Tapi kita tetap periksa file cache
+    if (fs.existsSync(processedAudioFilePath)) {
+      console.log(`Audio file found for text: "${finalCleanedText.substring(0, 30)}${finalCleanedText.length > 30 ? '...' : ''}"`);
       // Add to memory cache for faster future lookups
       textHashCache.set(processedHash, processedFileName);
       return res.status(200).json({ 
         success: true, 
         audioPath: processedAudioPublicPath,
         cached: true,
-        message: 'Using cached audio file (with emotion)'
+        message: 'Using cached audio file'
       });
     }
     
