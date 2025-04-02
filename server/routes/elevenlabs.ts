@@ -5,6 +5,9 @@ import axios from 'axios';
 
 const router = Router();
 
+// Definisi model valid yang tersedia di ElevenLabs
+const VALID_MODEL = 'eleven_monolingual_v1';
+
 // Hash function for generating filenames from text
 function generateSimpleHash(input: string): string {
   let hash = 0;
@@ -22,7 +25,14 @@ function generateSimpleHash(input: string): string {
 router.post('/text-to-speech', async (req: Request, res: Response) => {
   try {
     // Get text and voice_id from the request body
-    const { text, voice_id = 'L9oqKdX7JyDJa0dK6AzN', voice_settings } = req.body;
+    const { text, voice_id = 'pNInz6obpgDQGcFmaJgB', voice_settings, model_id: clientModelId } = req.body;
+    console.log("Using ElevenLabs API key from environment variable");
+    console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 40)}..."`);
+    console.log(`Using voice_id: ${voice_id}`);
+    
+    // Make sure to use a valid model_id for ElevenLabs free tier
+    const model_id = 'eleven_monolingual_v1'; // Always use this model regardless of client input
+    
     
     // Validate input
     if (!text) {
@@ -254,7 +264,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     const finalFilePath = processedAudioFilePath; // Use processed version to save
     const finalPublicPath = processedAudioPublicPath;
     
-    // ElevenLabs API endpoint
+    // ElevenLabs API endpoint - voice_id ditambahkan di URL
     const apiUrl = `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`;
     
     // Log voice settings yang digunakan
@@ -272,21 +282,46 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       speaking_rate: finalVoiceSettings.speaking_rate
     });
     
-    const response = await axios({
-      method: 'post',
-      url: apiUrl,
+    console.log(`Sending request to ElevenLabs with voice_id: ${voice_id}`);
+    
+    // Try a completely different approach by using fetch instead of axios
+    console.log("Using model_id:", VALID_MODEL);
+    console.log("Creating new fetch request completely from scratch");
+    
+    // Build the request body as a string to ensure no unexpected transformations
+    const requestBodyString = JSON.stringify({
+      text: finalCleanedText,
+      model_id: VALID_MODEL,
+      voice_settings: finalVoiceSettings
+    });
+    
+    console.log("Request body:", requestBodyString.substring(0, 100) + "...");
+    
+    // Use node-fetch instead of axios
+    const fetchResponse = await fetch(apiUrl, {
+      method: 'POST',
       headers: {
         'Accept': 'audio/mpeg',
         'Content-Type': 'application/json',
         'xi-api-key': apiKey
       },
-      data: {
-        text: finalCleanedText,
-        model_id: '3Cka3TLKjahfz6KX4ckZ',
-        voice_settings: finalVoiceSettings
-      },
-      responseType: 'arraybuffer'
+      body: requestBodyString
     });
+    
+    if (!fetchResponse.ok) {
+      // Handle error case
+      const errorText = await fetchResponse.text();
+      console.error("ElevenLabs API error:", errorText);
+      throw new Error(`API request failed with status ${fetchResponse.status}: ${errorText}`);
+    }
+    
+    // Convert the fetch response to an axios-like object for compatibility with the rest of the code
+    const responseData = await fetchResponse.arrayBuffer();
+    const response = {
+      status: fetchResponse.status,
+      statusText: fetchResponse.statusText,
+      data: Buffer.from(responseData)
+    };
     
     // If successful, save the audio file
     if (response.status === 200) {
@@ -318,8 +353,40 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
         fallback: true
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error generating audio:', error);
+    
+    // If it's an Axios error with response data, try to extract the error details
+    if (error.response && error.response.data) {
+      try {
+        // For arraybuffer responses, convert to string to see the error message
+        let errorData;
+        
+        if (error.response.data instanceof Buffer) {
+          const bufferString = error.response.data.toString('utf8');
+          console.error('Raw error buffer:', bufferString);
+          try {
+            errorData = JSON.parse(bufferString);
+            console.error('Detailed API error (parsed):', errorData);
+          } catch (jsonError) {
+            console.error('Failed to parse error as JSON:', jsonError);
+            errorData = { message: bufferString };
+          }
+        } else {
+          console.error('Detailed API error (object):', error.response.data);
+          errorData = error.response.data;
+        }
+        
+        return res.status(500).json({ 
+          error: 'Elevenlabs API error',
+          details: errorData.detail || errorData.message || JSON.stringify(errorData),
+          fallback: true
+        });
+      } catch (parseError) {
+        console.error('Error parsing API error response:', parseError);
+      }
+    }
+    
     return res.status(500).json({ 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error',

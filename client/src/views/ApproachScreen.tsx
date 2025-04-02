@@ -35,12 +35,14 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     
     // Konfigurasi khusus untuk footsteps sound
     if (footstepsSoundRef.current) {
-      // Awalnya set volume ke 0 karena tidak langsung diputar
+      // Set volume to 0 initially as we'll increase it when actually playing
       footstepsSoundRef.current.volume = 0;
       // Loop true agar suara langkah kaki berulang selama proses berjalan
       footstepsSoundRef.current.loop = true;
-      // Playback rate sedikit lebih cepat untuk terasa ada progress
-      footstepsSoundRef.current.playbackRate = 1.1;
+      // Normal speed for realistic footsteps
+      footstepsSoundRef.current.playbackRate = 1.0;
+      // Preload the audio to ensure it's ready
+      footstepsSoundRef.current.preload = 'auto';
     }
     
     setIsVisible(true);
@@ -117,10 +119,24 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
       console.log("Starting footsteps after 1.5 second delay");
       if (footstepsSoundRef.current) {
         footstepsSoundRef.current.currentTime = 0;
-        footstepsSoundRef.current.volume = 0.7; // Volume yang cukup keras agar terdengar jelas
-        footstepsSoundRef.current.playbackRate = 1.0; // Normal speed untuk langkah kaki
-        footstepsSoundRef.current.play()
-          .catch(e => console.log("Couldn't play delayed footsteps:", e));
+        footstepsSoundRef.current.volume = 0.9; // Increased volume for clearer footsteps
+        footstepsSoundRef.current.playbackRate = 1.0; // Normal speed for realistic footsteps
+        // Try to play the footsteps sound multiple times if it fails
+        const playFootsteps = () => {
+          footstepsSoundRef.current?.play()
+            .catch(e => {
+              console.log("Couldn't play footsteps, retrying:", e);
+              // Retry once after a short delay
+              setTimeout(() => {
+                footstepsSoundRef.current?.play()
+                  .catch(e2 => console.log("Failed to play footsteps after retry:", e2));
+              }, 100);
+            });
+        };
+        playFootsteps();
+        
+        // Output to console that we're playing footsteps
+        console.log("🔊 Playing footsteps sound at volume:", footstepsSoundRef.current.volume);
       }
 
       // Mulai zoom in effect pada background
@@ -130,14 +146,27 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     // Transition total waktu 5 detik
     // (1.5 detik jeda + 3.5 detik berjalan)
     setTimeout(() => {
-      // Stop langkah kaki sebelum transition dengan fade out yang lebih lambat
+      // Stop langkah kaki sebelum transition dengan fade out yang lebih lambat dan halus
       if (footstepsSoundRef.current) {
+        console.log("Starting smooth fade-out of footsteps sound");
+        // Get starting volume for smoother fade-out calculation
+        const startVolume = footstepsSoundRef.current.volume;
+        // Create a smoother fade-out using more steps and exponential decay
+        const fadeOutSteps = 25; // More steps for smoother fade
+        let currentStep = 0;
+        
         // Fade out effect untuk suara langkah kaki
         const fadeOutInterval = setInterval(() => {
-          if (footstepsSoundRef.current && footstepsSoundRef.current.volume > 0.05) {
-            footstepsSoundRef.current.volume -= 0.03; // Fade out yang lebih lambat
+          if (footstepsSoundRef.current && currentStep < fadeOutSteps) {
+            // Calculate fade using exponential curve for more natural sound fade
+            // This creates a curve where volume drops more gradually at first
+            const fadeProgress = currentStep / fadeOutSteps;
+            const newVolume = startVolume * Math.cos(fadeProgress * Math.PI/2);
+            footstepsSoundRef.current.volume = Math.max(0.01, newVolume);
+            currentStep++;
           } else {
             if (footstepsSoundRef.current) {
+              console.log("Footsteps fade-out complete");
               footstepsSoundRef.current.pause();
             }
             clearInterval(fadeOutInterval);
@@ -145,7 +174,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
             // Lakukan transisi setelah suara langkah kaki fade out
             onApproach();
           }
-        }, 70);
+        }, 65); // Slightly faster interval for smoother fade
       } else {
         // Jika tidak ada footsteps sound, tetap lakukan transisi
         onApproach();
