@@ -3,186 +3,55 @@ class ElevenLabsService {
   private apiKey: string | null = null;
   private isPlaying: boolean = false;
   private audioElement: HTMLAudioElement | null = null;
-  private audioCache: Record<string, Blob | null> = {}; // Cache untuk menyimpan audio yang sudah di-generate
-  private preloadedAudios: Map<string, HTMLAudioElement> = new Map(); // Map untuk audio yang sudah diload
-
-  // Map character names to ElevenLabs voice IDs (diperbarui sesuai permintaan)
-  private voiceMap: Record<string, string> = {
-    'geralt': import.meta.env.VITE_ELEVENLABS_DEFAULT_VOICE_ID || '', // Voice ID untuk Geralt dari env
-    'ciri': 'jsCqWAovK2LkecY7zXl4',   // Nicole voice for Ciri dengan API key baru 
-    'yennefer': '21m00Tcm4TlvDq8ikWAM', // Rachel voice with accent for Yen dengan API key baru
-    'character': import.meta.env.VITE_ELEVENLABS_DEFAULT_VOICE_ID || '', // Voice ID untuk karakter default dari env
-    'default': import.meta.env.VITE_ELEVENLABS_DEFAULT_VOICE_ID || ''  // Default ke voice ID dari env
-  };
-
-  // Simpan file audio lokal berdasarkan hash sederhana dari teks
-  private audioFilesMap: Record<string, string> = {};
+  
+  // Voice ID dari environment variable
+  private voiceId: string = import.meta.env.VITE_ELEVENLABS_DEFAULT_VOICE_ID || '';
+  
+  // Cache untuk menyimpan audio yang sudah di-generate
+  private audioCache: Record<string, Blob | null> = {};
   
   // Ambient audio untuk latar belakang
   private ambientAudio: HTMLAudioElement | null = null;
 
   private constructor() {
-    // Check if API key is in env
+    // Ambil API key dari environment variable
     const envApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
     if (envApiKey) {
       this.apiKey = envApiKey;
-      console.log("API Key initialized:", envApiKey ? "Yes" : "No");
+      console.log("Using ElevenLabs API key from environment");
     }
     
-    // Inisialisasi silent audio untuk teks yang hanya berisi "....."
-    this.preloadSilentAudio();
+    // Log Voice ID yang digunakan
+    console.log("Using voice ID:", this.voiceId);
     
-    // Pre-generate dialog hashes for all dialogs untuk mapping audio files
-    this.initializeDialogHashes();
+    // Pastikan file silent.mp3 tersedia
+    this.createSilentAudioIfNeeded();
+  }
+  
+  // Membuat file silent.mp3 jika belum ada
+  private async createSilentAudioIfNeeded(): Promise<void> {
+    const silentAudioPath = '/audio/character/silent.mp3';
+    
+    try {
+      const response = await fetch(silentAudioPath, { method: 'HEAD' });
+      if (!response.ok) {
+        console.log("Silent audio file not found, will create on demand");
+      }
+    } catch (error) {
+      console.error("Error checking silent audio file:", error);
+    }
   }
   
   // Buat hash sederhana dari teks untuk digunakan sebagai id file audio
   private generateSimpleHash(text: string): string {
-    // Gunakan teks asli tanpa modifikasi apapun
-    // Tidak menghapus tag emosi atau apapun, pastikan 100% sama dengan yang digunakan server
-    
-    // Sangat sederhana, hanya untuk demo
+    // Hash generator yang sama dengan yang digunakan di server
+    // Tidak memodifikasi text input apapun - pastikan 100% sama
     let hash = 0;
     for (let i = 0; i < text.length; i++) {
       hash = ((hash << 5) - hash) + text.charCodeAt(i);
       hash = hash & hash; // Convert to 32bit integer
     }
     return Math.abs(hash).toString();
-  }
-  
-  // Inisialisasi hash dialog untuk semua dialog yang mungkin
-  private initializeDialogHashes(): void {
-    // Dialog dari Geralt yang mungkin muncul
-    const possibleDialogs = [
-      "...Didn't ask for company.",
-      "Tch... Fire's warm. Always brings strays.",
-      "Haahhhh... You need something or are you just here to waste my time?",
-      ".....",
-      "Curiosity?... Hmph... Doesn't pay the bills...",
-      "Pfftt... Waiting... Drinking... What else is there?",
-      "Hmm... Got a handful of coins and a longsword. That's all a man like me needs...",
-      "There's a contract I'll have to deal with come sunrise. Some beast's been picking off villagers near the old mill...",
-      "You want to know more about me? Hmmm... Why would you care?",
-      "Witcher by trade. Monster hunter. I follow the Path.",
-      "I see by your eyes you've heard the tales. Yes, they're all true. The mutations. The training.",
-      "Not many of us left. Most don't make it through the Trial of Grasses. I was... lucky. Or cursed. Depends who you ask.",
-      "I don't talk much about my past. No point dwelling on what's done.",
-      "What's that look for? Expected something more? *grunts* Don't we all...",
-      "The Path is a lonely one. That's just how it is.",
-      "If you're looking to hire me, I'm not cheap. But I'm good at what I do.",
-      "Hmm... I notice you're still here. You're either brave or stupid. Most people keep their distance.",
-      "You can find me on the Path. Or through Kaer Morhen, when winter comes.",
-      "I've left my mark in several places. Some remember me. Others... prefer to forget.",
-      "There are ways to reach me if you truly need a witcher's services. Just follow the rumors of monsters slain.",
-      "Or perhaps you'd prefer more direct methods...",
-      "There's a code among witchers. We don't kill humans. Not without reason.",
-      "Sometimes, though, the monsters look just like you and me.",
-      "The fire's dying. And I've said more than I usually do in a month.",
-      "Take what you need from our conversation. I'll be here until dawn.",
-      "After that, the Path calls again.",
-      "Do what you will with my words. Just remember, a witcher never forgets a face.",
-      "Now leave me be. I've had enough talk for one night.",
-      "Hmm.",
-      "*stares into the fire*",
-      "*sighs* One last word of advice: in this world, it's rarely about the monsters. It's about the men. Remember that.",
-      "Farewell, stranger.",
-      "*turns back to the fire*",
-      "*end of conversation*"
-    ];
-    
-    // Generate hash for each dialog
-    possibleDialogs.forEach(text => {
-      const hash = this.generateSimpleHash(text);
-      this.audioFilesMap[text] = `dialog_${hash}`;
-      
-      // Preload audio jika tersedia
-      this.preloadAudio(text);
-    });
-  }
-  
-  // Preload dialog audio jika file ada
-  private preloadAudio(text: string): void {
-    // Jika teks hanyalah ellipsis, gunakan silent audio
-    if (text.trim() === '.....' || text.trim() === '...') {
-      return; // Sudah ditangani oleh preloadSilentAudio
-    }
-    
-    const hash = this.generateSimpleHash(text);
-    
-    // Check for the file in both geralt and character directories
-    // Try character first since it's the primary directory now
-    const characterAudioPath = `/audio/character/dialog_${hash}.mp3`;
-    const geraltAudioPath = `/audio/geralt/dialog_${hash}.mp3`;
-    
-    // Check character directory first
-    fetch(characterAudioPath, { method: 'HEAD' })
-      .then(response => {
-        if (response.ok) {
-          console.log("Loading audio for:", text.substring(0, 20) + "...");
-          console.log("Found existing audio file in character folder:", characterAudioPath);
-          const audio = new Audio(characterAudioPath);
-          this.preloadedAudios.set(text, audio);
-        } else {
-          // If not found in character, check geralt
-          fetch(geraltAudioPath, { method: 'HEAD' })
-            .then(geraltResponse => {
-              if (geraltResponse.ok) {
-                console.log("Loading audio for:", text.substring(0, 20) + "...");
-                console.log("Found existing audio file in geralt folder:", geraltAudioPath);
-                const audio = new Audio(geraltAudioPath);
-                this.preloadedAudios.set(text, audio);
-              } else {
-                // Not found in either directory
-                console.log("Audio file not found in character or geralt folders");
-              }
-            })
-            .catch(error => {
-              console.error("Error checking geralt audio file:", error);
-            });
-        }
-      })
-      .catch(error => {
-        console.error("Error checking character audio file:", error);
-      });
-  }
-  
-  // Preload silent audio untuk dialog kosong
-  private preloadSilentAudio(): void {
-    // Gunakan audio kosong berdurasi pendek untuk teks yang hanya berisi ellipsis
-    const characterSilentPath = '/audio/character/silent.mp3';
-    const geraltSilentPath = '/audio/geralt/silent.mp3';
-    
-    // Check character directory first
-    fetch(characterSilentPath, { method: 'HEAD' })
-      .then(response => {
-        if (response.ok) {
-          console.log("Silent audio file found in character folder, preloading");
-          const silentAudio = new Audio(characterSilentPath);
-          this.preloadedAudios.set('.....', silentAudio);
-          this.preloadedAudios.set('...', silentAudio);
-        } else {
-          // If not found in character, check geralt
-          fetch(geraltSilentPath, { method: 'HEAD' })
-            .then(geraltResponse => {
-              if (geraltResponse.ok) {
-                console.log("Silent audio file found in geralt folder, preloading");
-                const silentAudio = new Audio(geraltSilentPath);
-                this.preloadedAudios.set('.....', silentAudio);
-                this.preloadedAudios.set('...', silentAudio);
-              } else {
-                console.log("Silent audio file not found in either folder, will use on-demand");
-              }
-            })
-            .catch(error => {
-              console.error("Error checking geralt silent audio file:", error);
-              console.log("Will use on-demand silent audio");
-            });
-        }
-      })
-      .catch(error => {
-        console.error("Error checking character silent audio file:", error);
-        console.log("Will use on-demand silent audio");
-      });
   }
 
   public static getInstance(): ElevenLabsService {
@@ -200,179 +69,77 @@ class ElevenLabsService {
     return this.apiKey;
   }
 
-  public async generateSpeech(text: string, characterVoice: string = 'character'): Promise<Blob | null> {
+  public async generateSpeech(text: string): Promise<Blob | null> {
     try {
+      // Jika ini adalah teks kosong atau ellipsis, gunakan silent.mp3
+      if (text.trim() === '.....' || text.trim() === '...') {
+        console.log("Using silent audio for:", text);
+        
+        // Coba ambil dari folder character
+        let response = await fetch('/audio/character/silent.mp3');
+        
+        if (!response.ok) {
+          console.error('Silent audio file not found');
+          return null;
+        }
+        
+        const audioBlob = await response.blob();
+        this.audioCache[text] = audioBlob;
+        return audioBlob;
+      }
+      
       // Buat cache key berdasarkan text
       const cacheKey = text;
       
       // Cek apakah audio sudah ada di cache memory
-      if (cacheKey in this.audioCache) {
+      if (this.audioCache[cacheKey]) {
         console.log("Using in-memory cached audio for:", text.substring(0, 20) + "...");
-        const cachedBlob = this.audioCache[cacheKey];
-        return cachedBlob;
+        return this.audioCache[cacheKey];
       }
       
-      console.log("Requesting audio for:", text.substring(0, 20) + "...");
+      console.log("Requesting audio for:", text);
       
-      // Jika ini adalah teks kosong atau ellipsis, gunakan silent.mp3
-      if (text.trim() === '.....' || text.trim() === '...') {
-        console.log("Using silent audio for:", text.trim());
-        
-        // Coba ambil dari folder character dulu
-        let response = await fetch('/audio/character/silent.mp3');
-        
-        // Jika tidak ada di character, coba ambil dari geralt
-        if (!response.ok) {
-          console.log('Silent audio file not found in character folder, trying geralt folder');
-          response = await fetch('/audio/geralt/silent.mp3');
-          
-          if (!response.ok) {
-            console.error('Silent audio file not found in either folder');
-            return null;
-          }
-        }
-        
-        const audioBlob = await response.blob();
-        this.audioCache[cacheKey] = audioBlob;
-        return audioBlob;
+      // Gunakan endpoint server untuk generate speech
+      const response = await fetch('/api/elevenlabs/text-to-speech', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          text,
+          voice_id: this.voiceId,
+          model_id: 'eleven_multilingual_v2'
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Text-to-speech API error:', errorData);
+        return null;
       }
       
-      // Untuk teks normal, gunakan endpoint server yang akan melakukan:
-      // 1. Memeriksa jika file ada di sistem file lokal
-      // 2. Jika tidak, generate menggunakan ElevenLabs API dan simpan
-      try {
-        const response = await fetch('/api/elevenlabs/text-to-speech', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            text,
-            voice_id: this.voiceMap[characterVoice] || this.voiceMap['default'],
-            model_id: 'eleven_multilingual_v2' // Updated model untuk premium tier
-          })
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error('Text-to-speech API error:', errorData);
-          
-          // Kembali ke silent.mp3 jika tidak bisa generate
-          console.log('Falling back to silent audio');
-          
-          // Coba ambil dari folder character dulu
-          let silentResponse = await fetch('/audio/character/silent.mp3');
-          
-          // Jika tidak ada di character, coba ambil dari geralt
-          if (!silentResponse.ok) {
-            console.log('Silent audio file not found in character folder, trying geralt folder');
-            silentResponse = await fetch('/audio/geralt/silent.mp3');
-            
-            if (!silentResponse.ok) {
-              console.error('Silent audio file not found in either folder');
-              return null;
-            }
-          }
-          
-          const silentBlob = await silentResponse.blob();
-          this.audioCache[cacheKey] = silentBlob;
-          return silentBlob;
+      // Dapatkan response JSON yang berisi path ke file audio
+      const result = await response.json();
+      
+      if (result.success) {
+        // Jika berhasil, ambil file audio dari path yang diberikan
+        const audioResponse = await fetch(result.audioPath);
+        if (audioResponse.ok) {
+          const audioBlob = await audioResponse.blob();
+          this.audioCache[cacheKey] = audioBlob;
+          return audioBlob;
         }
-        
-        // Dapatkan response JSON yang berisi path ke file audio
-        const result = await response.json();
-        
-        if (result.success) {
-          // Jika berhasil, ambil file audio dari path yang diberikan
-          const audioResponse = await fetch(result.audioPath);
-          if (audioResponse.ok) {
-            const audioBlob = await audioResponse.blob();
-            this.audioCache[cacheKey] = audioBlob;
-            return audioBlob;
-          }
-        }
-        
-        // Jika gagal, gunakan silent.mp3
-        console.log('Audio request failed, using silent audio instead');
-          
-        // Coba ambil dari folder character dulu
-        let fallbackResponse = await fetch('/audio/character/silent.mp3');
-        
-        // Jika tidak ada di character, coba ambil dari geralt
-        if (!fallbackResponse.ok) {
-          console.log('Silent audio file not found in character folder, trying geralt folder');
-          fallbackResponse = await fetch('/audio/geralt/silent.mp3');
-          
-          if (!fallbackResponse.ok) {
-            console.error('Silent audio file not found in either folder');
-            return null;
-          }
-        }
-        
-        const fallbackBlob = await fallbackResponse.blob();
-        this.audioCache[cacheKey] = fallbackBlob;
-        return fallbackBlob;
-      } catch (apiError) {
-        console.error('Error calling text-to-speech API:', apiError);
-        
-        // Coba gunakan file audio lokal jika API gagal
-        // Mendukung degradasi agar aplikasi tetap berfungsi
-        const hash = this.generateSimpleHash(text);
-        const characterAudioFile = `/audio/character/dialog_${hash}.mp3`;
-        const geraltAudioFile = `/audio/geralt/dialog_${hash}.mp3`;
-        
-        try {
-          // Coba cari file audio lokal di folder character terlebih dahulu
-          let localResponse = await fetch(characterAudioFile);
-          if (localResponse.ok) {
-            console.log('Found local audio file in character folder:', characterAudioFile);
-            const localBlob = await localResponse.blob();
-            this.audioCache[cacheKey] = localBlob;
-            return localBlob;
-          }
-          
-          // Coba cari di folder geralt jika tidak ada di character
-          localResponse = await fetch(geraltAudioFile);
-          if (localResponse.ok) {
-            console.log('Found local audio file in geralt folder:', geraltAudioFile);
-            const localBlob = await localResponse.blob();
-            this.audioCache[cacheKey] = localBlob;
-            return localBlob;
-          }
-          
-          console.log('Audio file not found in either character or geralt folders');
-        } catch (localError) {
-          console.error('Error loading local audio:', localError);
-        }
-        
-        // Jika semua gagal, gunakan silent.mp3
-        // Coba ambil dari folder character dulu
-        let silentResponse = await fetch('/audio/character/silent.mp3');
-        
-        // Jika tidak ada di character, coba ambil dari geralt
-        if (!silentResponse.ok) {
-          console.log('Silent audio file not found in character folder, trying geralt folder');
-          silentResponse = await fetch('/audio/geralt/silent.mp3');
-          
-          if (!silentResponse.ok) {
-            console.error('Silent audio file not found in either folder');
-            return null;
-          }
-        }
-        
-        const silentBlob = await silentResponse.blob();
-        this.audioCache[cacheKey] = silentBlob;
-        return silentBlob;
       }
+      
+      console.error('Failed to get audio from server');
+      return null;
     } catch (error) {
-      console.error('Error loading speech audio:', error);
-      // Return null in case of error
-      this.audioCache[text] = null;
+      console.error('Error generating speech:', error);
       return null;
     }
   }
 
-  public async speakText(text: string, characterVoice: string = 'character'): Promise<boolean> {
+  public async speakText(text: string): Promise<boolean> {
     // If already playing, stop first
     if (this.isPlaying) {
       this.stopSpeaking();
@@ -380,13 +147,12 @@ class ElevenLabsService {
 
     // Cek apakah teks terlalu pendek atau hanya ellipsis
     if (text.trim() === '.....' || text.trim() === '...') {
-      console.log("Text is only ellipsis, using silent audio with short duration");
-      // Untuk ellipsis, kita bisa menggunakan durasi tetap yang pendek
+      console.log("Text is only ellipsis, using silent audio");
       return false; // Indikasi bahwa tidak ada audio sebenarnya yang dimainkan
     }
 
     // Generate speech
-    const audioBlob = await this.generateSpeech(text, characterVoice);
+    const audioBlob = await this.generateSpeech(text);
     if (!audioBlob) {
       console.log("Failed to generate speech, no audio will be played");
       return false;
@@ -404,7 +170,7 @@ class ElevenLabsService {
       // Percobaan pemutaran audio
       this.isPlaying = true;
       
-      // Tambahkan event listener untuk metadat dan durasi
+      // Tambahkan event listener untuk metadata dan durasi
       this.audioElement.onloadedmetadata = () => {
         if (this.audioElement) {
           const duration = this.audioElement.duration;

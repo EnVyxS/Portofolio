@@ -402,9 +402,9 @@ class IdleTimeoutController {
     
     // Speak the warning text dengan tone NEUTRAL sesuai permintaan
     try {
-      // Untuk peringatan, gunakan voice geralt yang konsisten
-      this.elevenlabsService.speakText(text, "geralt");
-      console.log(`[IdleTimeoutController] Memutar suara peringatan dengan tone NEUTRAL`);
+      // Untuk peringatan, gunakan voice default yang konsisten
+      this.elevenlabsService.speakText(text);
+      console.log(`[IdleTimeoutController] Memutar suara peringatan dengan default voice`);
     } catch (error) {
       console.error("[IdleTimeoutController] Gagal memutar suara peringatan:", error);
     }

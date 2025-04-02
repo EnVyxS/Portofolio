@@ -92,10 +92,13 @@ class DialogController {
     // Rata-rata pembacaan 12 karakter per detik (standar untuk bahasa Inggris - lebih lambat untuk Geralt)
     const estimatedDuration = Math.max(3000, (dialog.text.length / 10) * 1000); 
     
-    // Try to speak the text if voice is enabled
+    // Try to speak the text if voice is enabled - menggunakan text asli tanpa modifikasi
     let audioStarted = false;
     if (this.elevenlabsService.getApiKey()) {
-      audioStarted = await this.elevenlabsService.speakText(dialog.text, dialog.voiceId || 'default');
+      // Pastikan teks yang dikirim ke speech generator 100% sama dengan yang ditampilkan
+      const exactDialogText = dialog.text;
+      console.log("Generating speech for exact text:", exactDialogText);
+      audioStarted = await this.elevenlabsService.speakText(exactDialogText);
     }
     
     // Sesuaikan kecepatan typing dengan durasi audio
@@ -193,8 +196,7 @@ class DialogController {
     const customDialog: Dialog = {
       id: 9999, // ID khusus untuk dialog timeout
       text: text,
-      character: "Geralt of Rivia", // Karakter untuk dialog timeout/idle (sesuai dengan suara "geralt")
-      voiceId: "geralt" // Voice ID yang sesuai
+      character: "Geralt of Rivia" // Karakter untuk dialog timeout/idle
     };
     
     // Tampilkan dialog custom
