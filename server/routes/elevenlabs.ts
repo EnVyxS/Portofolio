@@ -399,21 +399,51 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     // Normalize text - remove excessive whitespace and asterisks
     let finalCleanedText = cleanText.replace(/\*/g, "").trim().replace(/\s+/g, ' ');
     
-    // Penanganan khusus untuk dialog bermasalah yang mengandung kata kasar
-    if (finalCleanedText.includes("fucking hilarious") || finalCleanedText.includes("real fucking")) {
-      console.log("Mendeteksi dialog bermasalah dengan kata kasar, membuat penyesuaian khusus");
-      // Ganti kata kasar dengan "damn" untuk menghindari masalah pemrosesan
-      finalCleanedText = finalCleanedText.replace("fucking", "damn");
-      console.log(`Text telah disesuaikan menjadi: "${finalCleanedText}"`);
-      // Force tone untuk konsistensi
-      tone = 'SARCASTIC';
+    // Penanganan lebih umum untuk dialog bermasalah yang mengandung kata kasar
+    const profanityDetected = finalCleanedText.includes("fucking") || 
+                             finalCleanedText.includes("shit") || 
+                             finalCleanedText.includes("ass") ||
+                             finalCleanedText.includes("damn") ||
+                             finalCleanedText.includes("hell") ||
+                             finalCleanedText.includes("bastard");
+    
+    if (profanityDetected) {
+      console.log("Mendeteksi kata kasar dalam dialog, membuat penyesuaian");
       
-      // Penyesuaian voice settings khusus untuk dialog bermasalah ini
-      voiceSettings = {
-        ...baseSettings,
-        style: 0.62,              // Sedikit lebih rendah dari default sarcastic
-        speaking_rate: 0.93       // Sedikit melambat
-      };
+      // Proses teks untuk mengganti kata kasar
+      const processedText = finalCleanedText
+        .replace(/fucking/gi, "freaking")
+        .replace(/shit/gi, "stuff")
+        .replace(/ass/gi, "butt")
+        .replace(/damn/gi, "darn")
+        .replace(/hell/gi, "heck")
+        .replace(/bastard/gi, "jerk");
+      
+      console.log(`Text telah disesuaikan menjadi: "${processedText}"`);
+      finalCleanedText = processedText;
+      
+      // Jika dialog berisi "hilarious" atau "real" dengan kata kasar, gunakan tone SARCASTIC
+      if (finalCleanedText.includes("hilarious") || finalCleanedText.includes("real")) {
+        // Force tone untuk konsistensi
+        tone = 'SARCASTIC';
+        
+        // Penyesuaian voice settings khusus untuk dialog sarkastik
+        voiceSettings = {
+          ...baseSettings,
+          style: 0.62,              // Sedikit lebih rendah dari default sarcastic
+          speaking_rate: 0.94       // Hampir normal untuk memudahkan pemrosesan
+        };
+      } else {
+        // Dialog dengan kata kasar lain, gunakan tone ANGRY
+        tone = 'ANGRY';
+        
+        // Penyesuaian voice settings untuk dialog dengan kata kasar
+        voiceSettings = {
+          ...baseSettings,
+          style: 0.62,              // Medium-high style, tidak terlalu ekstrem
+          speaking_rate: 0.93       // Sedikit lebih lambat untuk memudahkan pemrosesan
+        };
+      }
     }
     
     // Generate hash for the processed text
@@ -499,6 +529,23 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       // Handle error case
       const errorText = await fetchResponse.text();
       console.error("ElevenLabs API error:", errorText);
+      
+      // Jika error terkait rate limit atau unusual activity, gunakan fallback
+      if (fetchResponse.status === 401 || errorText.includes("unusual_activity") || errorText.includes("Free Tier usage disabled")) {
+        console.log("ElevenLabs API error menunjukkan rate limit atau unusual activity, menggunakan fallback audio");
+        
+        // Coba gunakan silent audio sebagai fallback
+        const silentAudioPath = path.join(characterAudioDir, 'silent.mp3');
+        if (fs.existsSync(silentAudioPath)) {
+          return res.status(200).json({
+            success: true,
+            audioPath: '/audio/character/silent.mp3',
+            fallback: true,
+            error: `API rate limited: ${errorText}`
+          });
+        }
+      }
+      
       throw new Error(`API request failed with status ${fetchResponse.status}: ${errorText}`);
     }
     

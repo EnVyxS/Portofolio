@@ -382,13 +382,85 @@ class ElevenLabsService {
     if (text.trim() === '.....' || text.trim() === '...') {
       console.log("Text is only ellipsis, using silent audio with short duration");
       // Untuk ellipsis, kita bisa menggunakan durasi tetap yang pendek
-      return false; // Indikasi bahwa tidak ada audio sebenarnya yang dimainkan
+      
+      try {
+        // Coba ambil dari folder character dulu
+        let silentResponse = await fetch('/audio/character/silent.mp3');
+        
+        // Jika tidak ada di character, coba ambil dari geralt
+        if (!silentResponse.ok) {
+          console.log('Silent audio file not found in character folder, trying geralt folder');
+          silentResponse = await fetch('/audio/geralt/silent.mp3');
+          
+          if (!silentResponse.ok) {
+            console.error('Silent audio file not found in either folder');
+            return false;
+          }
+        }
+        
+        const silentBlob = await silentResponse.blob();
+        const audioUrl = URL.createObjectURL(silentBlob);
+        this.audioElement = new Audio(audioUrl);
+        this.audioElement.preload = "auto";
+        
+        // Set playing status
+        this.isPlaying = true;
+        
+        // Play silent audio
+        await this.audioElement.play();
+        
+        // Wait 1 second then stop for ellipsis
+        setTimeout(() => {
+          if (this.audioElement) {
+            this.audioElement.pause();
+            this.audioElement = null;
+            this.isPlaying = false;
+            URL.revokeObjectURL(audioUrl);
+          }
+        }, 1000);
+        
+        return true;
+      } catch (error) {
+        console.error('Failed to play silent audio:', error);
+        this.isPlaying = false;
+        return false;
+      }
     }
 
-    // Generate speech
-    const audioBlob = await this.generateSpeech(text, characterVoice);
+    // Add retries for failures
+    let retryCount = 0;
+    const maxRetries = 2;
+    let success = false;
+    let lastError = null;
+    let audioBlob = null;
+    
+    while (retryCount <= maxRetries && !success) {
+      try {
+        // Generate speech
+        audioBlob = await this.generateSpeech(text, characterVoice);
+        if (!audioBlob) {
+          console.warn(`Failed to generate speech (attempt ${retryCount+1}/${maxRetries+1}) for: ${text.substring(0, 30)}...`);
+          retryCount++;
+          // Short delay before retry
+          await new Promise(resolve => setTimeout(resolve, 250));
+          continue;
+        }
+        
+        // Break out of loop if we got a valid audio blob
+        break;
+      } catch (error) {
+        console.error(`Error generating speech (attempt ${retryCount+1}/${maxRetries+1}):`, error);
+        lastError = error;
+        retryCount++;
+        // Short delay before retry
+        await new Promise(resolve => setTimeout(resolve, 250));
+      }
+    }
+    
+    // Check if we successfully got an audio blob after retries
     if (!audioBlob) {
-      console.log("Failed to generate speech, no audio will be played");
+      console.error(`Failed to generate speech after ${maxRetries+1} attempts:`, lastError);
+      this.isPlaying = false;
       return false;
     }
 
@@ -419,6 +491,7 @@ class ElevenLabsService {
       this.audioElement.onerror = (e) => {
         console.error(`Audio playback error:`, e);
         this.isPlaying = false;
+        URL.revokeObjectURL(audioUrl);
       };
       
       // Clean up when audio ends
@@ -475,11 +548,16 @@ class ElevenLabsService {
   }
   
   // Metode untuk memainkan suara ambient api
-  public playAmbientSound(volume: number = 0.2): void {
+  public playAmbientSound(volume: number = 0.08): void {
     if (!this.ambientAudio) {
       this.ambientAudio = new Audio('/audio/ambient_fire.m4a');
       this.ambientAudio.loop = true;
       this.ambientAudio.volume = volume;
+      console.log(`Setting ambient audio volume to ${volume}`);
+    } else {
+      // Update volume if instance already exists
+      this.ambientAudio.volume = volume;
+      console.log(`Updated ambient audio volume to ${volume}`);
     }
     
     this.ambientAudio.play().catch(error => {
