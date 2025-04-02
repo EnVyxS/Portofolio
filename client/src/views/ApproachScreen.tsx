@@ -16,6 +16,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
   const menuSoundRef = useRef<HTMLAudioElement | null>(null);
   const itemSoundRef = useRef<HTMLAudioElement | null>(null);
   const hoverSoundRef = useRef<HTMLAudioElement | null>(null);
+  const footstepsSoundRef = useRef<HTMLAudioElement | null>(null);
 
   // Efek fade-in untuk komponen setelah load
   useEffect(() => {
@@ -24,12 +25,14 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     menuSoundRef.current = new Audio('/assets/sounds/souls-menu.mp3');
     itemSoundRef.current = new Audio('/assets/sounds/souls-item.mp3');
     hoverSoundRef.current = new Audio('/assets/sounds/souls-menu.mp3'); // Menggunakan menu sound juga untuk hover
+    footstepsSoundRef.current = new Audio('/audio/effects/footsteps.m4a'); // Suara langkah kaki
     
     // Set volume untuk sound effects
     if (bonfireSoundRef.current) bonfireSoundRef.current.volume = 0.3;
     if (menuSoundRef.current) menuSoundRef.current.volume = 0.4;
     if (itemSoundRef.current) itemSoundRef.current.volume = 0.4;
     if (hoverSoundRef.current) hoverSoundRef.current.volume = 0.2; // Volume lebih kecil untuk hover
+    if (footstepsSoundRef.current) footstepsSoundRef.current.volume = 0.4; // Volume langkah kaki sedang
     
     setIsVisible(true);
     
@@ -51,6 +54,10 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         hoverSoundRef.current.pause();
         hoverSoundRef.current = null;
       }
+      if (footstepsSoundRef.current) {
+        footstepsSoundRef.current.pause();
+        footstepsSoundRef.current = null;
+      }
     };
   }, []);
 
@@ -68,13 +75,25 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
                 itemSoundRef.current.currentTime = 0;
                 itemSoundRef.current.play()
                   .then(() => {
-                    // After item sound, play bonfire sound
+                    // Setelah item sound, putar langkah kaki selama 2-3 detik
                     setTimeout(() => {
-                      if (bonfireSoundRef.current) {
-                        bonfireSoundRef.current.currentTime = 0;
-                        bonfireSoundRef.current.play().catch(e => console.log("Couldn't play bonfire sound:", e));
+                      if (footstepsSoundRef.current) {
+                        console.log("Playing footsteps sound");
+                        footstepsSoundRef.current.currentTime = 0;
+                        footstepsSoundRef.current.play()
+                          .then(() => {
+                            // Setelah langkah kaki, putar bonfire sound
+                            // Bonfire sound dimainkan ketika langkah kaki hampir selesai
+                            setTimeout(() => {
+                              if (bonfireSoundRef.current) {
+                                bonfireSoundRef.current.currentTime = 0;
+                                bonfireSoundRef.current.play().catch(e => console.log("Couldn't play bonfire sound:", e));
+                              }
+                            }, 1500); // Bonfire dimainkan sebelum langkah kaki selesai
+                          })
+                          .catch(e => console.log("Couldn't play footsteps sound:", e));
                       }
-                    }, 300);
+                    }, 200);
                   })
                   .catch(e => console.log("Couldn't play item sound:", e));
               }
@@ -95,9 +114,10 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     playSoulsSound();
     
     // Add a delay for the animation to complete before proceeding
+    // Tambah delay agar suara langkah kaki bisa dimainkan lebih lama
     setTimeout(() => {
       onApproach();
-    }, 1000);
+    }, 2500); // Tambah delay agar langkah kaki terdengar dengan baik
   };
   
   // Toggle audio play/pause
