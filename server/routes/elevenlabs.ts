@@ -2,8 +2,92 @@ import { Router, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
-// Import fungsi tone dari client
-import { getToneForDialog, getVoiceSettings } from '../../client/src/utils/geraltTones';
+
+// Define tone detection functions locally instead of importing
+// Function to analyze text and determine the most appropriate tone
+function getToneForDialog(text: string): string {
+  // Simple tone detection based on keywords
+  const lowercaseText = text.toLowerCase();
+  
+  if (lowercaseText.includes('hmm') || lowercaseText.includes('hmmm') || lowercaseText.includes('hmph')) {
+    return 'contemplative';
+  } else if (lowercaseText.includes('fuck') || lowercaseText.includes('damn') || lowercaseText.includes('blast')) {
+    return 'angry';
+  } else if (lowercaseText.includes('sigh') || lowercaseText.includes('*sigh*')) {
+    return 'tired';
+  } else if (lowercaseText.includes('haha') || lowercaseText.includes('funny')) {
+    return 'amused';
+  } else if (text.includes('?')) {
+    return 'questioning';
+  } else if (text.includes('!')) {
+    return 'assertive';
+  }
+  
+  // Default tone
+  return 'neutral';
+}
+
+// Function to get voice settings based on detected tone
+function getVoiceSettings(tone: string): any {
+  switch (tone) {
+    case 'contemplative':
+      return {
+        stability: 0.45,
+        similarity_boost: 0.75,
+        style: 0.40,
+        use_speaker_boost: true,
+        speaking_rate: 0.65 // Slower for contemplation
+      };
+    case 'angry':
+      return {
+        stability: 0.25, // Less stability for more emotion
+        similarity_boost: 0.60,
+        style: 0.80, // Higher style for more emotional delivery
+        use_speaker_boost: true,
+        speaking_rate: 0.78 // Faster for anger
+      };
+    case 'tired':
+      return {
+        stability: 0.50,
+        similarity_boost: 0.75,
+        style: 0.45,
+        use_speaker_boost: true,
+        speaking_rate: 0.60 // Slower for tiredness
+      };
+    case 'amused':
+      return {
+        stability: 0.35,
+        similarity_boost: 0.70,
+        style: 0.60,
+        use_speaker_boost: true,
+        speaking_rate: 0.75 // Slightly faster for amusement
+      };
+    case 'questioning':
+      return {
+        stability: 0.40,
+        similarity_boost: 0.75,
+        style: 0.55,
+        use_speaker_boost: true,
+        speaking_rate: 0.70 // Normal pace
+      };
+    case 'assertive':
+      return {
+        stability: 0.35,
+        similarity_boost: 0.70,
+        style: 0.75,
+        use_speaker_boost: true,
+        speaking_rate: 0.75 // Slightly faster for assertiveness
+      };
+    default: // neutral
+      return {
+        stability: 0.35,
+        similarity_boost: 0.75,
+        style: 0.65,
+        use_speaker_boost: true,
+        speaking_rate: 0.70
+      };
+  }
+}
 
 const router = Router();
 
@@ -211,12 +295,12 @@ function generateSimpleHash(input: string): string {
 router.post('/text-to-speech', async (req: Request, res: Response) => {
   try {
     // Get text and voice_id from the request body
-    const { text, voice_id = '3Cka3TLKjahfz6KX4ckZ', voice_settings, model_id: clientModelId } = req.body;
+    const { text, voice_id = 'B716PSrQrzRiI4pc6wxc', voice_settings, model_id: clientModelId } = req.body;
     console.log("Using ElevenLabs API key from environment variable");
     console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 40)}..."`);
     console.log(`Using voice_id: ${voice_id}`);
     
-    // Make sure to use the model for ElevenLabs premium tier that works with voice ID 3Cka3TLKjahfz6KX4ckZ
+    // Make sure to use the model for ElevenLabs premium tier that works with voice ID B716PSrQrzRiI4pc6wxc
     const model_id = 'eleven_multilingual_v2'; // Using premium model for better quality
     
     
@@ -322,7 +406,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     // If file doesn't exist, generate with ElevenLabs API
     console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
     
-    // Analisis tone emosi Geralt untuk text-to-speech menggunakan fungsi dari geraltTones.ts
+    // Analisis tone emosi Geralt untuk text-to-speech menggunakan fungsi tone detection lokal
     
     // Hapus tag emosi dari teks asli untuk dikirim ke ElevenLabs
     let cleanText = text.replace(/\[(.*?)\]\s*/g, '').trim();
@@ -331,7 +415,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     
     // Gunakan fungsi getToneForDialog untuk analisis yang lebih komprehensif
     const tone = getToneForDialog(cleanText);
-    console.log(`Detected tone from geraltTones.ts: ${tone} for text`);
+    console.log(`Detected tone from local analysis: ${tone} for text`);
     
     // Gunakan fungsi getVoiceSettings untuk mendapatkan pengaturan suara yang optimal
     const voiceSettings = getVoiceSettings(tone);

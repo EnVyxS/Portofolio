@@ -8,11 +8,11 @@ class ElevenLabsService {
 
   // Map character names to ElevenLabs voice IDs (diperbarui sesuai permintaan)
   private voiceMap: Record<string, string> = {
-    'geralt': '3Cka3TLKjahfz6KX4ckZ', // Voice ID untuk Geralt dengan ID premium
+    'geralt': 'B716PSrQrzRiI4pc6wxc', // Voice ID untuk Geralt dengan ID baru
     'ciri': 'jsCqWAovK2LkecY7zXl4',   // Nicole voice for Ciri dengan API key baru 
     'yennefer': '21m00Tcm4TlvDq8ikWAM', // Rachel voice with accent for Yen dengan API key baru
-    'character': '3Cka3TLKjahfz6KX4ckZ', // Voice ID untuk karakter default dengan ID premium
-    'default': '3Cka3TLKjahfz6KX4ckZ'  // Default ke voice ID premium
+    'character': 'B716PSrQrzRiI4pc6wxc', // Voice ID untuk karakter default dengan ID baru
+    'default': 'B716PSrQrzRiI4pc6wxc'  // Default ke voice ID baru
   };
 
   // Simpan file audio lokal berdasarkan hash sederhana dari teks
