@@ -177,16 +177,18 @@ class HoverDialogController {
 
   // Helper untuk mengecek apakah dialog perlu persistent
   private isPersistent(text: string): boolean {
-    // Gunakan fungsi dari geraltTones.ts untuk menentukan apakah dialog persistent
-    const { isDialogPersistent } = require('../utils/geraltTones');
-    
     // Dialog yang sangat pendek atau adalah efek suara, selalu non-persistent
     if (text.length < 15 || text === "........" || text.startsWith("*")) {
       return false;
     }
     
-    // Gunakan fungsi dari geraltTones untuk konsistensi
-    return isDialogPersistent(text);
+    // Cek apakah ada tanda tanya (kemungkinan pertanyaan)
+    if (text.includes("?")) {
+      return true;
+    }
+    
+    // Default untuk dialog umum: tidak persistent
+    return false;
   }
 
   // Typewriter effect untuk hover dialog
@@ -363,8 +365,8 @@ class HoverDialogController {
       // Mulai animasi typing untuk dialog hover
       this.typeHoverText(dialogText);
 
-      // Speak the dialog text menggunakan Geralt voice
-      await this.elevenlabsService.speakText(dialogText, "geralt");
+      // Speak the dialog text menggunakan default voice
+      await this.elevenlabsService.speakText(dialogText);
       
       // Jika dialog jengkel terakhir, ini akan menjadi dialog terakhir sebelum menghilang
       // Dialog box akan otomatis hilang karena sudah ditandai sebagai non-persistent di dialogToToneMap
