@@ -25,7 +25,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     menuSoundRef.current = new Audio('/assets/sounds/souls-menu.mp3');
     itemSoundRef.current = new Audio('/assets/sounds/souls-item.mp3');
     hoverSoundRef.current = new Audio('/assets/sounds/souls-menu.mp3'); // Menggunakan menu sound juga untuk hover
-    footstepsSoundRef.current = new Audio('/assets/sounds/footsteps.mp3'); // Suara langkah kaki
+    footstepsSoundRef.current = new Audio('/audio/effects/footsteps.m4a'); // Menggunakan file langkah kaki yang benar
     
     // Set volume untuk sound effects
     if (bonfireSoundRef.current) bonfireSoundRef.current.volume = 0.3;
@@ -39,8 +39,8 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
       footstepsSoundRef.current.volume = 0;
       // Loop true agar suara langkah kaki berulang selama proses berjalan
       footstepsSoundRef.current.loop = true;
-      // Pastikan playback rate yang wajar untuk langkah kaki (sedikit lebih lambat)
-      footstepsSoundRef.current.playbackRate = 0.85;
+      // Playback rate sedikit lebih cepat untuk terasa ada progress
+      footstepsSoundRef.current.playbackRate = 1.1;
     }
     
     setIsVisible(true);
@@ -112,41 +112,42 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     // Mainkan efek suara souls-like
     playSoulsSound();
     
-    // Tunda memainkan footsteps untuk memberikan jeda/pause 3 detik
+    // Memulai langkah kaki lebih cepat (hanya jeda sekitar 1 detik setelah klik)
     setTimeout(() => {
-      console.log("Starting footsteps after 3 second delay");
+      console.log("Starting footsteps after 1 second delay");
       if (footstepsSoundRef.current) {
         footstepsSoundRef.current.currentTime = 0;
-        footstepsSoundRef.current.volume = 0.7; // Meningkatkan volume agar lebih terdengar
+        footstepsSoundRef.current.volume = 0.7; // Volume yang cukup keras agar terdengar jelas
+        footstepsSoundRef.current.playbackRate = 1.1; // Sedikit dipercepat agar terasa ada progress
         footstepsSoundRef.current.play()
           .catch(e => console.log("Couldn't play delayed footsteps:", e));
       }
-    }, 3000); // Delay 3 detik sebelum memulai langkah kaki
+    }, 1000); // Delay hanya 1 detik sebelum memulai langkah kaki
     
-    // Tambahkan delay total 6 detik (3 detik jeda + 3 detik berjalan) untuk memberikan
-    // efek berjalan menuju karakter yang lebih realistis sebelum transisi
+    // Transition lebih cepat - total waktu hanya 3 detik
+    // (1 detik jeda + 2 detik berjalan)
     setTimeout(() => {
-      // Stop langkah kaki sebelum transition dengan fade out yang lebih lambat
+      // Stop langkah kaki sebelum transition dengan fade out yang lebih cepat
       if (footstepsSoundRef.current) {
         // Fade out effect untuk suara langkah kaki
         const fadeOutInterval = setInterval(() => {
           if (footstepsSoundRef.current && footstepsSoundRef.current.volume > 0.05) {
-            footstepsSoundRef.current.volume -= 0.03; // Fade out yang lebih lambat
+            footstepsSoundRef.current.volume -= 0.05; // Fade out yang lebih cepat
           } else {
             if (footstepsSoundRef.current) {
               footstepsSoundRef.current.pause();
             }
             clearInterval(fadeOutInterval);
             
-            // Lakukan transisi setelah suara langkah kaki sepenuhnya fade out
+            // Lakukan transisi setelah suara langkah kaki fade out
             onApproach();
           }
-        }, 60);
+        }, 50);
       } else {
         // Jika tidak ada footsteps sound, tetap lakukan transisi
         onApproach();
       }
-    }, 6000); // Total waktu: 3 detik jeda + 3 detik berjalan
+    }, 3000); // Total waktu: 3 detik (1 detik jeda + 2 detik berjalan)
   };
   
   // Toggle audio play/pause
