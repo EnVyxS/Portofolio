@@ -2,8 +2,29 @@ import { Router, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
+import 'dotenv/config';
 
 const router = Router();
+
+// API key check route - hanya mengembalikan status ketersediaan, bukan API key
+router.get('/check-api-key', (req: Request, res: Response) => {
+  try {
+    // Check if API key exists in environment
+    const apiKey = process.env.ELEVENLABS_API_KEY;
+    const hasApiKey = !!apiKey;
+    
+    console.log(`API key availability check: ${hasApiKey ? 'Available' : 'Not available'}`);
+    
+    // Return status only, not the actual key for security
+    return res.status(200).json({ 
+      hasApiKey,
+      message: hasApiKey ? 'API key is available' : 'No API key found in environment'
+    });
+  } catch (error) {
+    console.error('Error checking API key:', error);
+    return res.status(500).json({ error: 'Failed to check API key' });
+  }
+});
 
 // Define common paths that will be used throughout the file
 const publicDir = path.resolve(process.cwd(), 'client/public');

@@ -23,10 +23,14 @@ class ElevenLabsService {
 
   private constructor() {
     // Check if API key is in env
-    const envApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
+    const envApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || import.meta.env.ELEVENLABS_API_KEY;
     if (envApiKey) {
       this.apiKey = envApiKey;
-      console.log("API Key initialized:", envApiKey ? "Yes" : "No");
+      console.log("API Key initialized from environment variable");
+    } else {
+      // Jika tidak ada di env, periksa secara asinkron apakah ada di server
+      console.log("No API key found in client environment, checking server...");
+      this.checkServerForApiKey();
     }
     
     // Inisialisasi silent audio untuk teks yang hanya berisi "....."
@@ -34,6 +38,26 @@ class ElevenLabsService {
     
     // Pre-generate dialog hashes for all dialogs untuk mapping audio files
     this.initializeDialogHashes();
+  }
+  
+  // Fungsi untuk memeriksa API key dari server secara asinkron
+  private async checkServerForApiKey() {
+    try {
+      const response = await fetch('/api/elevenlabs/check-api-key');
+      const data = await response.json();
+      
+      if (data.hasApiKey) {
+        console.log("Server has ElevenLabs API key available");
+        // Gunakan penanda untuk menandakan bahwa API key tersedia dari server
+        this.apiKey = "server_api_key_available";
+      } else {
+        console.warn("No ElevenLabs API key found on server either");
+        console.log("Audio generation will use cached files or fallback to local audio");
+      }
+    } catch (error) {
+      console.error("Error checking API key on server:", error);
+      console.log("Will try to use cached audio files as fallback");
+    }
   }
   
   // Buat hash sederhana dari teks untuk digunakan sebagai id file audio
@@ -241,6 +265,15 @@ class ElevenLabsService {
       // 1. Memeriksa jika file ada di sistem file lokal
       // 2. Jika tidak, generate menggunakan ElevenLabs API dan simpan
       try {
+        // Log API key status (tanpa mengungkapkan nilai API key)
+        if (this.apiKey === "server_api_key_available") {
+          console.log("Using server-side API key for text-to-speech generation");
+        } else if (this.apiKey) {
+          console.log("Using client-side API key for text-to-speech generation");
+        } else {
+          console.log("No API key available, will rely on server to handle fallback to cached audio");
+        }
+        
         const response = await fetch('/api/elevenlabs/text-to-speech', {
           method: 'POST',
           headers: {
@@ -387,6 +420,45 @@ class ElevenLabsService {
     if (this.isPlaying) {
       this.stopSpeaking();
     }
+    
+    // Check for API key - allow both direct API key or server-side marker
+    if (!this.apiKey) {
+      console.warn("No ElevenLabs API key set. Checking options before proceeding.");
+      
+      // Check if we have the client-side secret available 
+      const secretKey = import.meta.env.VITE_ELEVENLABS_API_KEY || import.meta.env.ELEVENLABS_API_KEY;
+      if (secretKey) {
+        console.log("API key found in environment, setting now");
+        this.setApiKey(secretKey);
+      } else {
+        // Jika tidak ada client-side, cek server-side
+        console.log("No client-side API key found, checking server availability");
+        
+        try {
+          // Cek ketersediaan API key dari server secara sinkron
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/api/elevenlabs/check-api-key', false); // sinkron request
+          xhr.send();
+          
+          if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+            if (response.hasApiKey) {
+              console.log("Server has ElevenLabs API key available, using server-side API");
+              this.setApiKey("server_api_key_available");
+            } else {
+              console.error("No API key found on client or server");
+              console.log("Will attempt to use cached audio files only");
+            }
+          }
+        } catch (error) {
+          console.error("Error checking server API key:", error);
+          console.log("Will attempt to use cached audio files as fallback");
+        }
+      }
+    }
+    
+    // Jika masih tidak ada API key setelah pemeriksaan, kita masih bisa coba menggunakan file cache
+    // System akan selalu mencoba menggunakan file yang telah ada terlebih dahulu
 
     // Cek apakah teks terlalu pendek atau hanya ellipsis
     if (text.trim() === '.....' || text.trim() === '...') {
