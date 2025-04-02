@@ -161,9 +161,9 @@ const GameContactCard: React.FC = () => {
           width: 100%;
           max-width: 500px;
           margin: 0 auto;
-          position: absolute;
-          top: 8vh; /* Positioned much higher to avoid dialog box overlap */
-          right: 5vw; /* Position to the right side */
+          position: fixed;
+          top: 1.5rem; /* Positioned at the top */
+          right: 1.5rem; /* Position to the right side */
         }
 
         /* Unified card that contains all elements */
@@ -171,7 +171,7 @@ const GameContactCard: React.FC = () => {
           background: rgba(15, 12, 10, 0.25); /* Sesuaikan warna dengan tema Souls-like */
           border: 1px solid rgba(150, 130, 100, 0.2); /* Border emas pudar seperti APPROACH HIM */
           backdrop-filter: blur(1px); /* Very light blur */
-          opacity: 0.3; /* Sedikit tingkatkan opacity */
+          opacity: 0.6; /* Tingkatkan opacity agar lebih terlihat */
           border-radius: 0; /* No rounded corners ala Souls-like */
           padding: clamp(0.5rem, 1.5vw, 0.8rem) clamp(0.5rem, 1.5vw, 0.8rem); /* Smaller padding */
           max-width: min(260px, 60%); /* Much smaller max width */
@@ -262,8 +262,8 @@ const GameContactCard: React.FC = () => {
         /* Media query with simpler clamp and consistent rem/vh usage */
         @media (max-width: 768px) {
           .content-wrapper {
-            top: 12vh; /* Position higher on tablets */
-            right: 2vw; /* Closer to edge on tablets */
+            top: 1rem; /* Keep at top on tablets */
+            right: 1rem; /* Consistent padding */
             max-width: 320px;
           }
           
@@ -274,10 +274,8 @@ const GameContactCard: React.FC = () => {
 
         @media (max-width: 640px) {
           .content-wrapper {
-            top: 15vh; /* Even higher position on mobile */
-            right: 0; /* Center on small screens */
-            left: 0;
-            margin: 0 auto;
+            top: 0.8rem; /* Stay at top on mobile */
+            right: 0.8rem; /* Stay in corner */
           }
           
           .social-links {
@@ -292,8 +290,8 @@ const GameContactCard: React.FC = () => {
         /* Landscape mode on mobile devices */
         @media (max-height: 500px) and (orientation: landscape) {
           .content-wrapper {
-            top: 10vh; /* Adjust for landscape mode */
-            right: 5vw;
+            top: 0.5rem; /* Very close to top in landscape */
+            right: 0.5rem;
           }
 
           .unified-card {
