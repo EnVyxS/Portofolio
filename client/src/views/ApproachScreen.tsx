@@ -25,14 +25,17 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     menuSoundRef.current = new Audio('/assets/sounds/souls-menu.mp3');
     itemSoundRef.current = new Audio('/assets/sounds/souls-item.mp3');
     hoverSoundRef.current = new Audio('/assets/sounds/souls-menu.mp3'); // Menggunakan menu sound juga untuk hover
-    footstepsSoundRef.current = new Audio('/audio/effects/footsteps.m4a'); // Suara langkah kaki
+    footstepsSoundRef.current = new Audio('/assets/sounds/footsteps.mp3'); // Suara langkah kaki
     
     // Set volume untuk sound effects
     if (bonfireSoundRef.current) bonfireSoundRef.current.volume = 0.3;
     if (menuSoundRef.current) menuSoundRef.current.volume = 0.4;
     if (itemSoundRef.current) itemSoundRef.current.volume = 0.4;
     if (hoverSoundRef.current) hoverSoundRef.current.volume = 0.2; // Volume lebih kecil untuk hover
-    if (footstepsSoundRef.current) footstepsSoundRef.current.volume = 0.4; // Volume langkah kaki sedang
+    if (footstepsSoundRef.current) {
+      footstepsSoundRef.current.volume = 0.5; // Menaikkan volume langkah kaki agar lebih terdengar jelas
+      footstepsSoundRef.current.loop = true; // Memastikan suara langkah kaki terus berulang
+    }
     
     setIsVisible(true);
     
@@ -116,6 +119,21 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     // Add a delay for the animation to complete before proceeding
     // Tambah delay agar suara langkah kaki bisa dimainkan lebih lama
     setTimeout(() => {
+      // Stop langkah kaki sebelum transition
+      if (footstepsSoundRef.current) {
+        // Fade out effect untuk suara langkah kaki
+        const fadeOutInterval = setInterval(() => {
+          if (footstepsSoundRef.current && footstepsSoundRef.current.volume > 0.05) {
+            footstepsSoundRef.current.volume -= 0.05;
+          } else {
+            if (footstepsSoundRef.current) {
+              footstepsSoundRef.current.pause();
+            }
+            clearInterval(fadeOutInterval);
+          }
+        }, 50);
+      }
+      
       onApproach();
     }, 2500); // Tambah delay agar langkah kaki terdengar dengan baik
   };
