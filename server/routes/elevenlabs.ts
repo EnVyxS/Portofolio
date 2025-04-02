@@ -284,9 +284,18 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       use_speaker_boost: true,  // Selalu aktif
       speaking_rate: 0.95       // Default speaking rate
     };
+
+    // Pre-proses teks untuk menangani kata kasar yang bisa menyebabkan suara rancau
+    let processedText = text;
     
-    // Analisis tone berdasarkan konten teks
-    if (text.includes('fucking') || text.includes('shit') || text.includes('damn')) {
+    // Mengganti kata-kata yang mungkin bermasalah (menghindari rancau untuk kata kasar)
+    if (text.includes('fucking') && !text.includes('fucking hilarious') && !text.includes('real fucking')) {
+      console.log("Mengganti kata kasar 'fucking' untuk menghindari suara rancau");
+      processedText = text.replace('fucking', 'damn');
+    }
+    
+    // Analisis tone berdasarkan konten teks yang sudah diproses
+    if (processedText.includes('damn') || processedText.includes('shit')) {
       tone = 'ANGRY';
       console.log(`Auto-detected tone: ANGRY for text with strong language`);
       
@@ -388,7 +397,24 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     }
     
     // Normalize text - remove excessive whitespace and asterisks
-    const finalCleanedText = cleanText.replace(/\*/g, "").trim().replace(/\s+/g, ' ');
+    let finalCleanedText = cleanText.replace(/\*/g, "").trim().replace(/\s+/g, ' ');
+    
+    // Penanganan khusus untuk dialog bermasalah yang mengandung kata kasar
+    if (finalCleanedText.includes("fucking hilarious") || finalCleanedText.includes("real fucking")) {
+      console.log("Mendeteksi dialog bermasalah dengan kata kasar, membuat penyesuaian khusus");
+      // Ganti kata kasar dengan "damn" untuk menghindari masalah pemrosesan
+      finalCleanedText = finalCleanedText.replace("fucking", "damn");
+      console.log(`Text telah disesuaikan menjadi: "${finalCleanedText}"`);
+      // Force tone untuk konsistensi
+      tone = 'SARCASTIC';
+      
+      // Penyesuaian voice settings khusus untuk dialog bermasalah ini
+      voiceSettings = {
+        ...baseSettings,
+        style: 0.62,              // Sedikit lebih rendah dari default sarcastic
+        speaking_rate: 0.93       // Sedikit melambat
+      };
+    }
     
     // Generate hash for the processed text
     const processedHash = generateSimpleHash(finalCleanedText);
