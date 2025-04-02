@@ -17,13 +17,13 @@ class DialogModel {
     {
       id: 2,
       character: "Diva Juan Nur Taqarrub",
-      text: "Hmm. Fire's warm. Always brings strays.",
+      text: "Tch... Fire's warm. Always brings strays.",
       voiceId: "geralt",
     },
     {
       id: 3,
       character: "Diva Juan Nur Taqarrub",
-      text: "*sighs* You need something or are you just here to waste my time?",
+      text: "Haahhhh... You need something or are you just here to waste my time?",
       voiceId: "geralt",
     },
     {
@@ -35,7 +35,7 @@ class DialogModel {
     {
       id: 5,
       character: "Diva Juan Nur Taqarrub",
-      text: "Curiosity? *grunt* Doesn't pay the bills.",
+      text: "Curiosity?... Hmph... Doesn't pay the bills...",
       voiceId: "geralt",
     },
     {
@@ -47,7 +47,7 @@ class DialogModel {
     {
       id: 7,
       character: "Diva Juan Nur Taqarrub",
-      text: "*scoffs* Waiting. Drinking. What else is there?",
+      text: "Pfftt... Waiting... Drinking... What else is there?",
       voiceId: "geralt",
     },
     {
@@ -197,7 +197,7 @@ class DialogModel {
     {
       id: 32,
       character: "Diva Juan Nur Taqarrub",
-      text: "*bitter laugh* Like that's so easy,",
+      text: "Huhhhh... Like that's so easy,",
       voiceId: "geralt",
     },
     {
