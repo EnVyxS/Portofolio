@@ -228,9 +228,31 @@ const VALID_MODEL = 'eleven_multilingual_v2';
 
 // Hash function for generating filenames from text
 function generateSimpleHash(input: string): string {
+  // Preprocessing input text for more reliable hashing
+  const cleanedText = input
+    .replace(/\[(.*?)\]/g, '') // Remove emotion tags [angry], [sad], etc.
+    .replace(/[^\w\s.,!?;:'"()-]/g, '') // Remove non-alphanumeric characters that might cause issues
+    .replace(/"/g, '"')
+    .replace(/"/g, '"')
+    .replace(/'/g, "'")
+    .replace(/'/g, "'")
+    .replace(/…/g, "...")
+    .trim();
+    
+  // Standardize text for consistent hashing
+  const standardizedText = cleanedText
+    .replace(/\*/g, "") // Remove asterisks
+    .replace(/\.{3,}/g, "...") // Standardize ellipsis
+    .replace(/\s*\.\.\.\s*/g, "... ") // Normalize ellipsis spacing
+    .replace(/\-\-+/g, "—") // Replace multiple hyphens with em dash
+    .replace(/\s+/g, ' ') // Standardize spacing
+    .toLowerCase() // Make case-insensitive
+    .trim();
+  
+  // Compute hash
   let hash = 0;
-  for (let i = 0; i < input.length; i++) {
-    hash = ((hash << 5) - hash) + input.charCodeAt(i);
+  for (let i = 0; i < standardizedText.length; i++) {
+    hash = ((hash << 5) - hash) + standardizedText.charCodeAt(i);
     hash = hash & hash; // Convert to 32bit integer
   }
   return Math.abs(hash).toString();
@@ -587,43 +609,93 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     
     console.log(`Sending request to ElevenLabs with voice_id: ${voice_id}`);
     
-    // Try a completely different approach by using fetch instead of axios
+    // Use fetch API for better control over the request/response
     console.log("Using model_id:", VALID_MODEL);
     console.log("Creating new fetch request completely from scratch");
     
-    // Build the request body as a string to ensure no unexpected transformations
+    // Split sentences into smaller chunks to improve intonation and accuracy
+    const sentences = finalCleanedText
+      .replace(/([.!?])\s+/g, "$1|")
+      .split("|")
+      .filter((sentence: string) => sentence.trim().length > 0);
+    
+    // Join sentences back with proper spacing to improve flow
+    const optimizedText = sentences.join(" ");
+    
+    // Build the request body with proper formatting
     const requestBodyString = JSON.stringify({
-      text: finalCleanedText,
+      text: optimizedText,
       model_id: VALID_MODEL,
       voice_settings: finalVoiceSettings
-    });
+    }, null, 2);
     
     console.log("Request body:", requestBodyString.substring(0, 100) + "...");
     
-    // Use node-fetch instead of axios
-    const fetchResponse = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Accept': 'audio/mpeg',
-        'Content-Type': 'application/json',
-        'xi-api-key': apiKey
-      },
-      body: requestBodyString
-    });
+    // Add retry logic for network resilience
+    let fetchResponse: Response | null = null;
+    let retryCount = 0;
+    const maxRetries = 2;
     
-    if (!fetchResponse.ok) {
-      // Handle error case
-      const errorText = await fetchResponse.text();
-      console.error("ElevenLabs API error:", errorText);
-      throw new Error(`API request failed with status ${fetchResponse.status}: ${errorText}`);
+    while (retryCount <= maxRetries) {
+      try {
+        // Use fetch API with timeout for better error handling
+        fetchResponse = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Accept': 'audio/mpeg',
+            'Content-Type': 'application/json',
+            'xi-api-key': apiKey,
+            'User-Agent': 'ElevenLabsPortfolio/1.0' // Identify our application
+          },
+          body: requestBodyString,
+          // Add timeout to prevent hanging requests
+          signal: AbortSignal.timeout(15000) // 15 second timeout
+        });
+        
+        // Break retry loop if successful
+        if (fetchResponse.ok) break;
+        
+        // Handle rate limiting specifically
+        if (fetchResponse.status === 429) {
+          const retryAfter = fetchResponse.headers.get('Retry-After') || '5';
+          const waitTime = parseInt(retryAfter, 10) * 1000;
+          console.warn(`Rate limited by ElevenLabs API, waiting ${waitTime}ms before retry`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+        } else {
+          // Handle other error cases
+          const errorText = await fetchResponse.text();
+          console.error(`ElevenLabs API error (attempt ${retryCount+1}/${maxRetries+1}):`, errorText);
+          
+          if (retryCount === maxRetries) {
+            throw new Error(`API request failed with status ${fetchResponse.status}: ${errorText}`);
+          }
+          
+          // Wait before retry (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
+        }
+      } catch (error) {
+        if (retryCount === maxRetries) {
+          throw error; // Re-throw if we've exhausted retries
+        }
+        console.error(`Network error on attempt ${retryCount+1}/${maxRetries+1}:`, error);
+        // Wait before retry (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
+      }
+      
+      retryCount++;
     }
     
-    // Convert the fetch response to an axios-like object for compatibility with the rest of the code
+    // Convert the fetch response to an object format consistent with rest of code
+    if (!fetchResponse) {
+      throw new Error("Failed to get a valid response after multiple retries");
+    }
+    
     const responseData = await fetchResponse.arrayBuffer();
     const response = {
       status: fetchResponse.status,
       statusText: fetchResponse.statusText,
-      data: Buffer.from(responseData)
+      data: Buffer.from(responseData),
+      headers: Object.fromEntries(fetchResponse.headers.entries())
     };
     
     // If successful, save the audio file
@@ -634,15 +706,47 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
         throw new Error("Received invalid audio data (file too small)");
       }
       
-      // Verifikasi file adalah audio mp3 yang valid - cek header MP3
-      const isValidMp3 = response.data.length > 100 && 
+      // Verifikasi file adalah audio mp3 yang valid
+      // MP3 can start with ID3 tag (0x49 0x44 0x33) or directly with an MP3 frame
+      // MP3 frames typically start with 0xFF followed by 0xE or 0xF (MPEG-1 Layer 3)
+      const isID3Header = response.data.length > 10 && 
                          response.data[0] === 0x49 && 
                          response.data[1] === 0x44 && 
                          response.data[2] === 0x33;
-                        
-      if (!isValidMp3) {
+                         
+      const isMp3FrameHeader = response.data.length > 10 &&
+                               response.data[0] === 0xFF && 
+                               ((response.data[1] & 0xE0) === 0xE0);
+      
+      // Check for proper file structure                        
+      if (!isID3Header && !isMp3FrameHeader) {
         console.error("Error: Response data doesn't appear to be a valid MP3 file");
+        console.error(`First bytes: ${response.data.slice(0, 10).toString('hex')}`);
         throw new Error("Generated audio is not a valid MP3 file");
+      }
+      
+      // Additional validation: Check for continuous valid data
+      // MP3 files should have recognizable patterns throughout
+      let invalidChunks = 0;
+      for (let i = 0; i < Math.min(response.data.length, 2000); i += 500) {
+        const chunk = response.data.slice(i, i + 500);
+        // Look for MP3 frame headers within the chunk (0xFF followed by 0xE or 0xF)
+        let hasFrameHeader = false;
+        for (let j = 0; j < chunk.length - 1; j++) {
+          if (chunk[j] === 0xFF && ((chunk[j+1] & 0xE0) === 0xE0)) {
+            hasFrameHeader = true;
+            break;
+          }
+        }
+        if (!hasFrameHeader) {
+          invalidChunks++;
+        }
+      }
+      
+      // If more than half of our sample chunks don't have MP3 frame markers, reject the file
+      if (invalidChunks > 2) {
+        console.error("Error: MP3 file structure seems corrupted (too many invalid chunks)");
+        throw new Error("Generated audio file structure is corrupted");
       }
       
       // Simpan file audio baru

@@ -38,13 +38,30 @@ class ElevenLabsService {
   
   // Buat hash sederhana dari teks untuk digunakan sebagai id file audio
   private generateSimpleHash(text: string): string {
-    // Remove emotion tags for hashing to maintain compatibility
-    const cleanText = text.replace(/\[(.*?)\]/g, '').trim();
+    // Hapus semua tag emosi dan karakter khusus untuk hashing yang lebih konsisten
+    const cleanText = text
+      .replace(/\[(.*?)\]/g, '') // Hapus tag emosi [angry], [sad], dll
+      .replace(/[^\w\s.,!?;:'"()-]/g, '') // Hapus karakter non-alphanumeric yang bisa merusak
+      .replace(/"/g, '"')
+      .replace(/"/g, '"')
+      .replace(/'/g, "'")
+      .replace(/'/g, "'")
+      .replace(/…/g, "...")
+      .trim();
     
-    // Sangat sederhana, hanya untuk demo
+    // Standardisasi untuk hashing yang lebih stabil
+    const normalizedText = cleanText
+      .replace(/\*/g, "") // Remove asterisks
+      .replace(/\.{3,}/g, "...") // Standardize ellipsis
+      .replace(/\s*\.\.\.\s*/g, "... ") // Normalize ellipsis spacing
+      .replace(/\-\-+/g, "—") // Replace multiple hyphens with em dash
+      .replace(/\s+/g, ' ') // Standardize spacing
+      .trim();
+    
+    // Simple hashing algorithm
     let hash = 0;
-    for (let i = 0; i < cleanText.length; i++) {
-      hash = ((hash << 5) - hash) + cleanText.charCodeAt(i);
+    for (let i = 0; i < normalizedText.length; i++) {
+      hash = ((hash << 5) - hash) + normalizedText.charCodeAt(i);
       hash = hash & hash; // Convert to 32bit integer
     }
     return Math.abs(hash).toString();
@@ -472,36 +489,80 @@ class ElevenLabsService {
       return false;
     }
 
-    // Create audio URL and element
-    const audioUrl = URL.createObjectURL(audioBlob);
-    this.audioElement = new Audio(audioUrl);
-    
-    // Set audio properties untuk pengalaman yang lebih baik
-    this.audioElement.preload = "auto";
-    
-    // Play audio
     try {
-      // Percobaan pemutaran audio
-      this.isPlaying = true;
+      // Validate audio blob before creating URL
+      if (audioBlob.size === 0) {
+        console.error("Audio blob is empty, cannot play");
+        return false;
+      }
+
+      // Create audio URL
+      const audioUrl = URL.createObjectURL(audioBlob);
       
-      // Tambahkan event listener untuk metadat dan durasi
-      this.audioElement.onloadedmetadata = () => {
-        if (this.audioElement) {
-          const duration = this.audioElement.duration;
-          console.log(`Audio duration: ${duration.toFixed(2)} seconds for text: "${text.substring(0, 20)}..."`);
-        }
-      };
+      // Create new audio element
+      this.audioElement = new Audio();
       
-      // Gunakan Promise untuk memastikan audio berhasil diputar
-      await this.audioElement.play();
-      
-      // Tambahkan handler untuk audio yang error di tengah pemutaran
+      // Set up error handling before setting src
       this.audioElement.onerror = (e) => {
         console.error(`Audio playback error:`, e);
         this.isPlaying = false;
+        URL.revokeObjectURL(audioUrl);
+        this.audioElement = null;
+        return false;
       };
       
-      // Clean up when audio ends
+      // Set audio properties untuk pengalaman yang lebih baik
+      this.audioElement.preload = "auto";
+      
+      // Wait for audio to be loaded before playing
+      await new Promise<void>((resolve, reject) => {
+        if (!this.audioElement) {
+          reject(new Error("Audio element is null"));
+          return;
+        }
+        
+        // Set event handlers
+        this.audioElement.oncanplaythrough = () => {
+          resolve();
+        };
+        
+        this.audioElement.onerror = (e) => {
+          console.error("Error loading audio:", e);
+          reject(new Error("Failed to load audio"));
+        };
+        
+        // Set source after event handlers
+        this.audioElement.src = audioUrl;
+        
+        // For older browsers that don't fire oncanplaythrough
+        setTimeout(resolve, 1000);
+      }).catch(err => {
+        console.error("Failed to load audio:", err);
+        if (this.audioElement) {
+          URL.revokeObjectURL(audioUrl);
+          this.audioElement = null;
+        }
+        return false;
+      });
+      
+      // Audio is now loaded and ready to play
+      this.isPlaying = true;
+      
+      // Log audio duration after metadata is loaded
+      if (this.audioElement.duration) {
+        console.log(`Audio duration: ${this.audioElement.duration.toFixed(2)} seconds for text: "${text.substring(0, 20)}..."`);
+      } else {
+        this.audioElement.onloadedmetadata = () => {
+          if (this.audioElement) {
+            console.log(`Audio duration: ${this.audioElement.duration.toFixed(2)} seconds for text: "${text.substring(0, 20)}..."`);
+          }
+        };
+      }
+      
+      // Play the audio
+      await this.audioElement.play();
+      
+      // Set up onended handler
       this.audioElement.onended = () => {
         console.log("Audio playback completed successfully");
         this.isPlaying = false;
@@ -516,7 +577,18 @@ class ElevenLabsService {
       console.error('Failed to play audio:', error);
       this.isPlaying = false;
       if (this.audioElement) {
-        URL.revokeObjectURL(audioUrl);
+        try {
+          // Try to stop the audio if it's playing
+          this.audioElement.pause();
+          this.audioElement.currentTime = 0;
+        } catch (e) {
+          console.warn("Failed to pause audio element:", e);
+        }
+        
+        // Cleanup
+        if (this.audioElement.src) {
+          URL.revokeObjectURL(this.audioElement.src);
+        }
         this.audioElement = null;
       }
       return false;
