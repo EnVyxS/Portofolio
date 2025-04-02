@@ -207,8 +207,8 @@ function MainApp() {
           )}
         </button>
         
-        {/* Contact card selalu ditampilkan, tidak bergantung pada showContactCard */}
-        <GameContactCard />
+        {/* Contact card hanya ditampilkan setelah dialog utama selesai */}
+        {showContactCard && <GameContactCard />}
 
         {/* Dialog box di bagian bawah layar, sekarang tidak memengaruhi keberadaan contact card */}
         {<DialogBox onDialogComplete={handleDialogComplete} />}

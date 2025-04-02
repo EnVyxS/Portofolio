@@ -393,12 +393,44 @@ class IdleTimeoutController {
     
     console.log(`[IdleTimeoutController] Menampilkan peringatan: "${text}"`);
     
+    // Set up callback function for hover dialog
+    const hoverCallback = this.hoverDialogController.setHoverTextCallback;
+    
+    // Check if the hover dialog controller has the setHoverTextCallback function
+    if (typeof hoverCallback === 'function') {
+      // Set up dummy functions to use in HoverDialogController
+      const typeHoverText = this.hoverDialogController.handleHoverDialog;
+    }
+    
     // Tampilkan dialog peringatan dengan text custom
-    this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
-      if (isComplete) {
-        console.log(`[IdleTimeoutController] Dialog peringatan selesai ditampilkan`);
+    // Gunakan hover dialog controller agar dialog muncul walau dialog utama sudah selesai
+    // Baru jika itu gagal, gunakan dialog controller
+    try {
+      // Coba gunakan callback yang sudah ada di hoverDialogController
+      if (typeof this.hoverDialogController.setHoverTextCallback === 'function') {
+        // Cek apakah ada callback yang sudah terpasang
+        // Jika tidak ada callback, ini akan gagal dan lanjut ke catch
+        this.hoverDialogController.handleHoverDialog('none'); // Reset dialog
+        
+        // Kemudian secara manual kirim teks idle warning ke callback
+        if (this.hoverDialogController['hoverTextCallback']) {
+          this.hoverDialogController['hoverTextCallback'](text, true);
+          console.log(`[IdleTimeoutController] Dialog peringatan ditampilkan via hover callback`);
+        } else {
+          throw new Error('No hover text callback found');
+        }
+      } else {
+        throw new Error('No setHoverTextCallback method found');
       }
-    });
+    } catch (error) {
+      console.error("[IdleTimeoutController] Error using hover dialog:", error);
+      // Fallback ke dialog controller jika hover controller gagal
+      this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
+        if (isComplete) {
+          console.log(`[IdleTimeoutController] Dialog peringatan selesai ditampilkan via dialog controller`);
+        }
+      });
+    }
     
     // Speak the warning text dengan tone yang sesuai - 'angry' untuk peringatan
     try {

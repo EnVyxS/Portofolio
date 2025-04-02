@@ -186,6 +186,10 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     
     // Set hover dialog callback
     hoverDialogController.setHoverTextCallback((text, complete) => {
+      // Jika ada teks baru dari hover dialog, kita perlu memastikan dialog box muncul
+      if (text !== '') {
+        setIsDialogFinished(false);
+      }
       setText(text);
       setIsComplete(complete);
       setDialogSource('hover');
@@ -202,8 +206,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     };
   }, []);
 
-  if (isDialogFinished) {
-    return null; // Don't render anything when dialog is finished
+  // Jangan hilangkan dialog box jika text tidak kosong, memungkinkan hover dialog muncul
+  if (isDialogFinished && text === '') {
+    return null; // Don't render anything when dialog is finished and no text to display
   }
 
   return (
