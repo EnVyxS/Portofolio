@@ -250,11 +250,11 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         const blurValue = Math.max(1.4, 2 - (blurEasedProgress * 0.6));
         
         // Transisi brightness yang sangat halus dengan sine easing
-        const brightnessBaseline = 0.6;
-        const brightnessMax = 0.68;
+        const brightnessBase = 0.6;
+        const brightnessMaxVal = 0.68;
         const brightnessProgress = 0.5 - Math.cos(easedProgress * Math.PI) / 2;
-        const brightnessValue = brightnessBaseline + 
-                              (brightnessProgress * (brightnessMax - brightnessBaseline));
+        const brightnessValue = brightnessBase + 
+                              (brightnessProgress * (brightnessMaxVal - brightnessBase));
         
         // Terapkan semua efek transform dan filter
         bgElement.style.transform = `translate(${currentPositionX}%, ${currentPositionY + bobOffset}%) scale(${currentScale})`;
@@ -267,9 +267,13 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         // untuk menghindari pembulatan yang bisa membuat posisi sedikit bergeser
         bgElement.style.transform = `translate(${endPositionX}%, ${endPositionY}%) scale(${endScale})`;
         
+        // Konstanta untuk nilai akhir filter
+        const brightnessBase = 0.6;
+        const brightnessMaxVal = 0.68;
+        
         // Terapkan nilai akhir filter
         const finalBlurValue = Math.max(1.4, 2 - (1 * 0.6)); // fullProgress = 1
-        const finalBrightnessValue = brightnessBaseline + (brightnessMax - brightnessBaseline); 
+        const finalBrightnessValue = brightnessBase + (brightnessMaxVal - brightnessBase);
         bgElement.style.filter = `blur(${finalBlurValue}px) brightness(${finalBrightnessValue})`;
       }
     };
