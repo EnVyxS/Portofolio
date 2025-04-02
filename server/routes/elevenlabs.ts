@@ -339,109 +339,118 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     
     console.log(`Analyzing tone for text: "${cleanText.substring(0, 50)}${cleanText.length > 50 ? '...' : ''}"`); // Added more verbose logging
     
-    // Deteksi tone dari teks (simplifikasi, untuk sistem yang lebih lengkap gunakan getToneForDialog)
-    if (text.includes('fucking') || text.includes('shit') || text.includes('damn')) {
+    // Deteksi tone dari teks dengan pengaturan suara yang lebih stabil untuk menghindari suara yang aneh
+    // Setiap kategori menggunakan stabilitas tinggi (0.85) untuk mencegah distorsi suara
+    if (text.includes('fucking') || text.includes('shit') || text.includes('damn') || 
+        text.includes('GET OUT') || text.toLowerCase().includes('hell')) {
       tone = 'ANGRY';
       console.log(`Auto-detected tone: ANGRY for text with strong language`);
       
-      // Voice settings untuk Angry tone Geralt
+      // Voice settings untuk Angry tone Geralt dengan stabilitas yang ditingkatkan
       voiceSettings = {
-        stability: 0.80,        // 80% stability sesuai permintaan
+        stability: 0.85,        // Increased stability untuk menghindari suara aneh
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
         style: 0.65,            // Medium-high style untuk karakter Geralt yang marah
         use_speaker_boost: true,
-        speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
+        speaking_rate: 0.97     // Sedikit dipercepat untuk emosi marah
       };
     } 
-    else if (text.includes('tired') || text.includes('exhausted') || text.includes('Haahhhh')) {
+    else if (text.includes('tired') || text.includes('exhausted') || text.includes('Haahhhh') ||
+             text.toLowerCase().includes('sigh')) {
       tone = 'TIRED';
       console.log(`Auto-detected tone: TIRED for text with exhaustion markers`);
       
       // Voice settings untuk Tired tone Geralt
       voiceSettings = {
-        stability: 0.80,        // 80% stability sesuai permintaan
+        stability: 0.85,        // Increased stability 
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
         style: 0.45,            // Less expression for tired Geralt
         use_speaker_boost: true,
-        speaking_rate: 0.85     // Sedikit lebih lambat karena lelah, tapi masih 0.85 untuk menjaga karakteristik
+        speaking_rate: 0.88     // Sedikit lebih lambat karena lelah
       };
     }
-    else if (text.includes('Hmph') || text.includes('Tch') || text.includes('waste my time')) {
+    else if (text.includes('Hmph') || text.includes('Tch') || text.includes('waste my time') ||
+             text.toLowerCase().includes('annoying') || text.toLowerCase().includes('enough of')) {
       tone = 'ANNOYED';
       console.log(`Auto-detected tone: ANNOYED for text with Geralt's typical annoyance markers`);
       
       // Voice settings untuk Annoyed tone Geralt
       voiceSettings = {
-        stability: 0.80,        // 80% stability sesuai permintaan
+        stability: 0.85,        // Increased stability 
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
         style: 0.70,            // Higher style untuk menunjukkan rasa kesal khas Geralt
         use_speaker_boost: true,
         speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
       };
     }
-    else if (text.includes('Heh') || text.includes('hilarious') || text.includes('real')) {
+    else if (text.includes('Heh') || text.includes('hilarious') || text.toLowerCase().includes('real') ||
+             text.toLowerCase().includes('funny')) {
       tone = 'SARCASTIC';
       console.log(`Auto-detected tone: SARCASTIC for text with Geralt's sarcasm`);
       
       // Voice settings untuk Sarcastic tone Geralt
       voiceSettings = {
-        stability: 0.80,        // 80% stability sesuai permintaan
+        stability: 0.85,        // Increased stability 
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
-        style: 0.75,            // Higher style untuk sarkasme Geralt yang khas
+        style: 0.72,            // Adjusted style untuk sarkasme Geralt yang khas
         use_speaker_boost: true,
         speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
       };
     }
-    else if (text.includes('doesn\'t matter') || text.includes('breathing') || text.includes('Hm')) {
+    else if (text.includes('doesn\'t matter') || text.includes('breathing') || text.includes('Hm') ||
+             text.toLowerCase().includes('hmm') || text.toLowerCase().includes('whatever')) {
       tone = 'NUMB';
       console.log(`Auto-detected tone: NUMB for text with emotional flatness`);
       
       // Voice settings untuk Numb tone Geralt
       voiceSettings = {
-        stability: 0.80,        // 80% stability sesuai permintaan
+        stability: 0.85,        // Increased stability 
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
-        style: 0.40,            // Low style untuk Geralt yang flat/emotionless
+        style: 0.45,            // Low style untuk Geralt yang flat/emotionless
         use_speaker_boost: true,
-        speaking_rate: 0.90     // Sedikit lambat untuk menunjukkan kekosongan emosi
+        speaking_rate: 0.92     // Sedikit lambat untuk menunjukkan kekosongan emosi
       };
     }
-    else if (text.includes('maybe') || text.includes('why am I') || text.includes('perhaps')) {
+    else if (text.toLowerCase().includes('maybe') || text.toLowerCase().includes('why am i') || 
+             text.toLowerCase().includes('perhaps') || text.toLowerCase().includes('curious')) {
       tone = 'CONTEMPLATIVE';
       console.log(`Auto-detected tone: CONTEMPLATIVE for thoughtful text`);
       
       // Voice settings untuk Contemplative tone Geralt
       voiceSettings = {
-        stability: 0.80,        // 80% stability sesuai permintaan
+        stability: 0.85,        // Increased stability 
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
         style: 0.55,            // Medium style untuk Geralt yang sedang berpikir
         use_speaker_boost: true,
-        speaking_rate: 0.90     // Sedikit lebih lambat untuk Geralt yang sedang berpikir
+        speaking_rate: 0.92     // Adjusted speaking rate
       };
     }
-    else if (text.includes('what else') || text.includes('that\'s how it is') || text.includes('hoping')) {
+    else if (text.includes('what else') || text.includes('that\'s how it is') || text.includes('hoping') ||
+             text.toLowerCase().includes('suit yourself') || text.toLowerCase().includes('fine')) {
       tone = 'RESIGNED';
       console.log(`Auto-detected tone: RESIGNED for text showing acceptance`);
       
       // Voice settings untuk Resigned tone Geralt
       voiceSettings = {
-        stability: 0.80,        // 80% stability sesuai permintaan
+        stability: 0.85,        // Increased stability 
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
-        style: 0.50,            // Medium-low style untuk Geralt yang pasrah
+        style: 0.52,            // Adjusted style untuk Geralt yang pasrah
         use_speaker_boost: true,
-        speaking_rate: 0.92     // Sedikit lebih lambat untuk nada pasrah
+        speaking_rate: 0.93     // Sedikit lebih lambat untuk nada pasrah
       };
     }
-    else if (text.includes('empty') || text.includes('nothing') || text.includes('hollow')) {
+    else if (text.toLowerCase().includes('empty') || text.toLowerCase().includes('nothing') || 
+             text.toLowerCase().includes('hollow') || text.toLowerCase().includes('void')) {
       tone = 'HOLLOW';
       console.log(`Auto-detected tone: HOLLOW for text with emptiness`);
       
       // Voice settings untuk Hollow tone Geralt
       voiceSettings = {
-        stability: 0.80,        // 80% stability sesuai permintaan
+        stability: 0.85,        // Increased stability 
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
         style: 0.40,            // Low style untuk Geralt yang hampa
         use_speaker_boost: true,
-        speaking_rate: 0.88     // Sedikit lebih lambat untuk nada kosong
+        speaking_rate: 0.90     // Adjusted speaking rate
       };
     }
     else {
@@ -449,9 +458,9 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       tone = 'NEUTRAL';
       console.log(`Using default NEUTRAL tone for text: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
       
-      // Default voice settings untuk Geralt of Rivia
+      // Default voice settings dengan stabilitas yang ditingkatkan
       voiceSettings = {
-        stability: 0.80,        // 80% stability sesuai permintaan
+        stability: 0.85,        // Increased stability untuk menghindari suara aneh
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
         style: 0.60,            // Medium style untuk Geralt normal
         use_speaker_boost: true,
@@ -459,8 +468,26 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       };
     }
     
-    // Normalize text - remove excessive whitespace and asterisks
-    const finalCleanedText = cleanText.replace(/\*/g, "").trim().replace(/\s+/g, ' ');
+    // Normalize text - lebih lengkap untuk menghindari masalah suara
+    let finalCleanedText = cleanText
+      .replace(/\*/g, "") // Remove asterisks
+      .replace(/\.{3,}/g, "...") // Standardize ellipsis
+      .replace(/\s*\.\.\.\s*/g, "... ") // Normalize ellipsis spacing
+      .replace(/\-\-+/g, "—") // Replace multiple hyphens with em dash
+      .replace(/\s+/g, ' ') // Standardize spacing
+      .replace(/([.!?])\s*(?=[A-Z])/g, "$1 ") // Ensure space after periods
+      .replace(/,\s*/g, ", ") // Normalize comma spacing
+      .replace(/\s+([,.!?;:])/g, "$1") // Remove space before punctuation
+      .replace(/\s+$/g, ""); // Remove trailing spaces
+    
+    // Limit length to avoid potential issues with very long text
+    if (finalCleanedText.length > 300) {
+      console.log("Text is very long, truncating to 300 characters");
+      finalCleanedText = finalCleanedText.substring(0, 300);
+    }
+    
+    // Final trim to ensure cleanliness
+    finalCleanedText = finalCleanedText.trim();
     
     // Generate hash for the processed text
     const processedHash = generateSimpleHash(finalCleanedText);

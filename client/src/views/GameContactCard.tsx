@@ -144,26 +144,19 @@ const GameContactCard: React.FC = () => {
 
       <style>{`
         .layout-container {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          min-height: 100vh;
-          width: 100%;
+          display: block;
+          width: auto;
           z-index: 30;
-          position: relative;
+          position: fixed;
+          top: 1.5rem;
+          right: 1.5rem;
+          pointer-events: none;
         }
 
         .content-wrapper {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          width: 100%;
-          max-width: 500px;
-          margin: 0 auto;
-          position: fixed;
-          top: 1.5rem; /* Positioned at the top */
-          right: 1.5rem; /* Position to the right side */
+          display: block;
+          width: auto;
+          pointer-events: all;
         }
 
         /* Unified card that contains all elements */
@@ -174,8 +167,8 @@ const GameContactCard: React.FC = () => {
           opacity: 0.6; /* Tingkatkan opacity agar lebih terlihat */
           border-radius: 0; /* No rounded corners ala Souls-like */
           padding: clamp(0.5rem, 1.5vw, 0.8rem) clamp(0.5rem, 1.5vw, 0.8rem); /* Smaller padding */
-          max-width: min(260px, 60%); /* Much smaller max width */
-          width: 100%;
+          width: auto;
+          min-width: 180px;
           box-shadow:
             0 8px 20px rgba(0, 0, 0, 0.2),
             0 0 15px rgba(150, 130, 100, 0.15); /* Shadow emas pudar */
