@@ -6,7 +6,7 @@ import axios from 'axios';
 const router = Router();
 
 // Definisi model valid yang tersedia di ElevenLabs
-const VALID_MODEL = 'eleven_monolingual_v1';
+const VALID_MODEL = 'eleven_multilingual_v2';
 
 // Hash function for generating filenames from text
 function generateSimpleHash(input: string): string {
@@ -25,13 +25,13 @@ function generateSimpleHash(input: string): string {
 router.post('/text-to-speech', async (req: Request, res: Response) => {
   try {
     // Get text and voice_id from the request body
-    const { text, voice_id = 'pNInz6obpgDQGcFmaJgB', voice_settings, model_id: clientModelId } = req.body;
+    const { text, voice_id = '3Cka3TLKjahfz6KX4ckZ', voice_settings, model_id: clientModelId } = req.body;
     console.log("Using ElevenLabs API key from environment variable");
     console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 40)}..."`);
     console.log(`Using voice_id: ${voice_id}`);
     
-    // Make sure to use a valid model_id for ElevenLabs free tier
-    const model_id = 'eleven_monolingual_v1'; // Always use this model regardless of client input
+    // Make sure to use the model for ElevenLabs premium tier that works with voice ID 3Cka3TLKjahfz6KX4ckZ
+    const model_id = 'eleven_multilingual_v2'; // Using premium model for better quality
     
     
     // Validate input
