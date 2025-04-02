@@ -23,14 +23,10 @@ class ElevenLabsService {
 
   private constructor() {
     // Check if API key is in env
-    const envApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || import.meta.env.ELEVENLABS_API_KEY;
+    const envApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
     if (envApiKey) {
       this.apiKey = envApiKey;
-      console.log("API Key initialized from environment variable");
-    } else {
-      // Jika tidak ada di env, periksa secara asinkron apakah ada di server
-      console.log("No API key found in client environment, checking server...");
-      this.checkServerForApiKey();
+      console.log("API Key initialized:", envApiKey ? "Yes" : "No");
     }
     
     // Inisialisasi silent audio untuk teks yang hanya berisi "....."
@@ -38,26 +34,6 @@ class ElevenLabsService {
     
     // Pre-generate dialog hashes for all dialogs untuk mapping audio files
     this.initializeDialogHashes();
-  }
-  
-  // Fungsi untuk memeriksa API key dari server secara asinkron
-  private async checkServerForApiKey() {
-    try {
-      const response = await fetch('/api/elevenlabs/check-api-key');
-      const data = await response.json();
-      
-      if (data.hasApiKey) {
-        console.log("Server has ElevenLabs API key available");
-        // Gunakan penanda untuk menandakan bahwa API key tersedia dari server
-        this.apiKey = "server_api_key_available";
-      } else {
-        console.warn("No ElevenLabs API key found on server either");
-        console.log("Audio generation will use cached files or fallback to local audio");
-      }
-    } catch (error) {
-      console.error("Error checking API key on server:", error);
-      console.log("Will try to use cached audio files as fallback");
-    }
   }
   
   // Buat hash sederhana dari teks untuk digunakan sebagai id file audio
@@ -72,37 +48,6 @@ class ElevenLabsService {
       hash = hash & hash; // Convert to 32bit integer
     }
     return Math.abs(hash).toString();
-  }
-  
-  // Method baru untuk memeriksa apakah audio sudah ada di sistem file server
-  // Ini akan memeriksa file di folder character, geralt, dan backup
-  // Jika ada, akan mengembalikan path ke file tersebut
-  private async checkIfAudioExists(text: string): Promise<{exists: boolean, audioPath?: string}> {
-    try {
-      // Generate hash untuk text yang diberikan
-      const hash = this.generateSimpleHash(text);
-      
-      // Cek ketersediaan file di server
-      const response = await fetch(`/api/elevenlabs/audio-exists/${hash}`);
-      
-      if (!response.ok) {
-        console.error(`Error checking audio existence: ${response.status} ${response.statusText}`);
-        return { exists: false };
-      }
-      
-      const data = await response.json();
-      
-      if (data.exists && data.audioPath) {
-        console.log(`Audio for "${text.substring(0, 20)}..." exists at ${data.audioPath}`);
-        return { exists: true, audioPath: data.audioPath };
-      }
-      
-      console.log(`Audio for "${text.substring(0, 20)}..." does not exist`);
-      return { exists: false };
-    } catch (error) {
-      console.error("Error checking audio existence:", error);
-      return { exists: false };
-    }
   }
   
   // Inisialisasi hash dialog untuk semua dialog yang mungkin
@@ -255,7 +200,7 @@ class ElevenLabsService {
     return this.apiKey;
   }
 
-  public async generateSpeech(text: string, characterVoice: string = 'character'): Promise<{blob: Blob | null, source?: string}> {
+  public async generateSpeech(text: string, characterVoice: string = 'character'): Promise<Blob | null> {
     try {
       // Buat cache key berdasarkan text
       const cacheKey = text;
@@ -264,7 +209,7 @@ class ElevenLabsService {
       if (cacheKey in this.audioCache) {
         console.log("Using in-memory cached audio for:", text.substring(0, 20) + "...");
         const cachedBlob = this.audioCache[cacheKey];
-        return { blob: cachedBlob, source: "memory-cache" };
+        return cachedBlob;
       }
       
       console.log("Requesting audio for:", text.substring(0, 20) + "...");
@@ -283,28 +228,19 @@ class ElevenLabsService {
           
           if (!response.ok) {
             console.error('Silent audio file not found in either folder');
-            return { blob: null, source: "error-no-silent-file" };
+            return null;
           }
         }
         
         const audioBlob = await response.blob();
         this.audioCache[cacheKey] = audioBlob;
-        return { blob: audioBlob, source: "silent-audio" };
+        return audioBlob;
       }
       
       // Untuk teks normal, gunakan endpoint server yang akan melakukan:
       // 1. Memeriksa jika file ada di sistem file lokal
       // 2. Jika tidak, generate menggunakan ElevenLabs API dan simpan
       try {
-        // Log API key status (tanpa mengungkapkan nilai API key)
-        if (this.apiKey === "server_api_key_available") {
-          console.log("Using server-side API key for text-to-speech generation");
-        } else if (this.apiKey) {
-          console.log("Using client-side API key for text-to-speech generation");
-        } else {
-          console.log("No API key available, will rely on server to handle fallback to cached audio");
-        }
-        
         const response = await fetch('/api/elevenlabs/text-to-speech', {
           method: 'POST',
           headers: {
@@ -334,13 +270,13 @@ class ElevenLabsService {
             
             if (!silentResponse.ok) {
               console.error('Silent audio file not found in either folder');
-              return { blob: null, source: "error-no-audio" };
+              return null;
             }
           }
           
           const silentBlob = await silentResponse.blob();
           this.audioCache[cacheKey] = silentBlob;
-          return { blob: silentBlob, source: "fallback-silent" };
+          return silentBlob;
         }
         
         // Dapatkan response JSON yang berisi path ke file audio
@@ -352,17 +288,7 @@ class ElevenLabsService {
           if (audioResponse.ok) {
             const audioBlob = await audioResponse.blob();
             this.audioCache[cacheKey] = audioBlob;
-            
-            // Menentukan sumber audio berdasarkan response
-            let source = "api-new";
-            if (result.cached) {
-              source = "file-cache";
-            }
-            if (result.message && result.message.includes("backup")) {
-              source = "file-backup";
-            }
-            
-            return { blob: audioBlob, source };
+            return audioBlob;
           }
         }
         
@@ -379,13 +305,13 @@ class ElevenLabsService {
           
           if (!fallbackResponse.ok) {
             console.error('Silent audio file not found in either folder');
-            return { blob: null, source: "error-no-audio" };
+            return null;
           }
         }
         
         const fallbackBlob = await fallbackResponse.blob();
         this.audioCache[cacheKey] = fallbackBlob;
-        return { blob: fallbackBlob, source: "fallback-silent" };
+        return fallbackBlob;
       } catch (apiError) {
         console.error('Error calling text-to-speech API:', apiError);
         
@@ -402,7 +328,7 @@ class ElevenLabsService {
             console.log('Found local audio file in character folder:', characterAudioFile);
             const localBlob = await localResponse.blob();
             this.audioCache[cacheKey] = localBlob;
-            return { blob: localBlob, source: "local-character-file" };
+            return localBlob;
           }
           
           // Coba cari di folder geralt jika tidak ada di character
@@ -411,7 +337,7 @@ class ElevenLabsService {
             console.log('Found local audio file in geralt folder:', geraltAudioFile);
             const localBlob = await localResponse.blob();
             this.audioCache[cacheKey] = localBlob;
-            return { blob: localBlob, source: "local-geralt-file" };
+            return localBlob;
           }
           
           console.log('Audio file not found in either character or geralt folders');
@@ -430,19 +356,19 @@ class ElevenLabsService {
           
           if (!silentResponse.ok) {
             console.error('Silent audio file not found in either folder');
-            return { blob: null, source: "error-no-audio" };
+            return null;
           }
         }
         
         const silentBlob = await silentResponse.blob();
         this.audioCache[cacheKey] = silentBlob;
-        return { blob: silentBlob, source: "fallback-silent" };
+        return silentBlob;
       }
     } catch (error) {
       console.error('Error loading speech audio:', error);
       // Return null in case of error
       this.audioCache[text] = null;
-      return { blob: null, source: "error-exception" };
+      return null;
     }
   }
 
@@ -451,141 +377,23 @@ class ElevenLabsService {
     if (this.isPlaying) {
       this.stopSpeaking();
     }
-    
-    // Check for API key - allow both direct API key or server-side marker
-    if (!this.apiKey) {
-      console.warn("No ElevenLabs API key set. Checking options before proceeding.");
-      
-      // Check if we have the client-side secret available 
-      const secretKey = import.meta.env.VITE_ELEVENLABS_API_KEY || import.meta.env.ELEVENLABS_API_KEY;
-      if (secretKey) {
-        console.log("API key found in environment, setting now");
-        this.setApiKey(secretKey);
-      } else {
-        // Jika tidak ada client-side, cek server-side
-        console.log("No client-side API key found, checking server availability");
-        
-        try {
-          // Cek ketersediaan API key dari server secara sinkron
-          const xhr = new XMLHttpRequest();
-          xhr.open('GET', '/api/elevenlabs/check-api-key', false); // sinkron request
-          xhr.send();
-          
-          if (xhr.status === 200) {
-            const response = JSON.parse(xhr.responseText);
-            if (response.hasApiKey) {
-              console.log("Server has ElevenLabs API key available, using server-side API");
-              this.setApiKey("server_api_key_available");
-            } else {
-              console.error("No API key found on client or server");
-              console.log("Will attempt to use cached audio files only");
-            }
-          }
-        } catch (error) {
-          console.error("Error checking server API key:", error);
-          console.log("Will attempt to use cached audio files as fallback");
-        }
-      }
-    }
-    
-    // Jika masih tidak ada API key setelah pemeriksaan, kita masih bisa coba menggunakan file cache
-    // System akan selalu mencoba menggunakan file yang telah ada terlebih dahulu
 
     // Cek apakah teks terlalu pendek atau hanya ellipsis
     if (text.trim() === '.....' || text.trim() === '...') {
       console.log("Text is only ellipsis, using silent audio with short duration");
       // Untuk ellipsis, kita bisa menggunakan durasi tetap yang pendek
-      
-      try {
-        // Coba ambil dari folder character dulu
-        let silentResponse = await fetch('/audio/character/silent.mp3');
-        
-        // Jika tidak ada di character, coba ambil dari geralt
-        if (!silentResponse.ok) {
-          console.log('Silent audio file not found in character folder, trying geralt folder');
-          silentResponse = await fetch('/audio/geralt/silent.mp3');
-          
-          if (!silentResponse.ok) {
-            console.error('Silent audio file not found in either folder');
-            return false;
-          }
-        }
-        
-        const silentBlob = await silentResponse.blob();
-        const audioUrl = URL.createObjectURL(silentBlob);
-        this.audioElement = new Audio(audioUrl);
-        this.audioElement.preload = "auto";
-        
-        // Set playing status
-        this.isPlaying = true;
-        
-        // Play silent audio
-        await this.audioElement.play();
-        
-        // Wait 1 second then stop for ellipsis
-        setTimeout(() => {
-          if (this.audioElement) {
-            this.audioElement.pause();
-            this.audioElement = null;
-            this.isPlaying = false;
-            URL.revokeObjectURL(audioUrl);
-          }
-        }, 1000);
-        
-        return true;
-      } catch (error) {
-        console.error('Failed to play silent audio:', error);
-        this.isPlaying = false;
-        return false;
-      }
+      return false; // Indikasi bahwa tidak ada audio sebenarnya yang dimainkan
     }
 
-    // Add retries for failures
-    let retryCount = 0;
-    const maxRetries = 2;
-    let success = false;
-    let lastError = null;
-    let audioResult = null;
-    
-    while (retryCount <= maxRetries && !success) {
-      try {
-        // Generate speech
-        const result = await this.generateSpeech(text, characterVoice);
-        audioResult = result;
-        
-        if (!result || !result.blob) {
-          console.warn(`Failed to generate speech (attempt ${retryCount+1}/${maxRetries+1}) for: ${text.substring(0, 30)}...`);
-          retryCount++;
-          // Short delay before retry
-          await new Promise(resolve => setTimeout(resolve, 250));
-          continue;
-        }
-        
-        // Log source of audio (cached, backup, or API generated)
-        if (result.source) {
-          console.log(`Audio source: ${result.source}`);
-        }
-        
-        // Break out of loop if we got a valid audio blob
-        break;
-      } catch (error) {
-        console.error(`Error generating speech (attempt ${retryCount+1}/${maxRetries+1}):`, error);
-        lastError = error;
-        retryCount++;
-        // Short delay before retry
-        await new Promise(resolve => setTimeout(resolve, 250));
-      }
-    }
-    
-    // Check if we successfully got an audio blob after retries
-    if (!audioResult || !audioResult.blob) {
-      console.error(`Failed to generate speech after ${maxRetries+1} attempts:`, lastError);
-      this.isPlaying = false;
+    // Generate speech
+    const audioBlob = await this.generateSpeech(text, characterVoice);
+    if (!audioBlob) {
+      console.log("Failed to generate speech, no audio will be played");
       return false;
     }
 
     // Create audio URL and element
-    const audioUrl = URL.createObjectURL(audioResult.blob);
+    const audioUrl = URL.createObjectURL(audioBlob);
     this.audioElement = new Audio(audioUrl);
     
     // Set audio properties untuk pengalaman yang lebih baik
@@ -611,7 +419,6 @@ class ElevenLabsService {
       this.audioElement.onerror = (e) => {
         console.error(`Audio playback error:`, e);
         this.isPlaying = false;
-        URL.revokeObjectURL(audioUrl);
       };
       
       // Clean up when audio ends
@@ -668,16 +475,11 @@ class ElevenLabsService {
   }
   
   // Metode untuk memainkan suara ambient api
-  public playAmbientSound(volume: number = 0.08): void {
+  public playAmbientSound(volume: number = 0.2): void {
     if (!this.ambientAudio) {
       this.ambientAudio = new Audio('/audio/ambient_fire.m4a');
       this.ambientAudio.loop = true;
       this.ambientAudio.volume = volume;
-      console.log(`Setting ambient audio volume to ${volume}`);
-    } else {
-      // Update volume if instance already exists
-      this.ambientAudio.volume = volume;
-      console.log(`Updated ambient audio volume to ${volume}`);
     }
     
     this.ambientAudio.play().catch(error => {

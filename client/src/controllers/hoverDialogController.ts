@@ -157,7 +157,7 @@ class HoverDialogController {
     | ((text: string, isComplete: boolean) => void)
     | null = null;
   private isTypingHover: boolean = false;
-    
+  
   // Method publik untuk mengecek status typing dari luar
   public isTypingHoverDialog(): boolean {
     return this.isTypingHover;
@@ -173,7 +173,6 @@ class HoverDialogController {
     callback: (text: string, isComplete: boolean) => void,
   ): void {
     this.hoverTextCallback = callback;
-    console.log("Hover text callback set successfully");
   }
 
   // Helper untuk mengecek apakah dialog perlu persistent
@@ -315,9 +314,10 @@ class HoverDialogController {
       return isAudioPlaying || isTyping || isDialogNotCompleted;
     };
 
-    // Memastikan method isCurrentlyTyping tersedia
-    if (typeof this.dialogController.isCurrentlyTyping !== 'function') {
-      console.error("isCurrentlyTyping method is not available in DialogController");
+    // Error checking untuk method dialogue controller yang belum diimplementasikan
+    if (!this.dialogController.isCurrentlyTyping) {
+      // Jika method belum diimplementasikan, kita perlu tambahkan sementara di sini
+      this.dialogController.isCurrentlyTyping = () => false;
     }
 
     // Jika user terlalu banyak hover bolak-balik, tampilkan dialog kesal

@@ -2,29 +2,8 @@ import { Router, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
-import 'dotenv/config';
 
 const router = Router();
-
-// API key check route - hanya mengembalikan status ketersediaan, bukan API key
-router.get('/check-api-key', (req: Request, res: Response) => {
-  try {
-    // Check if API key exists in environment
-    const apiKey = process.env.ELEVENLABS_API_KEY;
-    const hasApiKey = !!apiKey;
-    
-    console.log(`API key availability check: ${hasApiKey ? 'Available' : 'Not available'}`);
-    
-    // Return status only, not the actual key for security
-    return res.status(200).json({ 
-      hasApiKey,
-      message: hasApiKey ? 'API key is available' : 'No API key found in environment'
-    });
-  } catch (error) {
-    console.error('Error checking API key:', error);
-    return res.status(500).json({ error: 'Failed to check API key' });
-  }
-});
 
 // Define common paths that will be used throughout the file
 const publicDir = path.resolve(process.cwd(), 'client/public');
@@ -151,101 +130,8 @@ function copyExistingAudioFiles() {
   }
 }
 
-// Fungsi untuk mencadangkan file audio yang telah dihasilkan ke folder backup
-// Ini untuk mencegah penggunaan API yang berlebihan jika folder character terhapus
-function backupAudioFiles() {
-  try {
-    console.log('Checking for audio files to backup...');
-    
-    // Pastikan folder backup ada
-    const backupDir = path.join(publicDir, 'audio/backup');
-    if (!fs.existsSync(backupDir)) {
-      fs.mkdirSync(backupDir, { recursive: true });
-      console.log('Created backup audio directory');
-    }
-    
-    // Jika folder character ada, cadangkan semua file ke backup
-    if (fs.existsSync(characterAudioDir)) {
-      const characterFiles = fs.readdirSync(characterAudioDir);
-      let backedUpCount = 0;
-      
-      // Salin file yang belum ada di folder backup
-      for (const file of characterFiles) {
-        if (file.endsWith('.mp3')) {
-          const sourceFile = path.join(characterAudioDir, file);
-          const destFile = path.join(backupDir, file);
-          
-          // Hanya backup file yang belum dicadangkan atau lebih baru dari cadangan
-          if (!fs.existsSync(destFile) || 
-              fs.statSync(sourceFile).mtime > fs.statSync(destFile).mtime) {
-            fs.copyFileSync(sourceFile, destFile);
-            backedUpCount++;
-          }
-        }
-      }
-      
-      console.log(`Backed up ${backedUpCount} audio files to backup folder`);
-    }
-  } catch (error) {
-    console.error('Error backing up audio files:', error);
-  }
-}
-
-// Fungsi untuk memeriksa dan memulihkan file audio dari backup jika folder character kosong atau terhapus
-function restoreFromBackupIfNeeded() {
-  try {
-    console.log('Checking if audio files need to be restored from backup...');
-    
-    // Cek apakah folder character ada
-    if (!fs.existsSync(characterAudioDir)) {
-      fs.mkdirSync(characterAudioDir, { recursive: true });
-      console.log('Created character audio directory');
-    }
-    
-    // Hitung file yang ada di folder character
-    const characterFilesCount = fs.existsSync(characterAudioDir) ? 
-      fs.readdirSync(characterAudioDir).filter(f => f.endsWith('.mp3')).length : 0;
-    
-    // Jika sedikit file atau folder kosong, coba pulihkan dari backup
-    if (characterFilesCount < 5) {
-      const backupDir = path.join(publicDir, 'audio/backup');
-      if (fs.existsSync(backupDir)) {
-        const backupFiles = fs.readdirSync(backupDir);
-        let restoredCount = 0;
-        
-        // Salin file dari backup ke character
-        for (const file of backupFiles) {
-          if (file.endsWith('.mp3')) {
-            const sourceFile = path.join(backupDir, file);
-            const destFile = path.join(characterAudioDir, file);
-            
-            if (!fs.existsSync(destFile)) {
-              fs.copyFileSync(sourceFile, destFile);
-              restoredCount++;
-            }
-          }
-        }
-        
-        console.log(`Restored ${restoredCount} audio files from backup folder`);
-      } else {
-        console.log('No backup folder found. Cannot restore audio files.');
-      }
-    } else {
-      console.log(`Character folder has ${characterFilesCount} files. No restoration needed.`);
-    }
-  } catch (error) {
-    console.error('Error restoring audio files from backup:', error);
-  }
-}
-
 // Jalankan fungsi saat server pertama kali dijalankan
 copyExistingAudioFiles();
-
-// Cek dan pulihkan dari backup jika perlu
-restoreFromBackupIfNeeded();
-
-// Cadangkan file yang ada saat ini
-backupAudioFiles();
 
 // Inisialisasi cache audio
 initializeAudioCache();
@@ -264,90 +150,20 @@ function generateSimpleHash(input: string): string {
 }
 
 /**
- * Endpoint untuk memeriksa database file yang sudah ada
- * Ini akan membantu klien memastikan file telah ada untuk semua dialog
- */
-router.get('/audio-exists/:hash', (req: Request, res: Response) => {
-  try {
-    const { hash } = req.params;
-    if (!hash) {
-      return res.status(400).json({ exists: false, error: 'Hash parameter is required' });
-    }
-
-    const filePattern = `dialog_${hash}.mp3`;
-    const characterPath = path.join(characterAudioDir, filePattern);
-    const geraltPath = path.join(geraltAudioDir, filePattern);
-    const backupPath = path.join(path.join(publicDir, 'audio/backup'), filePattern);
-    
-    // Periksa di semua lokasi
-    const existsInCharacter = fs.existsSync(characterPath);
-    const existsInGeralt = fs.existsSync(geraltPath);
-    const existsInBackup = fs.existsSync(backupPath);
-    
-    if (existsInCharacter || existsInGeralt || existsInBackup) {
-      let audioPath = '';
-      
-      // Prioritaskan character folder, kemudian geralt, terakhir backup
-      if (existsInCharacter) {
-        audioPath = `/audio/character/${filePattern}`;
-      } else if (existsInGeralt) {
-        audioPath = `/audio/geralt/${filePattern}`;
-        
-        // Copy to character folder untuk mempercepat akses mendatang
-        try {
-          fs.copyFileSync(geraltPath, characterPath);
-          audioPath = `/audio/character/${filePattern}`;
-          console.log(`Copied audio file from geralt to character: ${filePattern}`);
-        } catch (err) {
-          console.error(`Failed to copy file from geralt to character: ${err}`);
-        }
-      } else if (existsInBackup) {
-        // Restore dari backup
-        try {
-          fs.copyFileSync(backupPath, characterPath);
-          audioPath = `/audio/character/${filePattern}`;
-          console.log(`Restored audio file from backup: ${filePattern}`);
-        } catch (err) {
-          console.error(`Failed to restore file from backup: ${err}`);
-          audioPath = `/audio/backup/${filePattern}`;
-        }
-      }
-      
-      return res.status(200).json({ 
-        exists: true, 
-        audioPath,
-        message: 'Audio file exists'
-      });
-    }
-    
-    // File tidak ditemukan di mana pun
-    return res.status(200).json({ 
-      exists: false,
-      message: 'Audio file not found in any location'
-    });
-  } catch (error) {
-    console.error('Error checking audio file existence:', error);
-    return res.status(500).json({ exists: false, error: 'Internal server error' });
-  }
-});
-
-/**
  * Endpoint for elevenlabs text-to-speech service
  * Integrates caching mechanism to save API credits
- * Dengan peningkatan pada deteksi file yang ada
  */
 router.post('/text-to-speech', async (req: Request, res: Response) => {
   try {
-    // Get API key from environment
-    const localApiKey = process.env.ELEVENLABS_API_KEY;
     // Get text and voice_id from the request body
-    const { text, voice_id = '3Cka3TLKjahfz6KX4ckZ', voice_settings, model_id: clientModelId, forceGeneration = false } = req.body;
+    const { text, voice_id = '3Cka3TLKjahfz6KX4ckZ', voice_settings, model_id: clientModelId } = req.body;
     console.log("Using ElevenLabs API key from environment variable");
     console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 40)}..."`);
     console.log(`Using voice_id: ${voice_id}`);
     
     // Make sure to use the model for ElevenLabs premium tier that works with voice ID 3Cka3TLKjahfz6KX4ckZ
     const model_id = 'eleven_multilingual_v2'; // Using premium model for better quality
+    
     
     // Validate input
     if (!text) {
@@ -382,11 +198,17 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       });
     }
     
-    // Bersihkan text untuk hashing (hilangkan tag emosi, dll)
-    const processedCleanText = text.replace(/\[(.*?)\]\s*/g, '').trim();
+    // Use API key from environment variables
+    const apiKey = process.env.ELEVENLABS_API_KEY;
     
-    // Gunakan hash dari teks bersih untuk konsistensi
-    const originalHash = generateSimpleHash(processedCleanText);
+    console.log("Using ElevenLabs API key from environment variable");
+    
+    if (!apiKey) {
+      return res.status(500).json({ error: 'API key not found' });
+    }
+    
+    // Generate hash for the original text (for lookup in existing files)
+    const originalHash = generateSimpleHash(text);
     const originalFileName = `dialog_${originalHash}.mp3`;
     
     // Define audio character directory with constant from above
@@ -396,266 +218,186 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     const originalAudioFilePath = path.join(audioDir, originalFileName);
     const originalAudioPublicPath = `/audio/character/${originalFileName}`;
     
-    // Lewati pengecekan cache jika forcing generation
-    if (!forceGeneration) {
-      // Check if hash exists in memory cache first
-      if (textHashCache.has(originalHash)) {
-        console.log(`Found ${originalHash} in memory cache`);
-        // Return cached path
-        return res.status(200).json({
-          success: true,
-          audioPath: `/audio/character/${textHashCache.get(originalHash)}`,
-          cached: true,
-          message: 'Using cached audio file from memory cache'
-        });
-      }
-      
-      // Check original file cache first
-      if (fs.existsSync(originalAudioFilePath)) {
-        console.log(`Audio file found for original text: "${processedCleanText.substring(0, 30)}${processedCleanText.length > 30 ? '...' : ''}"`);
-        // Add to memory cache for faster future lookups
-        textHashCache.set(originalHash, originalFileName);
-        return res.status(200).json({ 
-          success: true, 
-          audioPath: originalAudioPublicPath,
-          cached: true,
-          message: 'Using cached audio file (original)'
-        });
-      }
-      
-      // Check other folders for reuse (to save API credit)
-      if (fs.existsSync(geraltAudioDir)) {
-        const originalInGeraltsFolder = path.join(geraltAudioDir, originalFileName);
-        if (fs.existsSync(originalInGeraltsFolder)) {
-          // Copy the file to character folder to make future lookups faster
-          try {
-            fs.copyFileSync(originalInGeraltsFolder, originalAudioFilePath);
-            console.log(`Reused audio from geralt folder for: "${processedCleanText.substring(0, 30)}${processedCleanText.length > 30 ? '...' : ''}"`);
-            // Update cache
-            textHashCache.set(originalHash, originalFileName);
-            return res.status(200).json({ 
-              success: true, 
-              audioPath: originalAudioPublicPath,
-              cached: true,
-              message: 'Reused audio from geralt folder'
-            });
-          } catch (copyErr) {
-            console.error('Error copying file from geralt folder:', copyErr);
-            // Continue to API if copy fails
-          }
-        }
-      }
-      
-      // Check backup folder before generating with API
-      const backupDir = path.join(publicDir, 'audio/backup');
-      const backupFilePath = path.join(backupDir, originalFileName);
-      
-      if (fs.existsSync(backupFilePath)) {
+    // Check if hash exists in memory cache first
+    if (textHashCache.has(originalHash)) {
+      console.log(`Found ${originalHash} in memory cache`);
+      // Return cached path
+      return res.status(200).json({
+        success: true,
+        audioPath: `/audio/character/${textHashCache.get(originalHash)}`,
+        cached: true,
+        message: 'Using cached audio file from memory cache'
+      });
+    }
+    
+    // Check original file cache first
+    if (fs.existsSync(originalAudioFilePath)) {
+      console.log(`Audio file found for original text: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
+      // Add to memory cache for faster future lookups
+      textHashCache.set(originalHash, originalFileName);
+      return res.status(200).json({ 
+        success: true, 
+        audioPath: originalAudioPublicPath,
+        cached: true,
+        message: 'Using cached audio file (original)'
+      });
+    }
+    
+    // Check other folders for reuse (to save API credit)
+    if (fs.existsSync(geraltAudioDir)) {
+      const originalInGeraltsFolder = path.join(geraltAudioDir, originalFileName);
+      if (fs.existsSync(originalInGeraltsFolder)) {
+        // Copy the file to character folder to make future lookups faster
         try {
-          // Copy from backup to character folder
-          fs.copyFileSync(backupFilePath, originalAudioFilePath);
-          console.log(`Restored audio from backup for: "${processedCleanText.substring(0, 30)}${processedCleanText.length > 30 ? '...' : ''}"`);
-          
-          // Update cache
-          textHashCache.set(originalHash, originalFileName);
-          
+          fs.copyFileSync(originalInGeraltsFolder, originalAudioFilePath);
+          console.log(`Reused audio from geralt folder for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
           return res.status(200).json({ 
             success: true, 
             audioPath: originalAudioPublicPath,
             cached: true,
-            message: 'Restored from backup audio file'
+            message: 'Reused audio from geralt folder'
           });
-        } catch (backupErr) {
-          console.error('Error restoring from backup:', backupErr);
-          // Continue to API if restore fails
+        } catch (copyErr) {
+          console.error('Error copying file from geralt folder:', copyErr);
+          // Continue to API if copy fails
         }
       }
-    } else {
-      console.log("Force generation flag set, bypassing cache checks");
     }
     
-    // If file doesn't exist anywhere, generate with ElevenLabs API
+    // If file doesn't exist, generate with ElevenLabs API
     console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
     
     // Analisis tone emosi Geralt untuk text-to-speech
     let tone = '';
     let voiceSettings = null;
     
-    // cleanText sudah ada di atas, kita gunakan nama variabel yang berbeda
     // Hapus tag emosi dari teks asli untuk dikirim ke ElevenLabs
-    let finalAnalyzedText = text.replace(/\[(.*?)\]\s*/g, '').trim();
+    let cleanText = text.replace(/\[(.*?)\]\s*/g, '').trim();
     
-    console.log(`Analyzing tone for text: "${finalAnalyzedText.substring(0, 50)}${finalAnalyzedText.length > 50 ? '...' : ''}"`); // Added more verbose logging
+    console.log(`Analyzing tone for text: "${cleanText.substring(0, 50)}${cleanText.length > 50 ? '...' : ''}"`); // Added more verbose logging
     
-    // Deteksi tone dari teks (versi yang lebih konsisten untuk mengurangi rancau audio)
-    // Nilai basis untuk semua tone
-    const baseSettings = {
-      stability: 0.80,          // 80% stability konsisten untuk semua tone
-      similarity_boost: 1.0,    // 100% similarity boost konsisten untuk semua tone
-      use_speaker_boost: true,  // Selalu aktif
-      speaking_rate: 0.95       // Default speaking rate
-    };
-
-    // Pre-proses teks untuk menangani kata kasar yang bisa menyebabkan suara rancau
-    let processedText = text;
-    
-    // Mengganti kata-kata yang mungkin bermasalah (menghindari rancau untuk kata kasar)
-    if (text.includes('fucking') && !text.includes('fucking hilarious') && !text.includes('real fucking')) {
-      console.log("Mengganti kata kasar 'fucking' untuk menghindari suara rancau");
-      processedText = text.replace('fucking', 'damn');
-    }
-    
-    // Analisis tone berdasarkan konten teks yang sudah diproses
-    if (processedText.includes('damn') || processedText.includes('shit')) {
+    // Deteksi tone dari teks (simplifikasi, untuk sistem yang lebih lengkap gunakan getToneForDialog)
+    if (text.includes('fucking') || text.includes('shit') || text.includes('damn')) {
       tone = 'ANGRY';
       console.log(`Auto-detected tone: ANGRY for text with strong language`);
       
-      // Voice settings untuk Angry tone Geralt - dengan penyesuaian minimal
+      // Voice settings untuk Angry tone Geralt
       voiceSettings = {
-        ...baseSettings,
-        style: 0.65,              // Medium-high style untuk karakter Geralt yang marah
-        speaking_rate: 0.97       // Sedikit lebih cepat untuk tone marah
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.65,            // Medium-high style untuk karakter Geralt yang marah
+        use_speaker_boost: true,
+        speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
       };
     } 
     else if (text.includes('tired') || text.includes('exhausted') || text.includes('Haahhhh')) {
       tone = 'TIRED';
       console.log(`Auto-detected tone: TIRED for text with exhaustion markers`);
       
-      // Voice settings untuk Tired tone Geralt - lebih konsisten dengan base
+      // Voice settings untuk Tired tone Geralt
       voiceSettings = {
-        ...baseSettings,
-        style: 0.55,              // Medium style untuk tired, tidak terlalu ekstrem
-        speaking_rate: 0.92       // Hanya sedikit lebih lambat
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.45,            // Less expression for tired Geralt
+        use_speaker_boost: true,
+        speaking_rate: 0.85     // Sedikit lebih lambat karena lelah, tapi masih 0.85 untuk menjaga karakteristik
       };
     }
     else if (text.includes('Hmph') || text.includes('Tch') || text.includes('waste my time')) {
       tone = 'ANNOYED';
       console.log(`Auto-detected tone: ANNOYED for text with Geralt's typical annoyance markers`);
       
-      // Voice settings untuk Annoyed tone Geralt - lebih konsisten
+      // Voice settings untuk Annoyed tone Geralt
       voiceSettings = {
-        ...baseSettings,
-        style: 0.62,              // Medium-high style, tidak terlalu ekstrem
-        speaking_rate: 0.95       // Standard speaking rate
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.70,            // Higher style untuk menunjukkan rasa kesal khas Geralt
+        use_speaker_boost: true,
+        speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
       };
     }
     else if (text.includes('Heh') || text.includes('hilarious') || text.includes('real')) {
       tone = 'SARCASTIC';
       console.log(`Auto-detected tone: SARCASTIC for text with Geralt's sarcasm`);
       
-      // Voice settings untuk Sarcastic tone Geralt - lebih konsisten
+      // Voice settings untuk Sarcastic tone Geralt
       voiceSettings = {
-        ...baseSettings,
-        style: 0.64,              // Medium-high style, tidak terlalu ekstrem
-        speaking_rate: 0.96       // Sedikit lebih cepat untuk sarkasme
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.75,            // Higher style untuk sarkasme Geralt yang khas
+        use_speaker_boost: true,
+        speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
       };
     }
     else if (text.includes('doesn\'t matter') || text.includes('breathing') || text.includes('Hm')) {
       tone = 'NUMB';
       console.log(`Auto-detected tone: NUMB for text with emotional flatness`);
       
-      // Voice settings untuk Numb tone Geralt - lebih konsisten
+      // Voice settings untuk Numb tone Geralt
       voiceSettings = {
-        ...baseSettings,
-        style: 0.55,              // Medium style, tidak terlalu rendah
-        speaking_rate: 0.93       // Sedikit lebih lambat
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.40,            // Low style untuk Geralt yang flat/emotionless
+        use_speaker_boost: true,
+        speaking_rate: 0.90     // Sedikit lambat untuk menunjukkan kekosongan emosi
       };
     }
     else if (text.includes('maybe') || text.includes('why am I') || text.includes('perhaps')) {
       tone = 'CONTEMPLATIVE';
       console.log(`Auto-detected tone: CONTEMPLATIVE for thoughtful text`);
       
-      // Voice settings untuk Contemplative tone Geralt - lebih konsisten
+      // Voice settings untuk Contemplative tone Geralt
       voiceSettings = {
-        ...baseSettings,
-        style: 0.58,              // Medium style
-        speaking_rate: 0.93       // Sedikit lebih lambat untuk refleksi
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.55,            // Medium style untuk Geralt yang sedang berpikir
+        use_speaker_boost: true,
+        speaking_rate: 0.90     // Sedikit lebih lambat untuk Geralt yang sedang berpikir
       };
     }
     else if (text.includes('what else') || text.includes('that\'s how it is') || text.includes('hoping')) {
       tone = 'RESIGNED';
       console.log(`Auto-detected tone: RESIGNED for text showing acceptance`);
       
-      // Voice settings untuk Resigned tone Geralt - lebih konsisten
+      // Voice settings untuk Resigned tone Geralt
       voiceSettings = {
-        ...baseSettings,
-        style: 0.57,              // Medium style
-        speaking_rate: 0.94       // Hampir standard
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.50,            // Medium-low style untuk Geralt yang pasrah
+        use_speaker_boost: true,
+        speaking_rate: 0.92     // Sedikit lebih lambat untuk nada pasrah
       };
     }
     else if (text.includes('empty') || text.includes('nothing') || text.includes('hollow')) {
       tone = 'HOLLOW';
       console.log(`Auto-detected tone: HOLLOW for text with emptiness`);
       
-      // Voice settings untuk Hollow tone Geralt - lebih konsisten
+      // Voice settings untuk Hollow tone Geralt
       voiceSettings = {
-        ...baseSettings,
-        style: 0.54,              // Medium style, tidak terlalu rendah
-        speaking_rate: 0.92       // Sedikit lebih lambat
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.40,            // Low style untuk Geralt yang hampa
+        use_speaker_boost: true,
+        speaking_rate: 0.88     // Sedikit lebih lambat untuk nada kosong
       };
     }
     else {
       // Default tone is slightly resigned (Geralt of Rivia baseline)
       tone = 'NEUTRAL';
-      console.log(`Using default NEUTRAL tone for text: "${finalAnalyzedText.substring(0, 30)}${finalAnalyzedText.length > 30 ? '...' : ''}"`);
+      console.log(`Using default NEUTRAL tone for text: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
       
-      // Default voice settings untuk Geralt of Rivia - konsisten
+      // Default voice settings untuk Geralt of Rivia
       voiceSettings = {
-        ...baseSettings,
-        style: 0.60,              // Medium style untuk Geralt normal
-        speaking_rate: 0.95       // Standard speaking rate
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.60,            // Medium style untuk Geralt normal
+        use_speaker_boost: true,
+        speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
       };
     }
     
     // Normalize text - remove excessive whitespace and asterisks
-    let finalCleanedText = finalAnalyzedText.replace(/\*/g, "").trim().replace(/\s+/g, ' ');
-    
-    // Penanganan lebih umum untuk dialog bermasalah yang mengandung kata kasar
-    const profanityDetected = finalCleanedText.includes("fucking") || 
-                             finalCleanedText.includes("shit") || 
-                             finalCleanedText.includes("ass") ||
-                             finalCleanedText.includes("damn") ||
-                             finalCleanedText.includes("hell") ||
-                             finalCleanedText.includes("bastard");
-    
-    if (profanityDetected) {
-      console.log("Mendeteksi kata kasar dalam dialog, membuat penyesuaian");
-      
-      // Proses teks untuk mengganti kata kasar
-      const processedText = finalCleanedText
-        .replace(/fucking/gi, "freaking")
-        .replace(/shit/gi, "stuff")
-        .replace(/ass/gi, "butt")
-        .replace(/damn/gi, "darn")
-        .replace(/hell/gi, "heck")
-        .replace(/bastard/gi, "jerk");
-      
-      console.log(`Text telah disesuaikan menjadi: "${processedText}"`);
-      finalCleanedText = processedText;
-      
-      // Jika dialog berisi "hilarious" atau "real" dengan kata kasar, gunakan tone SARCASTIC
-      if (finalCleanedText.includes("hilarious") || finalCleanedText.includes("real")) {
-        // Force tone untuk konsistensi
-        tone = 'SARCASTIC';
-        
-        // Penyesuaian voice settings khusus untuk dialog sarkastik
-        voiceSettings = {
-          ...baseSettings,
-          style: 0.62,              // Sedikit lebih rendah dari default sarcastic
-          speaking_rate: 0.94       // Hampir normal untuk memudahkan pemrosesan
-        };
-      } else {
-        // Dialog dengan kata kasar lain, gunakan tone ANGRY
-        tone = 'ANGRY';
-        
-        // Penyesuaian voice settings untuk dialog dengan kata kasar
-        voiceSettings = {
-          ...baseSettings,
-          style: 0.62,              // Medium-high style, tidak terlalu ekstrem
-          speaking_rate: 0.93       // Sedikit lebih lambat untuk memudahkan pemrosesan
-        };
-      }
-    }
+    const finalCleanedText = cleanText.replace(/\*/g, "").trim().replace(/\s+/g, ' ');
     
     // Generate hash for the processed text
     const processedHash = generateSimpleHash(finalCleanedText);
@@ -697,11 +439,11 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     
     // Log voice settings yang digunakan
     const finalVoiceSettings = voiceSettings || voice_settings || {
-      stability: 0.80,        // Konsisten dengan nilai base
-      similarity_boost: 1.0,  // Konsisten dengan nilai base
-      style: 0.60,            // Medium style (default Geralt)
+      stability: 0.35, // Sedikit lebih rendah untuk ekspresi lebih natural
+      similarity_boost: 0.75, // Lebih rendah untuk memberikan fleksibilitas emosi
+      style: 0.65, // Dinaikkan untuk memberikan lebih banyak nuansa emosional
       use_speaker_boost: true,
-      speaking_rate: 0.95,    // Konsisten dengan nilai base
+      speaking_rate: 0.70, // Sedikit lebih lambat seperti Geralt berbicara
     };
     
     console.log(`Using voice settings for "${tone}" tone:`, {
@@ -731,7 +473,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       headers: {
         'Accept': 'audio/mpeg',
         'Content-Type': 'application/json',
-        'xi-api-key': localApiKey
+        'xi-api-key': apiKey
       },
       body: requestBodyString
     });
@@ -740,23 +482,6 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       // Handle error case
       const errorText = await fetchResponse.text();
       console.error("ElevenLabs API error:", errorText);
-      
-      // Jika error terkait rate limit atau unusual activity, gunakan fallback
-      if (fetchResponse.status === 401 || errorText.includes("unusual_activity") || errorText.includes("Free Tier usage disabled")) {
-        console.log("ElevenLabs API error menunjukkan rate limit atau unusual activity, menggunakan fallback audio");
-        
-        // Coba gunakan silent audio sebagai fallback
-        const silentAudioPath = path.join(characterAudioDir, 'silent.mp3');
-        if (fs.existsSync(silentAudioPath)) {
-          return res.status(200).json({
-            success: true,
-            audioPath: '/audio/character/silent.mp3',
-            fallback: true,
-            error: `API rate limited: ${errorText}`
-          });
-        }
-      }
-      
       throw new Error(`API request failed with status ${fetchResponse.status}: ${errorText}`);
     }
     
@@ -787,30 +512,6 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
           console.error('Error saving original version:', copyErr);
           // Continue even if this fails
         }
-      }
-      
-      // Backup the new audio file to avoid future API calls
-      try {
-        // Create backup directory if it doesn't exist
-        const backupDir = path.join(publicDir, 'audio/backup');
-        if (!fs.existsSync(backupDir)) {
-          fs.mkdirSync(backupDir, { recursive: true });
-        }
-        
-        // Save to backup with both the processed and original names
-        const backupProcessedPath = path.join(backupDir, processedFileName);
-        fs.writeFileSync(backupProcessedPath, response.data);
-        console.log(`Backed up audio to: ${backupProcessedPath}`);
-        
-        // If using different filenames, backup the original version too
-        if (originalFileName !== processedFileName) {
-          const backupOriginalPath = path.join(backupDir, originalFileName);
-          fs.copyFileSync(backupProcessedPath, backupOriginalPath);
-          console.log(`Also backed up as original version: ${backupOriginalPath}`);
-        }
-      } catch (backupErr) {
-        console.error('Error backing up new audio file:', backupErr);
-        // Continue even if backup fails
       }
       
       return res.status(200).json({ 
