@@ -138,12 +138,12 @@ class IdleTimeoutController {
     this.resetSceneCallback = callback;
   }
   
-  // Cek apakah ada audio atau dialog yang sedang berjalan
+  // Cek apakah ada audio atau dialog yang sedang berjalan dengan logika yang ditingkatkan
   private isAudioOrDialogActive(): boolean {
     // Cek apakah ada audio yang sedang diputar
     const isAudioPlaying = this.elevenlabsService.isCurrentlyPlaying();
     
-    // Cek apakah ada dialog yang sedang diketik
+    // Cek apakah ada dialog utama yang sedang diketik
     let isDialogTyping = false;
     
     // Pastikan method isCurrentlyTyping ada di dialogController
@@ -164,18 +164,45 @@ class IdleTimeoutController {
       console.log("[IdleTimeoutController] Error saat cek isTypingHoverDialog:", error);
     }
     
-    const isActive = isAudioPlaying || isDialogTyping || isHoverDialogTyping;
+    // Cek apakah pengguna sudah berinteraksi dengan hover dialog
+    let hasInteractedWithHover = false;
+    try {
+      if (typeof this.hoverDialogController.hasUserInteractedWithHover === 'function') {
+        hasInteractedWithHover = this.hoverDialogController.hasUserInteractedWithHover();
+      }
+    } catch (error) {
+      console.log("[IdleTimeoutController] Error saat cek hasUserInteractedWithHover:", error);
+    }
+    
+    // Logika ditingkatkan:
+    // 1. Jika audio sedang bermain, anggap aktif
+    // 2. Jika dialog utama sedang berjalan, anggap aktif
+    // 3. Jika hover dialog sedang berjalan, anggap aktif 
+    // 4. Jika pengguna sudah berinteraksi dengan hover, cek hanya status audio dan hover dialog
+    
+    let isActive;
+    
+    if (hasInteractedWithHover) {
+      // Jika pengguna sudah berinteraksi dengan hover, hanya cek audio dan hover dialog
+      isActive = isAudioPlaying || isHoverDialogTyping;
+    } else {
+      // Jika belum berinteraksi dengan hover, cek semua kondisi
+      isActive = isAudioPlaying || isDialogTyping || isHoverDialogTyping;
+    }
     
     // Log untuk debugging
     if (isActive) {
       console.log("[IdleTimeoutController] Aktivitas terdeteksi:", {
         audio: isAudioPlaying, 
         dialog: isDialogTyping,
-        hoverDialog: isHoverDialogTyping
+        hoverDialog: isHoverDialogTyping,
+        hasInteractedWithHover: hasInteractedWithHover
       });
+    } else {
+      console.log("[IdleTimeoutController] Tidak ada aktivitas, timer dapat berjalan");
     }
     
-    // Jika salah satu aktif, return true
+    // Jika salah satu aktif sesuai kondisi, return true
     return isActive;
   }
   
