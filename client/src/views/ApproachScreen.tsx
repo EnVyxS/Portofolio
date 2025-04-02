@@ -153,7 +153,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     }, 5000); // Total waktu: 5 detik (1.5 detik jeda + 3.5 detik berjalan)
   };
   
-  // Fungsi untuk membuat efek zoom in yang halus
+  // Fungsi untuk membuat efek zoom in yang halus dan realistis
   const startZoomEffect = () => {
     // Dapatkan elemen background
     const bgElement = document.querySelector('.distant-background') as HTMLElement;
@@ -164,17 +164,25 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     // Posisi akhir (zoom lebih kecil agar tidak terlalu dekat dengan Geralt)
     const endScale = 0.95;
     
+    // Variabel untuk efek pergerakan kamera dan parallax
+    const startPositionY = -50; // Posisi awal di tengah
+    const endPositionY = -49.5; // Sedikit pergeseran ke bawah untuk simulasi mendekati
+    const startPositionX = -50; // Posisi awal di tengah
+    // Random offset untuk efek tidak sempurna seperti gerakan manusia
+    const randomOffsetX = (Math.random() * 0.4) - 0.2; // -0.2 sampai +0.2
+    const endPositionX = -50 + randomOffsetX;
+    
     // Durasi total efek dalam ms (diperlambat untuk efek yang lebih terasa)
     const duration = 5000; 
     // Interval animasi
     const interval = 16; // 60fps untuk animasi yang lebih halus
     // Jumlah langkah
     const steps = duration / interval;
-    // Penambahan skala per langkah
-    const scaleStep = (endScale - startScale) / steps;
     
-    // Scale dan blur saat ini
+    // Variabel untuk tracking state animasi
     let currentScale = startScale;
+    let currentPositionX = startPositionX;
+    let currentPositionY = startPositionY;
     let currentStep = 0;
     
     // Matikan animasi breathe selama zoom in
@@ -187,7 +195,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         : 1 - Math.pow(-2 * p + 2, 3) / 2;
     }
     
-    // Fungsi easing untuk transisi yang lembut saat mulai, lebih natural untuk zoom
+    // Fungsi easing untuk transisi yang lembut
     function customEaseOut(p: number): number {
       // Kombinasi antara ease-out-quint dan ease-out-cubic
       // Sangat lambat di awal dan secara halus meningkat kecepatan
@@ -195,51 +203,78 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
       return 1 - (p2 * p2 * p2 * p2 * p2 * 0.5 + p2 * p2 * p2 * 0.5);
     }
     
-    // Fungsi animasi dengan easings yang lebih halus
-    const animate = () => {
-      currentStep++;
+    // Fungsi untuk membuat efek bobbing (gerakan naik-turun seperti langkah kaki)
+    function getBobbingOffset(progress: number): number {
+      // Frekuensi langkah kaki (6 langkah selama durasi)
+      const frequency = 6;
+      // Amplitudo efek bobbing (seberapa tinggi/rendah)
+      const amplitude = 0.15;
+      // Sinusoidal function untuk gerakan naik-turun
+      return Math.sin(progress * Math.PI * frequency) * amplitude * progress;
+    }
+    
+    // Variabel waktu untuk animasi frame-based
+    let lastTime = performance.now();
+    let elapsedTime = 0;
+    
+    // Fungsi animasi dengan easings yang lebih halus dan gerakan kamera realistis
+    const animate = (currentTime: number) => {
+      // Hitung delta time untuk animasi yang konsisten
+      const deltaTime = currentTime - lastTime;
+      lastTime = currentTime;
       
-      if (currentStep <= steps) {
-        // Menggunakan fungsi easing cubic yang lebih halus
-        // Efek ini membuat pergerakan lebih natural dengan percepatan dan perlambatan bertahap
-        const progress = currentStep / steps;
-        
-        // Menerapkan easing cubic untuk pergerakan yang sangat halus
+      // Update elapsed time
+      elapsedTime += deltaTime;
+      
+      // Normalize progress (0 sampai 1)
+      const progress = Math.min(elapsedTime / duration, 1);
+      
+      if (progress < 1) {
+        // Gunakan cubic easing untuk pergerakan halus
         const easedProgress = cubicEaseInOut(progress);
           
-        // Apply easing to scale dengan interpolasi lebih halus
+        // Efek parallax: Scale meningkat (zoom in)
         currentScale = startScale + (endScale - startScale) * easedProgress;
         
-        // Menerapkan transform dengan nilai scale yang sesuai
-        bgElement.style.transform = `translate(-50%, -50%) scale(${currentScale})`;
+        // Efek parallax: Posisi X dan Y bergerak sesuai arah gerakan
+        currentPositionX = startPositionX + (endPositionX - startPositionX) * easedProgress;
+        currentPositionY = startPositionY + (endPositionY - startPositionY) * easedProgress;
         
-        // Gunakan custom easing untuk filter juga
-        // Easing khusus untuk efek blur yang lebih halus di awal
+        // Efek bobbing (gerakan naik-turun) hanya mulai setelah 10% progress
+        const bobOffset = progress > 0.1 ? getBobbingOffset(progress) : 0;
+        
+        // Gunakan custom easing untuk efek blur yang lebih halus
         const blurEasedProgress = customEaseOut(easedProgress);
         
-        // Gunakan nilai minimum blur 1.4px untuk tetap menjaga kesan jarak
-        // dan transisi yang lebih halus dengan easing khusus
+        // Gunakan nilai minimum blur 1.4px untuk tetap mempertahankan kesan jarak
         const blurValue = Math.max(1.4, 2 - (blurEasedProgress * 0.6));
         
-        // Untuk brightness, gunakan easing yang lebih subtil
-        // Efek transisi sangat lambat saat awal dan meningkat halus
+        // Transisi brightness yang sangat halus dengan sine easing
         const brightnessBaseline = 0.6;
-        const brightnessMax = 0.68; // Batas maksimum agar tidak terlalu terang
-        
-        // Gunakan kombinasi cubic dan sine easing untuk transisi brightness yang ultra-smooth
-        // Formula ini memberikan perubahan sangat halus di awal dan akhir
-        const brightnessProgress = 0.5 - Math.cos(easedProgress * Math.PI) / 2; // Sine easing
+        const brightnessMax = 0.68;
+        const brightnessProgress = 0.5 - Math.cos(easedProgress * Math.PI) / 2;
         const brightnessValue = brightnessBaseline + 
                               (brightnessProgress * (brightnessMax - brightnessBaseline));
         
+        // Terapkan semua efek transform dan filter
+        bgElement.style.transform = `translate(${currentPositionX}%, ${currentPositionY + bobOffset}%) scale(${currentScale})`;
         bgElement.style.filter = `blur(${blurValue}px) brightness(${brightnessValue})`;
         
         // Lanjutkan animasi
         requestAnimationFrame(animate);
+      } else {
+        // Saat animasi selesai, terapkan posisi akhir dengan presisi tepat
+        // untuk menghindari pembulatan yang bisa membuat posisi sedikit bergeser
+        bgElement.style.transform = `translate(${endPositionX}%, ${endPositionY}%) scale(${endScale})`;
+        
+        // Terapkan nilai akhir filter
+        const finalBlurValue = Math.max(1.4, 2 - (1 * 0.6)); // fullProgress = 1
+        const finalBrightnessValue = brightnessBaseline + (brightnessMax - brightnessBaseline); 
+        bgElement.style.filter = `blur(${finalBlurValue}px) brightness(${finalBrightnessValue})`;
       }
     };
     
-    // Mulai animasi
+    // Mulai animasi dengan timestamp saat ini
     requestAnimationFrame(animate);
   };
   
