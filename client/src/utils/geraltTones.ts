@@ -26,101 +26,15 @@ export type GeraltTone = keyof typeof GERALT_TONE;
  * @returns Pengaturan voice yang sesuai untuk API ElevenLabs
  */
 export function getVoiceSettings(tone: GeraltTone) {
-  // Default voice settings untuk Geralt of Rivia
-  // Menggunakan nilai yang diminta: Stability 80%, Similarity 100%, Speaking Rate 0.95
-  const defaultSettings = {
+  // Sesuai permintaan, menggunakan pengaturan yang konsisten untuk semua tone
+  // Stability 80%, Similarity 100%, Style 60%, Speaking Rate 0.95
+  return {
     stability: 0.80,            // 80% stability sesuai permintaan
     similarity_boost: 1.0,      // 100% similarity sesuai permintaan 
     style: 0.60,                // Style moderate untuk karakter Geralt
     use_speaker_boost: true,
     speaking_rate: 0.95         // 0.95 speaking rate sesuai permintaan
   };
-  
-  // Sesuaikan pengaturan berdasarkan tone dengan tetap menjaga karakteristik suara Geralt
-  // Variasi minimal untuk menjaga konsistensi suara Geralt yang khas
-  switch (tone) {
-    case "ANGRY":
-      return {
-        ...defaultSettings,
-        stability: 0.85,        // Meningkatkan stability agar tidak rancau
-        style: 0.60,            // Menurunkan sedikit ekspresivitas agar tidak terlalu berlebihan
-        speaking_rate: 0.95     // Gunakan speaking rate standar sesuai permintaan
-      };
-      
-    case "TIRED":
-      return {
-        ...defaultSettings,
-        style: 0.45,            // Kurang ekspresif ketika lelah
-        speaking_rate: 0.85     // Lebih lambat ketika lelah
-      };
-      
-    case "DRUNK":
-      return {
-        ...defaultSettings,
-        stability: 0.75,        // Sedikit kurang stabil untuk efek mabuk
-        style: 0.65,            // Ekspresivitas normal
-        speaking_rate: 0.90     // Sedikit lebih lambat seperti orang mabuk
-      };
-      
-    case "NUMB":
-      return {
-        ...defaultSettings,
-        style: 0.40,            // Sangat kurang ekspresif untuk karakter Geralt yang mati rasa
-        speaking_rate: 0.92     // Sedikit lebih lambat
-      };
-      
-    case "SARCASTIC":
-      return {
-        ...defaultSettings,
-        style: 0.75,            // Lebih ekspresif untuk menunjukkan sarkasme
-        speaking_rate: 0.95     // Normal rate
-      };
-      
-    case "RESIGNED":
-      return {
-        ...defaultSettings,
-        style: 0.50,            // Kurang ekspresif untuk nada pasrah
-        speaking_rate: 0.90     // Sedikit lebih lambat untuk kesan pasrah
-      };
-      
-    case "HOLLOW":
-      return {
-        ...defaultSettings,
-        style: 0.40,            // Sangat kurang ekspresif untuk nada hampa
-        speaking_rate: 0.88     // Lebih lambat untuk kesan hampa
-      };
-      
-    case "ANNOYED":
-      return {
-        ...defaultSettings,
-        style: 0.70,            // Lebih ekspresif untuk menunjukkan kejengkelan
-        speaking_rate: 0.97     // Sedikit lebih cepat karena tidak sabar
-      };
-      
-    case "CONTEMPLATIVE":
-      return {
-        ...defaultSettings,
-        style: 0.55,            // Kurang ekspresif ketika berpikir
-        speaking_rate: 0.90     // Lebih lambat ketika sedang merenung
-      };
-      
-    case "BITTER":
-      return {
-        ...defaultSettings,
-        style: 0.65,            // Ekspresivitas normal dengan emosi pedih
-        speaking_rate: 0.92     // Sedikit lebih lambat untuk kesan pahit
-      };
-      
-    case "NEUTRAL":
-      return {
-        ...defaultSettings,
-        style: 0.60,            // Style moderate sesuai karakter Geralt of Rivia
-        speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
-      };
-      
-    default:
-      return defaultSettings;
-  }
 }
 
 /**

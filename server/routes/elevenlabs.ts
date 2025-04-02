@@ -18,16 +18,69 @@ const textHashCache = new Map<string, string>();
 // Inisialisasi cache dari file yang sudah ada untuk percepatan lookup
 function initializeAudioCache() {
   try {
+    // Hapus semua file cache audio kecuali silent.mp3
+    console.log("Cleaning audio cache before initialization...");
+    
     // Pastikan kedua folder audio ada
     if (!fs.existsSync(characterAudioDir)) {
       fs.mkdirSync(characterAudioDir, { recursive: true });
+    } else {
+      // Hapus semua file dialog_*.mp3 dari folder character
+      const characterFiles = fs.readdirSync(characterAudioDir);
+      const characterDialogFiles = characterFiles.filter(file => 
+        file.startsWith('dialog_') && file.endsWith('.mp3')
+      );
+      
+      characterDialogFiles.forEach(file => {
+        try {
+          fs.unlinkSync(path.join(characterAudioDir, file));
+          console.log(`Deleted cached audio file: ${file} from character folder`);
+        } catch (err) {
+          console.error(`Error deleting file ${file}:`, err);
+        }
+      });
     }
     
     if (!fs.existsSync(geraltAudioDir)) {
       fs.mkdirSync(geraltAudioDir, { recursive: true });
+    } else {
+      // Hapus semua file dialog_*.mp3 dari folder geralt
+      const geraltFiles = fs.readdirSync(geraltAudioDir);
+      const geraltDialogFiles = geraltFiles.filter(file => 
+        file.startsWith('dialog_') && file.endsWith('.mp3')
+      );
+      
+      geraltDialogFiles.forEach(file => {
+        try {
+          fs.unlinkSync(path.join(geraltAudioDir, file));
+          console.log(`Deleted cached audio file: ${file} from geralt folder`);
+        } catch (err) {
+          console.error(`Error deleting file ${file}:`, err);
+        }
+      });
     }
     
-    // Scan folder character
+    // Pastikan ada silent.mp3 di folder character
+    const silentCharacterPath = path.join(characterAudioDir, 'silent.mp3');
+    if (!fs.existsSync(silentCharacterPath)) {
+      try {
+        // Buat file silent.mp3 baru
+        const silentMP3Buffer = Buffer.from([
+          0xFF, 0xFB, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        ]);
+        fs.writeFileSync(silentCharacterPath, silentMP3Buffer);
+        console.log(`Created silent.mp3 file in ${characterAudioDir}`);
+      } catch (error) {
+        console.error("Error creating silent.mp3:", error);
+      }
+    }
+    
+    // Clear the textHashCache
+    textHashCache.clear();
+    console.log("Audio cache cleared successfully");
+    
+    // Scan folder character for any remaining files
     if (fs.existsSync(characterAudioDir)) {
       const files = fs.readdirSync(characterAudioDir);
       
@@ -45,7 +98,7 @@ function initializeAudioCache() {
       });
     }
     
-    // Scan folder geralt
+    // Scan folder geralt for any remaining files
     if (fs.existsSync(geraltAudioDir)) {
       const files = fs.readdirSync(geraltAudioDir);
       
