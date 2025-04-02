@@ -168,7 +168,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   useEffect(() => {
     // Start the dialog sequence hanya jika user belum berinteraksi dengan hover dialog
     if (!hoverDialogController.hasUserInteractedWithHover()) {
-      console.log("[DialogBox] Memulai dialog utama sequence");
       dialogController.startDialog((text, complete) => {
         setText(text);
         setIsComplete(complete);
@@ -182,30 +181,15 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         
         // Notify HoverDialogController about dialog completion status
         hoverDialogController.setDialogCompleted(complete);
-        
-        // Log status dialog untuk membantu debugging
-        if (complete) {
-          console.log("[DialogBox] Dialog text complete:", text.substring(0, 30) + "...");
-        }
       });
     }
     
     // Set hover dialog callback
     hoverDialogController.setHoverTextCallback((text, complete) => {
-      // Jika dialog utama sedang aktif, jangan tampilkan hover dialog
-      if (dialogSource === 'main' && !isComplete) {
-        console.log("[DialogBox] Menunda hover dialog karena dialog utama sedang aktif");
-        return; // Jangan tampilkan hover dialog jika dialog utama sedang aktif
-      }
-      
       setText(text);
       setIsComplete(complete);
       setDialogSource('hover');
       setCharacterName('Geralt of Rivia'); // Dialog hover dari Geralt (idle warnings juga)
-      
-      if (complete) {
-        console.log("[DialogBox] Hover dialog complete:", text.substring(0, 30) + "...");
-      }
     });
     
     // Cleanup on unmount
@@ -216,7 +200,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         clearTimeout(autoPlayTimerRef.current);
       }
     };
-  }, [dialogSource, isComplete]);
+  }, []);
 
   if (isDialogFinished) {
     return null; // Don't render anything when dialog is finished

@@ -65,17 +65,13 @@ class DialogController {
   }
 
   public startDialog(callback: (text: string, isComplete: boolean) => void): void {
-    console.log("[DialogController] Starting dialog sequence");
-    
-    // Reset dialog to beginning and get first dialog with nextDialog()
+    // Reset dialog to beginning
     this.dialogModel.resetDialog();
-    const dialog = this.dialogModel.nextDialog(); // First call to nextDialog() after reset
     
+    // Get first dialog
+    const dialog = this.dialogModel.getCurrentDialog();
     if (dialog) {
-      console.log(`[DialogController] Starting dialog with ID: ${dialog.id}`);
       this.typeDialog(dialog, callback);
-    } else {
-      console.log("[DialogController] No dialog found to display");
     }
   }
 

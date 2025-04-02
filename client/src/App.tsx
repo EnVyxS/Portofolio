@@ -116,14 +116,8 @@ function MainApp() {
       idleTimeoutControllerRef.current.setPunchUserCallback(handlePunchUser);
       idleTimeoutControllerRef.current.setResetSceneCallback(resetSceneCallback);
       
-      // Mulai timer idle dengan delay untuk memastikan dialog selesai terlebih dahulu
-      console.log("[App] Menjadwalkan timer idle dengan delay 10 detik untuk memberikan waktu dialog utama berjalan");
-      setTimeout(() => {
-        if (idleTimeoutControllerRef.current) {
-          console.log("[App] Memulai timer idle setelah delay");
-          idleTimeoutControllerRef.current.startIdleTimer();
-        }
-      }, 10000); // Delay 10 detik sebelum mulai idle timer
+      // Mulai timer idle
+      idleTimeoutControllerRef.current.startIdleTimer();
     }
   }, [approachClicked, handleThrowUser, handlePunchUser, resetSceneCallback]);
   
