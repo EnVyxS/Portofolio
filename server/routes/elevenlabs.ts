@@ -338,6 +338,8 @@ router.get('/audio-exists/:hash', (req: Request, res: Response) => {
  */
 router.post('/text-to-speech', async (req: Request, res: Response) => {
   try {
+    // Get API key from environment
+    const localApiKey = process.env.ELEVENLABS_API_KEY;
     // Get text and voice_id from the request body
     const { text, voice_id = '3Cka3TLKjahfz6KX4ckZ', voice_settings, model_id: clientModelId, forceGeneration = false } = req.body;
     console.log("Using ElevenLabs API key from environment variable");
@@ -381,10 +383,10 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     }
     
     // Bersihkan text untuk hashing (hilangkan tag emosi, dll)
-    const cleanText = text.replace(/\[(.*?)\]\s*/g, '').trim();
+    const processedCleanText = text.replace(/\[(.*?)\]\s*/g, '').trim();
     
     // Gunakan hash dari teks bersih untuk konsistensi
-    const originalHash = generateSimpleHash(cleanText);
+    const originalHash = generateSimpleHash(processedCleanText);
     const originalFileName = `dialog_${originalHash}.mp3`;
     
     // Define audio character directory with constant from above
@@ -410,7 +412,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       
       // Check original file cache first
       if (fs.existsSync(originalAudioFilePath)) {
-        console.log(`Audio file found for original text: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
+        console.log(`Audio file found for original text: "${processedCleanText.substring(0, 30)}${processedCleanText.length > 30 ? '...' : ''}"`);
         // Add to memory cache for faster future lookups
         textHashCache.set(originalHash, originalFileName);
         return res.status(200).json({ 
@@ -428,7 +430,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
           // Copy the file to character folder to make future lookups faster
           try {
             fs.copyFileSync(originalInGeraltsFolder, originalAudioFilePath);
-            console.log(`Reused audio from geralt folder for: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
+            console.log(`Reused audio from geralt folder for: "${processedCleanText.substring(0, 30)}${processedCleanText.length > 30 ? '...' : ''}"`);
             // Update cache
             textHashCache.set(originalHash, originalFileName);
             return res.status(200).json({ 
@@ -452,7 +454,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
         try {
           // Copy from backup to character folder
           fs.copyFileSync(backupFilePath, originalAudioFilePath);
-          console.log(`Restored audio from backup for: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
+          console.log(`Restored audio from backup for: "${processedCleanText.substring(0, 30)}${processedCleanText.length > 30 ? '...' : ''}"`);
           
           // Update cache
           textHashCache.set(originalHash, originalFileName);
@@ -479,10 +481,11 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     let tone = '';
     let voiceSettings = null;
     
+    // cleanText sudah ada di atas, kita gunakan nama variabel yang berbeda
     // Hapus tag emosi dari teks asli untuk dikirim ke ElevenLabs
-    let cleanText = text.replace(/\[(.*?)\]\s*/g, '').trim();
+    let finalAnalyzedText = text.replace(/\[(.*?)\]\s*/g, '').trim();
     
-    console.log(`Analyzing tone for text: "${cleanText.substring(0, 50)}${cleanText.length > 50 ? '...' : ''}"`); // Added more verbose logging
+    console.log(`Analyzing tone for text: "${finalAnalyzedText.substring(0, 50)}${finalAnalyzedText.length > 50 ? '...' : ''}"`); // Added more verbose logging
     
     // Deteksi tone dari teks (versi yang lebih konsisten untuk mengurangi rancau audio)
     // Nilai basis untuk semua tone
@@ -594,7 +597,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     else {
       // Default tone is slightly resigned (Geralt of Rivia baseline)
       tone = 'NEUTRAL';
-      console.log(`Using default NEUTRAL tone for text: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
+      console.log(`Using default NEUTRAL tone for text: "${finalAnalyzedText.substring(0, 30)}${finalAnalyzedText.length > 30 ? '...' : ''}"`);
       
       // Default voice settings untuk Geralt of Rivia - konsisten
       voiceSettings = {
@@ -605,7 +608,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     }
     
     // Normalize text - remove excessive whitespace and asterisks
-    let finalCleanedText = cleanText.replace(/\*/g, "").trim().replace(/\s+/g, ' ');
+    let finalCleanedText = finalAnalyzedText.replace(/\*/g, "").trim().replace(/\s+/g, ' ');
     
     // Penanganan lebih umum untuk dialog bermasalah yang mengandung kata kasar
     const profanityDetected = finalCleanedText.includes("fucking") || 
@@ -728,7 +731,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       headers: {
         'Accept': 'audio/mpeg',
         'Content-Type': 'application/json',
-        'xi-api-key': apiKey
+        'xi-api-key': localApiKey
       },
       body: requestBodyString
     });
