@@ -112,30 +112,30 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     // Mainkan efek suara souls-like
     playSoulsSound();
     
-    // Memulai langkah kaki lebih cepat (hanya jeda sekitar 1 detik setelah klik)
+    // Memulai langkah kaki dengan jeda 1.5 detik setelah klik
     setTimeout(() => {
-      console.log("Starting footsteps after 1 second delay");
+      console.log("Starting footsteps after 1.5 second delay");
       if (footstepsSoundRef.current) {
         footstepsSoundRef.current.currentTime = 0;
         footstepsSoundRef.current.volume = 0.7; // Volume yang cukup keras agar terdengar jelas
-        footstepsSoundRef.current.playbackRate = 1.1; // Sedikit dipercepat agar terasa ada progress
+        footstepsSoundRef.current.playbackRate = 1.0; // Normal speed untuk langkah kaki
         footstepsSoundRef.current.play()
           .catch(e => console.log("Couldn't play delayed footsteps:", e));
       }
 
       // Mulai zoom in effect pada background
       startZoomEffect();
-    }, 1000); // Delay hanya 1 detik sebelum memulai langkah kaki
+    }, 1500); // Delay 1.5 detik sebelum memulai langkah kaki
     
-    // Transition lebih cepat - total waktu hanya 3 detik
-    // (1 detik jeda + 2 detik berjalan)
+    // Transition total waktu 5 detik
+    // (1.5 detik jeda + 3.5 detik berjalan)
     setTimeout(() => {
-      // Stop langkah kaki sebelum transition dengan fade out yang lebih cepat
+      // Stop langkah kaki sebelum transition dengan fade out yang lebih lambat
       if (footstepsSoundRef.current) {
         // Fade out effect untuk suara langkah kaki
         const fadeOutInterval = setInterval(() => {
           if (footstepsSoundRef.current && footstepsSoundRef.current.volume > 0.05) {
-            footstepsSoundRef.current.volume -= 0.05; // Fade out yang lebih cepat
+            footstepsSoundRef.current.volume -= 0.03; // Fade out yang lebih lambat
           } else {
             if (footstepsSoundRef.current) {
               footstepsSoundRef.current.pause();
@@ -145,12 +145,12 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
             // Lakukan transisi setelah suara langkah kaki fade out
             onApproach();
           }
-        }, 50);
+        }, 70);
       } else {
         // Jika tidak ada footsteps sound, tetap lakukan transisi
         onApproach();
       }
-    }, 3000); // Total waktu: 3 detik (1 detik jeda + 2 detik berjalan)
+    }, 5000); // Total waktu: 5 detik (1.5 detik jeda + 3.5 detik berjalan)
   };
   
   // Fungsi untuk membuat efek zoom in yang halus
@@ -164,8 +164,8 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     // Posisi akhir (zoom in lebih besar untuk efek yang lebih terlihat)
     const endScale = 1.2;
     
-    // Durasi total efek dalam ms (lebih lama untuk efek yang lebih terasa)
-    const duration = 3000; 
+    // Durasi total efek dalam ms (diperlambat untuk efek yang lebih terasa)
+    const duration = 5000; 
     // Interval animasi
     const interval = 16; // 60fps untuk animasi yang lebih halus
     // Jumlah langkah
