@@ -40,15 +40,15 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
   const interactionTimeout = useRef<NodeJS.Timeout | null>(null);
   const autoPlayAttempted = useRef<boolean>(false);
 
-  // Set audio properties
+  // Set audio properties dengan volume yang lebih rendah
   useEffect(() => {
     // Setup main music
     music.loop = true;
-    music.volume = 0.15; // Lebih pelan dari biasanya (15% volume)
+    music.volume = 0.08; // Sangat pelan (8% volume), lebih rendah dari sebelumnya
     
     // Setup ambient sound
     ambient.loop = true;
-    ambient.volume = 0.06; // Sekitar 40% dari volume musik utama
+    ambient.volume = 0.03; // Sangat rendah untuk ambient sound
     
     // Cleanup on unmount
     return () => {

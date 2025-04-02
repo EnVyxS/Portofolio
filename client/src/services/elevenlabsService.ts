@@ -8,11 +8,11 @@ class ElevenLabsService {
 
   // Map character names to ElevenLabs voice IDs (diperbarui sesuai permintaan)
   private voiceMap: Record<string, string> = {
-    'geralt': 'B716PSrQrzRiI4pc6wxc', // Voice ID untuk Geralt dengan ID baru
+    'geralt': import.meta.env.VITE_ELEVENLABS_DEFAULT_VOICE_ID || '', // Voice ID untuk Geralt dari env
     'ciri': 'jsCqWAovK2LkecY7zXl4',   // Nicole voice for Ciri dengan API key baru 
     'yennefer': '21m00Tcm4TlvDq8ikWAM', // Rachel voice with accent for Yen dengan API key baru
-    'character': 'B716PSrQrzRiI4pc6wxc', // Voice ID untuk karakter default dengan ID baru
-    'default': 'B716PSrQrzRiI4pc6wxc'  // Default ke voice ID baru
+    'character': import.meta.env.VITE_ELEVENLABS_DEFAULT_VOICE_ID || '', // Voice ID untuk karakter default dari env
+    'default': import.meta.env.VITE_ELEVENLABS_DEFAULT_VOICE_ID || ''  // Default ke voice ID dari env
   };
 
   // Simpan file audio lokal berdasarkan hash sederhana dari teks
@@ -474,11 +474,14 @@ class ElevenLabsService {
     return this.isPlaying;
   }
   
-  // Metode untuk memainkan suara ambient api
-  public playAmbientSound(volume: number = 0.2): void {
+  // Metode untuk memainkan suara ambient api dengan volume lebih rendah
+  public playAmbientSound(volume: number = 0.1): void {
     if (!this.ambientAudio) {
-      this.ambientAudio = new Audio('/audio/ambient_fire.m4a');
+      this.ambientAudio = new Audio('/assets/fireplace-ambient.m4a');
       this.ambientAudio.loop = true;
+      this.ambientAudio.volume = volume; // Default lebih rendah
+    } else {
+      // Update volume if it was already created
       this.ambientAudio.volume = volume;
     }
     
@@ -494,10 +497,26 @@ class ElevenLabsService {
     }
   }
   
-  // Menyetel volume suara ambient
+  // Menyetel volume suara ambient dengan transisi yang halus untuk proximity
   public setAmbientVolume(volume: number): void {
     if (this.ambientAudio) {
-      this.ambientAudio.volume = Math.max(0, Math.min(1, volume));
+      // Membatasi volume maksimum lebih rendah dari sebelumnya
+      const targetVolume = Math.max(0, Math.min(0.3, volume));
+      
+      // Menggunakan transisi volume yang halus dengan setTimeout
+      const currentVolume = this.ambientAudio.volume;
+      const volumeDiff = targetVolume - currentVolume;
+      const steps = 10;
+      const stepSize = volumeDiff / steps;
+      
+      // Buat transisi volume dalam 10 langkah selama 300ms
+      for (let i = 0; i <= steps; i++) {
+        setTimeout(() => {
+          if (this.ambientAudio) {
+            this.ambientAudio.volume = currentVolume + (stepSize * i);
+          }
+        }, 30 * i);
+      }
     }
   }
 }

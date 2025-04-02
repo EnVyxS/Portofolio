@@ -223,12 +223,13 @@ function generateSimpleHash(input: string): string {
 router.post('/text-to-speech', async (req: Request, res: Response) => {
   try {
     // Get text and voice_id from the request body
-    const { text, voice_id = 'B716PSrQrzRiI4pc6wxc', voice_settings, model_id: clientModelId } = req.body;
+    const defaultVoiceId = process.env.VITE_ELEVENLABS_DEFAULT_VOICE_ID || '';
+    const { text, voice_id = defaultVoiceId, voice_settings, model_id: clientModelId } = req.body;
     console.log("Using ElevenLabs API key from environment variable");
     console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 40)}..."`);
     console.log(`Using voice_id: ${voice_id}`);
     
-    // Make sure to use the model for ElevenLabs premium tier that works with voice ID B716PSrQrzRiI4pc6wxc
+    // Menggunakan model premium untuk kualitas terbaik
     const model_id = 'eleven_multilingual_v2'; // Using premium model for better quality
     
     
