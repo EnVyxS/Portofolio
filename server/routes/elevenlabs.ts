@@ -264,20 +264,88 @@ function generateSimpleHash(input: string): string {
 }
 
 /**
+ * Endpoint untuk memeriksa database file yang sudah ada
+ * Ini akan membantu klien memastikan file telah ada untuk semua dialog
+ */
+router.get('/audio-exists/:hash', (req: Request, res: Response) => {
+  try {
+    const { hash } = req.params;
+    if (!hash) {
+      return res.status(400).json({ exists: false, error: 'Hash parameter is required' });
+    }
+
+    const filePattern = `dialog_${hash}.mp3`;
+    const characterPath = path.join(characterAudioDir, filePattern);
+    const geraltPath = path.join(geraltAudioDir, filePattern);
+    const backupPath = path.join(path.join(publicDir, 'audio/backup'), filePattern);
+    
+    // Periksa di semua lokasi
+    const existsInCharacter = fs.existsSync(characterPath);
+    const existsInGeralt = fs.existsSync(geraltPath);
+    const existsInBackup = fs.existsSync(backupPath);
+    
+    if (existsInCharacter || existsInGeralt || existsInBackup) {
+      let audioPath = '';
+      
+      // Prioritaskan character folder, kemudian geralt, terakhir backup
+      if (existsInCharacter) {
+        audioPath = `/audio/character/${filePattern}`;
+      } else if (existsInGeralt) {
+        audioPath = `/audio/geralt/${filePattern}`;
+        
+        // Copy to character folder untuk mempercepat akses mendatang
+        try {
+          fs.copyFileSync(geraltPath, characterPath);
+          audioPath = `/audio/character/${filePattern}`;
+          console.log(`Copied audio file from geralt to character: ${filePattern}`);
+        } catch (err) {
+          console.error(`Failed to copy file from geralt to character: ${err}`);
+        }
+      } else if (existsInBackup) {
+        // Restore dari backup
+        try {
+          fs.copyFileSync(backupPath, characterPath);
+          audioPath = `/audio/character/${filePattern}`;
+          console.log(`Restored audio file from backup: ${filePattern}`);
+        } catch (err) {
+          console.error(`Failed to restore file from backup: ${err}`);
+          audioPath = `/audio/backup/${filePattern}`;
+        }
+      }
+      
+      return res.status(200).json({ 
+        exists: true, 
+        audioPath,
+        message: 'Audio file exists'
+      });
+    }
+    
+    // File tidak ditemukan di mana pun
+    return res.status(200).json({ 
+      exists: false,
+      message: 'Audio file not found in any location'
+    });
+  } catch (error) {
+    console.error('Error checking audio file existence:', error);
+    return res.status(500).json({ exists: false, error: 'Internal server error' });
+  }
+});
+
+/**
  * Endpoint for elevenlabs text-to-speech service
  * Integrates caching mechanism to save API credits
+ * Dengan peningkatan pada deteksi file yang ada
  */
 router.post('/text-to-speech', async (req: Request, res: Response) => {
   try {
     // Get text and voice_id from the request body
-    const { text, voice_id = '3Cka3TLKjahfz6KX4ckZ', voice_settings, model_id: clientModelId } = req.body;
+    const { text, voice_id = '3Cka3TLKjahfz6KX4ckZ', voice_settings, model_id: clientModelId, forceGeneration = false } = req.body;
     console.log("Using ElevenLabs API key from environment variable");
     console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 40)}..."`);
     console.log(`Using voice_id: ${voice_id}`);
     
     // Make sure to use the model for ElevenLabs premium tier that works with voice ID 3Cka3TLKjahfz6KX4ckZ
     const model_id = 'eleven_multilingual_v2'; // Using premium model for better quality
-    
     
     // Validate input
     if (!text) {
@@ -312,17 +380,11 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       });
     }
     
-    // Use API key from environment variables
-    const apiKey = process.env.ELEVENLABS_API_KEY;
+    // Bersihkan text untuk hashing (hilangkan tag emosi, dll)
+    const cleanText = text.replace(/\[(.*?)\]\s*/g, '').trim();
     
-    console.log("Using ElevenLabs API key from environment variable");
-    
-    if (!apiKey) {
-      return res.status(500).json({ error: 'API key not found' });
-    }
-    
-    // Generate hash for the original text (for lookup in existing files)
-    const originalHash = generateSimpleHash(text);
+    // Gunakan hash dari teks bersih untuk konsistensi
+    const originalHash = generateSimpleHash(cleanText);
     const originalFileName = `dialog_${originalHash}.mp3`;
     
     // Define audio character directory with constant from above
@@ -332,75 +394,82 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     const originalAudioFilePath = path.join(audioDir, originalFileName);
     const originalAudioPublicPath = `/audio/character/${originalFileName}`;
     
-    // Check if hash exists in memory cache first
-    if (textHashCache.has(originalHash)) {
-      console.log(`Found ${originalHash} in memory cache`);
-      // Return cached path
-      return res.status(200).json({
-        success: true,
-        audioPath: `/audio/character/${textHashCache.get(originalHash)}`,
-        cached: true,
-        message: 'Using cached audio file from memory cache'
-      });
-    }
-    
-    // Check original file cache first
-    if (fs.existsSync(originalAudioFilePath)) {
-      console.log(`Audio file found for original text: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
-      // Add to memory cache for faster future lookups
-      textHashCache.set(originalHash, originalFileName);
-      return res.status(200).json({ 
-        success: true, 
-        audioPath: originalAudioPublicPath,
-        cached: true,
-        message: 'Using cached audio file (original)'
-      });
-    }
-    
-    // Check other folders for reuse (to save API credit)
-    if (fs.existsSync(geraltAudioDir)) {
-      const originalInGeraltsFolder = path.join(geraltAudioDir, originalFileName);
-      if (fs.existsSync(originalInGeraltsFolder)) {
-        // Copy the file to character folder to make future lookups faster
-        try {
-          fs.copyFileSync(originalInGeraltsFolder, originalAudioFilePath);
-          console.log(`Reused audio from geralt folder for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
-          return res.status(200).json({ 
-            success: true, 
-            audioPath: originalAudioPublicPath,
-            cached: true,
-            message: 'Reused audio from geralt folder'
-          });
-        } catch (copyErr) {
-          console.error('Error copying file from geralt folder:', copyErr);
-          // Continue to API if copy fails
-        }
+    // Lewati pengecekan cache jika forcing generation
+    if (!forceGeneration) {
+      // Check if hash exists in memory cache first
+      if (textHashCache.has(originalHash)) {
+        console.log(`Found ${originalHash} in memory cache`);
+        // Return cached path
+        return res.status(200).json({
+          success: true,
+          audioPath: `/audio/character/${textHashCache.get(originalHash)}`,
+          cached: true,
+          message: 'Using cached audio file from memory cache'
+        });
       }
-    }
-    
-    // Check backup folder before generating with API
-    const backupDir = path.join(publicDir, 'audio/backup');
-    const backupFilePath = path.join(backupDir, originalFileName);
-    
-    if (fs.existsSync(backupFilePath)) {
-      try {
-        // Copy from backup to character folder
-        fs.copyFileSync(backupFilePath, originalAudioFilePath);
-        console.log(`Restored audio from backup for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
-        
-        // Update cache
+      
+      // Check original file cache first
+      if (fs.existsSync(originalAudioFilePath)) {
+        console.log(`Audio file found for original text: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
+        // Add to memory cache for faster future lookups
         textHashCache.set(originalHash, originalFileName);
-        
         return res.status(200).json({ 
           success: true, 
           audioPath: originalAudioPublicPath,
           cached: true,
-          message: 'Restored from backup audio file'
+          message: 'Using cached audio file (original)'
         });
-      } catch (backupErr) {
-        console.error('Error restoring from backup:', backupErr);
-        // Continue to API if restore fails
       }
+      
+      // Check other folders for reuse (to save API credit)
+      if (fs.existsSync(geraltAudioDir)) {
+        const originalInGeraltsFolder = path.join(geraltAudioDir, originalFileName);
+        if (fs.existsSync(originalInGeraltsFolder)) {
+          // Copy the file to character folder to make future lookups faster
+          try {
+            fs.copyFileSync(originalInGeraltsFolder, originalAudioFilePath);
+            console.log(`Reused audio from geralt folder for: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
+            // Update cache
+            textHashCache.set(originalHash, originalFileName);
+            return res.status(200).json({ 
+              success: true, 
+              audioPath: originalAudioPublicPath,
+              cached: true,
+              message: 'Reused audio from geralt folder'
+            });
+          } catch (copyErr) {
+            console.error('Error copying file from geralt folder:', copyErr);
+            // Continue to API if copy fails
+          }
+        }
+      }
+      
+      // Check backup folder before generating with API
+      const backupDir = path.join(publicDir, 'audio/backup');
+      const backupFilePath = path.join(backupDir, originalFileName);
+      
+      if (fs.existsSync(backupFilePath)) {
+        try {
+          // Copy from backup to character folder
+          fs.copyFileSync(backupFilePath, originalAudioFilePath);
+          console.log(`Restored audio from backup for: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
+          
+          // Update cache
+          textHashCache.set(originalHash, originalFileName);
+          
+          return res.status(200).json({ 
+            success: true, 
+            audioPath: originalAudioPublicPath,
+            cached: true,
+            message: 'Restored from backup audio file'
+          });
+        } catch (backupErr) {
+          console.error('Error restoring from backup:', backupErr);
+          // Continue to API if restore fails
+        }
+      }
+    } else {
+      console.log("Force generation flag set, bypassing cache checks");
     }
     
     // If file doesn't exist anywhere, generate with ElevenLabs API

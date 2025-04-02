@@ -74,6 +74,37 @@ class ElevenLabsService {
     return Math.abs(hash).toString();
   }
   
+  // Method baru untuk memeriksa apakah audio sudah ada di sistem file server
+  // Ini akan memeriksa file di folder character, geralt, dan backup
+  // Jika ada, akan mengembalikan path ke file tersebut
+  private async checkIfAudioExists(text: string): Promise<{exists: boolean, audioPath?: string}> {
+    try {
+      // Generate hash untuk text yang diberikan
+      const hash = this.generateSimpleHash(text);
+      
+      // Cek ketersediaan file di server
+      const response = await fetch(`/api/elevenlabs/audio-exists/${hash}`);
+      
+      if (!response.ok) {
+        console.error(`Error checking audio existence: ${response.status} ${response.statusText}`);
+        return { exists: false };
+      }
+      
+      const data = await response.json();
+      
+      if (data.exists && data.audioPath) {
+        console.log(`Audio for "${text.substring(0, 20)}..." exists at ${data.audioPath}`);
+        return { exists: true, audioPath: data.audioPath };
+      }
+      
+      console.log(`Audio for "${text.substring(0, 20)}..." does not exist`);
+      return { exists: false };
+    } catch (error) {
+      console.error("Error checking audio existence:", error);
+      return { exists: false };
+    }
+  }
+  
   // Inisialisasi hash dialog untuk semua dialog yang mungkin
   private initializeDialogHashes(): void {
     // Dialog dari Geralt yang mungkin muncul
