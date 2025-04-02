@@ -10,6 +10,65 @@ const publicDir = path.resolve(process.cwd(), 'client/public');
 const characterAudioDir = path.join(publicDir, 'audio/character');
 const geraltAudioDir = path.join(publicDir, 'audio/geralt');
 
+// Cache untuk menyimpan hash teks ke nama file
+const textHashCache = new Map<string, string>();
+
+// Inisialisasi cache dari file yang sudah ada untuk percepatan lookup
+function initializeAudioCache() {
+  try {
+    // Pastikan kedua folder audio ada
+    if (!fs.existsSync(characterAudioDir)) {
+      fs.mkdirSync(characterAudioDir, { recursive: true });
+    }
+    
+    if (!fs.existsSync(geraltAudioDir)) {
+      fs.mkdirSync(geraltAudioDir, { recursive: true });
+    }
+    
+    // Scan folder character
+    if (fs.existsSync(characterAudioDir)) {
+      const files = fs.readdirSync(characterAudioDir);
+      
+      // Ambil semua file dialog_*.mp3
+      const dialogFiles = files.filter(file => 
+        file.startsWith('dialog_') && file.endsWith('.mp3')
+      );
+      
+      console.log(`Found ${dialogFiles.length} cached dialog files in character folder`);
+      
+      // Tambahkan ke cache
+      dialogFiles.forEach(file => {
+        const hash = file.replace('dialog_', '').replace('.mp3', '');
+        textHashCache.set(hash, file);
+      });
+    }
+    
+    // Scan folder geralt
+    if (fs.existsSync(geraltAudioDir)) {
+      const files = fs.readdirSync(geraltAudioDir);
+      
+      // Ambil semua file dialog_*.mp3
+      const dialogFiles = files.filter(file => 
+        file.startsWith('dialog_') && file.endsWith('.mp3')
+      );
+      
+      console.log(`Found ${dialogFiles.length} cached dialog files in geralt folder`);
+      
+      // Tambahkan ke cache
+      dialogFiles.forEach(file => {
+        const hash = file.replace('dialog_', '').replace('.mp3', '');
+        if (!textHashCache.has(hash)) {
+          textHashCache.set(hash, file);
+        }
+      });
+    }
+    
+    console.log(`Total unique audio hashes in cache: ${textHashCache.size}`);
+  } catch (error) {
+    console.error('Error initializing audio cache:', error);
+  }
+}
+
 // Fungsi untuk menyalin audio files dari folder geralt ke folder character saat server pertama kali dijalankan
 function copyExistingAudioFiles() {
   try {
@@ -73,6 +132,9 @@ function copyExistingAudioFiles() {
 
 // Jalankan fungsi saat server pertama kali dijalankan
 copyExistingAudioFiles();
+
+// Inisialisasi cache audio
+initializeAudioCache();
 
 // Definisi model valid yang tersedia di ElevenLabs
 const VALID_MODEL = 'eleven_multilingual_v2';
@@ -156,9 +218,23 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     const originalAudioFilePath = path.join(audioDir, originalFileName);
     const originalAudioPublicPath = `/audio/character/${originalFileName}`;
     
+    // Check if hash exists in memory cache first
+    if (textHashCache.has(originalHash)) {
+      console.log(`Found ${originalHash} in memory cache`);
+      // Return cached path
+      return res.status(200).json({
+        success: true,
+        audioPath: `/audio/character/${textHashCache.get(originalHash)}`,
+        cached: true,
+        message: 'Using cached audio file from memory cache'
+      });
+    }
+    
     // Check original file cache first
     if (fs.existsSync(originalAudioFilePath)) {
       console.log(`Audio file found for original text: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
+      // Add to memory cache for faster future lookups
+      textHashCache.set(originalHash, originalFileName);
       return res.status(200).json({ 
         success: true, 
         audioPath: originalAudioPublicPath,
@@ -329,9 +405,23 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     const processedAudioFilePath = path.join(audioDir, processedFileName);
     const processedAudioPublicPath = `/audio/character/${processedFileName}`;
     
+    // Check if processed hash exists in memory cache first
+    if (textHashCache.has(processedHash)) {
+      console.log(`Found processed ${processedHash} in memory cache`);
+      // Return cached path
+      return res.status(200).json({
+        success: true,
+        audioPath: `/audio/character/${textHashCache.get(processedHash)}`,
+        cached: true,
+        message: 'Using cached processed audio file from memory cache'
+      });
+    }
+    
     // Check for processed text in cache
     if (finalCleanedText !== text && fs.existsSync(processedAudioFilePath)) {
       console.log(`Audio file found for processed text with emotions: "${finalCleanedText.substring(0, 30)}${finalCleanedText.length > 30 ? '...' : ''}"`);
+      // Add to memory cache for faster future lookups
+      textHashCache.set(processedHash, processedFileName);
       return res.status(200).json({ 
         success: true, 
         audioPath: processedAudioPublicPath,
@@ -408,11 +498,16 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       fs.writeFileSync(finalFilePath, response.data);
       console.log(`Audio saved to: ${finalFilePath}`);
       
+      // Add to memory cache for future lookups
+      textHashCache.set(processedHash, processedFileName);
+      
       // Also save as original text version for future lookups
       if (originalAudioFilePath !== finalFilePath) {
         try {
           fs.copyFileSync(finalFilePath, originalAudioFilePath);
           console.log(`Also saved as original text version: ${originalAudioFilePath}`);
+          // Also add original hash to cache
+          textHashCache.set(originalHash, originalFileName);
         } catch (copyErr) {
           console.error('Error saving original version:', copyErr);
           // Continue even if this fails
