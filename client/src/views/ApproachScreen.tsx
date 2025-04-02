@@ -180,28 +180,57 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     // Matikan animasi breathe selama zoom in
     bgElement.style.animation = 'none';
     
-    // Fungsi animasi dengan easings untuk gerakan yang lebih realistis
+    // Fungsi untuk easing cubic yang lebih halus
+    function cubicEaseInOut(p: number): number {
+      return p < 0.5
+        ? 4 * p * p * p
+        : 1 - Math.pow(-2 * p + 2, 3) / 2;
+    }
+    
+    // Fungsi easing untuk transisi yang lembut saat mulai, lebih natural untuk zoom
+    function customEaseOut(p: number): number {
+      // Kombinasi antara ease-out-quint dan ease-out-cubic
+      // Sangat lambat di awal dan secara halus meningkat kecepatan
+      const p2 = 1 - p;
+      return 1 - (p2 * p2 * p2 * p2 * p2 * 0.5 + p2 * p2 * p2 * 0.5);
+    }
+    
+    // Fungsi animasi dengan easings yang lebih halus
     const animate = () => {
       currentStep++;
       
       if (currentStep <= steps) {
-        // Menggunakan fungsi easing untuk pergerakan yang lebih alami
-        // Pergerakan lambat di awal, kemudian pelan-pelan dipercepat
+        // Menggunakan fungsi easing cubic yang lebih halus
+        // Efek ini membuat pergerakan lebih natural dengan percepatan dan perlambatan bertahap
         const progress = currentStep / steps;
-        const easedProgress = progress < 0.5 
-          ? 2 * progress * progress 
-          : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+        
+        // Menerapkan easing cubic untuk pergerakan yang sangat halus
+        const easedProgress = cubicEaseInOut(progress);
           
-        // Apply easing to scale
+        // Apply easing to scale dengan interpolasi lebih halus
         currentScale = startScale + (endScale - startScale) * easedProgress;
         
         // Menerapkan transform dengan nilai scale yang sesuai
         bgElement.style.transform = `translate(-50%, -50%) scale(${currentScale})`;
         
-        // Kurangi blur secara lebih halus
-        const blurValue = Math.max(1, 2 - (easedProgress * 1));
-        // Tingkatkan brightness secukupnya agar tidak terlalu terang
-        const brightnessValue = 0.6 + (easedProgress * 0.15);
+        // Gunakan custom easing untuk filter juga
+        // Easing khusus untuk efek blur yang lebih halus di awal
+        const blurEasedProgress = customEaseOut(easedProgress);
+        
+        // Gunakan nilai minimum blur 1.4px untuk tetap menjaga kesan jarak
+        // dan transisi yang lebih halus dengan easing khusus
+        const blurValue = Math.max(1.4, 2 - (blurEasedProgress * 0.6));
+        
+        // Untuk brightness, gunakan easing yang lebih subtil
+        // Efek transisi sangat lambat saat awal dan meningkat halus
+        const brightnessBaseline = 0.6;
+        const brightnessMax = 0.68; // Batas maksimum agar tidak terlalu terang
+        
+        // Gunakan kombinasi cubic dan sine easing untuk transisi brightness yang ultra-smooth
+        // Formula ini memberikan perubahan sangat halus di awal dan akhir
+        const brightnessProgress = 0.5 - Math.cos(easedProgress * Math.PI) / 2; // Sine easing
+        const brightnessValue = brightnessBaseline + 
+                              (brightnessProgress * (brightnessMax - brightnessBaseline));
         
         bgElement.style.filter = `blur(${blurValue}px) brightness(${brightnessValue})`;
         
