@@ -267,12 +267,6 @@ class DialogModel {
       text: "What do you want?..",
       voiceId: "geralt",
     },
-    {
-      id: 44,
-      character: "Diva Juan Nur Taqarrub",
-      text: "Talk... You got a job, or just wasting my time?..",
-      voiceId: "geralt",
-    },
   ];
 
   private currentDialogIndex: number = 0;
