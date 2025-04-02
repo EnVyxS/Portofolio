@@ -499,98 +499,191 @@ class ElevenLabsService {
       // Create audio URL
       const audioUrl = URL.createObjectURL(audioBlob);
       
-      // Create new audio element
-      this.audioElement = new Audio();
-      
-      // Set up error handling before setting src
-      this.audioElement.onerror = (e) => {
-        console.error(`Audio playback error:`, e);
-        this.isPlaying = false;
-        URL.revokeObjectURL(audioUrl);
-        this.audioElement = null;
-        return false;
-      };
-      
-      // Set audio properties untuk pengalaman yang lebih baik
-      this.audioElement.preload = "auto";
-      
-      // Wait for audio to be loaded before playing
-      await new Promise<void>((resolve, reject) => {
-        if (!this.audioElement) {
-          reject(new Error("Audio element is null"));
-          return;
-        }
+      // Implementasi fallback untuk menangani kasus di mana Audio object gagal
+      // Mulai dengan standar Audio API
+      try {
+        // Create new audio element
+        this.audioElement = new Audio();
         
-        // Set event handlers
-        this.audioElement.oncanplaythrough = () => {
-          resolve();
-        };
-        
+        // Set up error handling before setting src
         this.audioElement.onerror = (e) => {
-          console.error("Error loading audio:", e);
-          reject(new Error("Failed to load audio"));
-        };
-        
-        // Set source after event handlers
-        this.audioElement.src = audioUrl;
-        
-        // For older browsers that don't fire oncanplaythrough
-        setTimeout(resolve, 1000);
-      }).catch(err => {
-        console.error("Failed to load audio:", err);
-        if (this.audioElement) {
+          console.error(`Audio playback error:`, e);
+          this.isPlaying = false;
           URL.revokeObjectURL(audioUrl);
           this.audioElement = null;
+        };
+        
+        // Set audio properties untuk pengalaman yang lebih baik
+        this.audioElement.preload = "auto";
+        
+        // Coba loading audio dengan timeout
+        let audioLoaded = false;
+        try {
+          await Promise.race([
+            new Promise<void>((resolve, reject) => {
+              if (!this.audioElement) {
+                reject(new Error("Audio element is null"));
+                return;
+              }
+              
+              // Set event handlers
+              this.audioElement.oncanplaythrough = () => {
+                audioLoaded = true;
+                resolve();
+              };
+              
+              this.audioElement.onerror = (e) => {
+                console.error("Error loading audio:", e);
+                reject(new Error("Failed to load audio"));
+              };
+              
+              // Set source after event handlers
+              this.audioElement.src = audioUrl;
+            }),
+            new Promise<void>((_, reject) => 
+              setTimeout(() => {
+                if (!audioLoaded) {
+                  reject(new Error("Audio loading timed out"));
+                }
+              }, 3000)
+            )
+          ]);
+        } catch (loadError) {
+          console.warn("Standard audio loading failed:", loadError);
+          throw loadError; // Re-throw to trigger fallback
         }
-        return false;
-      });
-      
-      // Audio is now loaded and ready to play
-      this.isPlaying = true;
-      
-      // Log audio duration after metadata is loaded
-      if (this.audioElement.duration) {
-        console.log(`Audio duration: ${this.audioElement.duration.toFixed(2)} seconds for text: "${text.substring(0, 20)}..."`);
-      } else {
-        this.audioElement.onloadedmetadata = () => {
+        
+        // Standard audio loaded successfully
+        console.log("Audio loaded successfully, preparing to play");
+        this.isPlaying = true;
+        
+        // Log audio duration after metadata is loaded
+        if (this.audioElement.duration) {
+          console.log(`Audio duration: ${this.audioElement.duration.toFixed(2)} seconds for text: "${text.substring(0, 20)}..."`);
+        } else {
+          this.audioElement.onloadedmetadata = () => {
+            if (this.audioElement) {
+              console.log(`Audio duration: ${this.audioElement.duration.toFixed(2)} seconds for text: "${text.substring(0, 20)}..."`);
+            }
+          };
+        }
+        
+        // Try to play with user interaction simulation approach if normal play fails
+        try {
+          // Attempt to play normally
+          await this.audioElement.play();
+        } catch (playError) {
+          console.warn("Normal play failed, trying muted approach:", playError);
+          
+          // Fallback: Try muted first (often works without user interaction)
+          this.audioElement.muted = true;
+          await this.audioElement.play();
+          
+          // Then unmute
+          setTimeout(() => {
+            if (this.audioElement) {
+              this.audioElement.muted = false;
+              console.log("Autoplay succeeded with muted approach");
+            }
+          }, 100);
+        }
+        
+        // Set up onended handler
+        this.audioElement.onended = () => {
+          console.log("Audio playback completed successfully");
+          this.isPlaying = false;
           if (this.audioElement) {
-            console.log(`Audio duration: ${this.audioElement.duration.toFixed(2)} seconds for text: "${text.substring(0, 20)}..."`);
+            URL.revokeObjectURL(audioUrl);
+            this.audioElement = null;
           }
         };
-      }
-      
-      // Play the audio
-      await this.audioElement.play();
-      
-      // Set up onended handler
-      this.audioElement.onended = () => {
-        console.log("Audio playback completed successfully");
-        this.isPlaying = false;
-        if (this.audioElement) {
-          URL.revokeObjectURL(audioUrl);
-          this.audioElement = null;
+        
+        return true;
+      } catch (audioApiError) {
+        // Standard Audio API failed, try an alternative approach (using Audio Context)
+        console.warn("Standard Audio API failed, trying Web Audio API:", audioApiError);
+        
+        try {
+          // Clean up any previous audio element
+          if (this.audioElement) {
+            try {
+              this.audioElement.pause();
+              if (this.audioElement.src) {
+                URL.revokeObjectURL(this.audioElement.src);
+              }
+            } catch (e) {
+              console.warn("Error cleaning up previous audio element:", e);
+            }
+            this.audioElement = null;
+          }
+          
+          // Create a simple audio element for managing state
+          this.audioElement = document.createElement('audio');
+          
+          // Use fetch to get audio data directly
+          const response = await fetch(audioUrl);
+          const arrayBuffer = await response.arrayBuffer();
+          
+          // Create AudioContext
+          const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+          const audioContext = new AudioContext();
+          
+          // Decode the audio data
+          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+          
+          // Create source node
+          const source = audioContext.createBufferSource();
+          source.buffer = audioBuffer;
+          source.connect(audioContext.destination);
+          
+          // Play the audio
+          this.isPlaying = true;
+          source.start(0);
+          
+          // Handle completion
+          source.onended = () => {
+            console.log("Audio playback completed via Web Audio API");
+            this.isPlaying = false;
+            URL.revokeObjectURL(audioUrl);
+            this.audioElement = null;
+          };
+          
+          return true;
+        } catch (webAudioError) {
+          console.error("Web Audio API approach also failed:", webAudioError);
+          throw webAudioError; // Re-throw to handle in the outer catch block
         }
-      };
-      
-      return true;
+      }
     } catch (error) {
-      console.error('Failed to play audio:', error);
+      console.error('All audio playback methods failed:', error);
       this.isPlaying = false;
+      
+      // Final cleanup
       if (this.audioElement) {
         try {
-          // Try to stop the audio if it's playing
           this.audioElement.pause();
           this.audioElement.currentTime = 0;
         } catch (e) {
           console.warn("Failed to pause audio element:", e);
         }
         
-        // Cleanup
         if (this.audioElement.src) {
-          URL.revokeObjectURL(this.audioElement.src);
+          try {
+            URL.revokeObjectURL(this.audioElement.src);
+          } catch (e) {
+            console.warn("Failed to revoke object URL:", e);
+          }
         }
         this.audioElement = null;
       }
+      
+      // Always revoke the URL to prevent memory leaks
+      try {
+        URL.revokeObjectURL(audioUrl);
+      } catch (e) {
+        console.warn("Failed to revoke object URL in error handler:", e);
+      }
+      
       return false;
     }
   }
