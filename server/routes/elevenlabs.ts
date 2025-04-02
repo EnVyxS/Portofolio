@@ -335,11 +335,11 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     // If file doesn't exist, generate with ElevenLabs API
     console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
     
-    // Gunakan teks asli tanpa modifikasi apapun
-    let finalCleanedText = text;
+    // PENTING: TIDAK ADA MANIPULASI TEKS SAMA SEKALI!
+    // Gunakan teks asli 100% seperti yang diterima, tanpa modifikasi apapun
     
-    // Tanpa manipulasi teks apapun
-    console.log(`Processing exact text: "${text}"`);
+    // Log teks yang akan diproses untuk memastikan tidak ada perubahan
+    console.log(`EXACT TEXT FOR VOICE: "${text}" - MUST BE IDENTICAL TO DISPLAYED TEXT!`);
     
     // Gunakan pengaturan default untuk semua jenis dialog
     const voiceSettings = getDefaultVoiceSettings();
@@ -351,28 +351,27 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       speaking_rate: voiceSettings.speaking_rate
     });
     
-    // Generate hash for the processed text
-    const processedHash = generateSimpleHash(finalCleanedText);
+    // Generate hash langsung dari teks asli yang diterima, tanpa manipulasi
+    const processedHash = generateSimpleHash(text);
     const processedFileName = `dialog_${processedHash}.mp3`;
     const processedAudioFilePath = path.join(audioDir, processedFileName);
     const processedAudioPublicPath = `/audio/character/${processedFileName}`;
     
-    // Check if processed hash exists in memory cache first
+    // Check if hash exists in memory cache first
     if (textHashCache.has(processedHash)) {
-      console.log(`Found processed ${processedHash} in memory cache`);
+      console.log(`Found hash ${processedHash} in memory cache`);
       // Return cached path
       return res.status(200).json({
         success: true,
         audioPath: `/audio/character/${textHashCache.get(processedHash)}`,
         cached: true,
-        message: 'Using cached processed audio file from memory cache'
+        message: 'Using cached audio file from memory cache'
       });
     }
     
-    // Catatan: finalCleanedText dan text seharusnya sama, tidak ada modifikasi
-    // Tapi kita tetap periksa file cache
+    // Periksa file di cache
     if (fs.existsSync(processedAudioFilePath)) {
-      console.log(`Audio file found for text: "${finalCleanedText.substring(0, 30)}${finalCleanedText.length > 30 ? '...' : ''}"`);
+      console.log(`Audio file found for text: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
       // Add to memory cache for faster future lookups
       textHashCache.set(processedHash, processedFileName);
       return res.status(200).json({ 
@@ -412,8 +411,9 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     console.log("Creating new fetch request completely from scratch");
     
     // Build the request body as a string to ensure no unexpected transformations
+    // LANGSUNG menggunakan text asli tanpa modifikasi atau variabel perantara
     const requestBodyString = JSON.stringify({
-      text: finalCleanedText,
+      text: text, // Gunakan langsung text asli, tanpa ada variabel perantara
       model_id: VALID_MODEL,
       voice_settings: finalVoiceSettings
     });
