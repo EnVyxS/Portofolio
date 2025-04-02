@@ -38,30 +38,13 @@ class ElevenLabsService {
   
   // Buat hash sederhana dari teks untuk digunakan sebagai id file audio
   private generateSimpleHash(text: string): string {
-    // Hapus semua tag emosi dan karakter khusus untuk hashing yang lebih konsisten
-    const cleanText = text
-      .replace(/\[(.*?)\]/g, '') // Hapus tag emosi [angry], [sad], dll
-      .replace(/[^\w\s.,!?;:'"()-]/g, '') // Hapus karakter non-alphanumeric yang bisa merusak
-      .replace(/"/g, '"')
-      .replace(/"/g, '"')
-      .replace(/'/g, "'")
-      .replace(/'/g, "'")
-      .replace(/…/g, "...")
-      .trim();
+    // Remove emotion tags for hashing to maintain compatibility
+    const cleanText = text.replace(/\[(.*?)\]/g, '').trim();
     
-    // Standardisasi untuk hashing yang lebih stabil
-    const normalizedText = cleanText
-      .replace(/\*/g, "") // Remove asterisks
-      .replace(/\.{3,}/g, "...") // Standardize ellipsis
-      .replace(/\s*\.\.\.\s*/g, "... ") // Normalize ellipsis spacing
-      .replace(/\-\-+/g, "—") // Replace multiple hyphens with em dash
-      .replace(/\s+/g, ' ') // Standardize spacing
-      .trim();
-    
-    // Simple hashing algorithm
+    // Sangat sederhana, hanya untuk demo
     let hash = 0;
-    for (let i = 0; i < normalizedText.length; i++) {
-      hash = ((hash << 5) - hash) + normalizedText.charCodeAt(i);
+    for (let i = 0; i < cleanText.length; i++) {
+      hash = ((hash << 5) - hash) + cleanText.charCodeAt(i);
       hash = hash & hash; // Convert to 32bit integer
     }
     return Math.abs(hash).toString();
@@ -69,126 +52,46 @@ class ElevenLabsService {
   
   // Inisialisasi hash dialog untuk semua dialog yang mungkin
   private initializeDialogHashes(): void {
-    // Dialog dari Geralt yang mungkin muncul (dari dialogModel.ts dan history ElevenLabs)
+    // Dialog dari Geralt yang mungkin muncul
     const possibleDialogs = [
-      // Main Dialog dari dialogModel.ts
       "...Didn't ask for company.",
-      "Fire's warm... Always brings strays....",
+      "Tch... Fire's warm. Always brings strays.",
       "Haahhhh... You need something or are you just here to waste my time?",
       ".....",
       "Curiosity?... Hmph... Doesn't pay the bills...",
       "Pfftt... Waiting... Drinking... What else is there?",
-      "A job?.., A way out?.., Some miracle?..",
-      "Heh... Yeah, real fucking hilarious, isn't it?",
-      "...You got a name?",
-      "Hm. Not that it matters,",
-      "Diva Juan Nur Taqarrub , , Call me what you want. Doesn't do shit,",
-      "Hmm... Why.. am I even here?..",
-      "Anything that keeps me breathing,",
-      "Hunting work's like hunting a ghost. No signs, no tracks, just hope and a headache,",
-      "Graduated. Computer Science. 2024,",
-      "Yeah... Cum laude. Thought it'd mean something.. Turns out it's worth less than a stiff drink,",
-      "Backend. Java. Databases. Know my way around. Not that anyone cares,",
-      "Made a game for my thesis. Thought it'd mean something. It didn't,",
-      "Editing too. Years of it. Doesn't put food on the table,",
-      "Vegas Pro. After Effects. Cut, stitch, fix. Life's not that simple,",
-      "SQL... PostgreSQL... MySQL... Data's just numbers. Like debts. Like failures,",
-      "Used to like puzzles. Now? Just another thing that doesn't pay,",
-      "...Leaving this place?",
-      "Huhhhh... Like that's so easy,",
-      "Go where? With what? Got coin to spare?,",
-      "Nothing's free... Not even dreams,",
-      "But if the pay's right… maybe,",
-      "For now? I drink. Sit. Hope the fire lasts longer than the night,",
-      "Hmph... You fight... you bleed... you try...,",
-      "And in the end, still nothing,",
-      "...Enough about me",
-      "What do you want?..",
-      "Talk... You got a job, or just wasting my time?..",
-      
-      // HoverDialogController dialog options
-      "Hmph... In a rush, are we? Fine. Tell me what you need done.",
-      "Can't wait till I'm done talking? Fine. What do you want?",
-      "Interrupting me? Rude. But I'm listening.",
-      "Not even letting me finish? Fine, what's the contract?",
-      "Hmm. Impatient, aren't you? What is it?",
-      "Not listening, huh? Fine. Decide after you've checked.",
-      "My story's boring you? Go on then, look elsewhere.",
-      "Hmm. Distracted already? Go ahead, check it out.",
-      "Prefer looking around than listening? Your choice.",
-      "Lost interest so quickly? Whatever. Go look.",
-      "Straight to the point—I like that. Fine. Give me the contract.",
-      "Business it is then. What's the job?",
-      "Contract details? Let's hear it.",
-      "Talk business. I'm listening.",
-      "Hmm. Cutting to the chase. Good.",
-      "Need to check first before deciding? Fine. Not like I'm in a hurry.",
-      "Want to know more about me first? Suit yourself.",
-      "Curious about my past work? Take a look.",
-      "Checking my credentials? Smart. Not that I care.",
-      "Due diligence, huh? Look all you want.",
-      "Took your time, didn't you? Fine. Hand me the damn contract.",
-      "Done looking? Ready for business now?",
-      "Satisfied with what you found? Let's talk work.",
-      "Seen enough? What's the job then?",
-      "Research complete? Let's hear about the contract.",
-      "Fine. Go ahead, check it first.",
-      "Having second thoughts? Look around then.",
-      "Changed your mind? Go on, look me up.",
-      "Not convinced yet? See for yourself.",
-      "Hmm. Still uncertain? Check my background.",
-      "Make up your mind. I don't have all day.",
-      "Hmm. This back and forth is getting irritating.",
-      "Decide already. Contract or not?",
-      "Getting annoyed with the indecision here.",
-      "Arghh... whatever you want. I'm done.",
-      "That's it. I'm done with this nonsense.",
-      "Enough of this. Make a choice or leave me be.",
-      "*sighs deeply* I've lost my patience. We're done here.",
-      "I'm through with this game. Decide or go away.",
-      
-      // IdleTimeoutController dialog options
-      "What the hell are you staring at?.. Got something to say!?",
-      "You really gonna keep ignoring me? I'm not in the mood for this.",
-      "You think this is funny?.. Staring at me for nine damn minutes?.. Fuck you!!",
-      "Now what, you little filth!?..",
-      "Hmph... Finally, you decide to move... Suit yourself. You want to check it or just get on with signing the damn contract?",
-      "So this is how it is? You think you can play me for a fool?",
-      "ENOUGH",
-      "That's it. GET OUT OF MY SIGHT!",
-      "You're really asking for it..."
+      "Hmm... Got a handful of coins and a longsword. That's all a man like me needs...",
+      "There's a contract I'll have to deal with come sunrise. Some beast's been picking off villagers near the old mill...",
+      "You want to know more about me? Hmmm... Why would you care?",
+      "Witcher by trade. Monster hunter. I follow the Path.",
+      "I see by your eyes you've heard the tales. Yes, they're all true. The mutations. The training.",
+      "Not many of us left. Most don't make it through the Trial of Grasses. I was... lucky. Or cursed. Depends who you ask.",
+      "I don't talk much about my past. No point dwelling on what's done.",
+      "What's that look for? Expected something more? *grunts* Don't we all...",
+      "The Path is a lonely one. That's just how it is.",
+      "If you're looking to hire me, I'm not cheap. But I'm good at what I do.",
+      "Hmm... I notice you're still here. You're either brave or stupid. Most people keep their distance.",
+      "You can find me on the Path. Or through Kaer Morhen, when winter comes.",
+      "I've left my mark in several places. Some remember me. Others... prefer to forget.",
+      "There are ways to reach me if you truly need a witcher's services. Just follow the rumors of monsters slain.",
+      "Or perhaps you'd prefer more direct methods...",
+      "There's a code among witchers. We don't kill humans. Not without reason.",
+      "Sometimes, though, the monsters look just like you and me.",
+      "The fire's dying. And I've said more than I usually do in a month.",
+      "Take what you need from our conversation. I'll be here until dawn.",
+      "After that, the Path calls again.",
+      "Do what you will with my words. Just remember, a witcher never forgets a face.",
+      "Now leave me be. I've had enough talk for one night.",
+      "Hmm.",
+      "*stares into the fire*",
+      "*sighs* One last word of advice: in this world, it's rarely about the monsters. It's about the men. Remember that.",
+      "Farewell, stranger.",
+      "*turns back to the fire*",
+      "*end of conversation*"
     ];
-    
-    // Dialog dari history ElevenLabs yang sudah terlihat ada di gambar
-    // (history terlihat di screenshot yang dikirimkan)
-    const elevenlabsHistoryDialogs = [
-      "Vegas Pro. After Effects. Cut, stitch, fix. Life's not that simple,",
-      "Used to like puzzles. Now? Just another thing that doesn't pay,",
-      "Graduated. Computer Science. 2024,",
-      "Heh... Yeah, real fucking hilarious, isn't it?",
-      "Nothing's free... Not even dreams,",
-      "Go where? With what? Got coin to spare?,"
-    ];
-    
-    // Gabungkan semua dialog yang mungkin (hapus duplikat dengan cara manual)
-    const allPossibleDialogs: string[] = [];
-    
-    // Tambahkan dialog dari possibleDialogs
-    possibleDialogs.forEach(dialog => {
-      if (!allPossibleDialogs.includes(dialog)) {
-        allPossibleDialogs.push(dialog);
-      }
-    });
-    
-    // Tambahkan dialog dari elevenlabsHistoryDialogs
-    elevenlabsHistoryDialogs.forEach(dialog => {
-      if (!allPossibleDialogs.includes(dialog)) {
-        allPossibleDialogs.push(dialog);
-      }
-    });
     
     // Generate hash for each dialog
-    allPossibleDialogs.forEach(text => {
+    possibleDialogs.forEach(text => {
       const hash = this.generateSimpleHash(text);
       this.audioFilesMap[text] = `dialog_${hash}`;
       
@@ -489,201 +392,53 @@ class ElevenLabsService {
       return false;
     }
 
+    // Create audio URL and element
+    const audioUrl = URL.createObjectURL(audioBlob);
+    this.audioElement = new Audio(audioUrl);
+    
+    // Set audio properties untuk pengalaman yang lebih baik
+    this.audioElement.preload = "auto";
+    
+    // Play audio
     try {
-      // Validate audio blob before creating URL
-      if (audioBlob.size === 0) {
-        console.error("Audio blob is empty, cannot play");
-        return false;
-      }
-
-      // Create audio URL
-      const audioUrl = URL.createObjectURL(audioBlob);
+      // Percobaan pemutaran audio
+      this.isPlaying = true;
       
-      // Implementasi fallback untuk menangani kasus di mana Audio object gagal
-      // Mulai dengan standar Audio API
-      try {
-        // Create new audio element
-        this.audioElement = new Audio();
-        
-        // Set up error handling before setting src
-        this.audioElement.onerror = (e) => {
-          console.error(`Audio playback error:`, e);
-          this.isPlaying = false;
+      // Tambahkan event listener untuk metadat dan durasi
+      this.audioElement.onloadedmetadata = () => {
+        if (this.audioElement) {
+          const duration = this.audioElement.duration;
+          console.log(`Audio duration: ${duration.toFixed(2)} seconds for text: "${text.substring(0, 20)}..."`);
+        }
+      };
+      
+      // Gunakan Promise untuk memastikan audio berhasil diputar
+      await this.audioElement.play();
+      
+      // Tambahkan handler untuk audio yang error di tengah pemutaran
+      this.audioElement.onerror = (e) => {
+        console.error(`Audio playback error:`, e);
+        this.isPlaying = false;
+      };
+      
+      // Clean up when audio ends
+      this.audioElement.onended = () => {
+        console.log("Audio playback completed successfully");
+        this.isPlaying = false;
+        if (this.audioElement) {
           URL.revokeObjectURL(audioUrl);
           this.audioElement = null;
-        };
-        
-        // Set audio properties untuk pengalaman yang lebih baik
-        this.audioElement.preload = "auto";
-        
-        // Coba loading audio dengan timeout
-        let audioLoaded = false;
-        try {
-          await Promise.race([
-            new Promise<void>((resolve, reject) => {
-              if (!this.audioElement) {
-                reject(new Error("Audio element is null"));
-                return;
-              }
-              
-              // Set event handlers
-              this.audioElement.oncanplaythrough = () => {
-                audioLoaded = true;
-                resolve();
-              };
-              
-              this.audioElement.onerror = (e) => {
-                console.error("Error loading audio:", e);
-                reject(new Error("Failed to load audio"));
-              };
-              
-              // Set source after event handlers
-              this.audioElement.src = audioUrl;
-            }),
-            new Promise<void>((_, reject) => 
-              setTimeout(() => {
-                if (!audioLoaded) {
-                  reject(new Error("Audio loading timed out"));
-                }
-              }, 3000)
-            )
-          ]);
-        } catch (loadError) {
-          console.warn("Standard audio loading failed:", loadError);
-          throw loadError; // Re-throw to trigger fallback
         }
-        
-        // Standard audio loaded successfully
-        console.log("Audio loaded successfully, preparing to play");
-        this.isPlaying = true;
-        
-        // Log audio duration after metadata is loaded
-        if (this.audioElement.duration) {
-          console.log(`Audio duration: ${this.audioElement.duration.toFixed(2)} seconds for text: "${text.substring(0, 20)}..."`);
-        } else {
-          this.audioElement.onloadedmetadata = () => {
-            if (this.audioElement) {
-              console.log(`Audio duration: ${this.audioElement.duration.toFixed(2)} seconds for text: "${text.substring(0, 20)}..."`);
-            }
-          };
-        }
-        
-        // Try to play with user interaction simulation approach if normal play fails
-        try {
-          // Attempt to play normally
-          await this.audioElement.play();
-        } catch (playError) {
-          console.warn("Normal play failed, trying muted approach:", playError);
-          
-          // Fallback: Try muted first (often works without user interaction)
-          this.audioElement.muted = true;
-          await this.audioElement.play();
-          
-          // Then unmute
-          setTimeout(() => {
-            if (this.audioElement) {
-              this.audioElement.muted = false;
-              console.log("Autoplay succeeded with muted approach");
-            }
-          }, 100);
-        }
-        
-        // Set up onended handler
-        this.audioElement.onended = () => {
-          console.log("Audio playback completed successfully");
-          this.isPlaying = false;
-          if (this.audioElement) {
-            URL.revokeObjectURL(audioUrl);
-            this.audioElement = null;
-          }
-        };
-        
-        return true;
-      } catch (audioApiError) {
-        // Standard Audio API failed, try an alternative approach (using Audio Context)
-        console.warn("Standard Audio API failed, trying Web Audio API:", audioApiError);
-        
-        try {
-          // Clean up any previous audio element
-          if (this.audioElement) {
-            try {
-              this.audioElement.pause();
-              if (this.audioElement.src) {
-                URL.revokeObjectURL(this.audioElement.src);
-              }
-            } catch (e) {
-              console.warn("Error cleaning up previous audio element:", e);
-            }
-            this.audioElement = null;
-          }
-          
-          // Create a simple audio element for managing state
-          this.audioElement = document.createElement('audio');
-          
-          // Use fetch to get audio data directly
-          const response = await fetch(audioUrl);
-          const arrayBuffer = await response.arrayBuffer();
-          
-          // Create AudioContext
-          const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-          const audioContext = new AudioContext();
-          
-          // Decode the audio data
-          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-          
-          // Create source node
-          const source = audioContext.createBufferSource();
-          source.buffer = audioBuffer;
-          source.connect(audioContext.destination);
-          
-          // Play the audio
-          this.isPlaying = true;
-          source.start(0);
-          
-          // Handle completion
-          source.onended = () => {
-            console.log("Audio playback completed via Web Audio API");
-            this.isPlaying = false;
-            URL.revokeObjectURL(audioUrl);
-            this.audioElement = null;
-          };
-          
-          return true;
-        } catch (webAudioError) {
-          console.error("Web Audio API approach also failed:", webAudioError);
-          throw webAudioError; // Re-throw to handle in the outer catch block
-        }
-      }
-    } catch (error) {
-      console.error('All audio playback methods failed:', error);
-      this.isPlaying = false;
+      };
       
-      // Final cleanup
+      return true;
+    } catch (error) {
+      console.error('Failed to play audio:', error);
+      this.isPlaying = false;
       if (this.audioElement) {
-        try {
-          this.audioElement.pause();
-          this.audioElement.currentTime = 0;
-        } catch (e) {
-          console.warn("Failed to pause audio element:", e);
-        }
-        
-        if (this.audioElement.src) {
-          try {
-            URL.revokeObjectURL(this.audioElement.src);
-          } catch (e) {
-            console.warn("Failed to revoke object URL:", e);
-          }
-        }
+        URL.revokeObjectURL(audioUrl);
         this.audioElement = null;
       }
-      
-      // Always revoke the URL to prevent memory leaks
-      try {
-        URL.revokeObjectURL(audioUrl);
-      } catch (e) {
-        console.warn("Failed to revoke object URL in error handler:", e);
-      }
-      
       return false;
     }
   }

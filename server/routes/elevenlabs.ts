@@ -5,35 +5,10 @@ import axios from 'axios';
 
 const router = Router();
 
-// Rate limiting implementation untuk mencegah overload API
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 menit dalam milliseconds
-const MAX_REQUESTS_PER_WINDOW = 10; // Maksimal 10 request per menit
-const requestTimestamps: number[] = [];
-
-// Fungsi untuk memeriksa rate limit
-function checkRateLimit(): boolean {
-  const now = Date.now();
-  // Filter timestamps yang berada dalam window saat ini
-  const validTimestamps = requestTimestamps.filter(
-    timestamp => now - timestamp < RATE_LIMIT_WINDOW
-  );
-  
-  // Update array timestamp dengan yang masih valid
-  requestTimestamps.length = 0;
-  requestTimestamps.push(...validTimestamps);
-  
-  // Tambahkan timestamp saat ini
-  requestTimestamps.push(now);
-  
-  // Cek apakah sudah melewati batas
-  return requestTimestamps.length <= MAX_REQUESTS_PER_WINDOW;
-}
-
 // Define common paths that will be used throughout the file
 const publicDir = path.resolve(process.cwd(), 'client/public');
 const characterAudioDir = path.join(publicDir, 'audio/character');
 const geraltAudioDir = path.join(publicDir, 'audio/geralt');
-const backupAudioDir = path.join(publicDir, 'audio/backup');
 
 // Cache untuk menyimpan hash teks ke nama file
 const textHashCache = new Map<string, string>();
@@ -155,104 +130,20 @@ function copyExistingAudioFiles() {
   }
 }
 
-// Fungsi untuk memastikan folder backup ada dan menduplikasi file audio ke folder backup
-function backupAudioFiles() {
-  try {
-    console.log('Checking and ensuring backup folder exists...');
-    
-    // Pastikan folder backup ada
-    if (!fs.existsSync(backupAudioDir)) {
-      fs.mkdirSync(backupAudioDir, { recursive: true });
-      console.log('Created backup audio directory');
-    }
-    
-    // Cek folder character untuk file-file yang perlu dibackup
-    if (fs.existsSync(characterAudioDir)) {
-      const files = fs.readdirSync(characterAudioDir);
-      let backupCount = 0;
-      
-      for (const file of files) {
-        if (file.endsWith('.mp3') && file.startsWith('dialog_')) {
-          const sourceFile = path.join(characterAudioDir, file);
-          const destFile = path.join(backupAudioDir, file);
-          
-          // Jika file belum ada di backup atau ukurannya berbeda, lakukan backup
-          if (!fs.existsSync(destFile) || 
-              fs.statSync(sourceFile).size !== fs.statSync(destFile).size) {
-            fs.copyFileSync(sourceFile, destFile);
-            backupCount++;
-          }
-        }
-      }
-      
-      console.log(`Backed up ${backupCount} audio files from character folder to backup folder`);
-    }
-    
-    // Juga cek folder geralt untuk file-file yang belum ada di backup
-    if (fs.existsSync(geraltAudioDir)) {
-      const files = fs.readdirSync(geraltAudioDir);
-      let backupCount = 0;
-      
-      for (const file of files) {
-        if (file.endsWith('.mp3') && file.startsWith('dialog_')) {
-          const sourceFile = path.join(geraltAudioDir, file);
-          const destFile = path.join(backupAudioDir, file);
-          
-          // Jika file belum ada di backup atau ukurannya berbeda, lakukan backup
-          if (!fs.existsSync(destFile) || 
-              fs.statSync(sourceFile).size !== fs.statSync(destFile).size) {
-            fs.copyFileSync(sourceFile, destFile);
-            backupCount++;
-          }
-        }
-      }
-      
-      console.log(`Backed up ${backupCount} audio files from geralt folder to backup folder`);
-    }
-  } catch (error) {
-    console.error('Error backing up audio files:', error);
-  }
-}
-
 // Jalankan fungsi saat server pertama kali dijalankan
 copyExistingAudioFiles();
 
 // Inisialisasi cache audio
 initializeAudioCache();
 
-// Backup semua audio file
-backupAudioFiles();
-
 // Definisi model valid yang tersedia di ElevenLabs
 const VALID_MODEL = 'eleven_multilingual_v2';
 
 // Hash function for generating filenames from text
 function generateSimpleHash(input: string): string {
-  // Preprocessing input text for more reliable hashing
-  const cleanedText = input
-    .replace(/\[(.*?)\]/g, '') // Remove emotion tags [angry], [sad], etc.
-    .replace(/[^\w\s.,!?;:'"()-]/g, '') // Remove non-alphanumeric characters that might cause issues
-    .replace(/"/g, '"')
-    .replace(/"/g, '"')
-    .replace(/'/g, "'")
-    .replace(/'/g, "'")
-    .replace(/…/g, "...")
-    .trim();
-    
-  // Standardize text for consistent hashing
-  const standardizedText = cleanedText
-    .replace(/\*/g, "") // Remove asterisks
-    .replace(/\.{3,}/g, "...") // Standardize ellipsis
-    .replace(/\s*\.\.\.\s*/g, "... ") // Normalize ellipsis spacing
-    .replace(/\-\-+/g, "—") // Replace multiple hyphens with em dash
-    .replace(/\s+/g, ' ') // Standardize spacing
-    .toLowerCase() // Make case-insensitive
-    .trim();
-  
-  // Compute hash
   let hash = 0;
-  for (let i = 0; i < standardizedText.length; i++) {
-    hash = ((hash << 5) - hash) + standardizedText.charCodeAt(i);
+  for (let i = 0; i < input.length; i++) {
+    hash = ((hash << 5) - hash) + input.charCodeAt(i);
     hash = hash & hash; // Convert to 32bit integer
   }
   return Math.abs(hash).toString();
@@ -264,16 +155,6 @@ function generateSimpleHash(input: string): string {
  */
 router.post('/text-to-speech', async (req: Request, res: Response) => {
   try {
-    // Cek rate limit sebelum melanjutkan (untuk menghindari overload API)
-    if (!checkRateLimit()) {
-      console.warn("Rate limit exceeded, too many requests in a short period");
-      return res.status(429).json({ 
-        error: 'Too many requests',
-        details: 'Rate limit exceeded. Please try again in a moment.',
-        fallback: true
-      });
-    }
-    
     // Get text and voice_id from the request body
     const { text, voice_id = '3Cka3TLKjahfz6KX4ckZ', voice_settings, model_id: clientModelId } = req.body;
     console.log("Using ElevenLabs API key from environment variable");
@@ -390,132 +271,114 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     let tone = '';
     let voiceSettings = null;
     
-    // Preprocessing text awal - hapus dan normalkan karakter khusus
-    // Hapus tag emosi dari teks asli dan lakukan basic preprocessing
-    let cleanText = text
-      .replace(/\[(.*?)\]\s*/g, '') // Hapus tag emosi [angry], [sad], dll
-      .replace(/[^\w\s.,!?;:'"()-]/g, '') // Hapus karakter non-alphanumeric yang bisa merusak
-      .replace(/"/g, '"')
-      .replace(/"/g, '"')
-      .replace(/'/g, "'")
-      .replace(/'/g, "'")
-      .replace(/…/g, "...")
-      .trim();
+    // Hapus tag emosi dari teks asli untuk dikirim ke ElevenLabs
+    let cleanText = text.replace(/\[(.*?)\]\s*/g, '').trim();
     
     console.log(`Analyzing tone for text: "${cleanText.substring(0, 50)}${cleanText.length > 50 ? '...' : ''}"`); // Added more verbose logging
     
-    // Deteksi tone dari teks dengan pengaturan suara yang lebih stabil untuk menghindari suara yang aneh
-    // Setiap kategori menggunakan stabilitas tinggi (0.85) untuk mencegah distorsi suara
-    if (text.includes('fucking') || text.includes('shit') || text.includes('damn') || 
-        text.includes('GET OUT') || text.toLowerCase().includes('hell')) {
+    // Deteksi tone dari teks (simplifikasi, untuk sistem yang lebih lengkap gunakan getToneForDialog)
+    if (text.includes('fucking') || text.includes('shit') || text.includes('damn')) {
       tone = 'ANGRY';
       console.log(`Auto-detected tone: ANGRY for text with strong language`);
       
-      // Voice settings untuk Angry tone Geralt dengan stabilitas yang ditingkatkan
+      // Voice settings untuk Angry tone Geralt
       voiceSettings = {
-        stability: 0.85,        // Increased stability untuk menghindari suara aneh
+        stability: 0.80,        // 80% stability sesuai permintaan
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
         style: 0.65,            // Medium-high style untuk karakter Geralt yang marah
         use_speaker_boost: true,
-        speaking_rate: 0.97     // Sedikit dipercepat untuk emosi marah
+        speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
       };
     } 
-    else if (text.includes('tired') || text.includes('exhausted') || text.includes('Haahhhh') ||
-             text.toLowerCase().includes('sigh')) {
+    else if (text.includes('tired') || text.includes('exhausted') || text.includes('Haahhhh')) {
       tone = 'TIRED';
       console.log(`Auto-detected tone: TIRED for text with exhaustion markers`);
       
       // Voice settings untuk Tired tone Geralt
       voiceSettings = {
-        stability: 0.85,        // Increased stability 
+        stability: 0.80,        // 80% stability sesuai permintaan
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
         style: 0.45,            // Less expression for tired Geralt
         use_speaker_boost: true,
-        speaking_rate: 0.88     // Sedikit lebih lambat karena lelah
+        speaking_rate: 0.85     // Sedikit lebih lambat karena lelah, tapi masih 0.85 untuk menjaga karakteristik
       };
     }
-    else if (text.includes('Hmph') || text.includes('Tch') || text.includes('waste my time') ||
-             text.toLowerCase().includes('annoying') || text.toLowerCase().includes('enough of')) {
+    else if (text.includes('Hmph') || text.includes('Tch') || text.includes('waste my time')) {
       tone = 'ANNOYED';
       console.log(`Auto-detected tone: ANNOYED for text with Geralt's typical annoyance markers`);
       
       // Voice settings untuk Annoyed tone Geralt
       voiceSettings = {
-        stability: 0.85,        // Increased stability 
+        stability: 0.80,        // 80% stability sesuai permintaan
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
         style: 0.70,            // Higher style untuk menunjukkan rasa kesal khas Geralt
         use_speaker_boost: true,
         speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
       };
     }
-    else if (text.includes('Heh') || text.includes('hilarious') || text.toLowerCase().includes('real') ||
-             text.toLowerCase().includes('funny')) {
+    else if (text.includes('Heh') || text.includes('hilarious') || text.includes('real')) {
       tone = 'SARCASTIC';
       console.log(`Auto-detected tone: SARCASTIC for text with Geralt's sarcasm`);
       
       // Voice settings untuk Sarcastic tone Geralt
       voiceSettings = {
-        stability: 0.85,        // Increased stability 
+        stability: 0.80,        // 80% stability sesuai permintaan
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
-        style: 0.72,            // Adjusted style untuk sarkasme Geralt yang khas
+        style: 0.75,            // Higher style untuk sarkasme Geralt yang khas
         use_speaker_boost: true,
         speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
       };
     }
-    else if (text.includes('doesn\'t matter') || text.includes('breathing') || text.includes('Hm') ||
-             text.toLowerCase().includes('hmm') || text.toLowerCase().includes('whatever')) {
+    else if (text.includes('doesn\'t matter') || text.includes('breathing') || text.includes('Hm')) {
       tone = 'NUMB';
       console.log(`Auto-detected tone: NUMB for text with emotional flatness`);
       
       // Voice settings untuk Numb tone Geralt
       voiceSettings = {
-        stability: 0.85,        // Increased stability 
+        stability: 0.80,        // 80% stability sesuai permintaan
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
-        style: 0.45,            // Low style untuk Geralt yang flat/emotionless
+        style: 0.40,            // Low style untuk Geralt yang flat/emotionless
         use_speaker_boost: true,
-        speaking_rate: 0.92     // Sedikit lambat untuk menunjukkan kekosongan emosi
+        speaking_rate: 0.90     // Sedikit lambat untuk menunjukkan kekosongan emosi
       };
     }
-    else if (text.toLowerCase().includes('maybe') || text.toLowerCase().includes('why am i') || 
-             text.toLowerCase().includes('perhaps') || text.toLowerCase().includes('curious')) {
+    else if (text.includes('maybe') || text.includes('why am I') || text.includes('perhaps')) {
       tone = 'CONTEMPLATIVE';
       console.log(`Auto-detected tone: CONTEMPLATIVE for thoughtful text`);
       
       // Voice settings untuk Contemplative tone Geralt
       voiceSettings = {
-        stability: 0.85,        // Increased stability 
+        stability: 0.80,        // 80% stability sesuai permintaan
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
         style: 0.55,            // Medium style untuk Geralt yang sedang berpikir
         use_speaker_boost: true,
-        speaking_rate: 0.92     // Adjusted speaking rate
+        speaking_rate: 0.90     // Sedikit lebih lambat untuk Geralt yang sedang berpikir
       };
     }
-    else if (text.includes('what else') || text.includes('that\'s how it is') || text.includes('hoping') ||
-             text.toLowerCase().includes('suit yourself') || text.toLowerCase().includes('fine')) {
+    else if (text.includes('what else') || text.includes('that\'s how it is') || text.includes('hoping')) {
       tone = 'RESIGNED';
       console.log(`Auto-detected tone: RESIGNED for text showing acceptance`);
       
       // Voice settings untuk Resigned tone Geralt
       voiceSettings = {
-        stability: 0.85,        // Increased stability 
+        stability: 0.80,        // 80% stability sesuai permintaan
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
-        style: 0.52,            // Adjusted style untuk Geralt yang pasrah
+        style: 0.50,            // Medium-low style untuk Geralt yang pasrah
         use_speaker_boost: true,
-        speaking_rate: 0.93     // Sedikit lebih lambat untuk nada pasrah
+        speaking_rate: 0.92     // Sedikit lebih lambat untuk nada pasrah
       };
     }
-    else if (text.toLowerCase().includes('empty') || text.toLowerCase().includes('nothing') || 
-             text.toLowerCase().includes('hollow') || text.toLowerCase().includes('void')) {
+    else if (text.includes('empty') || text.includes('nothing') || text.includes('hollow')) {
       tone = 'HOLLOW';
       console.log(`Auto-detected tone: HOLLOW for text with emptiness`);
       
       // Voice settings untuk Hollow tone Geralt
       voiceSettings = {
-        stability: 0.85,        // Increased stability 
+        stability: 0.80,        // 80% stability sesuai permintaan
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
         style: 0.40,            // Low style untuk Geralt yang hampa
         use_speaker_boost: true,
-        speaking_rate: 0.90     // Adjusted speaking rate
+        speaking_rate: 0.88     // Sedikit lebih lambat untuk nada kosong
       };
     }
     else {
@@ -523,9 +386,9 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       tone = 'NEUTRAL';
       console.log(`Using default NEUTRAL tone for text: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
       
-      // Default voice settings dengan stabilitas yang ditingkatkan
+      // Default voice settings untuk Geralt of Rivia
       voiceSettings = {
-        stability: 0.85,        // Increased stability untuk menghindari suara aneh
+        stability: 0.80,        // 80% stability sesuai permintaan
         similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
         style: 0.60,            // Medium style untuk Geralt normal
         use_speaker_boost: true,
@@ -533,26 +396,8 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       };
     }
     
-    // Normalize text - lebih lengkap untuk menghindari masalah suara
-    let finalCleanedText = cleanText
-      .replace(/\*/g, "") // Remove asterisks
-      .replace(/\.{3,}/g, "...") // Standardize ellipsis
-      .replace(/\s*\.\.\.\s*/g, "... ") // Normalize ellipsis spacing
-      .replace(/\-\-+/g, "—") // Replace multiple hyphens with em dash
-      .replace(/\s+/g, ' ') // Standardize spacing
-      .replace(/([.!?])\s*(?=[A-Z])/g, "$1 ") // Ensure space after periods
-      .replace(/,\s*/g, ", ") // Normalize comma spacing
-      .replace(/\s+([,.!?;:])/g, "$1") // Remove space before punctuation
-      .replace(/\s+$/g, ""); // Remove trailing spaces
-    
-    // Limit length to avoid potential issues with very long text
-    if (finalCleanedText.length > 300) {
-      console.log("Text is very long, truncating to 300 characters");
-      finalCleanedText = finalCleanedText.substring(0, 300);
-    }
-    
-    // Final trim to ensure cleanliness
-    finalCleanedText = finalCleanedText.trim();
+    // Normalize text - remove excessive whitespace and asterisks
+    const finalCleanedText = cleanText.replace(/\*/g, "").trim().replace(/\s+/g, ' ');
     
     // Generate hash for the processed text
     const processedHash = generateSimpleHash(finalCleanedText);
@@ -609,159 +454,49 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     
     console.log(`Sending request to ElevenLabs with voice_id: ${voice_id}`);
     
-    // Use fetch API for better control over the request/response
+    // Try a completely different approach by using fetch instead of axios
     console.log("Using model_id:", VALID_MODEL);
     console.log("Creating new fetch request completely from scratch");
     
-    // Split sentences into smaller chunks to improve intonation and accuracy
-    const sentences = finalCleanedText
-      .replace(/([.!?])\s+/g, "$1|")
-      .split("|")
-      .filter((sentence: string) => sentence.trim().length > 0);
-    
-    // Join sentences back with proper spacing to improve flow
-    const optimizedText = sentences.join(" ");
-    
-    // Build the request body with proper formatting
+    // Build the request body as a string to ensure no unexpected transformations
     const requestBodyString = JSON.stringify({
-      text: optimizedText,
+      text: finalCleanedText,
       model_id: VALID_MODEL,
       voice_settings: finalVoiceSettings
-    }, null, 2);
+    });
     
     console.log("Request body:", requestBodyString.substring(0, 100) + "...");
     
-    // Add retry logic for network resilience
-    let fetchResponse: Response | null = null;
-    let retryCount = 0;
-    const maxRetries = 2;
+    // Use node-fetch instead of axios
+    const fetchResponse = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Accept': 'audio/mpeg',
+        'Content-Type': 'application/json',
+        'xi-api-key': apiKey
+      },
+      body: requestBodyString
+    });
     
-    while (retryCount <= maxRetries) {
-      try {
-        // Use fetch API with timeout for better error handling
-        fetchResponse = await fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Accept': 'audio/mpeg',
-            'Content-Type': 'application/json',
-            'xi-api-key': apiKey,
-            'User-Agent': 'ElevenLabsPortfolio/1.0' // Identify our application
-          },
-          body: requestBodyString,
-          // Add timeout to prevent hanging requests
-          signal: AbortSignal.timeout(15000) // 15 second timeout
-        });
-        
-        // Break retry loop if successful
-        if (fetchResponse.ok) break;
-        
-        // Handle rate limiting specifically
-        if (fetchResponse.status === 429) {
-          const retryAfter = fetchResponse.headers.get('Retry-After') || '5';
-          const waitTime = parseInt(retryAfter, 10) * 1000;
-          console.warn(`Rate limited by ElevenLabs API, waiting ${waitTime}ms before retry`);
-          await new Promise(resolve => setTimeout(resolve, waitTime));
-        } else {
-          // Handle other error cases
-          const errorText = await fetchResponse.text();
-          console.error(`ElevenLabs API error (attempt ${retryCount+1}/${maxRetries+1}):`, errorText);
-          
-          if (retryCount === maxRetries) {
-            throw new Error(`API request failed with status ${fetchResponse.status}: ${errorText}`);
-          }
-          
-          // Wait before retry (exponential backoff)
-          await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
-        }
-      } catch (error) {
-        if (retryCount === maxRetries) {
-          throw error; // Re-throw if we've exhausted retries
-        }
-        console.error(`Network error on attempt ${retryCount+1}/${maxRetries+1}:`, error);
-        // Wait before retry (exponential backoff)
-        await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
-      }
-      
-      retryCount++;
+    if (!fetchResponse.ok) {
+      // Handle error case
+      const errorText = await fetchResponse.text();
+      console.error("ElevenLabs API error:", errorText);
+      throw new Error(`API request failed with status ${fetchResponse.status}: ${errorText}`);
     }
     
-    // Convert the fetch response to an object format consistent with rest of code
-    if (!fetchResponse) {
-      throw new Error("Failed to get a valid response after multiple retries");
-    }
-    
+    // Convert the fetch response to an axios-like object for compatibility with the rest of the code
     const responseData = await fetchResponse.arrayBuffer();
     const response = {
       status: fetchResponse.status,
       statusText: fetchResponse.statusText,
-      data: Buffer.from(responseData),
-      headers: Object.fromEntries(fetchResponse.headers.entries())
+      data: Buffer.from(responseData)
     };
     
     // If successful, save the audio file
     if (response.status === 200) {
-      // Pastikan kita mendapatkan response data yang valid
-      if (!response.data || response.data.length < 1000) {
-        console.error("Error: Received invalid or too small audio data from API");
-        throw new Error("Received invalid audio data (file too small)");
-      }
-      
-      // Verifikasi file adalah audio mp3 yang valid
-      // MP3 can start with ID3 tag (0x49 0x44 0x33) or directly with an MP3 frame
-      // MP3 frames typically start with 0xFF followed by 0xE or 0xF (MPEG-1 Layer 3)
-      const isID3Header = response.data.length > 10 && 
-                         response.data[0] === 0x49 && 
-                         response.data[1] === 0x44 && 
-                         response.data[2] === 0x33;
-                         
-      const isMp3FrameHeader = response.data.length > 10 &&
-                               response.data[0] === 0xFF && 
-                               ((response.data[1] & 0xE0) === 0xE0);
-      
-      // Check for proper file structure                        
-      if (!isID3Header && !isMp3FrameHeader) {
-        console.error("Error: Response data doesn't appear to be a valid MP3 file");
-        console.error(`First bytes: ${response.data.slice(0, 10).toString('hex')}`);
-        throw new Error("Generated audio is not a valid MP3 file");
-      }
-      
-      // Additional validation: Check for continuous valid data
-      // MP3 files should have recognizable patterns throughout
-      let invalidChunks = 0;
-      for (let i = 0; i < Math.min(response.data.length, 2000); i += 500) {
-        const chunk = response.data.slice(i, i + 500);
-        // Look for MP3 frame headers within the chunk (0xFF followed by 0xE or 0xF)
-        let hasFrameHeader = false;
-        for (let j = 0; j < chunk.length - 1; j++) {
-          if (chunk[j] === 0xFF && ((chunk[j+1] & 0xE0) === 0xE0)) {
-            hasFrameHeader = true;
-            break;
-          }
-        }
-        if (!hasFrameHeader) {
-          invalidChunks++;
-        }
-      }
-      
-      // If more than half of our sample chunks don't have MP3 frame markers, reject the file
-      if (invalidChunks > 2) {
-        console.error("Error: MP3 file structure seems corrupted (too many invalid chunks)");
-        throw new Error("Generated audio file structure is corrupted");
-      }
-      
-      // Simpan file audio baru
       fs.writeFileSync(finalFilePath, response.data);
       console.log(`Audio saved to: ${finalFilePath}`);
-      
-      // Backup the file
-      try {
-        const backupFilePath = path.join(backupAudioDir, processedFileName);
-        fs.writeFileSync(backupFilePath, response.data);
-        console.log(`Backed up audio to: ${backupFilePath}`);
-      } catch (backupErr) {
-        console.error('Error backing up audio file:', backupErr);
-        // Continue even if backup fails
-      }
       
       // Add to memory cache for future lookups
       textHashCache.set(processedHash, processedFileName);
@@ -771,17 +506,6 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
         try {
           fs.copyFileSync(finalFilePath, originalAudioFilePath);
           console.log(`Also saved as original text version: ${originalAudioFilePath}`);
-          
-          // Backup the original version too
-          try {
-            const backupOriginalFilePath = path.join(backupAudioDir, originalFileName);
-            fs.copyFileSync(finalFilePath, backupOriginalFilePath);
-            console.log(`Backed up original version to: ${backupOriginalFilePath}`);
-          } catch (backupErr) {
-            console.error('Error backing up original version:', backupErr);
-            // Continue even if backup fails
-          }
-          
           // Also add original hash to cache
           textHashCache.set(originalHash, originalFileName);
         } catch (copyErr) {

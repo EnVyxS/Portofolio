@@ -152,8 +152,8 @@ class HoverDialogController {
     this.debouncedHoverHandler(linkType);
   }
 
-  // Callback untuk dialog text - dibuat public agar dapat diakses oleh IdleTimeoutController
-  public hoverTextCallback:
+  // Callback untuk dialog text
+  private hoverTextCallback:
     | ((text: string, isComplete: boolean) => void)
     | null = null;
   private isTypingHover: boolean = false;

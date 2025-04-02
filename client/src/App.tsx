@@ -186,10 +186,10 @@ function MainApp() {
   return (
     <div className="h-screen w-screen overflow-hidden relative">
       <GifBackground>
-        {/* Audio control button - dipindah ke kiri layar */}
+        {/* Audio control button - always visible to allow user to enable audio */}
         <button
           onClick={toggleAudio}
-          className="absolute top-4 left-4 z-40 bg-black bg-opacity-50 p-3 rounded-full text-amber-500 hover:text-amber-400 transition-colors shadow-lg backdrop-blur-sm border border-amber-800/20"
+          className="absolute top-4 right-4 z-40 bg-black bg-opacity-50 p-2 rounded-full text-amber-500 hover:text-amber-400 transition-colors"
           title={isAudioPlaying ? "Mute" : "Unmute"}
         >
           {isAudioPlaying ? (
@@ -207,7 +207,7 @@ function MainApp() {
           )}
         </button>
         
-        {/* Contact card selalu ditampilkan di pojok kanan atas */}
+        {/* Contact card selalu ditampilkan, tidak bergantung pada showContactCard */}
         <GameContactCard />
 
         {/* Dialog box di bagian bawah layar, sekarang tidak memengaruhi keberadaan contact card */}
