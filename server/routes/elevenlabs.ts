@@ -205,8 +205,9 @@ initializeAudioCache();
 // Definisi model valid yang tersedia di ElevenLabs
 const VALID_MODEL = 'eleven_multilingual_v2';
 
-// Hash function for generating filenames from text
+// Hash function for generating filenames from text - tidak memodifikasi input
 function generateSimpleHash(input: string): string {
+  // Gunakan input original tanpa modifikasi
   let hash = 0;
   for (let i = 0; i < input.length; i++) {
     hash = ((hash << 5) - hash) + input.charCodeAt(i);
@@ -333,10 +334,12 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     // If file doesn't exist, generate with ElevenLabs API
     console.log(`Generating audio with ElevenLabs for: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
     
-    // Hapus tag emosi dari teks asli untuk dikirim ke ElevenLabs
-    let cleanText = text.replace(/\[(.*?)\]\s*/g, '').trim();
+    // Simpan teks asli tanpa modifikasi apapun
+    let finalCleanedText = text;
     
-    console.log(`Processing text: "${cleanText.substring(0, 50)}${cleanText.length > 50 ? '...' : ''}"`);
+    // Jika ada tag emosi, kita hapus hanya untuk log
+    const textForLog = text.replace(/\[(.*?)\]\s*/g, '').trim();
+    console.log(`Processing exact text: "${textForLog.substring(0, 50)}${textForLog.length > 50 ? '...' : ''}"`);
     
     // Gunakan pengaturan default untuk semua jenis dialog
     const voiceSettings = getDefaultVoiceSettings();
@@ -347,9 +350,6 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       style: voiceSettings.style,
       speaking_rate: voiceSettings.speaking_rate
     });
-    
-    // Normalize text - remove excessive whitespace and asterisks
-    const finalCleanedText = cleanText.replace(/\*/g, "").trim().replace(/\s+/g, ' ');
     
     // Generate hash for the processed text
     const processedHash = generateSimpleHash(finalCleanedText);
