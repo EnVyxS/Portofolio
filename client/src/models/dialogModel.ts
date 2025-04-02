@@ -3,6 +3,7 @@ export interface Dialog {
   text: string;
   character: string;
   voiceId?: string; // For ElevenLabs voice ID
+  persistent?: boolean; // Apakah dialog tetap visible setelah selesai
 }
 
 class DialogModel {

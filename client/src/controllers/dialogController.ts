@@ -75,16 +75,53 @@ class DialogController {
     }
   }
 
-  private typeDialog(dialog: Dialog, callback: (text: string, isComplete: boolean) => void): void {
+  private async typeDialog(dialog: Dialog, callback: (text: string, isComplete: boolean) => void): Promise<void> {
     this.fullText = dialog.text;
     this.currentText = '';
     this.charIndex = 0;
     this.typewriterCallback = callback;
     this.isTyping = true;
     
+    // Deteksi apakah dialog harus persistent berdasarkan konten dialog
+    if (dialog.persistent === undefined) {
+      // Deteksi berdasarkan dialog content (pertanyaan atau tidak)
+      dialog.persistent = dialog.text.includes('?');
+    }
+    
+    // Perkiraan durasi dialog berdasarkan panjang teks
+    // Rata-rata pembacaan 12 karakter per detik (standar untuk bahasa Inggris - lebih lambat untuk Geralt)
+    const estimatedDuration = Math.max(3000, (dialog.text.length / 10) * 1000); 
+    
     // Try to speak the text if voice is enabled
+    let audioStarted = false;
     if (this.elevenlabsService.getApiKey()) {
-      this.elevenlabsService.speakText(dialog.text, dialog.voiceId || 'default');
+      audioStarted = await this.elevenlabsService.speakText(dialog.text, dialog.voiceId || 'default');
+    }
+    
+    // Sesuaikan kecepatan typing dengan durasi audio
+    // Jika audio berhasil diputar, kita akan menyelesaikan typing sedikit lebih lambat dari durasi audio
+    const typingDuration = audioStarted ? estimatedDuration : (dialog.text.length * this.typingSpeed);
+    
+    // Untuk dialog panjang, gunakan kecepatan typing lebih cepat
+    // Untuk dialog pendek, gunakan kecepatan typing lebih lambat
+    const typingSpeed = audioStarted 
+      ? Math.max(20, Math.min(50, typingDuration / dialog.text.length)) 
+      : this.typingSpeed;
+    
+    console.log(`Autoplay untuk dialog ${dialog.id} dalam ${Math.round(typingDuration)}ms (${dialog.persistent ? 'persistent' : 'non-persistent'})`);
+    
+    // Tambahkan variabel timeout untuk memastikan dialog tidak terhenti
+    let audioCompletionTimer: NodeJS.Timeout | null = null;
+    
+    // Jika audio berhasil diputar, gunakan timer untuk memastikan dialog selesai
+    if (audioStarted) {
+      // Tambahkan buffer 500ms untuk memastikan audio benar-benar selesai
+      audioCompletionTimer = setTimeout(() => {
+        if (this.isTyping) {
+          console.log("Audio completion timer triggered - finishing dialog typing");
+          this.skipToFullText();
+        }
+      }, estimatedDuration + 1000); // Tambahkan buffer 1 detik
     }
     
     // Start typewriter effect
@@ -100,11 +137,18 @@ class DialogController {
         this.isTyping = false;
         clearInterval(this.typingInterval as NodeJS.Timeout);
         this.typingInterval = null;
+        
+        // Clear audio completion timer jika masih ada
+        if (audioCompletionTimer) {
+          clearTimeout(audioCompletionTimer);
+          audioCompletionTimer = null;
+        }
+        
         if (this.typewriterCallback) {
           this.typewriterCallback(this.currentText, true);
         }
       }
-    }, this.typingSpeed);
+    }, typingSpeed);
   }
 
   public stopTyping(): void {
@@ -117,8 +161,20 @@ class DialogController {
   }
 
   public skipToFullText(): void {
-    this.stopTyping();
+    // Hentikan typewriter effect
+    if (this.typingInterval) {
+      clearInterval(this.typingInterval);
+      this.typingInterval = null;
+    }
+    
+    // Jangan menghentikan audio, biarkan audio tetap dimainkan sampai selesai
+    // (Berbeda dengan stopTyping() yang benar-benar menghentikan everything)
+    
+    // Set fullText untuk ditampilkan langsung
     this.currentText = this.fullText;
+    this.isTyping = false;
+    
+    // Memberitahu callback bahwa dialog sekarang complete
     if (this.typewriterCallback) {
       this.typewriterCallback(this.fullText, true);
     }

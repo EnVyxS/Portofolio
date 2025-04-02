@@ -378,9 +378,17 @@ class ElevenLabsService {
       this.stopSpeaking();
     }
 
+    // Cek apakah teks terlalu pendek atau hanya ellipsis
+    if (text.trim() === '.....' || text.trim() === '...') {
+      console.log("Text is only ellipsis, using silent audio with short duration");
+      // Untuk ellipsis, kita bisa menggunakan durasi tetap yang pendek
+      return false; // Indikasi bahwa tidak ada audio sebenarnya yang dimainkan
+    }
+
     // Generate speech
     const audioBlob = await this.generateSpeech(text, characterVoice);
     if (!audioBlob) {
+      console.log("Failed to generate speech, no audio will be played");
       return false;
     }
 
@@ -388,13 +396,34 @@ class ElevenLabsService {
     const audioUrl = URL.createObjectURL(audioBlob);
     this.audioElement = new Audio(audioUrl);
     
+    // Set audio properties untuk pengalaman yang lebih baik
+    this.audioElement.preload = "auto";
+    
     // Play audio
     try {
+      // Percobaan pemutaran audio
       this.isPlaying = true;
+      
+      // Tambahkan event listener untuk metadat dan durasi
+      this.audioElement.onloadedmetadata = () => {
+        if (this.audioElement) {
+          const duration = this.audioElement.duration;
+          console.log(`Audio duration: ${duration.toFixed(2)} seconds for text: "${text.substring(0, 20)}..."`);
+        }
+      };
+      
+      // Gunakan Promise untuk memastikan audio berhasil diputar
       await this.audioElement.play();
+      
+      // Tambahkan handler untuk audio yang error di tengah pemutaran
+      this.audioElement.onerror = (e) => {
+        console.error(`Audio playback error:`, e);
+        this.isPlaying = false;
+      };
       
       // Clean up when audio ends
       this.audioElement.onended = () => {
+        console.log("Audio playback completed successfully");
         this.isPlaying = false;
         if (this.audioElement) {
           URL.revokeObjectURL(audioUrl);
@@ -406,14 +435,37 @@ class ElevenLabsService {
     } catch (error) {
       console.error('Failed to play audio:', error);
       this.isPlaying = false;
+      if (this.audioElement) {
+        URL.revokeObjectURL(audioUrl);
+        this.audioElement = null;
+      }
       return false;
     }
   }
 
   public stopSpeaking(): void {
-    if (this.audioElement && this.isPlaying) {
-      this.audioElement.pause();
-      this.audioElement.currentTime = 0;
+    if (this.audioElement) {
+      try {
+        // Pastikan audio benar-benar berhenti
+        this.audioElement.pause();
+        this.audioElement.currentTime = 0;
+        
+        // Hapus event handlers untuk mencegah callback terlambat
+        this.audioElement.onended = null;
+        this.audioElement.onerror = null;
+        
+        // Revoke object URL jika masih ada
+        if (this.audioElement.src.startsWith('blob:')) {
+          URL.revokeObjectURL(this.audioElement.src);
+        }
+        
+        // Null-kan audio element untuk memastikan tidak ada referensi yang tertinggal
+        this.audioElement = null;
+      } catch (error) {
+        console.error("Error stopping audio playback:", error);
+      }
+      
+      // Reset status isPlaying
       this.isPlaying = false;
     }
   }
