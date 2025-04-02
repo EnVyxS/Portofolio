@@ -157,6 +157,11 @@ class HoverDialogController {
     | ((text: string, isComplete: boolean) => void)
     | null = null;
   private isTypingHover: boolean = false;
+  
+  // Method publik untuk mengecek status typing dari luar
+  public isTypingHoverDialog(): boolean {
+    return this.isTypingHover;
+  }
   private typingSpeed: number = 40; // Sedikit lebih cepat dari dialog utama
   private typingInterval: NodeJS.Timeout | null = null;
   private currentText: string = "";

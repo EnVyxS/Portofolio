@@ -38,7 +38,7 @@ export const TIMEOUT_DURATIONS = {
 };
 
 // Untuk testing/development, gunakan timeout yang lebih singkat
-const DEBUG_MODE = false; // Nonaktifkan untuk mode produksi
+const DEBUG_MODE = true; // Aktifkan untuk testing
 if (DEBUG_MODE) {
   Object.keys(TIMEOUT_DURATIONS).forEach(key => {
     // Gunakan waktu yang lebih singkat untuk testing
@@ -144,16 +144,39 @@ class IdleTimeoutController {
     const isAudioPlaying = this.elevenlabsService.isCurrentlyPlaying();
     
     // Cek apakah ada dialog yang sedang diketik
-    const isDialogTyping = this.dialogController.isCurrentlyTyping();
+    let isDialogTyping = false;
     
-    // Pastikan method isCurrentlyTyping ada
-    if (!this.dialogController.isCurrentlyTyping) {
+    // Pastikan method isCurrentlyTyping ada di dialogController
+    if (typeof this.dialogController.isCurrentlyTyping === 'function') {
+      isDialogTyping = this.dialogController.isCurrentlyTyping();
+    } else {
       console.log("[IdleTimeoutController] isCurrentlyTyping tidak ditemukan di dialogController");
-      return false; // Asumsikan tidak ada dialog yang aktif jika method tidak ada
+    }
+    
+    // Cek juga apakah hover dialog sedang diketik
+    let isHoverDialogTyping = false;
+    // Gunakan try/catch untuk menghindari error jika method tidak ada
+    try {
+      if (typeof this.hoverDialogController.isTypingHoverDialog === 'function') {
+        isHoverDialogTyping = this.hoverDialogController.isTypingHoverDialog();
+      }
+    } catch (error) {
+      console.log("[IdleTimeoutController] Error saat cek isTypingHoverDialog:", error);
+    }
+    
+    const isActive = isAudioPlaying || isDialogTyping || isHoverDialogTyping;
+    
+    // Log untuk debugging
+    if (isActive) {
+      console.log("[IdleTimeoutController] Aktivitas terdeteksi:", {
+        audio: isAudioPlaying, 
+        dialog: isDialogTyping,
+        hoverDialog: isHoverDialogTyping
+      });
     }
     
     // Jika salah satu aktif, return true
-    return isAudioPlaying || isDialogTyping;
+    return isActive;
   }
   
   // Memulai penghitungan timeout idle

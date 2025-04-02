@@ -161,13 +161,13 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     
     // Posisi awal
     const startScale = 0.8;
-    // Posisi akhir (zoom in pelan)
-    const endScale = 0.95;
+    // Posisi akhir (zoom in lebih besar untuk efek yang lebih terlihat)
+    const endScale = 1.2;
     
-    // Durasi total efek dalam ms
-    const duration = 2000; 
+    // Durasi total efek dalam ms (lebih lama untuk efek yang lebih terasa)
+    const duration = 3000; 
     // Interval animasi
-    const interval = 20;
+    const interval = 16; // 60fps untuk animasi yang lebih halus
     // Jumlah langkah
     const steps = duration / interval;
     // Penambahan skala per langkah
@@ -177,19 +177,33 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     let currentScale = startScale;
     let currentStep = 0;
     
-    // Fungsi animasi
+    // Matikan animasi breathe selama zoom in
+    bgElement.style.animation = 'none';
+    
+    // Fungsi animasi dengan easings untuk gerakan yang lebih realistis
     const animate = () => {
       currentStep++;
       
       if (currentStep <= steps) {
-        currentScale += scaleStep;
+        // Menggunakan fungsi easing untuk pergerakan yang lebih alami
+        // Pergerakan lambat di awal, kemudian pelan-pelan dipercepat
+        const progress = currentStep / steps;
+        const easedProgress = progress < 0.5 
+          ? 2 * progress * progress 
+          : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+          
+        // Apply easing to scale
+        currentScale = startScale + (endScale - startScale) * easedProgress;
         
         // Menerapkan transform dengan nilai scale yang sesuai
         bgElement.style.transform = `translate(-50%, -50%) scale(${currentScale})`;
         
-        // Kurangi blur sedikit seiring zoom in
-        const blurValue = Math.max(0.5, 2 - (currentStep / steps) * 1.5);
-        bgElement.style.filter = `blur(${blurValue}px) brightness(${0.6 + (currentStep / steps) * 0.1})`;
+        // Kurangi blur secara signifikan seiring zoom in
+        const blurValue = Math.max(0, 2 - (easedProgress * 2));
+        // Tingkatkan brightness lebih banyak untuk kesan mendekati api
+        const brightnessValue = 0.6 + (easedProgress * 0.35);
+        
+        bgElement.style.filter = `blur(${blurValue}px) brightness(${brightnessValue})`;
         
         // Lanjutkan animasi
         requestAnimationFrame(animate);
