@@ -17,7 +17,7 @@ class DialogModel {
     {
       id: 2,
       character: "Diva Juan Nur Taqarrub",
-      text: "Tch... Fire's warm. Always brings strays.",
+      text: "Fire's warm... Always brings strays....",
       voiceId: "geralt",
     },
     {

@@ -281,118 +281,118 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       tone = 'ANGRY';
       console.log(`Auto-detected tone: ANGRY for text with strong language`);
       
-      // Voice settings untuk Angry tone
+      // Voice settings untuk Angry tone Geralt
       voiceSettings = {
-        stability: 0.25,      // Less stable for anger
-        similarity_boost: 0.75,
-        style: 0.80,          // More stylistic expression
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.65,            // Medium-high style untuk karakter Geralt yang marah
         use_speaker_boost: true,
-        speaking_rate: 0.85   // Faster speech when angry
+        speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
       };
     } 
     else if (text.includes('tired') || text.includes('exhausted') || text.includes('Haahhhh')) {
       tone = 'TIRED';
       console.log(`Auto-detected tone: TIRED for text with exhaustion markers`);
       
-      // Voice settings untuk Tired tone
+      // Voice settings untuk Tired tone Geralt
       voiceSettings = {
-        stability: 0.45,      // More stable when tired
-        similarity_boost: 0.75,
-        style: 0.55,          // Less expression
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.45,            // Less expression for tired Geralt
         use_speaker_boost: true,
-        speaking_rate: 0.60   // Much slower when tired
+        speaking_rate: 0.85     // Sedikit lebih lambat karena lelah, tapi masih 0.85 untuk menjaga karakteristik
       };
     }
     else if (text.includes('Hmph') || text.includes('Tch') || text.includes('waste my time')) {
       tone = 'ANNOYED';
       console.log(`Auto-detected tone: ANNOYED for text with Geralt's typical annoyance markers`);
       
-      // Voice settings untuk Annoyed tone
+      // Voice settings untuk Annoyed tone Geralt
       voiceSettings = {
-        stability: 0.30,      // Less stable for annoyance
-        similarity_boost: 0.75,
-        style: 0.70,          // More expressive
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.70,            // Higher style untuk menunjukkan rasa kesal khas Geralt
         use_speaker_boost: true,
-        speaking_rate: 0.75   // Slightly faster for impatience
+        speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
       };
     }
     else if (text.includes('Heh') || text.includes('hilarious') || text.includes('real')) {
       tone = 'SARCASTIC';
       console.log(`Auto-detected tone: SARCASTIC for text with Geralt's sarcasm`);
       
-      // Voice settings untuk Sarcastic tone
+      // Voice settings untuk Sarcastic tone Geralt
       voiceSettings = {
-        stability: 0.30,      // Less stable for varied tone
-        similarity_boost: 0.75,
-        style: 0.85,          // High stylistic variation
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.75,            // Higher style untuk sarkasme Geralt yang khas
         use_speaker_boost: true,
-        speaking_rate: 0.72   // Slightly faster for sharp delivery
+        speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
       };
     }
     else if (text.includes('doesn\'t matter') || text.includes('breathing') || text.includes('Hm')) {
       tone = 'NUMB';
       console.log(`Auto-detected tone: NUMB for text with emotional flatness`);
       
-      // Voice settings untuk Numb tone
+      // Voice settings untuk Numb tone Geralt
       voiceSettings = {
-        stability: 0.50,      // Very stable for monotone effect
-        similarity_boost: 0.75,
-        style: 0.30,          // Much less expression
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.40,            // Low style untuk Geralt yang flat/emotionless
         use_speaker_boost: true,
-        speaking_rate: 0.75   // Normal pace but flat
+        speaking_rate: 0.90     // Sedikit lambat untuk menunjukkan kekosongan emosi
       };
     }
     else if (text.includes('maybe') || text.includes('why am I') || text.includes('perhaps')) {
       tone = 'CONTEMPLATIVE';
       console.log(`Auto-detected tone: CONTEMPLATIVE for thoughtful text`);
       
-      // Voice settings untuk Contemplative tone
+      // Voice settings untuk Contemplative tone Geralt
       voiceSettings = {
-        stability: 0.38,      // Moderate stability
-        similarity_boost: 0.75,
-        style: 0.55,          // Moderate expression
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.55,            // Medium style untuk Geralt yang sedang berpikir
         use_speaker_boost: true,
-        speaking_rate: 0.65   // Slower, thoughtful pace
+        speaking_rate: 0.90     // Sedikit lebih lambat untuk Geralt yang sedang berpikir
       };
     }
     else if (text.includes('what else') || text.includes('that\'s how it is') || text.includes('hoping')) {
       tone = 'RESIGNED';
       console.log(`Auto-detected tone: RESIGNED for text showing acceptance`);
       
-      // Voice settings untuk Resigned tone
+      // Voice settings untuk Resigned tone Geralt
       voiceSettings = {
-        stability: 0.40,      // More stable for resignation
-        similarity_boost: 0.75,
-        style: 0.50,          // Less expressive
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.50,            // Medium-low style untuk Geralt yang pasrah
         use_speaker_boost: true,
-        speaking_rate: 0.65   // Slower, resigned pace
+        speaking_rate: 0.92     // Sedikit lebih lambat untuk nada pasrah
       };
     }
     else if (text.includes('empty') || text.includes('nothing') || text.includes('hollow')) {
       tone = 'HOLLOW';
       console.log(`Auto-detected tone: HOLLOW for text with emptiness`);
       
-      // Voice settings untuk Hollow tone
+      // Voice settings untuk Hollow tone Geralt
       voiceSettings = {
-        stability: 0.45,      // More stable for emptiness
-        similarity_boost: 0.75,
-        style: 0.40,          // Less emotional expression
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.40,            // Low style untuk Geralt yang hampa
         use_speaker_boost: true,
-        speaking_rate: 0.68   // Slightly slower, empty
+        speaking_rate: 0.88     // Sedikit lebih lambat untuk nada kosong
       };
     }
     else {
-      // Default tone is slightly resigned (Geralt's baseline)
-      tone = 'RESIGNED';
-      console.log(`Using default RESIGNED tone for text: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
+      // Default tone is slightly resigned (Geralt of Rivia baseline)
+      tone = 'NEUTRAL';
+      console.log(`Using default NEUTRAL tone for text: "${cleanText.substring(0, 30)}${cleanText.length > 30 ? '...' : ''}"`);
       
-      // Default voice settings
+      // Default voice settings untuk Geralt of Rivia
       voiceSettings = {
-        stability: 0.35,      // Balance between consistency and variation
-        similarity_boost: 0.75,
-        style: 0.65,          // Moderate expression
+        stability: 0.80,        // 80% stability sesuai permintaan
+        similarity_boost: 1.0,  // 100% similarity boost sesuai permintaan
+        style: 0.60,            // Medium style untuk Geralt normal
         use_speaker_boost: true,
-        speaking_rate: 0.70   // Slightly slower like Geralt speaks
+        speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
       };
     }
     

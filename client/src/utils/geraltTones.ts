@@ -12,7 +12,8 @@ export const GERALT_TONE = {
   RESIGNED: "resigned",   // Pasrah, tempo lebih lambat
   HOLLOW: "hollow",       // Kosong, hampa, jeda panjang
   ANNOYED: "annoyed",     // Terganggu, tempo sedikit lebih cepat
-  CONTEMPLATIVE: "contemplative" // Termenung, banyak jeda
+  CONTEMPLATIVE: "contemplative", // Termenung, banyak jeda
+  NEUTRAL: "neutral"     // Nada bicara normal Geralt yang khas (deep, gruff, monotone)
 }
 
 // Tipe data untuk fungsi getVoiceSettings
@@ -25,96 +26,95 @@ export type GeraltTone = keyof typeof GERALT_TONE;
  * @returns Pengaturan voice yang sesuai untuk API ElevenLabs
  */
 export function getVoiceSettings(tone: GeraltTone) {
-  // Default voice settings - konsistensi pitch
+  // Default voice settings untuk Geralt of Rivia
+  // Menggunakan nilai yang diminta: Stability 80%, Similarity 100%, Speaking Rate 0.95
   const defaultSettings = {
-    stability: 0.35,          // Nilai stability konsisten
-    similarity_boost: 0.75,
-    style: 0.65,              // Style moderate agar tidak terlalu bervariasi
+    stability: 0.80,            // 80% stability sesuai permintaan
+    similarity_boost: 1.0,      // 100% similarity sesuai permintaan 
+    style: 0.60,                // Style moderate untuk karakter Geralt
     use_speaker_boost: true,
-    speaking_rate: 0.70       // Speaking rate moderate
+    speaking_rate: 0.95         // 0.95 speaking rate sesuai permintaan
   };
   
-  // Sesuaikan pengaturan berdasarkan tone, tetapi dengan variasi minimal
-  // Jaga nilai stabilitas dan style tetap relatif konsisten untuk mencegah variasi pitch yang drastis
+  // Sesuaikan pengaturan berdasarkan tone dengan tetap menjaga karakteristik suara Geralt
+  // Variasi minimal untuk menjaga konsistensi suara Geralt yang khas
   switch (tone) {
     case "ANGRY":
       return {
         ...defaultSettings,
-        stability: 0.35,        // Sama dengan default
-        style: 0.70,            // Sedikit lebih ekspresif
-        speaking_rate: 0.75     // Sedikit lebih cepat ketika marah
+        style: 0.65,            // Sedikit lebih ekspresif untuk menunjukkan emosi marah Geralt
+        speaking_rate: 0.98     // Sedikit lebih cepat ketika marah
       };
       
     case "TIRED":
       return {
         ...defaultSettings,
-        stability: 0.35,        // Sama dengan default
-        style: 0.60,            // Sedikit kurang ekspresif
-        speaking_rate: 0.65     // Sedikit lebih lambat ketika lelah
+        style: 0.45,            // Kurang ekspresif ketika lelah
+        speaking_rate: 0.85     // Lebih lambat ketika lelah
       };
       
     case "DRUNK":
       return {
         ...defaultSettings,
-        stability: 0.35,        // Sama dengan default
-        style: 0.65,            // Sama dengan default
-        speaking_rate: 0.68     // Hampir sama dengan default
+        stability: 0.75,        // Sedikit kurang stabil untuk efek mabuk
+        style: 0.65,            // Ekspresivitas normal
+        speaking_rate: 0.90     // Sedikit lebih lambat seperti orang mabuk
       };
       
     case "NUMB":
       return {
         ...defaultSettings,
-        stability: 0.35,        // Sama dengan default
-        style: 0.60,            // Sedikit kurang ekspresif
-        speaking_rate: 0.70     // Sama dengan default
+        style: 0.40,            // Sangat kurang ekspresif untuk karakter Geralt yang mati rasa
+        speaking_rate: 0.92     // Sedikit lebih lambat
       };
       
     case "SARCASTIC":
       return {
         ...defaultSettings,
-        stability: 0.35,        // Sama dengan default
-        style: 0.68,            // Sedikit lebih ekspresif
-        speaking_rate: 0.72     // Hampir sama dengan default
+        style: 0.75,            // Lebih ekspresif untuk menunjukkan sarkasme
+        speaking_rate: 0.95     // Normal rate
       };
       
     case "RESIGNED":
       return {
         ...defaultSettings,
-        stability: 0.35,        // Sama dengan default
-        style: 0.62,            // Sedikit kurang ekspresif
-        speaking_rate: 0.68     // Hampir sama dengan default
+        style: 0.50,            // Kurang ekspresif untuk nada pasrah
+        speaking_rate: 0.90     // Sedikit lebih lambat untuk kesan pasrah
       };
       
     case "HOLLOW":
       return {
         ...defaultSettings,
-        stability: 0.35,        // Sama dengan default
-        style: 0.60,            // Sedikit kurang ekspresif
-        speaking_rate: 0.70     // Sama dengan default
+        style: 0.40,            // Sangat kurang ekspresif untuk nada hampa
+        speaking_rate: 0.88     // Lebih lambat untuk kesan hampa
       };
       
     case "ANNOYED":
       return {
         ...defaultSettings,
-        stability: 0.35,        // Sama dengan default
-        style: 0.67,            // Sedikit lebih ekspresif
-        speaking_rate: 0.72     // Sedikit lebih cepat karena tidak sabar
+        style: 0.70,            // Lebih ekspresif untuk menunjukkan kejengkelan
+        speaking_rate: 0.97     // Sedikit lebih cepat karena tidak sabar
       };
       
     case "CONTEMPLATIVE":
       return {
         ...defaultSettings,
-        stability: 0.35,        // Sama dengan default
-        style: 0.62,            // Sedikit kurang ekspresif
-        speaking_rate: 0.68     // Sedikit lebih lambat
+        style: 0.55,            // Kurang ekspresif ketika berpikir
+        speaking_rate: 0.90     // Lebih lambat ketika sedang merenung
       };
       
     case "BITTER":
       return {
         ...defaultSettings,
-        stability: 0.35,        // Sama dengan default
-        style: 0.67,            // Sedikit lebih ekspresif
-        speaking_rate: 0.68     // Sedikit lebih lambat
+        style: 0.65,            // Ekspresivitas normal dengan emosi pedih
+        speaking_rate: 0.92     // Sedikit lebih lambat untuk kesan pahit
+      };
+      
+    case "NEUTRAL":
+      return {
+        ...defaultSettings,
+        style: 0.60,            // Style moderate sesuai karakter Geralt of Rivia
+        speaking_rate: 0.95     // 0.95 speaking rate sesuai permintaan
       };
       
     default:
@@ -227,8 +227,8 @@ export function analyzeToneFromText(text: string): GeraltTone {
     return "BITTER";
   }
   
-  // Default to resigned as Geralt's baseline tone
-  return "RESIGNED";
+  // Default to NEUTRAL as Geralt of Rivia's baseline tone
+  return "NEUTRAL";
 }
 
 // Mapping dialog ke tone yang sesuai dengan karakter Geralt
