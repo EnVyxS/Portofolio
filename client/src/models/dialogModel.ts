@@ -275,7 +275,9 @@ class DialogModel {
     },
   ];
 
-  private currentDialogIndex: number = 0;
+  // Dialog index start at -1 to ensure first nextDialog() call returns the first dialog
+  // This helps prevent repeated first dialog
+  private currentDialogIndex: number = -1;
 
   private constructor() {}
 
@@ -310,7 +312,8 @@ class DialogModel {
   }
 
   public resetDialog(): void {
-    this.currentDialogIndex = 0;
+    // Reset to -1 so that first nextDialog() call returns dialog at index 0
+    this.currentDialogIndex = -1;
   }
 
   public getAllDialogs(): Dialog[] {
