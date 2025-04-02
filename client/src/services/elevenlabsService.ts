@@ -8,11 +8,11 @@ class ElevenLabsService {
 
   // Map character names to ElevenLabs voice IDs (diperbarui sesuai permintaan)
   private voiceMap: Record<string, string> = {
-    'geralt': 'L9oqKdX7JyDJa0dK6AzN', // Voice ID untuk Geralt
+    'geralt': '3Cka3TLKjahfz6KX4ckZ', // Voice ID untuk Geralt (updated)
     'ciri': 'EXAVITQu4vr4xnSDxMaL',   // Bella - young female voice for Ciri
     'yennefer': 'Yko7PKHZNXotIFUBG7I9', // Elli - mature female voice with accent for Yen
-    'character': 'L9oqKdX7JyDJa0dK6AzN', // Voice ID untuk karakter default
-    'default': 'L9oqKdX7JyDJa0dK6AzN'  // Default ke voice ID Geralt
+    'character': '3Cka3TLKjahfz6KX4ckZ', // Voice ID untuk karakter default (updated)
+    'default': '3Cka3TLKjahfz6KX4ckZ'  // Default ke voice ID Geralt (updated)
   };
 
   // Simpan file audio lokal berdasarkan hash sederhana dari teks
