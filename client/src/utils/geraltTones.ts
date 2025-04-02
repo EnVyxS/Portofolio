@@ -131,112 +131,7 @@ export function getVoiceSettings(tone: GeraltTone) {
  * @returns Tone yang paling sesuai dengan konten teks
  */
 export function analyzeToneFromText(text: string): GeraltTone {
-  // Set to lowercase for case-insensitive matching
-  const lowercase = text.toLowerCase();
-  
-  // Check for anger markers
-  if (
-    lowercase.includes('fuck') || 
-    lowercase.includes('damn') || 
-    lowercase.includes('shit') ||
-    lowercase.includes('bastard')
-  ) {
-    return "ANGRY";
-  }
-  
-  // Check for tired/exhausted markers
-  if (
-    lowercase.includes('tired') || 
-    lowercase.includes('exhausted') || 
-    lowercase.includes('haah') ||
-    lowercase.includes('sigh')
-  ) {
-    return "TIRED";
-  }
-  
-  // Check for drunk markers - slurring words, ellipses
-  if (
-    lowercase.includes('...') || 
-    lowercase.includes('huhh') ||
-    (lowercase.match(/\.\.\./g)?.length || 0) > 2
-  ) {
-    return "DRUNK";
-  }
-  
-  // Check for numb/emotionless markers
-  if (
-    lowercase.includes('nothing') || 
-    lowercase.includes('doesn\'t matter') ||
-    lowercase.includes('not that it matters')
-  ) {
-    return "NUMB";
-  }
-  
-  // Check for sarcastic markers - lebih hati-hati
-  if (
-    // Jika ada kombinasi kata makian dengan sarkasme, gunakan ANGRY sebagai prioritas
-    // karena tone ANGRY lebih stabil daripada SARCASTIC untuk suara
-    (lowercase.includes('heh') && 
-     (lowercase.includes('fuck') || lowercase.includes('shit') || lowercase.includes('damn')))
-  ) {
-    return "ANGRY"; // Prioritaskan ANGRY untuk kata kasar + sarkasme
-  }
-  else if (
-    lowercase.includes('heh') || 
-    lowercase.includes('hilarious') ||
-    lowercase.includes('real funny')
-  ) {
-    return "SARCASTIC";
-  }
-  
-  // Check for resigned markers
-  if (
-    lowercase.includes('fate') || 
-    lowercase.includes('what else') ||
-    lowercase.includes('that\'s how it is')
-  ) {
-    return "RESIGNED";
-  }
-  
-  // Check for hollow/empty markers
-  if (
-    lowercase.includes('empty') || 
-    lowercase.includes('void') ||
-    lowercase.includes('alone')
-  ) {
-    return "HOLLOW";
-  }
-  
-  // Check for annoyed markers - common for Geralt
-  if (
-    lowercase.includes('hmph') || 
-    lowercase.includes('tch') ||
-    lowercase.includes('what do you want') ||
-    lowercase.includes('waste') ||
-    lowercase.includes('my time')
-  ) {
-    return "ANNOYED";
-  }
-  
-  // Check for contemplative markers
-  if (
-    lowercase.includes('why') || 
-    lowercase.includes('perhaps') ||
-    lowercase.includes('maybe')
-  ) {
-    return "CONTEMPLATIVE";
-  }
-  
-  // Check for bitter markers
-  if (
-    lowercase.includes('bitter') || 
-    lowercase.includes('no use') ||
-    lowercase.includes('doesn\'t pay')
-  ) {
-    return "BITTER";
-  }
-  
-  // Default to NEUTRAL as Geralt of Rivia's baseline tone
+  // Semua dialog menggunakan NEUTRAL tone sesuai permintaan, terlepas dari konten teksnya
   return "NEUTRAL";
 }
 
@@ -252,49 +147,49 @@ interface DialogInfo {
 
 // Mapping dialog ke tone dan persistence
 export const dialogToToneMap: Record<string, DialogInfo> = {
-  // Dialog dari model untuk mapping ke tone yang tepat
-  "...Didn't ask for company.": { tone: "ANNOYED", persistent: false },
-  "Tch... Fire's warm. Always brings strays.": { tone: "BITTER", persistent: false },
-  "Haahhhh... You need something or are you just here to waste my time?": { tone: "ANNOYED", persistent: true }, // Pertanyaan
-  "Curiosity?... Hmph... Doesn't pay the bills...": { tone: "SARCASTIC", persistent: false },
-  "Pfftt... Waiting... Drinking... What else is there?": { tone: "RESIGNED", persistent: false },
-  "A job?.., A way out?.., Some miracle?..": { tone: "HOLLOW", persistent: false },
-  "Heh... Yeah, real fucking hilarious, isn't it?": { tone: "ANGRY", persistent: false }, // Diubah dari SARCASTIC ke ANGRY agar suara tidak rancau
-  "...You got a name?": { tone: "CONTEMPLATIVE", persistent: true }, // Pertanyaan
-  "Hm. Not that it matters,": { tone: "NUMB", persistent: false },
-  "Diva Juan Nur Taqarrub , , Call me what you want. Doesn't do shit,": { tone: "BITTER", persistent: false },
-  "Hmph... why am I even here?..": { tone: "CONTEMPLATIVE", persistent: false },
-  "Anything that keeps me breathing,": { tone: "NUMB", persistent: false },
-  "Hunting work's like hunting a ghost. No signs, no tracks, just hope and a headache,": { tone: "RESIGNED", persistent: false },
-  "Graduated. Computer Science. 2024,": { tone: "HOLLOW", persistent: false },
-  "Yeah... Cum laude. Thought it'd mean something.. Turns out it's worth less than a stiff drink,": { tone: "BITTER", persistent: false },
-  "Backend. Java. Databases. Know my way around. Not that anyone cares,": { tone: "RESIGNED", persistent: false },
-  "Made a game for my thesis. Thought it'd mean something. It didn't,": { tone: "BITTER", persistent: false },
-  "Editing too. Years of it. Doesn't put food on the table,": { tone: "TIRED", persistent: false },
-  "Vegas Pro. After Effects. Cut, stitch, fix. Life's not that simple,": { tone: "HOLLOW", persistent: false },
-  "SQL... PostgreSQL... MySQL... Data's just numbers. Like debts. Like failures,": { tone: "NUMB", persistent: false },
-  "Used to like puzzles. Now? Just another thing that doesn't pay,": { tone: "RESIGNED", persistent: false },
-  "...Leaving this place?": { tone: "SARCASTIC", persistent: true }, // Pertanyaan
-  "Huhhhh... Like that's so easy,": { tone: "BITTER", persistent: false },
-  "Go where? With what? Got coin to spare?,": { tone: "ANGRY", persistent: true }, // Pertanyaan
-  "Nothing's free. Not even dreams,": { tone: "HOLLOW", persistent: false },
-  "But if the pay's right… maybe,": { tone: "CONTEMPLATIVE", persistent: true }, // Membuka diskusi
-  "For now? I drink. Sit. Hope the fire lasts longer than the night,": { tone: "RESIGNED", persistent: false },
-  "Hmph... You fight... you bleed... you try...,": { tone: "TIRED", persistent: false },
-  "And in the end, still nothing,": { tone: "HOLLOW", persistent: false },
-  "...Enough about me": { tone: "ANNOYED", persistent: false },
-  "What do you want?..": { tone: "ANNOYED", persistent: true }, // Pertanyaan
-  "Talk... You got a job, or just wasting my time?..": { tone: "ANNOYED", persistent: true }, // Pertanyaan akhir, perlu jawaban
+  // Dialog dari model untuk mapping ke tone yang tepat - semua dijadikan NEUTRAL sesuai permintaan
+  "...Didn't ask for company.": { tone: "NEUTRAL", persistent: false },
+  "Tch... Fire's warm. Always brings strays.": { tone: "NEUTRAL", persistent: false },
+  "Haahhhh... You need something or are you just here to waste my time?": { tone: "NEUTRAL", persistent: true }, // Pertanyaan
+  "Curiosity?... Hmph... Doesn't pay the bills...": { tone: "NEUTRAL", persistent: false },
+  "Pfftt... Waiting... Drinking... What else is there?": { tone: "NEUTRAL", persistent: false },
+  "A job?.., A way out?.., Some miracle?..": { tone: "NEUTRAL", persistent: false },
+  "Heh... Yeah, real fucking hilarious, isn't it?": { tone: "NEUTRAL", persistent: false },
+  "...You got a name?": { tone: "NEUTRAL", persistent: true }, // Pertanyaan
+  "Hm. Not that it matters,": { tone: "NEUTRAL", persistent: false },
+  "Diva Juan Nur Taqarrub , , Call me what you want. Doesn't do shit,": { tone: "NEUTRAL", persistent: false },
+  "Hmph... why am I even here?..": { tone: "NEUTRAL", persistent: false },
+  "Anything that keeps me breathing,": { tone: "NEUTRAL", persistent: false },
+  "Hunting work's like hunting a ghost. No signs, no tracks, just hope and a headache,": { tone: "NEUTRAL", persistent: false },
+  "Graduated. Computer Science. 2024,": { tone: "NEUTRAL", persistent: false },
+  "Yeah... Cum laude. Thought it'd mean something.. Turns out it's worth less than a stiff drink,": { tone: "NEUTRAL", persistent: false },
+  "Backend. Java. Databases. Know my way around. Not that anyone cares,": { tone: "NEUTRAL", persistent: false },
+  "Made a game for my thesis. Thought it'd mean something. It didn't,": { tone: "NEUTRAL", persistent: false },
+  "Editing too. Years of it. Doesn't put food on the table,": { tone: "NEUTRAL", persistent: false },
+  "Vegas Pro. After Effects. Cut, stitch, fix. Life's not that simple,": { tone: "NEUTRAL", persistent: false },
+  "SQL... PostgreSQL... MySQL... Data's just numbers. Like debts. Like failures,": { tone: "NEUTRAL", persistent: false },
+  "Used to like puzzles. Now? Just another thing that doesn't pay,": { tone: "NEUTRAL", persistent: false },
+  "...Leaving this place?": { tone: "NEUTRAL", persistent: true }, // Pertanyaan
+  "Huhhhh... Like that's so easy,": { tone: "NEUTRAL", persistent: false },
+  "Go where? With what? Got coin to spare?,": { tone: "NEUTRAL", persistent: true }, // Pertanyaan
+  "Nothing's free. Not even dreams,": { tone: "NEUTRAL", persistent: false },
+  "But if the pay's right… maybe,": { tone: "NEUTRAL", persistent: true }, // Membuka diskusi
+  "For now? I drink. Sit. Hope the fire lasts longer than the night,": { tone: "NEUTRAL", persistent: false },
+  "Hmph... You fight... you bleed... you try...,": { tone: "NEUTRAL", persistent: false },
+  "And in the end, still nothing,": { tone: "NEUTRAL", persistent: false },
+  "...Enough about me": { tone: "NEUTRAL", persistent: false },
+  "What do you want?..": { tone: "NEUTRAL", persistent: true }, // Pertanyaan
+  "Talk... You got a job, or just wasting my time?..": { tone: "NEUTRAL", persistent: true }, // Pertanyaan akhir, perlu jawaban
   
   // Hover dialog - kebanyakan persistent karena menunggu interaksi
-  "Hmph... In a rush, are we? Fine. Tell me what you need done.": { tone: "ANNOYED", persistent: true }, // Menunggu pengguna memberikan info
-  "Not listening, huh? Fine. Decide after you've checked.": { tone: "ANNOYED", persistent: true }, // Menunggu pengguna mengecek
-  "Straight to the point—I like that. Fine. Give me the contract.": { tone: "RESIGNED", persistent: true }, // Menunggu kontrak
-  "Need to check first before deciding? Fine. Not like I'm in a hurry.": { tone: "RESIGNED", persistent: true }, // Menunggu pengguna mengecek
-  "Took your time, didn't you? Fine. Hand me the damn contract.": { tone: "ANNOYED", persistent: true }, // Menunggu kontrak
-  "Fine. Go ahead, check it first.": { tone: "RESIGNED", persistent: true }, // Menunggu pengguna mengecek
-  "Talk... You got a job, or just wasting my time?": { tone: "ANNOYED", persistent: true }, // Pertanyaan
-  "Arghh... whatever you want. I'm done.": { tone: "ANGRY", persistent: false } // Jengkel dan selesai bicara
+  "Hmph... In a rush, are we? Fine. Tell me what you need done.": { tone: "NEUTRAL", persistent: true }, // Menunggu pengguna memberikan info
+  "Not listening, huh? Fine. Decide after you've checked.": { tone: "NEUTRAL", persistent: true }, // Menunggu pengguna mengecek
+  "Straight to the point—I like that. Fine. Give me the contract.": { tone: "NEUTRAL", persistent: true }, // Menunggu kontrak
+  "Need to check first before deciding? Fine. Not like I'm in a hurry.": { tone: "NEUTRAL", persistent: true }, // Menunggu pengguna mengecek
+  "Took your time, didn't you? Fine. Hand me the damn contract.": { tone: "NEUTRAL", persistent: true }, // Menunggu kontrak
+  "Fine. Go ahead, check it first.": { tone: "NEUTRAL", persistent: true }, // Menunggu pengguna mengecek
+  "Talk... You got a job, or just wasting my time?": { tone: "NEUTRAL", persistent: true }, // Pertanyaan
+  "Arghh... whatever you want. I'm done.": { tone: "NEUTRAL", persistent: false } // Jengkel dan selesai bicara
 };
 
 /**
