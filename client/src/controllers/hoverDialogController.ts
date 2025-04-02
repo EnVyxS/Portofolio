@@ -177,41 +177,16 @@ class HoverDialogController {
 
   // Helper untuk mengecek apakah dialog perlu persistent
   private isPersistent(text: string): boolean {
-    // Dialog yang sangat pendek biasanya adalah hanya efek suara
+    // Gunakan fungsi dari geraltTones.ts untuk menentukan apakah dialog persistent
+    const { isDialogPersistent } = require('../utils/geraltTones');
+    
+    // Dialog yang sangat pendek atau adalah efek suara, selalu non-persistent
     if (text.length < 15 || text === "........" || text.startsWith("*")) {
       return false;
     }
     
-    // Dialog yang mengandung kata kunci berikut adalah statement, tidak perlu persistent (autoplay)
-    const nonPersistentKeywords = [
-      "Hmm", "Tch", "Whatever", "Enough of",
-      "Not listening", "Cutting", "My story", "Straight to",
-      "Hmph", "Not like", "Go on then", "Lost interest", 
-      "I'm done", "I don't care", "what you want", "leave me", 
-      "farewell"
-    ];
-    
-    for (const keyword of nonPersistentKeywords) {
-      if (text.toLowerCase().includes(keyword.toLowerCase())) {
-        return false;
-      }
-    }
-    
-    // Dialog yang mengandung pertanyaan biasanya lebih penting
-    if (text.includes('?')) {
-      return true;
-    }
-    
-    // Dialog dari kontrak dan bisnis biasanya memerlukan perhatian
-    const businessKeywords = ["contract", "business", "details", "work", "hire", "professional"];
-    for (const keyword of businessKeywords) {
-      if (text.toLowerCase().includes(keyword.toLowerCase())) {
-        return true;
-      }
-    }
-    
-    // Default untuk hover dialog: auto-dismiss setelah beberapa saat
-    return false;
+    // Gunakan fungsi dari geraltTones untuk konsistensi
+    return isDialogPersistent(text);
   }
 
   // Typewriter effect untuk hover dialog

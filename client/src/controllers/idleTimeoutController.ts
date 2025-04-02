@@ -400,11 +400,11 @@ class IdleTimeoutController {
       }
     });
     
-    // Speak the warning text dengan tone yang sesuai - 'angry' untuk peringatan
+    // Speak the warning text dengan tone NEUTRAL sesuai permintaan
     try {
-      // Untuk peringatan, gunakan tone angry dari Geralt
+      // Untuk peringatan, gunakan voice geralt yang konsisten
       this.elevenlabsService.speakText(text, "geralt");
-      console.log(`[IdleTimeoutController] Memutar suara peringatan dengan tone angry`);
+      console.log(`[IdleTimeoutController] Memutar suara peringatan dengan tone NEUTRAL`);
     } catch (error) {
       console.error("[IdleTimeoutController] Gagal memutar suara peringatan:", error);
     }

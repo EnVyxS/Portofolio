@@ -61,7 +61,7 @@ interface DialogInfo {
 
 // Mapping dialog ke tone dan persistence
 export const dialogToToneMap: Record<string, DialogInfo> = {
-  // Dialog dari model untuk mapping ke tone yang tepat - semua dijadikan NEUTRAL sesuai permintaan
+  // Dialog utama - semua menggunakan NEUTRAL tone sesuai permintaan
   "...Didn't ask for company.": { tone: "NEUTRAL", persistent: false },
   "Tch... Fire's warm. Always brings strays.": { tone: "NEUTRAL", persistent: false },
   "Haahhhh... You need something or are you just here to waste my time?": { tone: "NEUTRAL", persistent: true }, // Pertanyaan
@@ -95,15 +95,72 @@ export const dialogToToneMap: Record<string, DialogInfo> = {
   "What do you want?..": { tone: "NEUTRAL", persistent: true }, // Pertanyaan
   "Talk... You got a job, or just wasting my time?..": { tone: "NEUTRAL", persistent: true }, // Pertanyaan akhir, perlu jawaban
   
-  // Hover dialog - kebanyakan persistent karena menunggu interaksi
-  "Hmph... In a rush, are we? Fine. Tell me what you need done.": { tone: "NEUTRAL", persistent: true }, // Menunggu pengguna memberikan info
-  "Not listening, huh? Fine. Decide after you've checked.": { tone: "NEUTRAL", persistent: true }, // Menunggu pengguna mengecek
-  "Straight to the point—I like that. Fine. Give me the contract.": { tone: "NEUTRAL", persistent: true }, // Menunggu kontrak
-  "Need to check first before deciding? Fine. Not like I'm in a hurry.": { tone: "NEUTRAL", persistent: true }, // Menunggu pengguna mengecek
-  "Took your time, didn't you? Fine. Hand me the damn contract.": { tone: "NEUTRAL", persistent: true }, // Menunggu kontrak
-  "Fine. Go ahead, check it first.": { tone: "NEUTRAL", persistent: true }, // Menunggu pengguna mengecek
-  "Talk... You got a job, or just wasting my time?": { tone: "NEUTRAL", persistent: true }, // Pertanyaan
-  "Arghh... whatever you want. I'm done.": { tone: "NEUTRAL", persistent: false } // Jengkel dan selesai bicara
+  // Hover dialog - saat interupsi dialog utama (dari hoverDialogController.ts)
+  "Hmph... In a rush, are we? Fine. Tell me what you need done.": { tone: "NEUTRAL", persistent: true },
+  "Can't wait till I'm done talking? Fine. What do you want?": { tone: "NEUTRAL", persistent: true },
+  "Interrupting me? Rude. But I'm listening.": { tone: "NEUTRAL", persistent: true },
+  "Not even letting me finish? Fine, what's the contract?": { tone: "NEUTRAL", persistent: true },
+  "Hmm. Impatient, aren't you? What is it?": { tone: "NEUTRAL", persistent: true },
+  
+  // Hover dialog - untuk social links (dari hoverDialogController.ts)
+  "Not listening, huh? Fine. Decide after you've checked.": { tone: "NEUTRAL", persistent: true },
+  "My story's boring you? Go on then, look elsewhere.": { tone: "NEUTRAL", persistent: false },
+  "Hmm. Distracted already? Go ahead, check it out.": { tone: "NEUTRAL", persistent: true },
+  "Prefer looking around than listening? Your choice.": { tone: "NEUTRAL", persistent: false },
+  "Lost interest so quickly? Whatever. Go look.": { tone: "NEUTRAL", persistent: false },
+  
+  // Hover dialog - saat dialog utama sudah selesai, opsi kontak (dari hoverDialogController.ts)
+  "Straight to the point—I like that. Fine. Give me the contract.": { tone: "NEUTRAL", persistent: true },
+  "Business it is then. What's the job?": { tone: "NEUTRAL", persistent: true },
+  "Contract details? Let's hear it.": { tone: "NEUTRAL", persistent: true },
+  "Talk business. I'm listening.": { tone: "NEUTRAL", persistent: true },
+  "Hmm. Cutting to the chase. Good.": { tone: "NEUTRAL", persistent: true },
+  
+  // Hover dialog - saat dialog utama sudah selesai, opsi sosial (dari hoverDialogController.ts)
+  "Need to check first before deciding? Fine. Not like I'm in a hurry.": { tone: "NEUTRAL", persistent: true },
+  "Want to know more about me first? Suit yourself.": { tone: "NEUTRAL", persistent: false },
+  "Curious about my past work? Take a look.": { tone: "NEUTRAL", persistent: false },
+  "Checking my credentials? Smart. Not that I care.": { tone: "NEUTRAL", persistent: false },
+  "Due diligence, huh? Look all you want.": { tone: "NEUTRAL", persistent: false },
+  
+  // Hover dialog - transisi dari sosial ke kontak (dari hoverDialogController.ts)
+  "Took your time, didn't you? Fine. Hand me the damn contract.": { tone: "NEUTRAL", persistent: true },
+  "Done looking? Ready for business now?": { tone: "NEUTRAL", persistent: true },
+  "Satisfied with what you found? Let's talk work.": { tone: "NEUTRAL", persistent: true },
+  "Seen enough? What's the job then?": { tone: "NEUTRAL", persistent: true },
+  "Research complete? Let's hear about the contract.": { tone: "NEUTRAL", persistent: true },
+  
+  // Hover dialog - transisi dari kontak ke sosial (dari hoverDialogController.ts)
+  "Fine. Go ahead, check it first.": { tone: "NEUTRAL", persistent: true },
+  "Having second thoughts? Look around then.": { tone: "NEUTRAL", persistent: false },
+  "Changed your mind? Go on, look me up.": { tone: "NEUTRAL", persistent: false },
+  "Not convinced yet? See for yourself.": { tone: "NEUTRAL", persistent: false },
+  "Hmm. Still uncertain? Check my background.": { tone: "NEUTRAL", persistent: true },
+  
+  // Hover dialog - saat user bermain-main level 1 (dari hoverDialogController.ts)
+  "Talk... You got a job, or just wasting my time?": { tone: "NEUTRAL", persistent: true },
+  "Make up your mind. I don't have all day.": { tone: "NEUTRAL", persistent: true },
+  "Hmm. This back and forth is getting irritating.": { tone: "NEUTRAL", persistent: false },
+  "Decide already. Contract or not?": { tone: "NEUTRAL", persistent: true },
+  "Getting annoyed with the indecision here.": { tone: "NEUTRAL", persistent: false },
+  
+  // Hover dialog - saat user bermain-main level 2 (dari hoverDialogController.ts)
+  "Arghh... whatever you want. I'm done.": { tone: "NEUTRAL", persistent: false },
+  "That's it. I'm done with this nonsense.": { tone: "NEUTRAL", persistent: false },
+  "Enough of this. Make a choice or leave me be.": { tone: "NEUTRAL", persistent: false },
+  "*sighs deeply* I've lost my patience. We're done here.": { tone: "NEUTRAL", persistent: false },
+  "I'm through with this game. Decide or go away.": { tone: "NEUTRAL", persistent: false },
+  
+  // Idle warning dialog - dari idleTimeoutController.ts
+  "What the hell are you staring at?.. Got something to say!?": { tone: "NEUTRAL", persistent: true },
+  "You really gonna keep ignoring me? I'm not in the mood for this.": { tone: "NEUTRAL", persistent: true },
+  "You think this is funny?.. Staring at me for nine damn minutes?.. Fuck you!!": { tone: "NEUTRAL", persistent: true },
+  "Now what, you little filth!?..": { tone: "NEUTRAL", persistent: true },
+  "Hmph... Finally, you decide to move... Suit yourself. You want to check it or just get on with signing the damn contract?": { tone: "NEUTRAL", persistent: true },
+  "So this is how it is? You think you can play me for a fool?": { tone: "NEUTRAL", persistent: true },
+  "ENOUGH": { tone: "NEUTRAL", persistent: false },
+  "That's it. GET OUT OF MY SIGHT!": { tone: "NEUTRAL", persistent: false },
+  "You're really asking for it...": { tone: "NEUTRAL", persistent: false }
 };
 
 /**
