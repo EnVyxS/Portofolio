@@ -233,7 +233,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           {/* Only show one button at a time based on dialog state */}
           {isComplete ? (
             <button 
-              className="dialog-continue dark-souls-button next-button"
+              className="just-text-button next-button"
               onClick={handleContinue}
             >
               <span className="button-icon">→</span>
@@ -241,7 +241,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             </button>
           ) : (
             <button 
-              className="dialog-continue dark-souls-button skip-button"
+              className="just-text-button skip-button"
               onClick={handleContinue}
             >
               <span className="button-icon">▶</span>
@@ -509,9 +509,26 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           opacity: 1;
         }
         
-        .dark-souls-button:hover {
+        .dark-souls-button:hover,
+        .just-text-button:hover {
           color: #fff;
           text-shadow: 0 0 5px rgba(255, 220, 150, 0.6);
+        }
+        
+        /* Styling for pure text buttons (no box/border) */
+        .just-text-button {
+          background: transparent;
+          border: none;
+          color: #d4c9a8;
+          font-family: 'Trajan Pro', 'Cinzel', serif;
+          text-transform: uppercase;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          font-size: 0.7rem;
+          margin-left: auto;
+          padding: 0.3rem;
+          text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
         }
         
         @keyframes pulse-glow {
