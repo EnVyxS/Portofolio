@@ -338,6 +338,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           flex: 1;
           display: flex;
           align-items: center;
+          max-width: 70%; /* Make sure hints don't overlap with button */
+          overflow: hidden; /* Hide overflow text */
         }
         
         .auto-continue-hint {
@@ -460,19 +462,20 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           color: #d4c9a8;
           border: 1px solid rgba(170, 150, 110, 0.5);
           font-family: 'Trajan Pro', 'Cinzel', serif;
-          font-size: 0.8rem;
+          font-size: 0.7rem;
           text-transform: uppercase;
           letter-spacing: 0.5px;
-          position: absolute;
-          right: 0;
-          bottom: 0;
-          padding: 0.35rem 0.7rem;
+          position: relative; /* Change from absolute to relative */
+          margin-left: auto; /* Push to right side */
+          padding: 0.3rem 0.5rem;
           display: flex;
           align-items: center;
-          gap: 0.4rem;
+          gap: 0.3rem;
           cursor: pointer;
-          min-width: 80px;
+          min-width: 60px;
+          height: 24px;
           justify-content: center;
+          box-sizing: border-box;
         }
         
         .next-button {
@@ -484,15 +487,16 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         }
         
         .button-icon {
-          font-size: 0.9rem;
+          font-size: 0.8rem;
           line-height: 1;
-          margin-right: 0.2rem;
+          margin-right: 0.15rem;
         }
         
         .button-text {
           font-weight: 500;
-          font-size: 0.75rem;
+          font-size: 0.7rem;
           line-height: 1;
+          text-align: center;
         }
         
         /* Hover/active states */
