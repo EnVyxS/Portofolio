@@ -98,7 +98,7 @@ class DialogController {
     }
     
     // Perkiraan durasi dialog berdasarkan panjang teks
-    // Rata-rata pembacaan 12 karakter per detik (standar untuk bahasa Inggris - lebih lambat untuk Geralt)
+    // Rata-rata pembacaan 12 karakter per detik (standar untuk bahasa Inggris - lebih lambat untuk DIVA JUAN)
     const estimatedDuration = Math.max(3000, (dialog.text.length / 10) * 1000); 
     
     // Try to speak the text if voice is enabled - menggunakan text asli tanpa modifikasi
@@ -205,7 +205,7 @@ class DialogController {
     const customDialog: Dialog = {
       id: 9999, // ID khusus untuk dialog timeout
       text: text,
-      character: "Geralt of Rivia" // Karakter untuk dialog timeout/idle
+      character: "DIVA JUAN NUR TAQARRUB" // Karakter untuk dialog timeout/idle
     };
     
     // Tampilkan dialog custom

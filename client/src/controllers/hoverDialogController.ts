@@ -11,9 +11,9 @@ export type HoverLinkType =
   | "none";
 
 // Dialog khusus berdasarkan status dan jenis link
-// Menyediakan beberapa variasi untuk setiap kategori agar Geralt tidak mengulang kalimat yang sama
+// Menyediakan beberapa variasi untuk setiap kategori agar DIVA JUAN tidak mengulang kalimat yang sama
 const HOVER_DIALOGS = {
-  // Saat Geralt sedang berbicara (interupsi)
+  // Saat DIVA JUAN sedang berbicara (interupsi)
   interruption: {
     contact: [
       "Hmph... In a rush, are we? Fine. Tell me what you need done.",
@@ -30,7 +30,7 @@ const HOVER_DIALOGS = {
       "Lost interest so quickly? Whatever. Go look.",
     ],
   },
-  // Saat Geralt sudah selesai berbicara
+  // Saat DIVA JUAN sudah selesai berbicara
   completed: {
     contact: [
       "Straight to the point—I like that. Fine. Give me the contract.",
@@ -382,7 +382,7 @@ class HoverDialogController {
       // Dialog box akan otomatis hilang karena sudah ditandai sebagai non-persistent di dialogToToneMap
       if (isAnnoyedLastLevel) {
         console.log(
-          "Geralt jengkel dan dialog akan menghilang setelah selesai",
+          "DIVA JUAN jengkel dan dialog akan menghilang setelah selesai",
         );
       }
     }

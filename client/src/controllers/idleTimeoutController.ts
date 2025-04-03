@@ -412,7 +412,7 @@ class IdleTimeoutController {
   
   // Method untuk 'melempar' user
   private throwUser(): void {
-    console.log("[IdleTimeoutController] Geralt melempar user! Mengembalikan ke scene awal.");
+    console.log("[IdleTimeoutController] DIVA JUAN melempar user! Mengembalikan ke scene awal.");
     
     // Tambahkan dialog peringatan untuk 'melempar'
     const throwText = "That's it. GET OUT OF MY SIGHT!";
@@ -437,7 +437,7 @@ class IdleTimeoutController {
   
   // Method untuk 'memukul' user
   private punchUser(): void {
-    console.log("[IdleTimeoutController] Geralt memukul user! Mengeluarkan dari website.");
+    console.log("[IdleTimeoutController] DIVA JUAN memukul user! Mengeluarkan dari website.");
     
     // Tambahkan dialog peringatan untuk 'memukul'
     const punchText = "You're really asking for it...";

@@ -190,7 +190,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     
     // Posisi awal
     const startScale = 0.8;
-    // Posisi akhir (zoom lebih kecil agar tidak terlalu dekat dengan Geralt)
+    // Posisi akhir (zoom lebih kecil agar tidak terlalu dekat dengan DIVA JUAN)
     const endScale = 0.95;
     
     // Variabel untuk efek pergerakan kamera dan parallax

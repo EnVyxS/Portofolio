@@ -17,7 +17,7 @@ function MainApp() {
   const [approachClicked, setApproachClicked] = useState<boolean>(false);
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const [dramaticEffect, setDramaticEffect] = useState<'throw' | 'punch' | 'none'>('none');
-  const [wasReset, setWasReset] = useState<boolean>(false); // Untuk menandai jika user telah dilempar oleh Geralt
+  const [wasReset, setWasReset] = useState<boolean>(false); // Untuk menandai jika user telah dilempar oleh DIVA JUAN
   const { isAudioPlaying, playAudio, pauseAudio, hasInteracted, setHasInteracted, setVolume } = useAudio();
   const isMobile = useIsMobile(); // Hook untuk deteksi mobile
   
@@ -81,7 +81,7 @@ function MainApp() {
     }
   };
   
-  // Handler untuk efek throw - ketika Geralt melempar user
+  // Handler untuk efek throw - ketika DIVA JUAN melempar user
   const handleThrowUser = useCallback(() => {
     setDramaticEffect('throw');
     // Reset semua state setelah beberapa detik
@@ -92,7 +92,7 @@ function MainApp() {
     }, 2000);
   }, [setDramaticEffect, setApproachClicked, setWasReset]);
   
-  // Handler untuk efek punch - ketika Geralt memukul user
+  // Handler untuk efek punch - ketika DIVA JUAN memukul user
   const handlePunchUser = useCallback(() => {
     setDramaticEffect('punch');
     // Setelah beberapa detik, redirect ke halaman kosong

@@ -256,7 +256,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       setText(text);
       setIsComplete(complete);
       setDialogSource('hover');
-      setCharacterName('Geralt of Rivia'); // Dialog hover dari Geralt (idle warnings juga)
+      setCharacterName('DIVA JUAN NUR TAQARRUB'); // Dialog hover dari DIVA JUAN (idle warnings juga)
     });
     
     // Cleanup on unmount
