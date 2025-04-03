@@ -162,8 +162,9 @@ const GameContactCard: React.FC = () => {
           max-width: 500px;
           margin: 0 auto;
           position: absolute;
-          top: 90px; /* Positioned below volume control */
-          right: 10px; /* Position to the right side */
+          top: 50%; /* Center vertically */
+          right: 20px; /* Position to the right side */
+          transform: translateY(-50%); /* Perfect vertical centering */
         }
 
         /* Unified card that contains all elements */
@@ -289,8 +290,8 @@ const GameContactCard: React.FC = () => {
 
         @media (max-width: 640px) {
           .content-wrapper {
-            top: 45vh; /* Better position for most mobile screens */
-            right: 0; /* Center on small screens */
+            top: 50%; /* Posisi tepat di tengah untuk mobile */
+            right: 0; /* Center horizontal di layar mobile */
             left: 0;
             margin: 0 auto;
             width: 100%;
@@ -321,11 +322,12 @@ const GameContactCard: React.FC = () => {
         /* Extra small devices */
         @media (max-width: 480px) {
           .content-wrapper {
-            top: 38vh; /* Positioned higher for better visibility */
+            top: 50%; /* Centered di tengah layar */
             width: 100%; /* Use full width */
             padding: 0 1rem; /* Add padding */
             display: flex;
             justify-content: center;
+            transform: translateY(-50%); /* Perfect vertical centering */
           }
           
           .unified-card {

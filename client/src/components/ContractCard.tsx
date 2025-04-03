@@ -282,10 +282,10 @@ const ContractCard: React.FC = () => {
         .contract-card {
           position: fixed;
           left: 0;
-          top: 20px;
+          top: 4px; /* Posisi lebih pas di top */
           background: rgba(30, 25, 20, 0.9);
           color: #d4c9a8;
-          padding: 15px 10px 15px 15px;
+          padding: 12px 10px 12px 15px;
           border-radius: 0 5px 5px 0;
           border: 1px solid rgba(150, 130, 100, 0.4);
           display: flex;
@@ -405,11 +405,13 @@ const ContractCard: React.FC = () => {
           transform-origin: center;
           width: 100%;
           height: 100%;
+          padding: 0 10px; /* Tambah padding horizontal */
         }
         
         .document-header {
           margin-bottom: 15px;
           text-align: center;
+          width: 100%; /* Full width */
         }
         
         .document-title {
@@ -423,12 +425,14 @@ const ContractCard: React.FC = () => {
 
         .document-image {
           max-width: 90%;
-          max-height: 75%;
+          max-height: 80%;
           object-fit: contain;
           box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
           border: 1px solid rgba(150, 130, 100, 0.3);
           transition: all 0.3s ease;
           cursor: zoom-in;
+          display: block;
+          margin: 0 auto; /* Center horizontally */
         }
         
         .document-image:hover {
@@ -577,7 +581,7 @@ const ContractCard: React.FC = () => {
 
         @media (max-width: 768px) {
           .contract-card {
-            top: 10px;
+            top: 4px; /* Konsisten dengan desktop */
             padding: 10px 12px 10px 8px;
           }
           
