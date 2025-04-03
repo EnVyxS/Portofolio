@@ -5,11 +5,13 @@ import path from 'path';
 // Pengaturan default untuk voice model sesuai permintaan user
 function getDefaultVoiceSettings(): any {
   return {
-    stability: 0.75, // Lebih rendah untuk mengurangi over-emphasis
-    similarity_boost: 0.75, // Kurangi untuk menghindari over-processing
+    // Sesuai permintaan user:
+    // speed: 0.95, stability: 90, similarity: 100
+    stability: 0.90, // 90%
+    similarity_boost: 1.0, // 100% - menjaga nada suara konsisten
     style: 0.25, // Kurangi dramatisasi
     use_speaker_boost: true,
-    speaking_rate: 1.25 // Lebih cepat untuk dialog pendek
+    speaking_rate: 0.95 // Sesuai permintaan (sedikit lebih lambat)
   };
 }
 
@@ -89,15 +91,19 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     console.log(`Using voice_id: ${finalVoiceId}`);
     
     // Cek apakah ini adalah text kosong seperti "..." atau "....."
-    if (text.trim() === '...' || text.trim() === '.....') {
-      console.log("Text is only ellipsis, returning silent audio");
+    const trimmedText = text.trim();
+    if (trimmedText === '...' || trimmedText === '.....' || trimmedText === '') {
+      console.log("Text is only ellipsis or empty, returning silent audio");
       return res.status(200).json({
         success: true,
         audioPath: '/audio/character/silent.mp3',
         cached: true,
-        message: 'Using silent audio for ellipsis'
+        message: 'Using silent audio for ellipsis or empty text'
       });
     }
+    
+    // Perbaiki untuk kasus spesial seperti "...You got a name?"
+    // Dialog ini tidak boleh dianggap sebagai elipsis karena mengandung teks bermakna
     
     // Log untuk debugging
     console.log("Using ElevenLabs API key from environment variable");

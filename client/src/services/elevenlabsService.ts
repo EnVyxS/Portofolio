@@ -71,8 +71,11 @@ class ElevenLabsService {
 
   public async generateSpeech(text: string): Promise<Blob | null> {
     try {
-      // Jika ini adalah teks kosong atau ellipsis, gunakan silent.mp3
-      if (text.trim() === '.....' || text.trim() === '...') {
+      // Jika ini adalah teks kosong atau HANYA ellipsis, gunakan silent.mp3
+      // Perhatikan kondisi pengetesan menjadi text.trim() === '.....' || text.trim() === '...'
+      // tapi kita tidak menangkap kasus "...You got a name?"
+      const trimmedText = text.trim();
+      if (trimmedText === '.....' || trimmedText === '...' || trimmedText === '') {
         console.log("Using silent audio for:", text);
         
         // Coba ambil dari folder character
@@ -145,8 +148,9 @@ class ElevenLabsService {
       this.stopSpeaking();
     }
 
-    // Cek apakah teks terlalu pendek atau hanya ellipsis
-    if (text.trim() === '.....' || text.trim() === '...') {
+    // Cek apakah teks terlalu pendek atau hanya ellipsis tanpa kata-kata lain
+    const trimmedText = text.trim();
+    if (trimmedText === '.....' || trimmedText === '...' || trimmedText === '') {
       console.log("Text is only ellipsis, using silent audio");
       return false; // Indikasi bahwa tidak ada audio sebenarnya yang dimainkan
     }
