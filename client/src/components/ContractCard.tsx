@@ -284,7 +284,7 @@ const ContractCard: React.FC = () => {
         .contract-card {
           position: fixed;
           left: 15px; /* Dipindahkan 15px ke kanan */
-          top: 4px; /* Posisi lebih pas di top */
+          top: 12px; /* Diturunkan sedikit dari atas */
           background: rgba(30, 25, 20, 0.9);
           color: #d4c9a8;
           padding: 12px 10px 12px 15px;

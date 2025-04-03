@@ -2,6 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import DialogController from '../controllers/dialogController';
 import HoverDialogController from '../controllers/hoverDialogController';
+import { FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
+import ElevenLabsService from '../services/elevenlabsService';
 
 // Import fungsi hash untuk debugging
 function generateSimpleHash(text: string): string {
@@ -46,11 +48,28 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [isDialogFinished, setIsDialogFinished] = useState<boolean>(false);
   const [dialogSource, setDialogSource] = useState<'main' | 'hover'>('main');
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  
   const dialogController = DialogController.getInstance();
   const hoverDialogController = HoverDialogController.getInstance();
+  const elevenLabsService = ElevenLabsService.getInstance();
 
   // Timer reference untuk auto-continue
   const autoPlayTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  
+  // Fungsi untuk toggle mute
+  const toggleMute = useCallback(() => {
+    if (isMuted) {
+      // Unmute
+      elevenLabsService.setApiKey(import.meta.env.VITE_ELEVENLABS_API_KEY || '');
+      setIsMuted(false);
+    } else {
+      // Mute
+      elevenLabsService.stopSpeaking(); // Hentikan audio yang sedang berjalan
+      elevenLabsService.setApiKey(''); // Set API key kosong untuk mencegah request audio baru
+      setIsMuted(true);
+    }
+  }, [isMuted, elevenLabsService]);
 
   // Handle Continue sebagai useCallback untuk dapat digunakan dalam useEffect
   const handleContinue = useCallback(() => {
@@ -299,24 +318,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             )}
           </div>
           
-          {/* Only show one button at a time based on dialog state */}
-          {isComplete ? (
-            <button 
-              className="just-text-button next-button"
-              onClick={handleContinue}
-            >
-              <span className="button-icon">→</span>
-              <span className="button-text">NEXT</span>
-            </button>
-          ) : (
-            <button 
-              className="just-text-button skip-button"
-              onClick={handleContinue}
-            >
-              <span className="button-icon">▶</span>
-              <span className="button-text">SKIP</span>
-            </button>
-          )}
+          {/* Tombol mute untuk karakter */}
+          <button 
+            className="voice-mute-button"
+            onClick={toggleMute}
+            title={isMuted ? "Unmute character" : "Mute character"}
+          >
+            {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
+          </button>
         </div>
       </div>
       
@@ -584,6 +593,28 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           text-shadow: 0 0 5px rgba(255, 220, 150, 0.6);
         }
         
+        /* Styling for voice mute button */
+        .voice-mute-button {
+          background: rgba(25, 20, 15, 0.7);
+          border: 1px solid rgba(150, 130, 100, 0.35);
+          color: #d4c9a8;
+          width: 32px;
+          height: 32px;
+          border-radius: 3px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          margin-left: auto;
+        }
+        
+        .voice-mute-button:hover {
+          color: #fff;
+          border-color: rgba(180, 160, 120, 0.6);
+          box-shadow: 0 0 8px rgba(0, 0, 0, 0.5), 0 0 3px rgba(255, 220, 150, 0.3);
+        }
+        
         /* Styling for pure text buttons (no box/border) */
         .just-text-button {
           background: transparent;
@@ -712,6 +743,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           .button-text {
             margin-left: 2px;
           }
+          
+          .voice-mute-button {
+            width: 28px;
+            height: 28px;
+          }
         }
         
         /* Extra small devices */
@@ -754,6 +790,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           
           .dialog-hints {
             max-width: 60%; /* Ensure hints don't overlap buttons on mobile */
+          }
+          
+          .voice-mute-button {
+            width: 24px;
+            height: 24px;
           }
         }
         
