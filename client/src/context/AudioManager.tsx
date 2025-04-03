@@ -62,6 +62,32 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
     };
   }, [music, ambient]);
 
+  // Handle visibility change (pause when tab/window is not visible)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Pause audio when user switches tabs or minimizes window
+        if (isAudioPlaying) {
+          console.log("Tab not visible - pausing audio");
+          music.pause();
+          ambient.pause();
+          // We don't set isAudioPlaying to false here because we want to resume on return
+        }
+      } else if (isAudioPlaying) {
+        // Resume audio when user returns to tab, if it was playing before
+        console.log("Tab visible again - resuming audio");
+        music.play().catch(() => console.log("Failed to resume music on visibility change"));
+        ambient.play().catch(() => console.log("Failed to resume ambient on visibility change"));
+      }
+    };
+
+    // Register and clean up visibility change event
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [music, ambient, isAudioPlaying]);
+
   // Setup automatic play triggers
   useEffect(() => {
     // Function to try auto play - will likely be blocked by browser without interaction

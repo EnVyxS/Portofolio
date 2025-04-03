@@ -40,9 +40,45 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
   };
   
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (url.startsWith('mailto:')) {
-      e.preventDefault();
-      window.location.href = url;
+    // Prevent default behavior for all links to handle redirection manually
+    e.preventDefault();
+    
+    // Get the ElevenLabs service to check audio status
+    const elevenlabsService = HoverDialogController.getInstance().getElevenLabsService();
+    
+    // Trigger the glitch effect immediately
+    triggerGlitch();
+    
+    // Show a message that we're waiting for character to finish talking
+    const hoverType = mapIdToLinkType(id);
+    hoverController.handleHoverDialog(hoverType);
+    
+    // Check if audio is currently playing
+    if (elevenlabsService.isCurrentlyPlaying()) {
+      console.log("Audio is playing - waiting for completion before redirecting to:", url);
+      
+      // Display a message to user that we're waiting for audio to finish
+      const redirectDelay = 2500; // 2.5 seconds 
+      
+      setTimeout(() => {
+        console.log("Redirect delay completed, opening URL:", url);
+        
+        // Use window.open for external links, window.location for mailto
+        if (url.startsWith('mailto:')) {
+          window.location.href = url;
+        } else {
+          window.open(url, '_blank', 'noopener,noreferrer');
+        }
+      }, redirectDelay);
+    } else {
+      // If no audio is playing, redirect immediately
+      console.log("No audio playing, redirecting immediately to:", url);
+      
+      if (url.startsWith('mailto:')) {
+        window.location.href = url;
+      } else {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
     }
   };
 

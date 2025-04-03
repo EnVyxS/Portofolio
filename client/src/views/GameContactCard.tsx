@@ -270,7 +270,7 @@ const GameContactCard: React.FC = () => {
           
           .unified-card {
             max-width: min(220px, 80%); /* Slightly wider on tablets but still small */
-            opacity: 0.35; /* Slightly more visible on tablets */
+            opacity: 0.65; /* MORE visible on tablets */
             transform: translateY(-50%); /* Center vertically */
           }
           
@@ -289,21 +289,26 @@ const GameContactCard: React.FC = () => {
 
         @media (max-width: 640px) {
           .content-wrapper {
-            top: 40vh; /* Position in middle of the screen for mobile */
+            top: 45vh; /* Better position for most mobile screens */
             right: 0; /* Center on small screens */
             left: 0;
             margin: 0 auto;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 20; /* Higher z-index to ensure visibility */
             transform: translateY(-50%); /* Center vertically */
           }
           
           .social-links {
             gap: 0.4rem; /* Tighter spacing on mobile */
+            width: 100%; /* Use full width */
           }
           
           .unified-card {
-            max-width: min(200px, 70%); /* Even smaller on mobile */
-            opacity: 0.35; /* More visible on mobile */
-            padding: 0.4rem;
+            max-width: min(220px, 75%); /* Slightly larger for better readability */
+            opacity: 0.75; /* MORE visible on mobile */
+            padding: 0.5rem; /* Slightly larger padding for better touch targets */
             transform: none; /* Reset transform to avoid double transform */
           }
           
@@ -316,12 +321,13 @@ const GameContactCard: React.FC = () => {
         /* Extra small devices */
         @media (max-width: 480px) {
           .content-wrapper {
-            top: 40vh; /* Keep consistent with 640px breakpoint */
+            top: 42vh; /* Adjusted for better visibility */
           }
           
           .unified-card {
-            max-width: min(180px, 65%); /* Even smaller on tiny screens */
-            padding: 0.3rem;
+            max-width: min(200px, 70%); /* Slightly larger for tiny screens */
+            padding: 0.4rem; /* Better padding for touch */
+            opacity: 0.8; /* Even more visible on small devices */
           }
           
           .social-links {
@@ -347,8 +353,8 @@ const GameContactCard: React.FC = () => {
 
           .unified-card {
             padding: 0.4rem;
-            max-width: 160px;
-            opacity: 0.35; /* More visible for landscape */
+            max-width: 180px; /* Slightly larger */
+            opacity: 0.7; /* Even more visible for landscape */
             transform: none; /* Reset transform to avoid conflicts */
           }
 

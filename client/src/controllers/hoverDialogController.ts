@@ -112,6 +112,11 @@ class HoverDialogController {
     return HoverDialogController.instance;
   }
 
+  // Method untuk mendapatkan service ElevenLabs untuk pengecekan audio
+  public getElevenLabsService(): ElevenLabsService {
+    return this.elevenlabsService;
+  }
+
   // Method ini dipanggil saat dialog normal selesai
   public setDialogCompleted(completed: boolean): void {
     this.dialogCompleted = completed;
