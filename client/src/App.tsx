@@ -10,6 +10,7 @@ import IdleTimeoutController from './controllers/idleTimeoutController';
 import DialogController from './controllers/dialogController';
 import DramaticEffects, { dramaticEffectsStyles } from './components/DramaticEffects';
 import { useIsMobile } from './hooks/use-mobile';
+import ContractCard from './components/ContractCard';
 
 function MainApp() {
   const [showElevenLabsSetup, setShowElevenLabsSetup] = useState<boolean>(false);
@@ -229,6 +230,9 @@ function MainApp() {
         
         {/* Contact card selalu ditampilkan, tidak bergantung pada showContactCard */}
         <GameContactCard />
+        
+        {/* Contract Card untuk menampilkan dokumen sertifikat */}
+        <ContractCard />
 
         {/* Dialog box di bagian bawah layar, sekarang tidak memengaruhi keberadaan contact card */}
         {<DialogBox onDialogComplete={handleDialogComplete} />}
