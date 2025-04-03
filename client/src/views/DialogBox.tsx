@@ -650,24 +650,35 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         }
         
         @media (max-width: 768px) {
+          .dialog-box-container {
+            bottom: 1rem;
+            padding: 0 0.5rem;
+          }
+          
           .dialog-box {
-            padding: 1rem;
-            max-width: 95%;
+            padding: 0.8rem 1rem;
+            max-width: 100%;
           }
           
           .dialog-text {
-            min-height: 3.5rem;
+            min-height: 2.5rem;
             margin-bottom: 0.5rem;
-            font-size: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            max-height: 6rem;
           }
           
           .character-name {
-            font-size: 0.8rem;
-            padding: 0.25rem 0.8rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.7rem;
+            top: -1rem;
+            letter-spacing: 1px;
           }
           
           .dialog-actions {
             padding-top: 0.4rem;
+            margin-top: 0.5rem;
+            height: 24px;
           }
           
           .dialog-continue {
@@ -688,6 +699,18 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           .auto-continue-hint,
           .waiting-interaction-hint {
             font-size: 0.7rem;
+            padding-left: 0.5rem;
+          }
+          
+          .just-text-button {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
+            min-width: 50px;
+            height: 22px;
+          }
+          
+          .button-text {
+            margin-left: 2px;
           }
         }
         

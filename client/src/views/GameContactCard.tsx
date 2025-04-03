@@ -262,27 +262,38 @@ const GameContactCard: React.FC = () => {
         /* Media query with simpler clamp and consistent rem/vh usage */
         @media (max-width: 768px) {
           .content-wrapper {
-            top: 12vh; /* Position higher on tablets */
+            top: 50vh; /* Position in the middle of the screen for better visibility */
             right: 2vw; /* Closer to edge on tablets */
             max-width: 320px;
+            z-index: 10; /* Ensure it's above other elements */
           }
           
           .unified-card {
             max-width: min(220px, 80%); /* Slightly wider on tablets but still small */
-            opacity: 0.25; /* Slightly dimmer on tablets */
+            opacity: 0.35; /* Slightly more visible on tablets */
+            transform: translateY(-50%); /* Center vertically */
           }
           
           .social-links {
             gap: 0.5rem; /* Reduce spacing between links */
           }
+          
+          .skill-row {
+            margin-bottom: 0.3rem;
+          }
+          
+          .skill-name {
+            font-size: 0.6rem;
+          }
         }
 
         @media (max-width: 640px) {
           .content-wrapper {
-            top: 8vh; /* Much higher position on mobile */
+            top: 40vh; /* Position in middle of the screen for mobile */
             right: 0; /* Center on small screens */
             left: 0;
             margin: 0 auto;
+            transform: translateY(-50%); /* Center vertically */
           }
           
           .social-links {
@@ -291,8 +302,9 @@ const GameContactCard: React.FC = () => {
           
           .unified-card {
             max-width: min(200px, 70%); /* Even smaller on mobile */
-            opacity: 0.2; /* Even more transparent on mobile */
+            opacity: 0.35; /* More visible on mobile */
             padding: 0.4rem;
+            transform: none; /* Reset transform to avoid double transform */
           }
           
           .card-corner {
@@ -304,7 +316,7 @@ const GameContactCard: React.FC = () => {
         /* Extra small devices */
         @media (max-width: 480px) {
           .content-wrapper {
-            top: 5vh; /* Very high to ensure visibility */
+            top: 40vh; /* Keep consistent with 640px breakpoint */
           }
           
           .unified-card {
@@ -315,19 +327,29 @@ const GameContactCard: React.FC = () => {
           .social-links {
             gap: 0.3rem; /* Very tight spacing */
           }
+          
+          .skill-name {
+            font-size: 0.55rem;
+          }
+          
+          .skill-level {
+            height: 3px;
+          }
         }
 
         /* Landscape mode on mobile devices */
         @media (max-height: 500px) and (orientation: landscape) {
           .content-wrapper {
-            top: 5vh; /* Much higher in landscape */
-            right: 5vw;
+            top: 50%; /* Center vertically in landscape */
+            right: 10px; /* Close to the right edge */
+            transform: translateY(-50%); /* Perfect vertical centering */
           }
 
           .unified-card {
             padding: 0.4rem;
             max-width: 160px;
-            opacity: 0.15; /* Very transparent in landscape */
+            opacity: 0.35; /* More visible for landscape */
+            transform: none; /* Reset transform to avoid conflicts */
           }
 
           .social-links {
@@ -337,6 +359,12 @@ const GameContactCard: React.FC = () => {
           /* Hide decorative elements in landscape to save space */
           .card-accent-corner {
             display: none;
+          }
+          
+          .skill-level {
+            height: 3px;
+            margin-top: 1px;
+            margin-bottom: 2px;
           }
         }
       `}</style>

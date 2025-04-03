@@ -246,6 +246,7 @@ const ContractCard: React.FC = () => {
           padding: 10px 15px;
           background: rgba(30, 25, 20, 0.9);
           border-bottom: 1px solid rgba(150, 130, 100, 0.2);
+          flex-wrap: wrap;
         }
 
         .zoom-controls, .navigation-controls {
@@ -312,20 +313,40 @@ const ContractCard: React.FC = () => {
         }
 
         @media (max-width: 768px) {
+          .contract-card {
+            top: 10px;
+            padding: 10px 8px 10px 12px;
+          }
+          
+          .contract-label {
+            font-size: 0.6rem;
+          }
+          
           .contract-modal {
             width: 95%;
-            height: 90vh;
+            height: 85vh;
+            margin-top: 10px;
           }
           
           .contract-controls {
-            flex-direction: column;
-            gap: 10px;
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 8px;
             padding: 8px;
           }
           
           .control-button {
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
+          }
+          
+          .zoom-controls, .navigation-controls {
+            gap: 5px;
+          }
+          
+          .page-indicator {
+            font-size: 0.7rem;
+            min-width: 30px;
           }
         }
       `}</style>
