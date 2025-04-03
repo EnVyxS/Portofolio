@@ -11,6 +11,8 @@ interface AudioContextProps {
   setHasInteracted: (value: boolean) => void;
   setVolume: (volume: number) => void;
   setAmbientVolume: (volume: number) => void;
+  currentVolume: number;
+  currentAmbientVolume: number;
 }
 
 // Menciptakan konteks dengan nilai default
@@ -21,7 +23,9 @@ const AudioContextValue = createContext<AudioContextProps>({
   hasInteracted: false,
   setHasInteracted: () => {},
   setVolume: () => {},
-  setAmbientVolume: () => {}
+  setAmbientVolume: () => {},
+  currentVolume: 0.15,
+  currentAmbientVolume: 0.06
 });
 
 // Hook untuk menggunakan konteks audio
@@ -37,6 +41,8 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
   const [ambient] = useState<HTMLAudioElement>(new Audio(fireplaceAmbientPath));
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const [hasInteracted, setHasInteracted] = useState<boolean>(false);
+  const [currentVolume, setCurrentVolume] = useState<number>(0.15); // Default music volume
+  const [currentAmbientVolume, setCurrentAmbientVolume] = useState<number>(0.06); // Default ambient volume
   const interactionTimeout = useRef<NodeJS.Timeout | null>(null);
   const autoPlayAttempted = useRef<boolean>(false);
 
@@ -230,12 +236,14 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
   const setVolume = useCallback((volume: number) => {
     if (volume >= 0 && volume <= 1) {
       music.volume = volume;
+      setCurrentVolume(volume);
     }
   }, [music]);
   
   const setAmbientVolume = useCallback((volume: number) => {
     if (volume >= 0 && volume <= 1) {
       ambient.volume = volume;
+      setCurrentAmbientVolume(volume);
     }
   }, [ambient]);
 
@@ -248,7 +256,9 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
         hasInteracted,
         setHasInteracted,
         setVolume,
-        setAmbientVolume
+        setAmbientVolume,
+        currentVolume,
+        currentAmbientVolume
       }}
     >
       {children}

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaScroll, FaSearchPlus, FaSearchMinus, FaArrowLeft, FaArrowRight, FaFilePdf } from 'react-icons/fa';
 import DialogController from '../controllers/dialogController';
+import { useAudio } from '../context/AudioManager';
 
 // Respon variasi saat kartu diklik
 const CONTRACT_RESPONSES = [
@@ -15,11 +16,27 @@ const CONTRACT_RESPONSES = [
 // Path ke file dokumen - menggunakan URL publik
 const CONTRACT_IMAGES = [
   '/attached_assets/Ijazah.jpg',
-  '/attached_assets/Transkrip Nilai.pdf',
-  '/attached_assets/111202012560@mhs.dinus.ac.id.pdf',
-  '/attached_assets/BNSP.pdf',
-  '/attached_assets/Backend Java MSIB.pdf',
-  '/attached_assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2.pdf',
+  '/attached_assets/Transkrip Nilai_page-0001.jpg',
+  '/attached_assets/Transkrip Nilai_page-0002.jpg',
+  '/attached_assets/111202012560mhs.dinus.ac.id_page-0001.jpg',
+  '/attached_assets/BNSP_page-0001.jpg',
+  '/attached_assets/BNSP_page-0002.jpg',
+  '/attached_assets/Backend Java MSIB_page-0001.jpg',
+  '/attached_assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0001.jpg',
+  '/attached_assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0002.jpg',
+];
+
+// Untuk menampilkan nama file yang lebih pendek
+const IMAGE_TITLES = [
+  'Ijazah',
+  'Transkrip Nilai - Page 1',
+  'Transkrip Nilai - Page 2',
+  'Universitas Dian Nuswantoro',
+  'Sertifikat Kompetensi BNSP',
+  'Daftar Unit Kompetensi BNSP',
+  'Sertifikat Kampus Merdeka',
+  'Student Report - Page 1',
+  'Student Report - Page 2',
 ];
 
 // Mendapatkan nama file yang lebih pendek untuk ditampilkan
@@ -33,8 +50,56 @@ const ContractCard: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scale, setScale] = useState(1);
   const [currentIndex, setCurrentIndex] = useState(0);
-  
   const dialogController = DialogController.getInstance();
+  const { setVolume, currentVolume } = useAudio();
+  
+  // Generate swipe sound using Web Audio API
+  const playSwipeSound = () => {
+    try {
+      // Create audio context
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      // Create oscillator for swipe sound
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      // Connect nodes
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Set parameters for swipe sound
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.15);
+      
+      // Set volume
+      gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+      
+      // Play and stop
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.15);
+    } catch (err) {
+      console.error("Error playing swipe sound:", err);
+    }
+  };
+  
+  // Track original volume to restore later
+  const [originalVolume, setOriginalVolume] = useState<number | null>(null);
+  
+  // Adjust volume when opening/closing contract
+  useEffect(() => {
+    if (isOpen) {
+      // Store current volume before lowering it
+      setOriginalVolume(currentVolume);
+      
+      // Lower volume to 50% of original
+      setVolume(currentVolume * 0.5);
+    } else if (originalVolume !== null) {
+      // Restore original volume when closing
+      setVolume(originalVolume);
+    }
+  }, [isOpen, setVolume, currentVolume, originalVolume]);
 
   const handleContractClick = () => {
     if (!isOpen) {
@@ -61,6 +126,7 @@ const ContractCard: React.FC = () => {
   const handleNextDoc = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (currentIndex < CONTRACT_IMAGES.length - 1) {
+      playSwipeSound(); // Play swipe sound
       setCurrentIndex(prev => prev + 1);
       setScale(1); // Reset zoom
     }
@@ -69,6 +135,7 @@ const ContractCard: React.FC = () => {
   const handlePrevDoc = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (currentIndex > 0) {
+      playSwipeSound(); // Play swipe sound
       setCurrentIndex(prev => prev - 1);
       setScale(1); // Reset zoom
     }
@@ -81,7 +148,7 @@ const ContractCard: React.FC = () => {
     setScale(1);
   };
 
-  const openPdfInNewTab = (e: React.MouseEvent) => {
+  const openImageInNewTab = (e: React.MouseEvent) => {
     e.stopPropagation();
     window.open(CONTRACT_IMAGES[currentIndex], '_blank');
   };
@@ -142,28 +209,18 @@ const ContractCard: React.FC = () => {
               </div>
               
               <div className="contract-document-container">
-                {currentIndex === 0 ? (
-                  // Untuk gambar Ijazah.jpg
-                  <div className="document-content" style={{ transform: `scale(${scale})` }}>
-                    <img 
-                      src={CONTRACT_IMAGES[currentIndex]} 
-                      alt="Ijazah" 
-                      className="document-image"
-                    />
+                <div className="document-content" style={{ transform: `scale(${scale})` }}>
+                  <div className="document-header">
+                    <h3 className="document-title">{IMAGE_TITLES[currentIndex]}</h3>
                   </div>
-                ) : (
-                  // Untuk PDF, tampilkan preview dan tombol download
-                  <div className="document-content pdf-container" style={{ transform: `scale(${scale})` }}>
-                    <div className="pdf-preview">
-                      <FaFilePdf className="pdf-icon" />
-                      <h3 className="pdf-title">{getDocumentName(CONTRACT_IMAGES[currentIndex])}</h3>
-                      <p className="pdf-desc">Dokumen PDF</p>
-                      <button className="pdf-open-button" onClick={openPdfInNewTab}>
-                        Buka PDF
-                      </button>
-                    </div>
-                  </div>
-                )}
+                  <img 
+                    src={CONTRACT_IMAGES[currentIndex]} 
+                    alt={IMAGE_TITLES[currentIndex]} 
+                    className="document-image"
+                    onDoubleClick={openImageInNewTab}
+                    title="Double-click to open in new tab"
+                  />
+                </div>
               </div>
             </motion.div>
           </motion.div>
@@ -290,6 +347,7 @@ const ContractCard: React.FC = () => {
 
         .document-content {
           display: flex;
+          flex-direction: column;
           justify-content: center;
           align-items: center;
           transition: transform 0.3s ease;
@@ -297,12 +355,35 @@ const ContractCard: React.FC = () => {
           width: 100%;
           height: 100%;
         }
+        
+        .document-header {
+          margin-bottom: 15px;
+          text-align: center;
+        }
+        
+        .document-title {
+          font-family: 'Trajan Pro', 'Cinzel', serif;
+          color: #d4c9a8;
+          font-size: 1.2rem;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+          letter-spacing: 1px;
+          margin: 0;
+        }
 
         .document-image {
           max-width: 90%;
-          max-height: 90%;
+          max-height: 75%;
           object-fit: contain;
           box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+          border: 1px solid rgba(150, 130, 100, 0.3);
+          transition: all 0.3s ease;
+          cursor: zoom-in;
+        }
+        
+        .document-image:hover {
+          transform: scale(1.02);
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), 0 0 8px rgba(255, 220, 150, 0.2);
+          border-color: rgba(180, 160, 120, 0.5);
         }
 
         .pdf-container {
