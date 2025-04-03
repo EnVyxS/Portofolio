@@ -1,4 +1,4 @@
-import DialogModel, { Dialog } from '../models/dialogModel';
+import DialogModel, { Dialog, RETURN_DIALOG } from '../models/dialogModel';
 import ElevenLabsService from '../services/elevenlabsService';
 
 class DialogController {
@@ -209,6 +209,20 @@ class DialogController {
     
     // Tampilkan dialog custom
     this.typeDialog(customDialog, callback);
+  }
+  
+  // Method khusus untuk menampilkan dialog setelah user dilempar dan kemudian kembali
+  public showReturnDialog(callback: (text: string, isComplete: boolean) => void): void {
+    // Hentikan dialog yang sedang berjalan
+    this.stopTyping();
+    
+    // Reset dialog model ke awal agar sequence selanjutnya normal
+    this.dialogModel.resetDialog();
+    
+    // Tampilkan dialog return yang sudah didefinisikan
+    this.typeDialog(RETURN_DIALOG, callback);
+    
+    console.log("Showing return dialog after reset:", RETURN_DIALOG.text);
   }
 }
 

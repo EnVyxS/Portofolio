@@ -7,6 +7,7 @@ import ElevenLabsSetup from './views/ElevenLabsSetup';
 import ApproachScreen from './views/ApproachScreen';
 import { AudioProvider, useAudio } from './context/AudioManager';
 import IdleTimeoutController from './controllers/idleTimeoutController';
+import DialogController from './controllers/dialogController';
 import DramaticEffects, { dramaticEffectsStyles } from './components/DramaticEffects';
 import { useIsMobile } from './hooks/use-mobile';
 
@@ -176,8 +177,20 @@ function MainApp() {
     // Selalu panggil handleApproach terlebih dahulu
     handleApproach();
     
-    // Jika sudah pernah di-reset, panggil fungsi startExcessiveHoverTimers pada useEffect berikutnya
-    // Ini mencegah dependensi yang tidak stabil ke idleTimeoutControllerRef.current
+    // Jika sudah pernah di-reset, kita akan mengatur agar menampilkan dialog khusus
+    setTimeout(() => {
+      // Setelah ElevenLabs setup ditutup, tampilkan dialog khusus untuk kasus post-reset
+      const dialogController = DialogController.getInstance();
+      if (dialogController) {
+        console.log("Setting up special post-reset dialog");
+        // Gunakan setTimeout untuk memastikan dialog box sudah siap menerima callback
+        setTimeout(() => {
+          dialogController.showReturnDialog((text: string, isComplete: boolean) => {
+            console.log("Post-reset dialog displayed:", text, isComplete);
+          });
+        }, 500); // Berikan waktu 500ms untuk memastikan dialogBox siap
+      }
+    }, 2000); // Tunggu ElevenLabs setup selesai (sekitar 2 detik)
   };
   
   // If user hasn't approached yet, show the approach screen

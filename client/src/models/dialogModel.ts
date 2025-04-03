@@ -6,6 +6,15 @@ export interface Dialog {
   persistent?: boolean; // Apakah dialog tetap visible setelah selesai
 }
 
+// Dialog khusus untuk situasi setelah reset
+export const RETURN_DIALOG: Dialog = {
+  id: 1001,
+  character: "Diva Juan Nur Taqarrub",
+  text: "Now what, you little filth!? Back for more punishment?",
+  voiceId: "geralt",
+  persistent: true
+};
+
 class DialogModel {
   private static instance: DialogModel;
   private dialogs: Dialog[] = [
