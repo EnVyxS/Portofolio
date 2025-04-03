@@ -75,7 +75,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const handleContinue = useCallback(() => {
     // Cek apakah ini adalah dialog khusus post-reset dan perlu direset status nya
     if (dialogController.isShowingPostResetDialog()) {
-      // Log removed
       dialogController.resetPostResetDialogStatus();
     }
     
@@ -91,7 +90,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           // Cek apakah user sudah berinteraksi dengan hover dialog
           if (hoverDialogController.hasUserInteractedWithHover()) {
             // Jangan hilangkan dialog box, tetapi tetap jalankan callback jika dibutuhkan
-            // Jangan set isDialogFinished(true) di sini agar dialog box tetap terlihat
             if (onDialogComplete) onDialogComplete();
             return;
           }
@@ -108,14 +106,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
               // Update hover dialog controller with completion status
               hoverDialogController.setDialogCompleted(complete);
             } else {
-              // Di sini tidak perlu setIsDialogFinished(true) agar dialog box tetap terlihat
               // Tandai dialog sudah selesai untuk interaksi hover
               hoverDialogController.setDialogCompleted(true);
               
               // Tetap menjalankan onDialogComplete jika ada
               if (onDialogComplete) {
                 onDialogComplete();
-                // Tidak perlu setIsDialogFinished(true) di sini
               }
             }
           });
@@ -126,7 +122,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         if (hoverDialogController.hasUserInteractedWithHover()) {
           // Jika user sudah berinteraksi dengan hover dialog
           // Jangan hilangkan dialog box, tetapi tampilkan dialog hover yang sedang berlangsung
-          // Kita tidak set isDialogFinished(true) di sini
           
           // Hanya panggil onDialogComplete jika dibutuhkan
           if (onDialogComplete) onDialogComplete();
@@ -145,28 +140,30 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             // Update hover dialog controller with completion status
             hoverDialogController.setDialogCompleted(complete);
           } else {
-            // Tombol akan tetap terlihat karena kita telah memodifikasi dialogController
-            // untuk mengembalikan teks dialog terakhir bahkan jika tidak ada dialog berikutnya
-            
             // Tetap tandai dialog sebagai selesai untuk interaksi hover
             hoverDialogController.setDialogCompleted(true);
             
             // Jangan set isDialogFinished ke true agar tetap menampilkan dialog box
-            // (Hanya tandai jika callback onDialogComplete diperlukan)
             if (onDialogComplete) {
               onDialogComplete();
-              // setIsDialogFinished(true); - Kita tidak set ini agar dialog box tetap terlihat
             }
           }
         });
       }
     } else if (dialogSource === 'hover') {
-      // For hover dialogs, immediately skip to full text
+      // For hover dialogs
       if (!isComplete) {
-        // Assume hover dialog controller is handling typing
+        // Jika dialog masih dalam proses typing, langsung tampilkan full text
         hoverDialogController.stopTyping();
-        // Immediately show full text
         setIsComplete(true);
+      } else {
+        // Jika dialog sudah selesai, user menekan NEXT
+        // Reset hover state dan hilangkan dialog box
+        hoverDialogController.resetHoverState();
+        setIsDialogFinished(true);
+        
+        // Jangan kembali ke dialog utama
+        // Ini perbaikan utama yang dilakukan
       }
     }
   }, [dialogSource, isComplete, dialogController, hoverDialogController, onDialogComplete, setText, setIsComplete, setIsDialogFinished, setCharacterName]);
@@ -186,7 +183,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       
       // Cek apakah ini adalah dialog khusus setelah reset - jangan auto-continue dialog ini
       if (dialogController.isShowingPostResetDialog()) {
-        // Log removed
         return;
       }
       
@@ -203,43 +199,33 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           const charDelay = 50; // 50ms per karakter
           const autoplayDelay = Math.min(baseDelay + (textLength * charDelay), 8000); // maksimal 8 detik
           
-          // Log removed
-          
           autoPlayTimerRef.current = setTimeout(() => {
             handleContinue();
           }, autoplayDelay);
-        } else {
-          // Dialog yang membutuhkan respons (persistent) tidak auto-continue
-          // Log removed
         }
       }
     } else if (isComplete && dialogSource === 'hover') {
       // Untuk hover dialog, periksa juga persistensi
       if (!isDialogPersistent(text)) {
-        // Hover dialog yang tidak memerlukan respons seperti "Arghh... whatever you want. I'm done."
+        // Hover dialog yang tidak memerlukan respons
         const dismissDelay = 3000; // 3 detik untuk membaca pesan
-        
-        // Log removed
         
         autoPlayTimerRef.current = setTimeout(() => {
           // Reset dialog hover state
           hoverDialogController.resetHoverState();
           
-          // Switch back to main dialog instead of completely hiding dialog box
-          const currentMainDialog = dialogController.getCurrentDialog();
-          if (currentMainDialog) {
-            // Menampilkan dialog utama lagi
-            setText(currentMainDialog.text);
-            setCharacterName(currentMainDialog.character);
-            setDialogSource('main');
-            setIsComplete(true); // Tampilkan tombol NEXT
-          } else {
-            // Dialog utama sudah selesai, tapi kita tetap menampilkan teks terakhir
-            // Jangan set isDialogFinished ke true agar dialog box tetap terlihat
-          }
+          // PERUBAHAN: Tidak kembali ke dialog utama jika sudah di mode hover
+          // Cukup biarkan dialog hover bertahan sebagai dialog terakhir
+          // atau hilangkan dialog box jika diperlukan
+          setIsDialogFinished(true);
+          
+          // Jika ingin tetap menampilkan dialog box tanpa kembali ke dialog utama,
+          // bisa menggunakan pendekatan ini:
+          /*
+          setText("");
+          setCharacterName("");
+          */
         }, dismissDelay);
-      } else {
-        // Log removed
       }
     }
     
