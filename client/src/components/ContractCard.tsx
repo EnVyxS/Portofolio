@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaScroll, FaSearch, FaSearchPlus, FaSearchMinus, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { FaScroll, FaSearchPlus, FaSearchMinus, FaArrowLeft, FaArrowRight, FaFilePdf } from 'react-icons/fa';
 import DialogController from '../controllers/dialogController';
+
 // Respon variasi saat kartu diklik
 const CONTRACT_RESPONSES = [
   "Didn't lie. Never have, never will. Maybe next time, use your damn brain before throwing accusations.",
@@ -21,14 +22,19 @@ const CONTRACT_IMAGES = [
   '/attached_assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2.pdf',
 ];
 
+// Mendapatkan nama file yang lebih pendek untuk ditampilkan
+const getDocumentName = (path: string) => {
+  const fileName = path.split('/').pop() || '';
+  // Jika filename terlalu panjang, potong
+  return fileName.length > 20 ? fileName.substring(0, 17) + '...' : fileName;
+};
+
 const ContractCard: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scale, setScale] = useState(1);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
   const dialogController = DialogController.getInstance();
-  const dragRef = useRef<{ x: number, y: number } | null>(null);
 
   const handleContractClick = () => {
     if (!isOpen) {
@@ -36,9 +42,7 @@ const ContractCard: React.FC = () => {
       const randomIndex = Math.floor(Math.random() * CONTRACT_RESPONSES.length);
       const response = CONTRACT_RESPONSES[randomIndex];
       
-      dialogController.showCustomDialog(response, (text, isComplete) => {
-        // Handle dialog completion if needed
-      });
+      dialogController.showCustomDialog(response, () => {});
       
       setIsOpen(true);
     }
@@ -54,55 +58,32 @@ const ContractCard: React.FC = () => {
     setScale(prev => Math.max(prev - 0.2, 0.5)); // Minimal zoom 0.5x
   };
 
-  const nextImage = (e: React.MouseEvent) => {
+  const handleNextDoc = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (currentImageIndex < CONTRACT_IMAGES.length - 1) {
-      setCurrentImageIndex(prev => prev + 1);
-      // Reset position when changing images
-      setPosition({ x: 0, y: 0 });
+    if (currentIndex < CONTRACT_IMAGES.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+      setScale(1); // Reset zoom
     }
   };
 
-  const prevImage = (e: React.MouseEvent) => {
+  const handlePrevDoc = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (currentImageIndex > 0) {
-      setCurrentImageIndex(prev => prev - 1);
-      // Reset position when changing images
-      setPosition({ x: 0, y: 0 });
+    if (currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
+      setScale(1); // Reset zoom
     }
   };
 
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsOpen(false);
+    setCurrentIndex(0);
     setScale(1);
-    setCurrentImageIndex(0);
-    setPosition({ x: 0, y: 0 });
   };
 
-  const handleDragStart = (e: React.MouseEvent) => {
+  const openPdfInNewTab = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsDragging(true);
-    dragRef.current = { x: e.clientX - position.x, y: e.clientY - position.y };
-  };
-
-  const handleDragMove = (e: React.MouseEvent) => {
-    if (isDragging && dragRef.current) {
-      const newX = e.clientX - dragRef.current.x;
-      const newY = e.clientY - dragRef.current.y;
-      
-      // Batasi pergerakan agar tidak terlalu jauh
-      const maxOffset = 300 * scale;
-      const clampedX = Math.min(Math.max(newX, -maxOffset), maxOffset);
-      const clampedY = Math.min(Math.max(newY, -maxOffset), maxOffset);
-      
-      setPosition({ x: clampedX, y: clampedY });
-    }
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-    dragRef.current = null;
+    window.open(CONTRACT_IMAGES[currentIndex], '_blank');
   };
 
   return (
@@ -118,7 +99,7 @@ const ContractCard: React.FC = () => {
         <span className="contract-label">CONTRACT</span>
       </motion.div>
 
-      {/* Overlay Modal untuk menampilkan gambar */}
+      {/* Overlay Modal untuk menampilkan dokumen */}
       <AnimatePresence>
         {isOpen && (
           <motion.div 
@@ -143,53 +124,45 @@ const ContractCard: React.FC = () => {
                 </div>
                 <div className="navigation-controls">
                   <button 
-                    onClick={prevImage} 
-                    className={`control-button ${currentImageIndex === 0 ? 'disabled' : ''}`}
-                    disabled={currentImageIndex === 0}
+                    onClick={handlePrevDoc} 
+                    className={`control-button ${currentIndex === 0 ? 'disabled' : ''}`}
+                    disabled={currentIndex === 0}
                   >
                     <FaArrowLeft />
                   </button>
-                  <span className="page-indicator">{currentImageIndex + 1}/{CONTRACT_IMAGES.length}</span>
+                  <span className="page-indicator">{currentIndex + 1}/{CONTRACT_IMAGES.length}</span>
                   <button 
-                    onClick={nextImage} 
-                    className={`control-button ${currentImageIndex === CONTRACT_IMAGES.length - 1 ? 'disabled' : ''}`}
-                    disabled={currentImageIndex === CONTRACT_IMAGES.length - 1}
+                    onClick={handleNextDoc} 
+                    className={`control-button ${currentIndex === CONTRACT_IMAGES.length - 1 ? 'disabled' : ''}`}
+                    disabled={currentIndex === CONTRACT_IMAGES.length - 1}
                   >
                     <FaArrowRight />
                   </button>
                 </div>
               </div>
-              <div 
-                className="contract-image-container"
-                onMouseDown={handleDragStart}
-                onMouseMove={handleDragMove}
-                onMouseUp={handleDragEnd}
-                onMouseLeave={handleDragEnd}
-              >
-                {currentImageIndex === 0 ? (
-                  // Dokumen pertama adalah image (Ijazah.jpg)
-                  <motion.img 
-                    src={CONTRACT_IMAGES[currentImageIndex]} 
-                    alt={`Contract document ${currentImageIndex + 1}`}
-                    style={{ 
-                      transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-                      cursor: isDragging ? 'grabbing' : 'grab'
-                    }}
-                    draggable={false}
-                  />
+              
+              <div className="contract-document-container">
+                {currentIndex === 0 ? (
+                  // Untuk gambar Ijazah.jpg
+                  <div className="document-content" style={{ transform: `scale(${scale})` }}>
+                    <img 
+                      src={CONTRACT_IMAGES[currentIndex]} 
+                      alt="Ijazah" 
+                      className="document-image"
+                    />
+                  </div>
                 ) : (
-                  // Semua dokumen lainnya adalah PDF - menggunakan object tag alih-alih iframe
-                  <object
-                    data={CONTRACT_IMAGES[currentImageIndex]}
-                    type="application/pdf"
-                    className="contract-document"
-                    style={{ 
-                      transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-                      cursor: isDragging ? 'grabbing' : 'grab'
-                    }}
-                  >
-                    <p>Dokumen tidak dapat ditampilkan. <a href={CONTRACT_IMAGES[currentImageIndex]} target="_blank" rel="noopener noreferrer">Buka PDF</a></p>
-                  </object>
+                  // Untuk PDF, tampilkan preview dan tombol download
+                  <div className="document-content pdf-container" style={{ transform: `scale(${scale})` }}>
+                    <div className="pdf-preview">
+                      <FaFilePdf className="pdf-icon" />
+                      <h3 className="pdf-title">{getDocumentName(CONTRACT_IMAGES[currentIndex])}</h3>
+                      <p className="pdf-desc">Dokumen PDF</p>
+                      <button className="pdf-open-button" onClick={openPdfInNewTab}>
+                        Buka PDF
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             </motion.div>
@@ -237,7 +210,7 @@ const ContractCard: React.FC = () => {
           left: 0;
           width: 100%;
           height: 100%;
-          background: rgba(0, 0, 0, 0.8);
+          background: rgba(0, 0, 0, 0.85);
           display: flex;
           justify-content: center;
           align-items: center;
@@ -305,7 +278,7 @@ const ContractCard: React.FC = () => {
           font-weight: bold;
         }
 
-        .contract-image-container {
+        .contract-document-container {
           flex: 1;
           display: flex;
           justify-content: center;
@@ -315,20 +288,78 @@ const ContractCard: React.FC = () => {
           position: relative;
         }
 
-        .contract-image-container img, .contract-document {
-          max-width: 100%;
-          max-height: 100%;
-          transition: transform 0.1s ease;
-          transform-origin: center center;
-          touch-action: none;
-          will-change: transform;
+        .document-content {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          transition: transform 0.3s ease;
+          transform-origin: center;
+          width: 100%;
+          height: 100%;
         }
-        
-        .contract-document {
-          width: 90%;
-          height: 90%;
-          border: none;
+
+        .document-image {
+          max-width: 90%;
+          max-height: 90%;
+          object-fit: contain;
+          box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .pdf-container {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .pdf-preview {
           background: white;
+          width: 80%;
+          max-width: 500px;
+          padding: 40px 30px;
+          border-radius: 8px;
+          text-align: center;
+          box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .pdf-icon {
+          font-size: 72px;
+          color: #d12123;
+          margin-bottom: 20px;
+        }
+
+        .pdf-title {
+          font-size: 1.4rem;
+          color: #333;
+          margin-bottom: 10px;
+          word-break: break-word;
+        }
+
+        .pdf-desc {
+          font-size: 1rem;
+          color: #666;
+          margin-bottom: 20px;
+        }
+
+        .pdf-open-button {
+          background: #d12123;
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 4px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .pdf-open-button:hover {
+          background: #e63e3e;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .page-indicator {
@@ -374,6 +405,20 @@ const ContractCard: React.FC = () => {
           .page-indicator {
             font-size: 0.7rem;
             min-width: 30px;
+          }
+          
+          .pdf-preview {
+            width: 85%;
+            padding: 20px 15px;
+          }
+          
+          .pdf-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+          }
+          
+          .pdf-title {
+            font-size: 1.1rem;
           }
         }
       `}</style>
