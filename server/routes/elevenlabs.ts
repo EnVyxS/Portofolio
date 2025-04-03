@@ -5,11 +5,11 @@ import path from 'path';
 // Pengaturan default untuk voice model sesuai permintaan user
 function getDefaultVoiceSettings(): any {
   return {
-    stability: 0.90, // 90% - lebih tinggi untuk konsistensi
-    similarity_boost: 1.0, // 100% - maksimum similarity dengan suara asli
-    style: 0.65,
+    stability: 0.85, // Sedikit lebih rendah untuk variasi natural
+    similarity_boost: 0.85, // Tidak terlalu maksimal agar lebih natural
+    style: 0.35, // Kurangi style untuk menghindari over-dramatic
     use_speaker_boost: true,
-    speaking_rate: 0.95 // Sedikit lebih lambat (speed 0.95)
+    speaking_rate: 1.1 // Sedikit lebih cepat
   };
 }
 
