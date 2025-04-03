@@ -73,7 +73,6 @@ class ElevenLabsService {
     try {
       // Jika ini adalah teks kosong atau HANYA ellipsis, gunakan silent.mp3
       // Perhatikan kondisi pengetesan menjadi text.trim() === '.....' || text.trim() === '...'
-      // tapi kita tidak menangkap kasus "...You got a name?"
       const trimmedText = text.trim();
       if (trimmedText === '.....' || trimmedText === '...' || trimmedText === '') {
         console.log("Using silent audio for:", text);
@@ -91,13 +90,25 @@ class ElevenLabsService {
         return audioBlob;
       }
       
-      // Buat cache key berdasarkan text
+      // Buat cache key berdasarkan text original
       const cacheKey = text;
       
       // Cek apakah audio sudah ada di cache memory
       if (this.audioCache[cacheKey]) {
         console.log("Using in-memory cached audio for:", text.substring(0, 20) + "...");
         return this.audioCache[cacheKey];
+      }
+      
+      // Untuk teks seperti "...You got a name?", kita perlu perlakuan khusus
+      // untuk mengurangi delay/jeda yang tidak diinginkan di awal
+      let processedText = text;
+      let isStartingWithEllipsis = false;
+      
+      // Deteksi pola khusus '...' di awal teks yang diikuti konten bermakna
+      if (trimmedText.startsWith('...') && trimmedText.length > 3 && !trimmedText.startsWith('.....')) {
+        // Tambahkan indikasi ke server bahwa ini adalah kasus spesial
+        isStartingWithEllipsis = true;
+        console.log("Detected text starting with ellipsis:", text);
       }
       
       console.log("Requesting audio for:", text);
@@ -111,7 +122,8 @@ class ElevenLabsService {
         body: JSON.stringify({ 
           text,
           voice_id: this.voiceId,
-          model_id: 'eleven_multilingual_v2'
+          model_id: 'eleven_multilingual_v2',
+          starts_with_ellipsis: isStartingWithEllipsis // Kirim penanda ke server
         })
       });
       

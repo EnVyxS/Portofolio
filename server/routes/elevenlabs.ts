@@ -64,7 +64,7 @@ function generateSimpleHash(input: string): string {
 router.post('/text-to-speech', async (req: Request, res: Response) => {
   try {
     // Ambil data dari request body
-    const { text, voice_id, model_id = VALID_MODEL, voice_settings } = req.body;
+    const { text, voice_id, model_id = VALID_MODEL, voice_settings, starts_with_ellipsis } = req.body;
     
     if (!text) {
       return res.status(400).json({ error: 'Text is required' });
@@ -102,19 +102,35 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
       });
     }
     
-    // Perbaiki untuk kasus spesial seperti "...You got a name?"
-    // Dialog ini tidak boleh dianggap sebagai elipsis karena mengandung teks bermakna
-    
     // Log untuk debugging
-    console.log("Using ElevenLabs API key from environment variable");
-    console.log(`Generating audio with ElevenLabs for: "${text}"`);
     console.log(`EXACT TEXT FOR VOICE: "${text}" - MUST BE IDENTICAL TO DISPLAYED TEXT!`);
+    
+    // Pra-proses teks untuk kasus khusus
+    let processedText = text;
+    let hasProcessed = false;
+    
+    // Deteksi kasus khusus: teks yang dimulai dengan "..." tetapi memiliki konten bermakna
+    if (starts_with_ellipsis && trimmedText.startsWith('...') && trimmedText.length > 3) {
+      console.log("Detected text starting with ellipsis:", text);
+      
+      // Tambahkan SSML untuk membuat pause yang lebih pendek untuk kasus "...You got a name?"
+      // SSML memungkinkan kita mengontrol jeda dan timing dengan lebih baik
+      processedText = `<speak><break time="0.3s"/>${trimmedText.substring(3)}</speak>`;
+      console.log("Processed text with SSML:", processedText);
+      hasProcessed = true;
+    }
     
     // Gunakan pengaturan voice default dari fungsi
     const voiceSettings = getDefaultVoiceSettings();
-    console.log(`Applied default voice settings:`, voiceSettings);
     
-    // Generate hash untuk nama file
+    // Jika menggunakan SSML, gunakan pengaturan yang sesuai
+    if (hasProcessed) {
+      console.log("Using specialized settings for ellipsis text");
+    } else {
+      console.log(`Applied default voice settings:`, voiceSettings);
+    }
+    
+    // Generate hash untuk nama file berdasarkan teks asli
     const hash = generateSimpleHash(text);
     const fileName = `dialog_${hash}.mp3`;
     const audioFilePath = path.join(characterAudioDir, fileName);
@@ -132,19 +148,19 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     }
     
     // Jika file tidak ada, generate menggunakan API
-    console.log(`Using default voice settings:`, {
+    console.log(`Using voice settings:`, {
       stability: voiceSettings.stability,
+      similarity_boost: voiceSettings.similarity_boost,
       style: voiceSettings.style,
       speaking_rate: voiceSettings.speaking_rate
     });
     
     console.log(`Sending request to ElevenLabs with voice_id: ${finalVoiceId}`);
     console.log(`Using model_id: ${VALID_MODEL}`);
-    console.log(`Creating new fetch request completely from scratch`);
     
-    // Build request body dengan teks asli tanpa modifikasi
+    // Build request body dengan teks yang sesuai (asli atau yang diproses)
     const requestBody = JSON.stringify({
-      text: text, // Gunakan text asli tanpa modifikasi
+      text: hasProcessed ? processedText : text,
       model_id: VALID_MODEL,
       voice_settings: voiceSettings
     });
