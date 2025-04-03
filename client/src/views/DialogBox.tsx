@@ -229,30 +229,28 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           ) : null}
           
           <div className="dialog-controls-wrapper">
-            <button 
-              className={`dialog-continue ${dialogSource === 'hover' ? 'hover-continue' : ''} ${isComplete ? 'dialog-next' : 'dialog-skip'}`}
-              onClick={handleContinue}
-              title={!isComplete ? "Skip to the end of dialog" : "Continue to next dialog"}
-            >
-              <div className="dialog-button-inner">
-                <div className="dialog-button-icon">
-                  {isComplete ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 4L10.59 5.41L16.17 11H4V13H16.17L10.59 18.59L12 20L20 12L12 4Z" fill="currentColor"/>
-                    </svg>
-                  ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M8 5V19L19 12L8 5Z" fill="currentColor"/>
-                    </svg>
-                  )}
-                </div>
-                <span className="dialog-button-text">
-                  {isComplete ? (dialogSource === 'main' ? 'Next' : 'Continue') : 'Skip'}
-                </span>
-              </div>
-              <div className="dialog-button-glow"></div>
-            </button>
+            {isComplete ? (
+              <button 
+                className="dialog-continue dark-souls-button"
+                onClick={handleContinue}
+              >
+                <span className="button-icon">→</span>
+                <span className="button-text">NEXT</span>
+              </button>
+            ) : (
+              <button 
+                className="dialog-continue dark-souls-button"
+                onClick={handleContinue}
+              >
+                <span className="button-icon">▶</span>
+                <span className="button-text">SKIP</span>
+              </button>
+            )}
           </div>
+          
+          {!isComplete ? null : !isDialogPersistent(text) ? (
+            <div className="auto-continue-hint">Auto-continues in a moment...</div>
+          ) : null}
         </div>
       </div>
       
@@ -449,50 +447,34 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           border-color: rgba(150, 130, 100, 0.4);
         }
         
-        /* Dekorasi sudut tombol */
-        .dialog-next:before, .dialog-skip:before {
-          content: '';
-          position: absolute;
-          top: -1px;
-          right: -1px;
-          width: 10px;
-          height: 10px;
-          border-top: 1px solid rgba(220, 200, 160, 0.3);
-          border-right: 1px solid rgba(220, 200, 160, 0.3);
-          z-index: 3;
-        }
-        
-        .dialog-next:after, .dialog-skip:after {
-          content: '';
-          position: absolute;
-          bottom: -1px;
-          left: -1px;
-          width: 10px;
-          height: 10px;
-          border-bottom: 1px solid rgba(220, 200, 160, 0.3);
-          border-left: 1px solid rgba(220, 200, 160, 0.3);
-          z-index: 3;
-        }
-        
-        /* Label "Skip" untuk tombol Next */
-        .dialog-next .dialog-button-inner:before {
-          content: 'Skip';
-          position: absolute;
-          top: -20px;
-          right: 0;
-          font-size: 0.7rem;
-          opacity: 0;
-          transition: opacity 0.3s ease;
-          color: rgba(200, 170, 100, 0.7);
-          text-shadow: 0 0 3px rgba(0, 0, 0, 0.6);
-          letter-spacing: 1px;
+        /* Dark Souls button styling */
+        .dark-souls-button {
+          background: rgba(25, 22, 20, 0.9);
+          color: #d4c9a8;
+          border: 1px solid rgba(170, 150, 110, 0.5);
+          font-family: 'Trajan Pro', 'Cinzel', serif;
+          font-size: 0.9rem;
           text-transform: uppercase;
-          font-family: 'Cinzel', serif;
-          pointer-events: none;
+          letter-spacing: 1px;
+          position: relative;
+          padding: 0.5rem 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          cursor: pointer;
+          min-width: 100px;
+          justify-content: center;
         }
         
-        .dialog-next:hover .dialog-button-inner:before {
-          opacity: 1;
+        .button-icon {
+          font-size: 1.1rem;
+          line-height: 1;
+          margin-right: 0.25rem;
+        }
+        
+        .button-text {
+          font-weight: 500;
+          line-height: 1;
         }
         
         /* Hover/active states */
