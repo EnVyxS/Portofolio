@@ -228,29 +228,28 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             )
           ) : null}
           
-          <div className="dialog-controls-wrapper">
-            {isComplete ? (
-              <button 
-                className="dialog-continue dark-souls-button"
-                onClick={handleContinue}
-              >
-                <span className="button-icon">→</span>
-                <span className="button-text">NEXT</span>
-              </button>
-            ) : (
-              <button 
-                className="dialog-continue dark-souls-button"
-                onClick={handleContinue}
-              >
-                <span className="button-icon">▶</span>
-                <span className="button-text">SKIP</span>
-              </button>
-            )}
+          <div className="dialog-auto-continue">
+            {isComplete && !isDialogPersistent(text) && <div className="auto-continue-hint">Auto-continues in a moment...</div>}
           </div>
           
-          {!isComplete ? null : !isDialogPersistent(text) ? (
-            <div className="auto-continue-hint">Auto-continues in a moment...</div>
-          ) : null}
+          {/* Only show one button at a time based on dialog state */}
+          {isComplete ? (
+            <button 
+              className="dialog-continue dark-souls-button next-button"
+              onClick={handleContinue}
+            >
+              <span className="button-icon">→</span>
+              <span className="button-text">NEXT</span>
+            </button>
+          ) : (
+            <button 
+              className="dialog-continue dark-souls-button skip-button"
+              onClick={handleContinue}
+            >
+              <span className="button-icon">▶</span>
+              <span className="button-text">SKIP</span>
+            </button>
+          )}
         </div>
       </div>
       
@@ -331,6 +330,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           border-top: 1px solid rgba(150, 130, 100, 0.15);
           padding-top: 0.6rem;
           margin-top: 0.5rem;
+          height: 40px; /* Fixed height untuk tombol */
         }
         
         .auto-continue-hint {
@@ -456,7 +456,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           font-size: 0.9rem;
           text-transform: uppercase;
           letter-spacing: 1px;
-          position: relative;
+          position: absolute;
+          right: 0;
+          bottom: 0;
           padding: 0.5rem 1rem;
           display: flex;
           align-items: center;
@@ -464,6 +466,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           cursor: pointer;
           min-width: 100px;
           justify-content: center;
+        }
+        
+        .next-button {
+          background: rgba(30, 25, 20, 0.95);
+        }
+        
+        .skip-button {
+          background: rgba(25, 20, 15, 0.9);
         }
         
         .button-icon {
