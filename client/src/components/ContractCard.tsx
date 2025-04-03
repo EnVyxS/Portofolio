@@ -11,22 +11,14 @@ const CONTRACT_RESPONSES = [
   "Believe me now? Thought so. Next time, don't question what you don't understand."
 ];
 
-// Path ke file dokumen dengan import dari assets
-import ijazahImage from '@assets/Ijazah.jpg';
-import transkripPdf from '@assets/Transkrip Nilai.pdf';
-import cfltPdf from '@assets/111202012560@mhs.dinus.ac.id.pdf';
-import bnspPdf from '@assets/BNSP.pdf';
-import backendJavaPdf from '@assets/Backend Java MSIB.pdf';
-import kmPdf from '@assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2.pdf';
-
-// Urutan dokumen sesuai permintaan
+// Path ke file dokumen - menggunakan URL publik
 const CONTRACT_IMAGES = [
-  ijazahImage,
-  transkripPdf,
-  cfltPdf,
-  bnspPdf,
-  backendJavaPdf,
-  kmPdf,
+  '/attached_assets/Ijazah.jpg',
+  '/attached_assets/Transkrip Nilai.pdf',
+  '/attached_assets/111202012560@mhs.dinus.ac.id.pdf',
+  '/attached_assets/BNSP.pdf',
+  '/attached_assets/Backend Java MSIB.pdf',
+  '/attached_assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2.pdf',
 ];
 
 const ContractCard: React.FC = () => {
@@ -186,16 +178,18 @@ const ContractCard: React.FC = () => {
                     draggable={false}
                   />
                 ) : (
-                  // Semua dokumen lainnya adalah PDF
-                  <iframe
-                    src={CONTRACT_IMAGES[currentImageIndex]}
-                    title={`Contract document ${currentImageIndex + 1}`}
+                  // Semua dokumen lainnya adalah PDF - menggunakan object tag alih-alih iframe
+                  <object
+                    data={CONTRACT_IMAGES[currentImageIndex]}
+                    type="application/pdf"
                     className="contract-document"
                     style={{ 
                       transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
                       cursor: isDragging ? 'grabbing' : 'grab'
                     }}
-                  />
+                  >
+                    <p>Dokumen tidak dapat ditampilkan. <a href={CONTRACT_IMAGES[currentImageIndex]} target="_blank" rel="noopener noreferrer">Buka PDF</a></p>
+                  </object>
                 )}
               </div>
             </motion.div>
