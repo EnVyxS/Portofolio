@@ -622,23 +622,23 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         }
         
         .voice-mute-button {
-          background: rgba(25, 20, 15, 0.7);
-          border: 1px solid rgba(150, 130, 100, 0.35);
+          background: transparent;
+          border: none;
           color: #d4c9a8;
           width: 32px;
           height: 32px;
-          border-radius: 3px;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
           transition: all 0.2s ease;
+          opacity: 0.8;
         }
         
         .voice-mute-button:hover {
           color: #fff;
-          border-color: rgba(180, 160, 120, 0.6);
-          box-shadow: 0 0 8px rgba(0, 0, 0, 0.5), 0 0 3px rgba(255, 220, 150, 0.3);
+          text-shadow: 0 0 5px rgba(255, 220, 150, 0.6);
+          opacity: 1;
         }
         
         /* Styling for pure text buttons (no box/border) */
