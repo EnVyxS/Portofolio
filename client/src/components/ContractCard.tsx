@@ -96,6 +96,10 @@ const ContractCard: React.FC = () => {
     }
   };
   
+  // Animasi transisi seperti buku untuk swipe next
+  const [pageDirection, setPageDirection] = useState<'next' | 'prev' | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  
   // Track original volume to restore later
   const [originalVolume, setOriginalVolume] = useState<number | null>(null);
   
@@ -139,19 +143,45 @@ const ContractCard: React.FC = () => {
 
   const handleNextDoc = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (currentIndex < CONTRACT_IMAGES.length - 1) {
-      playSwipeSound(); // Play swipe sound
-      setCurrentIndex(prev => prev + 1);
-      setScale(1); // Reset zoom
+    if (currentIndex < CONTRACT_IMAGES.length - 1 && !isAnimating) {
+      // Mulai animasi dan putar suara
+      setIsAnimating(true);
+      setPageDirection('next');
+      playSwipeSound();
+      
+      // Tunggu animasi selesai sebelum update index
+      setTimeout(() => {
+        setCurrentIndex(prev => prev + 1);
+        setScale(1); // Reset zoom
+        
+        // Beri jeda sedikit sebelum mengizinkan animasi lagi
+        setTimeout(() => {
+          setIsAnimating(false);
+          setPageDirection(null);
+        }, 100);
+      }, 200); // Tunggu 200ms untuk animasi flip
     }
   };
 
   const handlePrevDoc = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (currentIndex > 0) {
-      playSwipeSound(); // Play swipe sound
-      setCurrentIndex(prev => prev - 1);
-      setScale(1); // Reset zoom
+    if (currentIndex > 0 && !isAnimating) {
+      // Mulai animasi dan putar suara
+      setIsAnimating(true);
+      setPageDirection('prev');
+      playSwipeSound();
+      
+      // Tunggu animasi selesai sebelum update index
+      setTimeout(() => {
+        setCurrentIndex(prev => prev - 1);
+        setScale(1); // Reset zoom
+        
+        // Beri jeda sedikit sebelum mengizinkan animasi lagi
+        setTimeout(() => {
+          setIsAnimating(false);
+          setPageDirection(null);
+        }, 100);
+      }, 200); // Tunggu 200ms untuk animasi flip
     }
   };
 
@@ -169,15 +199,15 @@ const ContractCard: React.FC = () => {
 
   return (
     <>
-      {/* Kontrak Card tersembunyi di sisi kanan layar */}
+      {/* Kontrak Card tersembunyi di sisi kiri layar */}
       <motion.div 
         className="contract-card"
-        initial={{ x: 10 }}
-        animate={{ x: isOpen ? 120 : 10 }}
+        initial={{ x: -10 }}
+        animate={{ x: isOpen ? -120 : -10 }}
         onClick={handleContractClick}
       >
+        <FaScroll size={24} />
         <span className="contract-label">CONTRACT</span>
-        <FaScroll size={24} style={{ marginLeft: '8px' }} />
       </motion.div>
 
       {/* Overlay Modal untuk menampilkan dokumen */}
@@ -223,17 +253,24 @@ const ContractCard: React.FC = () => {
               </div>
               
               <div className="contract-document-container">
-                <div className="document-content" style={{ transform: `scale(${scale})` }}>
+                <div 
+                  className={`document-content ${pageDirection ? `page-flip-${pageDirection}` : ''}`} 
+                  style={{ transform: `scale(${scale})` }}
+                >
                   <div className="document-header">
                     <h3 className="document-title">{IMAGE_TITLES[currentIndex]}</h3>
                   </div>
-                  <img 
-                    src={CONTRACT_IMAGES[currentIndex]} 
-                    alt={IMAGE_TITLES[currentIndex]} 
-                    className="document-image"
-                    onDoubleClick={openImageInNewTab}
-                    title="Double-click to open in new tab"
-                  />
+                  <div className="book-container">
+                    <div className={`page-shadow ${pageDirection ? 'active' : ''}`}></div>
+                    <img 
+                      src={CONTRACT_IMAGES[currentIndex]} 
+                      alt={IMAGE_TITLES[currentIndex]} 
+                      className="document-image"
+                      onDoubleClick={openImageInNewTab}
+                      title="Double-click to open in new tab"
+                    />
+                    <div className={`page-fold ${pageDirection ? 'active' : ''} ${pageDirection || ''}`}></div>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -244,12 +281,12 @@ const ContractCard: React.FC = () => {
       <style>{`
         .contract-card {
           position: fixed;
-          right: 0;
+          left: 0;
           top: 20px;
           background: rgba(30, 25, 20, 0.9);
           color: #d4c9a8;
-          padding: 15px 15px 15px 10px;
-          border-radius: 5px 0 0 5px;
+          padding: 15px 10px 15px 15px;
+          border-radius: 0 5px 5px 0;
           border: 1px solid rgba(150, 130, 100, 0.4);
           display: flex;
           flex-direction: row;
@@ -261,7 +298,7 @@ const ContractCard: React.FC = () => {
         }
 
         .contract-card:hover {
-          right: 5px;
+          left: 5px;
           background: rgba(40, 35, 30, 0.95);
           border-color: rgba(180, 160, 120, 0.6);
           box-shadow: 0 0 15px rgba(0, 0, 0, 0.4), 0 0 5px rgba(255, 220, 150, 0.2);
@@ -398,6 +435,77 @@ const ContractCard: React.FC = () => {
           transform: scale(1.02);
           box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), 0 0 8px rgba(255, 220, 150, 0.2);
           border-color: rgba(180, 160, 120, 0.5);
+        }
+        
+        /* Animasi transisi buku */
+        .book-container {
+          position: relative;
+          perspective: 1500px;
+          display: flex;
+          justify-content: center;
+          width: 100%;
+        }
+        
+        .page-flip-next .book-container {
+          animation: flipNext 0.25s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+        }
+        
+        .page-flip-prev .book-container {
+          animation: flipPrev 0.25s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+        }
+        
+        .page-shadow {
+          position: absolute;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          opacity: 0;
+          background: radial-gradient(ellipse at center, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 70%);
+          transition: opacity 0.2s ease;
+          z-index: -1;
+          transform: translateZ(-10px);
+        }
+        
+        .page-shadow.active {
+          opacity: 0.4;
+        }
+        
+        .page-fold {
+          position: absolute;
+          top: 0;
+          width: 0;
+          height: 100%;
+          background: linear-gradient(to right, rgba(255,255,255,0.1), rgba(30,25,20,0.3));
+          box-shadow: -5px 0 15px rgba(0,0,0,0.25);
+          z-index: 2;
+          opacity: 0;
+          transition: all 0.1s ease-out;
+        }
+        
+        .page-fold.active {
+          opacity: 1;
+        }
+        
+        .page-fold.next {
+          left: 0;
+        }
+        
+        .page-fold.prev {
+          right: 0;
+          background: linear-gradient(to left, rgba(255,255,255,0.1), rgba(30,25,20,0.3));
+          box-shadow: 5px 0 15px rgba(0,0,0,0.25);
+        }
+        
+        @keyframes flipNext {
+          0% { transform: rotateY(0deg); }
+          50% { transform: rotateY(-15deg); }
+          100% { transform: rotateY(0deg); }
+        }
+        
+        @keyframes flipPrev {
+          0% { transform: rotateY(0deg); }
+          50% { transform: rotateY(15deg); }
+          100% { transform: rotateY(0deg); }
         }
 
         .pdf-container {
