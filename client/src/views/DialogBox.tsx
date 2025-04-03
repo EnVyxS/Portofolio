@@ -228,14 +228,31 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             )
           ) : null}
           
-          <button 
-            className={`dialog-continue ${dialogSource === 'hover' ? 'hover-continue' : ''}`}
-            onClick={handleContinue}
-            title={!isComplete ? "Skip to the end of dialog" : "Continue to next dialog"}
-          >
-            {isComplete ? (dialogSource === 'main' ? 'Next / Skip' : 'Continue') : 'Skip'}
-            <span className="continue-indicator">{isComplete ? (dialogSource === 'main' ? '▼' : '▼') : '▶'}</span>
-          </button>
+          <div className="dialog-controls-wrapper">
+            <button 
+              className={`dialog-continue ${dialogSource === 'hover' ? 'hover-continue' : ''} ${isComplete ? 'dialog-next' : 'dialog-skip'}`}
+              onClick={handleContinue}
+              title={!isComplete ? "Skip to the end of dialog" : "Continue to next dialog"}
+            >
+              <div className="dialog-button-inner">
+                <div className="dialog-button-icon">
+                  {isComplete ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 4L10.59 5.41L16.17 11H4V13H16.17L10.59 18.59L12 20L20 12L12 4Z" fill="currentColor"/>
+                    </svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M8 5V19L19 12L8 5Z" fill="currentColor"/>
+                    </svg>
+                  )}
+                </div>
+                <span className="dialog-button-text">
+                  {isComplete ? (dialogSource === 'main' ? 'Next' : 'Continue') : 'Skip'}
+                </span>
+              </div>
+              <div className="dialog-button-glow"></div>
+            </button>
+          </div>
         </div>
       </div>
       
@@ -345,44 +362,155 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           background: rgba(150, 130, 100, 0.2);
         }
         
-        .dialog-continue {
-          background: transparent;
-          border: none;
-          color: rgba(200, 180, 140, 0.7); /* Warna emas pudar */
+        .dialog-controls-wrapper {
+          position: relative;
           display: flex;
           align-items: center;
-          gap: 0.6rem;
-          font-size: 0.9rem;
+          justify-content: flex-end;
+        }
+        
+        .dialog-continue {
+          position: relative;
+          background: rgba(30, 25, 20, 0.9);
+          color: #d4c9a8; /* Warna emas redup */
+          border: 1px solid rgba(150, 130, 100, 0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
           font-family: 'Trajan Pro', 'Cinzel', 'Garamond', serif;
           text-transform: uppercase;
           letter-spacing: 1px;
           cursor: pointer;
-          padding: 0.4rem 0.8rem;
-          border-radius: 0; /* No rounded corners */
-          transition: all 0.2s ease;
+          padding: 0.4rem 1rem;
+          min-width: 6rem;
+          border-radius: 0;
+          transition: all 0.3s ease;
+          overflow: hidden;
+          z-index: 1;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.4), inset 0 0 3px rgba(255, 220, 150, 0.1);
         }
         
+        .dialog-button-inner {
+          position: relative;
+          z-index: 2;
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+        }
+        
+        .dialog-button-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          line-height: 1;
+        }
+        
+        .dialog-button-text {
+          font-size: 0.9rem;
+          font-weight: 500;
+          line-height: 1;
+        }
+        
+        .dialog-button-glow {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, rgba(220, 190, 120, 0.05), rgba(150, 130, 100, 0.05));
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          z-index: 1;
+        }
+        
+        /* Button hover effect */
         .dialog-continue:hover {
-          background: rgba(150, 130, 100, 0.15); /* Background emas saat hover */
-          color: #e8debc; /* Warna emas yang lebih terang */
-          text-shadow: 0 0 4px rgba(150, 130, 100, 0.6); /* Efek glow saat hover */
+          color: #f0eadc; /* Warna emas yang lebih terang */
+          border-color: rgba(180, 160, 120, 0.8);
+          box-shadow: 0 0 15px rgba(0, 0, 0, 0.6), inset 0 0 8px rgba(255, 220, 150, 0.2);
+          text-shadow: 0 0 4px rgba(220, 190, 140, 0.8);
         }
         
-        /* Styling for hover dialog continue button */
+        .dialog-continue:hover .dialog-button-glow {
+          opacity: 1;
+          animation: pulse-glow 2s infinite;
+        }
+        
+        /* Specific styling for next vs skip */
+        .dialog-next {
+          background: rgba(40, 35, 30, 0.95);
+          border-color: rgba(170, 150, 110, 0.5);
+          position: relative;
+        }
+        
+        /* Styling untuk tombol */
+        .dialog-skip {
+          background: rgba(35, 30, 25, 0.9);
+          border-color: rgba(150, 130, 100, 0.4);
+        }
+        
+        /* Dekorasi sudut tombol */
+        .dialog-next:before, .dialog-skip:before {
+          content: '';
+          position: absolute;
+          top: -1px;
+          right: -1px;
+          width: 10px;
+          height: 10px;
+          border-top: 1px solid rgba(220, 200, 160, 0.3);
+          border-right: 1px solid rgba(220, 200, 160, 0.3);
+          z-index: 3;
+        }
+        
+        .dialog-next:after, .dialog-skip:after {
+          content: '';
+          position: absolute;
+          bottom: -1px;
+          left: -1px;
+          width: 10px;
+          height: 10px;
+          border-bottom: 1px solid rgba(220, 200, 160, 0.3);
+          border-left: 1px solid rgba(220, 200, 160, 0.3);
+          z-index: 3;
+        }
+        
+        /* Label "Skip" untuk tombol Next */
+        .dialog-next .dialog-button-inner:before {
+          content: 'Skip';
+          position: absolute;
+          top: -20px;
+          right: 0;
+          font-size: 0.7rem;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          color: rgba(200, 170, 100, 0.7);
+          text-shadow: 0 0 3px rgba(0, 0, 0, 0.6);
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          font-family: 'Cinzel', serif;
+          pointer-events: none;
+        }
+        
+        .dialog-next:hover .dialog-button-inner:before {
+          opacity: 1;
+        }
+        
+        /* Hover/active states */
         .hover-continue {
-          color: rgba(200, 180, 140, 0.7); /* Sama dengan warna dialog utama */
-          font-family: 'Trajan Pro', 'Cinzel', 'Garamond', serif;
+          opacity: 0.9;
         }
         
         .hover-continue:hover {
-          background: rgba(150, 130, 100, 0.15); /* Warna emas yang lebih gelap */
-          color: #e8debc;
-          text-shadow: 0 0 4px rgba(150, 130, 100, 0.6);
+          opacity: 1;
         }
         
-        .continue-indicator {
-          font-size: 0.8rem;
-          animation: pulse 1.5s infinite;
+        @keyframes pulse-glow {
+          0%, 100% {
+            box-shadow: inset 0 0 5px rgba(255, 220, 150, 0.1);
+          }
+          50% {
+            box-shadow: inset 0 0 10px rgba(255, 220, 150, 0.3);
+          }
         }
         
         @keyframes pulse {
@@ -449,6 +577,16 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           .dialog-continue {
             font-size: 0.8rem;
             padding: 0.3rem 0.5rem;
+            min-width: 5rem;
+          }
+          
+          .dialog-button-text {
+            font-size: 0.8rem;
+          }
+          
+          .dialog-button-icon svg {
+            width: 14px;
+            height: 14px;
           }
           
           .auto-continue-hint,
