@@ -205,11 +205,7 @@ function MainApp() {
         {/* Audio control button - always visible to allow user to enable audio */}
         <button
           onClick={toggleAudio}
-          className={`absolute z-40 bg-black bg-opacity-50 p-2 rounded-full text-amber-500 hover:text-amber-400 transition-colors ${
-            isMobile 
-              ? "bottom-4 right-4 p-3" // Mobile: bottom right with bigger touch target
-              : "top-4 right-4"        // Desktop: top right
-          }`}
+          className="absolute z-50 top-4 right-4 bg-black bg-opacity-50 p-2 rounded-full text-amber-500 hover:text-amber-400 transition-colors"
           title={isAudioPlaying ? "Mute" : "Unmute"}
           aria-label={isAudioPlaying ? "Mute Audio" : "Unmute Audio"}
         >

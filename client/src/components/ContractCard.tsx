@@ -13,8 +13,8 @@ const CONTRACT_RESPONSES = [
 
 // Path ke file SVG dokumen
 const CONTRACT_IMAGES = [
-  '/assets/doc-page-1.svg',
-  '/assets/doc-page-2.svg',
+  '/assets/certificate1.svg',
+  '/assets/certificate2.svg',
 ];
 
 const ContractCard: React.FC = () => {
@@ -110,7 +110,7 @@ const ContractCard: React.FC = () => {
         animate={{ x: isOpen ? -120 : -10 }}
         onClick={handleContractClick}
       >
-        <FaScroll size={32} />
+        <FaScroll size={24} />
         <span className="contract-label">CONTRACT</span>
       </motion.div>
 
@@ -181,15 +181,14 @@ const ContractCard: React.FC = () => {
         .contract-card {
           position: fixed;
           left: 0;
-          top: 50%;
-          transform: translateY(-50%);
+          top: 20px;
           background: rgba(30, 25, 20, 0.9);
           color: #d4c9a8;
-          padding: 15px 8px 15px 25px;
+          padding: 15px 10px 15px 15px;
           border-radius: 0 5px 5px 0;
           border: 1px solid rgba(150, 130, 100, 0.4);
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
           align-items: center;
           cursor: pointer;
           z-index: 40;
@@ -205,13 +204,10 @@ const ContractCard: React.FC = () => {
         }
 
         .contract-label {
-          margin-top: 8px;
+          margin-left: 8px;
           font-family: 'Trajan Pro', 'Cinzel', serif;
           font-size: 0.7rem;
           letter-spacing: 1px;
-          writing-mode: vertical-rl;
-          text-orientation: mixed;
-          transform: rotate(180deg);
           text-transform: uppercase;
         }
 

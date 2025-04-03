@@ -201,15 +201,21 @@ class DialogController {
     // Hentikan dialog yang sedang berjalan
     this.stopTyping();
     
-    // Buat dialog custom
-    const customDialog: Dialog = {
-      id: 9999, // ID khusus untuk dialog timeout
-      text: text,
-      character: "DIVA JUAN NUR TAQARRUB" // Karakter untuk dialog timeout/idle
-    };
-    
-    // Tampilkan dialog custom
-    this.typeDialog(customDialog, callback);
+    // Tunggu sebentar untuk memastikan audio sebelumnya sudah selesai
+    setTimeout(() => {
+      // Pastikan audio benar-benar berhenti
+      this.elevenlabsService.stopSpeaking();
+      
+      // Buat dialog custom
+      const customDialog: Dialog = {
+        id: 9999, // ID khusus untuk dialog timeout
+        text: text,
+        character: "DIVA JUAN NUR TAQARRUB" // Karakter untuk dialog timeout/idle
+      };
+      
+      // Tampilkan dialog custom
+      this.typeDialog(customDialog, callback);
+    }, 300); // Delay 300ms untuk menghindari tumpang tindih audio
   }
   
   // Method khusus untuk menampilkan dialog setelah user dilempar dan kemudian kembali
@@ -217,16 +223,22 @@ class DialogController {
     // Hentikan dialog yang sedang berjalan
     this.stopTyping();
     
-    // Reset dialog model ke awal agar sequence selanjutnya normal
-    this.dialogModel.resetDialog();
-    
-    // Tandai bahwa ini adalah dialog khusus setelah reset
-    this.isPostResetDialog = true;
-    
-    // Tampilkan dialog return yang sudah didefinisikan
-    this.typeDialog(RETURN_DIALOG, callback);
-    
-    console.log("Showing return dialog after reset:", RETURN_DIALOG.text);
+    // Tunggu sebentar untuk memastikan audio sebelumnya sudah selesai
+    setTimeout(() => {
+      // Pastikan audio benar-benar berhenti
+      this.elevenlabsService.stopSpeaking();
+      
+      // Reset dialog model ke awal agar sequence selanjutnya normal
+      this.dialogModel.resetDialog();
+      
+      // Tandai bahwa ini adalah dialog khusus setelah reset
+      this.isPostResetDialog = true;
+      
+      // Tampilkan dialog return yang sudah didefinisikan
+      this.typeDialog(RETURN_DIALOG, callback);
+      
+      console.log("Showing return dialog after reset:", RETURN_DIALOG.text);
+    }, 300); // Delay 300ms untuk menghindari tumpang tindih audio
   }
   
   // Getter untuk memeriksa apakah ini adalah dialog setelah reset
