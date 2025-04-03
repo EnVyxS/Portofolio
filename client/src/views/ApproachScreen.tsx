@@ -234,12 +234,14 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     
     // Fungsi untuk membuat efek bobbing (gerakan naik-turun seperti langkah kaki)
     function getBobbingOffset(progress: number): number {
-      // Frekuensi langkah kaki (6 langkah selama durasi)
-      const frequency = 6;
+      // Frekuensi langkah kaki (meningkatkan menjadi 8 langkah selama durasi untuk gerakan yang lebih realistis)
+      const frequency = 8;
       // Amplitudo efek bobbing (seberapa tinggi/rendah)
-      const amplitude = 0.15;
-      // Sinusoidal function untuk gerakan naik-turun
-      return Math.sin(progress * Math.PI * frequency) * amplitude * progress;
+      const amplitude = 0.2;
+      // Multiplier untuk membuat amplitude lebih besar saat tengah gerakan (saat berjalan lebih cepat)
+      const amplitudeMultiplier = Math.sin(progress * Math.PI) * 0.5 + 0.5;
+      // Sinusoidal function untuk gerakan naik-turun dengan amplitude yang bervariasi
+      return Math.sin(progress * Math.PI * frequency) * amplitude * amplitudeMultiplier;
     }
     
     // Variabel waktu untuk animasi frame-based
@@ -285,8 +287,16 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         const brightnessValue = brightnessBase + 
                               (brightnessProgress * (brightnessMaxVal - brightnessBase));
         
+        // Tambahkan efek swaying horizontal untuk gerakan seperti berjalan
+        // Gerakan horizontal yang lebih kecil dibanding vertikal dengan fase yang berbeda
+        // Definisikan ulang frequency dan amplitudeMultiplier untuk swayOffset
+        const swayFrequency = 8; // Sama dengan bobbing frequency
+        const swayAmplitude = 0.1; // Lebih kecil dari bobbing amplitude
+        const swayMultiplier = Math.sin(progress * Math.PI) * 0.5 + 0.5;
+        const swayOffset = progress > 0.1 ? Math.sin(progress * Math.PI * swayFrequency * 0.5 + Math.PI/2) * swayAmplitude * swayMultiplier : 0;
+        
         // Terapkan semua efek transform dan filter
-        bgElement.style.transform = `translate(${currentPositionX}%, ${currentPositionY + bobOffset}%) scale(${currentScale})`;
+        bgElement.style.transform = `translate(${currentPositionX + swayOffset}%, ${currentPositionY + bobOffset}%) scale(${currentScale})`;
         bgElement.style.filter = `blur(${blurValue}px) brightness(${brightnessValue})`;
         
         // Lanjutkan animasi
