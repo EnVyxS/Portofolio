@@ -220,16 +220,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         </div>
         <div className="dialog-text">{text}</div>
         <div className="dialog-actions">
-          {isComplete ? (
-            isDialogPersistent(text) ? (
-              <div className="waiting-interaction-hint">Waiting for your action...</div>
-            ) : (
-              <div className="auto-continue-hint">Auto-continues in a moment...</div>
-            )
-          ) : null}
-          
-          <div className="dialog-auto-continue">
-            {isComplete && !isDialogPersistent(text) && <div className="auto-continue-hint">Auto-continues in a moment...</div>}
+          <div className="dialog-hints">
+            {isComplete && (
+              isDialogPersistent(text) ? (
+                <div className="waiting-interaction-hint">Waiting for your action...</div>
+              ) : (
+                <div className="auto-continue-hint">Auto-continues in a moment...</div>
+              )
+            )}
           </div>
           
           {/* Only show one button at a time based on dialog state */}
@@ -317,9 +315,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           font-size: clamp(1rem, 2.5vw, 1.1rem);
           line-height: 1.7;
           margin-bottom: 1.2rem;
-          min-height: 5rem; /* Ensure consistent height */
+          min-height: 3rem; /* Ensure consistent height but not too tall */
+          max-height: 8rem; /* Limit maximum height */
+          overflow-y: auto; /* Add scrolling for very long text */
           text-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
           letter-spacing: 0.3px;
+          padding-right: 0.5rem; /* Space for potential scrollbar */
         }
         
         .dialog-actions {
@@ -331,6 +332,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           padding-top: 0.6rem;
           margin-top: 0.5rem;
           height: 40px; /* Fixed height untuk tombol */
+        }
+        
+        .dialog-hints {
+          flex: 1;
+          display: flex;
+          align-items: center;
         }
         
         .auto-continue-hint {
@@ -601,7 +608,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           .dialog-text {
             font-size: 0.9rem;
             line-height: 1.5;
-            min-height: 2.8rem;
+            min-height: 2.5rem; /* Shorter for mobile */
+            max-height: 6rem; /* Shorter max-height for mobile */
           }
           
           .character-name {
@@ -609,6 +617,10 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             left: 0.5rem;
             font-size: 0.75rem;
             padding: 0.2rem 0.6rem;
+          }
+          
+          .dialog-hints {
+            max-width: 60%; /* Ensure hints don't overlap buttons on mobile */
           }
         }
         
@@ -624,10 +636,24 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           }
           
           .dialog-text {
-            min-height: 2.2rem;
+            min-height: 2rem;
+            max-height: 5rem; /* Shorter for landscape mode */
             margin-bottom: 0.3rem;
             font-size: 0.85rem;
             line-height: 1.4;
+          }
+          
+          .dialog-actions {
+            height: 30px; /* Smaller height for actions in landscape */
+          }
+          
+          .dialog-hints {
+            max-width: 50%; /* More space for buttons */
+          }
+          
+          .auto-continue-hint,
+          .waiting-interaction-hint {
+            font-size: 0.65rem; /* Smaller text */
           }
         }
       `}</style>
