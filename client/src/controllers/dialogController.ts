@@ -12,6 +12,7 @@ class DialogController {
   private fullText: string = '';
   private charIndex: number = 0;
   private typingInterval: NodeJS.Timeout | null = null;
+  private isPostResetDialog: boolean = false; // Melacak apakah dialog khusus setelah reset sedang aktif
 
   private constructor() {
     this.dialogModel = DialogModel.getInstance();
@@ -219,10 +220,23 @@ class DialogController {
     // Reset dialog model ke awal agar sequence selanjutnya normal
     this.dialogModel.resetDialog();
     
+    // Tandai bahwa ini adalah dialog khusus setelah reset
+    this.isPostResetDialog = true;
+    
     // Tampilkan dialog return yang sudah didefinisikan
     this.typeDialog(RETURN_DIALOG, callback);
     
     console.log("Showing return dialog after reset:", RETURN_DIALOG.text);
+  }
+  
+  // Getter untuk memeriksa apakah ini adalah dialog setelah reset
+  public isShowingPostResetDialog(): boolean {
+    return this.isPostResetDialog;
+  }
+  
+  // Method untuk mereset status dialog setelah reset
+  public resetPostResetDialogStatus(): void {
+    this.isPostResetDialog = false;
   }
 }
 

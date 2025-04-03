@@ -54,6 +54,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
   // Handle Continue sebagai useCallback untuk dapat digunakan dalam useEffect
   const handleContinue = useCallback(() => {
+    // Cek apakah ini adalah dialog khusus post-reset dan perlu direset status nya
+    if (dialogController.isShowingPostResetDialog()) {
+      console.log("Mereset status dialog post-reset setelah user berinteraksi");
+      dialogController.resetPostResetDialogStatus();
+    }
+    
     if (dialogSource === 'main') {
       // Jika dialog masih dalam proses typing tetapi user menekan tombol SKIP/NEXT
       if (!isComplete) {
@@ -157,6 +163,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       // Cek jika user sudah berinteraksi dengan hover dialog
       if (hoverDialogController.hasUserInteractedWithHover()) {
         return; // Jangan autoplay jika sudah ada interaksi hover
+      }
+      
+      // Cek apakah ini adalah dialog khusus setelah reset - jangan auto-continue dialog ini
+      if (dialogController.isShowingPostResetDialog()) {
+        console.log("Dialog saat ini adalah dialog setelah reset, tidak auto-continue");
+        return;
       }
       
       // Set new timer untuk auto-continue semua dialog

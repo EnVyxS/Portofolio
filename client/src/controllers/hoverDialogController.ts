@@ -20,14 +20,14 @@ const HOVER_DIALOGS = {
       "Can't wait till I'm done talking? Fine. What do you want?",
       "Interrupting me? Rude. But I'm listening.",
       "Not even letting me finish? Fine, what's the contract?",
-      "Hmm. Impatient, aren't you? What is it?"
+      "Hmm. Impatient, aren't you? What is it?",
     ],
     social: [
       "Not listening, huh? Fine. Decide after you've checked.",
       "My story's boring you? Go on then, look elsewhere.",
       "Hmm. Distracted already? Go ahead, check it out.",
       "Prefer looking around than listening? Your choice.",
-      "Lost interest so quickly? Whatever. Go look."
+      "Lost interest so quickly? Whatever. Go look.",
     ],
   },
   // Saat Geralt sudah selesai berbicara
@@ -37,14 +37,14 @@ const HOVER_DIALOGS = {
       "Business it is then. What's the job?",
       "Contract details? Let's hear it.",
       "Talk business. I'm listening.",
-      "Hmm. Cutting to the chase. Good."
+      "Hmm. Cutting to the chase. Good.",
     ],
     social: [
       "Need to check first before deciding? Fine. Not like I'm in a hurry.",
       "Want to know more about me first? Suit yourself.",
       "Curious about my past work? Take a look.",
       "Checking my credentials? Smart. Not that I care.",
-      "Due diligence, huh? Look all you want."
+      "Due diligence, huh? Look all you want.",
     ],
   },
   // Transisi antar kategori
@@ -54,14 +54,14 @@ const HOVER_DIALOGS = {
       "Done looking? Ready for business now?",
       "Satisfied with what you found? Let's talk work.",
       "Seen enough? What's the job then?",
-      "Research complete? Let's hear about the contract."
+      "Research complete? Let's hear about the contract.",
     ],
     contactToSocial: [
       "Fine. Go ahead, check it first.",
       "Having second thoughts? Look around then.",
       "Changed your mind? Go on, look me up.",
       "Not convinced yet? See for yourself.",
-      "Hmm. Still uncertain? Check my background."
+      "Hmm. Still uncertain? Check my background.",
     ],
   },
   // Saat user bermain-main (bolak-balik hover)
@@ -71,14 +71,14 @@ const HOVER_DIALOGS = {
       "Make up your mind. I don't have all day.",
       "Hmm. This back and forth is getting irritating.",
       "Decide already. Contract or not?",
-      "Getting annoyed with the indecision here."
+      "Getting annoyed with the indecision here.",
     ],
     secondLevel: [
       "Arghh... whatever you want. I'm done.",
       "That's it. I'm done with this nonsense.",
       "Enough of this. Make a choice or leave me be.",
-      "*sighs deeply* I've lost my patience. We're done here.",
-      "I'm through with this game. Decide or go away."
+      "HAHH...I've lost my patience. We're done here.",
+      "I'm through with this game. Decide or go away.",
     ],
   },
 };
@@ -140,7 +140,7 @@ class HoverDialogController {
     if (linkType === "none") {
       return;
     }
-    
+
     // Force reset isHandlingHover jika hover event baru terjadi terlalu cepat setelah yang sebelumnya
     if (this.isHandlingHover) {
       this.isHandlingHover = false;
@@ -157,7 +157,7 @@ class HoverDialogController {
     | ((text: string, isComplete: boolean) => void)
     | null = null;
   private isTypingHover: boolean = false;
-  
+
   // Method publik untuk mengecek status typing dari luar
   public isTypingHoverDialog(): boolean {
     return this.isTypingHover;
@@ -181,12 +181,12 @@ class HoverDialogController {
     if (text.length < 15 || text === "........" || text.startsWith("*")) {
       return false;
     }
-    
+
     // Cek apakah ada tanda tanya (kemungkinan pertanyaan)
     if (text.includes("?")) {
       return true;
     }
-    
+
     // Default untuk dialog umum: tidak persistent
     return false;
   }
@@ -201,7 +201,7 @@ class HoverDialogController {
     this.currentText = "";
     this.charIndex = 0;
     this.isTypingHover = true;
-    
+
     // Panggil callback di awal dengan teks kosong untuk memastikan dialog box muncul
     if (this.hoverTextCallback) {
       this.hoverTextCallback("", false);
@@ -220,16 +220,20 @@ class HoverDialogController {
         this.isTypingHover = false;
         clearInterval(this.typingInterval as NodeJS.Timeout);
         this.typingInterval = null;
-        
+
         // Cek apakah dialog ini adalah persistent berdasarkan teksnya
         const isPersistent = this.isPersistent(this.fullText);
-        
+
         if (isPersistent) {
-          console.log("Hover dialog adalah persistent, menunggu interaksi user");
+          console.log(
+            "Hover dialog adalah persistent, menunggu interaksi user",
+          );
         } else {
-          console.log(`Hover dialog akan dismiss dalam 3000ms (non-persistent)`);
+          console.log(
+            `Hover dialog akan dismiss dalam 3000ms (non-persistent)`,
+          );
         }
-        
+
         if (this.hoverTextCallback) {
           this.hoverTextCallback(this.currentText, true);
         }
@@ -281,13 +285,13 @@ class HoverDialogController {
     const isDialogInProgress = (): boolean => {
       // Jika ElevenLabs service sedang memainkan audio, berarti dialog utama sedang berlangsung
       const isAudioPlaying = this.elevenlabsService.isCurrentlyPlaying();
-      
+
       // Jika dialog controller sedang mengetik, berarti dialog utama sedang berlangsung
       const isTyping = this.dialogController.isCurrentlyTyping();
-      
+
       // Jika dialog belum selesai (dialogCompleted === false), berarti dialog utama masih dalam proses
       const isDialogNotCompleted = !this.dialogCompleted;
-      
+
       return isAudioPlaying || isTyping || isDialogNotCompleted;
     };
 
@@ -331,7 +335,7 @@ class HoverDialogController {
     else {
       // Deteksi interupsi berdasarkan status dialog saat ini
       const isInterruption = isDialogInProgress();
-      
+
       if (currentCategory === "contact") {
         const texts = isInterruption
           ? HOVER_DIALOGS.interruption.contact
@@ -345,19 +349,25 @@ class HoverDialogController {
         const randomIndex = Math.floor(Math.random() * texts.length);
         dialogText = texts[randomIndex];
       }
-      
+
       // Log status interupsi untuk debugging
       if (isInterruption) {
-        console.log("Hover dialog terjadi sebagai interupsi karena dialog utama masih berlangsung");
+        console.log(
+          "Hover dialog terjadi sebagai interupsi karena dialog utama masih berlangsung",
+        );
       }
     }
 
     // Cek apakah dialog ini sudah pernah ditampilkan sebelumnya
     // Jika hoverCount > 5, selalu tampilkan dialog terakhir (walaupun sudah ditampilkan sebelumnya)
-    if (dialogText && (!this.processedTexts.has(dialogText) || this.hoverCount > 5)) {
+    if (
+      dialogText &&
+      (!this.processedTexts.has(dialogText) || this.hoverCount > 5)
+    ) {
       // Kecuali untuk dialog dari kategori jengkel level 2,
       // tambahkan teks ke daftar yang sudah ditampilkan
-      const isAnnoyedLastLevel = HOVER_DIALOGS.annoyance.secondLevel.includes(dialogText);
+      const isAnnoyedLastLevel =
+        HOVER_DIALOGS.annoyance.secondLevel.includes(dialogText);
       if (!isAnnoyedLastLevel) {
         this.processedTexts.add(dialogText);
       }
@@ -367,11 +377,13 @@ class HoverDialogController {
 
       // Speak the dialog text menggunakan default voice
       await this.elevenlabsService.speakText(dialogText);
-      
+
       // Jika dialog jengkel terakhir, ini akan menjadi dialog terakhir sebelum menghilang
       // Dialog box akan otomatis hilang karena sudah ditandai sebagai non-persistent di dialogToToneMap
       if (isAnnoyedLastLevel) {
-        console.log("Geralt jengkel dan dialog akan menghilang setelah selesai");
+        console.log(
+          "Geralt jengkel dan dialog akan menghilang setelah selesai",
+        );
       }
     }
 
