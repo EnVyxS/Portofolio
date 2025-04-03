@@ -102,30 +102,26 @@ const ContractCard: React.FC = () => {
   
   // Track original volume to restore later
   const [originalVolume, setOriginalVolume] = useState<number | null>(null);
-  
-  // Adjust volume when opening/closing contract
-  useEffect(() => {
-    if (isOpen && originalVolume === null) {
-      // Store current volume before lowering it
-      setOriginalVolume(currentVolume);
-      
-      // Lower volume to 70% of original (still audible but lower)
-      setVolume(currentVolume * 0.7);
-    } else if (!isOpen && originalVolume !== null) {
-      // Restore original volume when closing
-      setVolume(originalVolume);
-      // Reset original volume state
-      setOriginalVolume(null);
-    }
-  }, [isOpen, currentVolume]);
 
   const handleContractClick = () => {
     if (!isOpen) {
-      // Jika kontrak belum terbuka, maka buka dan munculkan dialog random
-      const randomIndex = Math.floor(Math.random() * CONTRACT_RESPONSES.length);
-      const response = CONTRACT_RESPONSES[randomIndex];
+      // Saat kontrak dibuka, tidak perlu dialog yang menggangu
+      // Setiap dialog yang saat ini berjalan harus dihentikan
+      dialogController.stopTyping();
       
-      dialogController.showCustomDialog(response, () => {});
+      // Mencegah dialog ditampilkan saat kontrak terbuka dengan cara
+      // memindahkan indeks dialog ke dialog terakhir
+      const dialogs = dialogController.getDialogModel().getAllDialogs();
+      const lastDialogIndex = dialogs.length - 1;
+      dialogController.getDialogModel().setCurrentDialogIndex(lastDialogIndex);
+      
+      // Simpan volume asli sebelum dikurangi
+      setOriginalVolume(currentVolume);
+      
+      // Kurangi volume musik ambient
+      if (currentVolume) {
+        setVolume(currentVolume * 0.5); // Kurangi volume menjadi 50% dari volume saat ini
+      }
       
       setIsOpen(true);
     }
@@ -187,6 +183,12 @@ const ContractCard: React.FC = () => {
 
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    // Kembalikan volume saat kontrak ditutup
+    if (originalVolume !== null) {
+      setVolume(originalVolume);
+    }
+    
     setIsOpen(false);
     setCurrentIndex(0);
     setScale(1);

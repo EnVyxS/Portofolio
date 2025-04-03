@@ -250,6 +250,11 @@ class DialogController {
   public resetPostResetDialogStatus(): void {
     this.isPostResetDialog = false;
   }
+  
+  // Method untuk mengakses dialog model
+  public getDialogModel(): DialogModel {
+    return this.dialogModel;
+  }
 }
 
 export default DialogController;

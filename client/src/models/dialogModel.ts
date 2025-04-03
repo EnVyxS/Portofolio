@@ -321,6 +321,12 @@ class DialogModel {
   public resetDialog(): void {
     this.currentDialogIndex = 0;
   }
+  
+  public setCurrentDialogIndex(index: number): void {
+    if (index >= 0 && index < this.dialogs.length) {
+      this.currentDialogIndex = index;
+    }
+  }
 
   public getAllDialogs(): Dialog[] {
     return [...this.dialogs];
