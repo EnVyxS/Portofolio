@@ -458,9 +458,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         
         /* Dark Souls button styling */
         .dark-souls-button {
-          background: rgba(25, 22, 20, 0.9);
+          background: transparent;
           color: #d4c9a8;
-          border: 1px solid rgba(170, 150, 110, 0.5);
+          border: none;
           font-family: 'Trajan Pro', 'Cinzel', serif;
           font-size: 0.7rem;
           text-transform: uppercase;
@@ -476,14 +476,15 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           height: 24px;
           justify-content: center;
           box-sizing: border-box;
+          text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
         }
         
         .next-button {
-          background: rgba(30, 25, 20, 0.95);
+          color: rgba(255, 235, 190, 0.9);
         }
         
         .skip-button {
-          background: rgba(25, 20, 15, 0.9);
+          color: rgba(210, 190, 150, 0.85);
         }
         
         .button-icon {
@@ -506,6 +507,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         
         .hover-continue:hover {
           opacity: 1;
+        }
+        
+        .dark-souls-button:hover {
+          color: #fff;
+          text-shadow: 0 0 5px rgba(255, 220, 150, 0.6);
         }
         
         @keyframes pulse-glow {
