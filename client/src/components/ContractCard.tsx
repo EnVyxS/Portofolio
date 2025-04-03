@@ -443,7 +443,9 @@ const ContractCard: React.FC = () => {
           perspective: 1500px;
           display: flex;
           justify-content: center;
+          align-items: center;
           width: 100%;
+          height: 100%;
         }
         
         .page-flip-next .book-container {

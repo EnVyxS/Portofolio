@@ -391,23 +391,21 @@ class IdleTimeoutController {
     // Reset hover state agar tidak ada konflik
     this.hoverDialogController.resetHoverState();
     
-    // Log removed
+    // Pastikan tidak ada audio yang sedang diputar
+    if (this.elevenlabsService.isCurrentlyPlaying()) {
+      this.elevenlabsService.stopSpeaking();
+    }
     
     // Tampilkan dialog peringatan dengan text custom
+    // Dialog Controller akan mengelola audio secara otomatis
     this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
       if (isComplete) {
-        // Log removed
+        // Tidak ada tindakan khusus saat ini
       }
     });
     
-    // Speak the warning text dengan tone NEUTRAL sesuai permintaan
-    try {
-      // Untuk peringatan, gunakan voice default yang konsisten
-      this.elevenlabsService.speakText(text);
-      // Log removed
-    } catch (error) {
-      // Error log removed
-    }
+    // Tidak perlu memanggil elevenlabsService.speakText disini
+    // karena sudah dipanggil oleh dialogController.showCustomDialog
   }
   
   // Method untuk 'melempar' user

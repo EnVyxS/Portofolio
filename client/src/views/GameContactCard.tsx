@@ -162,16 +162,16 @@ const GameContactCard: React.FC = () => {
           max-width: 500px;
           margin: 0 auto;
           position: absolute;
-          top: 8vh; /* Positioned much higher to avoid dialog box overlap */
-          right: 5vw; /* Position to the right side */
+          top: 90px; /* Positioned below volume control */
+          right: 10px; /* Position to the right side */
         }
 
         /* Unified card that contains all elements */
         .unified-card {
-          background: rgba(15, 12, 10, 0.25); /* Sesuaikan warna dengan tema Souls-like */
-          border: 1px solid rgba(150, 130, 100, 0.2); /* Border emas pudar seperti APPROACH HIM */
-          backdrop-filter: blur(1px); /* Very light blur */
-          opacity: 0.3; /* Sedikit tingkatkan opacity */
+          background: rgba(20, 16, 14, 0.5); /* Lebih gelap dan lebih terlihat */
+          border: 1px solid rgba(150, 130, 100, 0.4); /* Border emas lebih terlihat */
+          backdrop-filter: blur(2px); /* Sedikit lebih blur */
+          opacity: 0.7; /* Tingkatkan opacity agar lebih terlihat */
           border-radius: 0; /* No rounded corners ala Souls-like */
           padding: clamp(0.5rem, 1.5vw, 0.8rem) clamp(0.5rem, 1.5vw, 0.8rem); /* Smaller padding */
           max-width: min(260px, 60%); /* Much smaller max width */
