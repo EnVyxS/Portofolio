@@ -65,7 +65,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         setTimeout(() => {
           // Cek apakah user sudah berinteraksi dengan hover dialog
           if (hoverDialogController.hasUserInteractedWithHover()) {
-            setIsDialogFinished(true);
+            // Jangan hilangkan dialog box, tetapi tetap jalankan callback jika dibutuhkan
+            // Jangan set isDialogFinished(true) di sini agar dialog box tetap terlihat
             if (onDialogComplete) onDialogComplete();
             return;
           }
@@ -82,11 +83,15 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
               // Update hover dialog controller with completion status
               hoverDialogController.setDialogCompleted(complete);
             } else {
-              // No more dialogs - we're finished
-              setIsDialogFinished(true);
-              // Set dialog as fully completed for hover interactions
+              // Di sini tidak perlu setIsDialogFinished(true) agar dialog box tetap terlihat
+              // Tandai dialog sudah selesai untuk interaksi hover
               hoverDialogController.setDialogCompleted(true);
-              if (onDialogComplete) onDialogComplete();
+              
+              // Tetap menjalankan onDialogComplete jika ada
+              if (onDialogComplete) {
+                onDialogComplete();
+                // Tidak perlu setIsDialogFinished(true) di sini
+              }
             }
           });
         }, 50); // Delay kecil untuk memastikan UI diupdate dengan benar
@@ -94,8 +99,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         // Dialog sudah selesai dan user menekan NEXT
         // Cek apakah user sudah berinteraksi dengan hover dialog
         if (hoverDialogController.hasUserInteractedWithHover()) {
-          // Jika user sudah berinteraksi dengan hover dialog, jangan tampilkan dialog utama lagi
-          setIsDialogFinished(true);
+          // Jika user sudah berinteraksi dengan hover dialog
+          // Jangan hilangkan dialog box, tetapi tampilkan dialog hover yang sedang berlangsung
+          // Kita tidak set isDialogFinished(true) di sini
+          
+          // Hanya panggil onDialogComplete jika dibutuhkan
           if (onDialogComplete) onDialogComplete();
           return;
         }
@@ -112,11 +120,18 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             // Update hover dialog controller with completion status
             hoverDialogController.setDialogCompleted(complete);
           } else {
-            // No more dialogs - we're finished
-            setIsDialogFinished(true);
-            // Set dialog as fully completed for hover interactions
+            // Tombol akan tetap terlihat karena kita telah memodifikasi dialogController
+            // untuk mengembalikan teks dialog terakhir bahkan jika tidak ada dialog berikutnya
+            
+            // Tetap tandai dialog sebagai selesai untuk interaksi hover
             hoverDialogController.setDialogCompleted(true);
-            if (onDialogComplete) onDialogComplete();
+            
+            // Jangan set isDialogFinished ke true agar tetap menampilkan dialog box
+            // (Hanya tandai jika callback onDialogComplete diperlukan)
+            if (onDialogComplete) {
+              onDialogComplete();
+              // setIsDialogFinished(true); - Kita tidak set ini agar dialog box tetap terlihat
+            }
           }
         });
       }
@@ -176,10 +191,21 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         console.log(`Hover dialog akan dismiss dalam ${dismissDelay}ms (non-persistent)`);
         
         autoPlayTimerRef.current = setTimeout(() => {
-          // Reset dialog
+          // Reset dialog hover state
           hoverDialogController.resetHoverState();
-          // Tandai dialog sebagai selesai untuk hilangkan kotak dialog
-          setIsDialogFinished(true);
+          
+          // Switch back to main dialog instead of completely hiding dialog box
+          const currentMainDialog = dialogController.getCurrentDialog();
+          if (currentMainDialog) {
+            // Menampilkan dialog utama lagi
+            setText(currentMainDialog.text);
+            setCharacterName(currentMainDialog.character);
+            setDialogSource('main');
+            setIsComplete(true); // Tampilkan tombol NEXT
+          } else {
+            // Dialog utama sudah selesai, tapi kita tetap menampilkan teks terakhir
+            // Jangan set isDialogFinished ke true agar dialog box tetap terlihat
+          }
         }, dismissDelay);
       } else {
         console.log(`Hover dialog adalah persistent, menunggu interaksi user`);
@@ -231,8 +257,10 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     };
   }, []);
 
-  if (isDialogFinished) {
-    return null; // Don't render anything when dialog is finished
+  // Dialog box akan tetap muncul meskipun dialog selesai
+  // JANGAN return null di sini agar dialog box tetap ditampilkan
+  if (isDialogFinished && text === '') {
+    return null; // Hanya return null jika tidak ada teks sama sekali
   }
 
   return (

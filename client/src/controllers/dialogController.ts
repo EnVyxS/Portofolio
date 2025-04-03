@@ -42,8 +42,16 @@ class DialogController {
     if (nextDialog) {
       this.typeDialog(nextDialog, callback);
     } else {
-      // No more dialogs - inform callback with empty text and complete=true
-      callback('', true);
+      // No more dialogs - daripada mengirim teks kosong, kita gunakan dialog terakhir
+      // Ini akan membuat teks dan tombol tetap terlihat
+      const currentDialog = this.dialogModel.getCurrentDialog();
+      if (currentDialog) {
+        // Tandai sebagai complete agar tombol NEXT tetap terlihat
+        callback(currentDialog.text, true);
+      } else {
+        // Jika tak ada dialog sama sekali, kembalikan teks placeholder
+        callback('Journey concluded.', true);
+      }
     }
   }
 
