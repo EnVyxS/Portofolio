@@ -69,7 +69,7 @@ if (DEBUG_MODE) {
     }
   });
   
-  console.log("[IdleTimeoutController] DEBUG MODE AKTIF - Timeout yang digunakan lebih singkat");
+  // Log removed
 }
 
 class IdleTimeoutController {
@@ -150,7 +150,7 @@ class IdleTimeoutController {
     if (typeof this.dialogController.isCurrentlyTyping === 'function') {
       isDialogTyping = this.dialogController.isCurrentlyTyping();
     } else {
-      console.log("[IdleTimeoutController] isCurrentlyTyping tidak ditemukan di dialogController");
+      // Log removed
     }
     
     // Cek juga apakah hover dialog sedang diketik
@@ -161,7 +161,7 @@ class IdleTimeoutController {
         isHoverDialogTyping = this.hoverDialogController.isTypingHoverDialog();
       }
     } catch (error) {
-      console.log("[IdleTimeoutController] Error saat cek isTypingHoverDialog:", error);
+      // Log removed
     }
     
     const isActive = isAudioPlaying || isDialogTyping || isHoverDialogTyping;
@@ -183,7 +183,7 @@ class IdleTimeoutController {
   public startIdleTimer(): void {
     // Jika ada audio atau dialog yang aktif, jangan jalankan timer
     if (this.isAudioOrDialogActive()) {
-      console.log("[IdleTimeoutController] Timer tidak dijadwalkan - audio/dialog sedang aktif");
+      // Log removed
       
       // Cek lagi nanti setelah beberapa detik
       setTimeout(() => {
@@ -290,7 +290,7 @@ class IdleTimeoutController {
   public startExcessiveHoverTimers(): void {
     // Jika ada audio atau dialog yang aktif, jangan jalankan timer
     if (this.isAudioOrDialogActive()) {
-      console.log("[IdleTimeoutController] Hover timer tidak dijadwalkan - audio/dialog sedang aktif");
+      // Log removed
       
       // Cek lagi nanti setelah beberapa detik
       setTimeout(() => {
@@ -300,7 +300,7 @@ class IdleTimeoutController {
       return;
     }
     
-    console.log("[IdleTimeoutController] Excessive hover timers setup");
+    // Log removed
     this.clearAllHoverTimers(); // Bersihkan timer yang ada
     
     // Jika belum menampilkan peringatan hover berlebihan
@@ -391,12 +391,12 @@ class IdleTimeoutController {
     // Reset hover state agar tidak ada konflik
     this.hoverDialogController.resetHoverState();
     
-    console.log(`[IdleTimeoutController] Menampilkan peringatan: "${text}"`);
+    // Log removed
     
     // Tampilkan dialog peringatan dengan text custom
     this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
       if (isComplete) {
-        console.log(`[IdleTimeoutController] Dialog peringatan selesai ditampilkan`);
+        // Log removed
       }
     });
     
@@ -404,15 +404,15 @@ class IdleTimeoutController {
     try {
       // Untuk peringatan, gunakan voice default yang konsisten
       this.elevenlabsService.speakText(text);
-      console.log(`[IdleTimeoutController] Memutar suara peringatan dengan default voice`);
+      // Log removed
     } catch (error) {
-      console.error("[IdleTimeoutController] Gagal memutar suara peringatan:", error);
+      // Error log removed
     }
   }
   
   // Method untuk 'melempar' user
   private throwUser(): void {
-    console.log("[IdleTimeoutController] DIVA JUAN melempar user! Mengembalikan ke scene awal.");
+    // Log removed
     
     // Tambahkan dialog peringatan untuk 'melempar'
     const throwText = "That's it. GET OUT OF MY SIGHT!";
@@ -437,7 +437,7 @@ class IdleTimeoutController {
   
   // Method untuk 'memukul' user
   private punchUser(): void {
-    console.log("[IdleTimeoutController] DIVA JUAN memukul user! Mengeluarkan dari website.");
+    // Log removed
     
     // Tambahkan dialog peringatan untuk 'memukul'
     const punchText = "You're really asking for it...";

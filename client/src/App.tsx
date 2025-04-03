@@ -111,7 +111,7 @@ function MainApp() {
   useEffect(() => {
     // Jika belum pernah membuat controller dan user sudah mengklik approach
     if (approachClicked && !idleTimeoutControllerRef.current) {
-      console.log("Inisialisasi IdleTimeoutController");
+      // Inisialisasi IdleTimeoutController
       // Buat instance IdleTimeoutController
       idleTimeoutControllerRef.current = IdleTimeoutController.getInstance();
       
@@ -129,7 +129,7 @@ function MainApp() {
   useEffect(() => {
     // Reset timer jika user kembali dari approach screen setelah dilempar
     if (approachClicked && wasReset && idleTimeoutControllerRef.current) {
-      console.log("Resetting idle timers after reset");
+      // Reset idle timers after reset
       idleTimeoutControllerRef.current.resetAll();
       
       // Mulai timer hover berlebihan
@@ -183,11 +183,11 @@ function MainApp() {
       // Setelah ElevenLabs setup ditutup, tampilkan dialog khusus untuk kasus post-reset
       const dialogController = DialogController.getInstance();
       if (dialogController) {
-        console.log("Setting up special post-reset dialog");
+        // Setup special post-reset dialog
         // Gunakan setTimeout untuk memastikan dialog box sudah siap menerima callback
         setTimeout(() => {
           dialogController.showReturnDialog((text: string, isComplete: boolean) => {
-            console.log("Post-reset dialog displayed:", text, isComplete);
+            // Dialog post-reset displayed
           });
         }, 500); // Berikan waktu 500ms untuk memastikan dialogBox siap
       }

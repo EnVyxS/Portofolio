@@ -38,7 +38,7 @@ class ElevenLabsService {
         console.log("Silent audio file not found, will create on demand");
       }
     } catch (error) {
-      console.error("Error checking silent audio file:", error);
+      // Error log removed
     }
   }
   
@@ -81,7 +81,7 @@ class ElevenLabsService {
         let response = await fetch('/audio/character/silent.mp3');
         
         if (!response.ok) {
-          console.error('Silent audio file not found');
+          // Error log removed
           return null;
         }
         
@@ -129,7 +129,7 @@ class ElevenLabsService {
       
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Text-to-speech API error:', errorData);
+        // Error log removed
         return null;
       }
       
@@ -146,10 +146,10 @@ class ElevenLabsService {
         }
       }
       
-      console.error('Failed to get audio from server');
+      // Error log removed
       return null;
     } catch (error) {
-      console.error('Error generating speech:', error);
+      // Error log removed
       return null;
     }
   }
@@ -199,7 +199,7 @@ class ElevenLabsService {
       
       // Tambahkan handler untuk audio yang error di tengah pemutaran
       this.audioElement.onerror = (e) => {
-        console.error(`Audio playback error:`, e);
+        // Error log removed
         this.isPlaying = false;
       };
       
@@ -215,7 +215,7 @@ class ElevenLabsService {
       
       return true;
     } catch (error) {
-      console.error('Failed to play audio:', error);
+      // Error log removed
       this.isPlaying = false;
       if (this.audioElement) {
         URL.revokeObjectURL(audioUrl);
@@ -244,7 +244,7 @@ class ElevenLabsService {
         // Null-kan audio element untuk memastikan tidak ada referensi yang tertinggal
         this.audioElement = null;
       } catch (error) {
-        console.error("Error stopping audio playback:", error);
+        // Error log removed
       }
       
       // Reset status isPlaying
@@ -268,7 +268,7 @@ class ElevenLabsService {
     }
     
     this.ambientAudio.play().catch(error => {
-      console.error('Failed to play ambient sound:', error);
+      // Error log removed
     });
   }
   

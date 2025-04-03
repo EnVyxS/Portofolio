@@ -56,7 +56,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const handleContinue = useCallback(() => {
     // Cek apakah ini adalah dialog khusus post-reset dan perlu direset status nya
     if (dialogController.isShowingPostResetDialog()) {
-      console.log("Mereset status dialog post-reset setelah user berinteraksi");
+      // Log removed
       dialogController.resetPostResetDialogStatus();
     }
     
@@ -167,7 +167,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       
       // Cek apakah ini adalah dialog khusus setelah reset - jangan auto-continue dialog ini
       if (dialogController.isShowingPostResetDialog()) {
-        console.log("Dialog saat ini adalah dialog setelah reset, tidak auto-continue");
+        // Log removed
         return;
       }
       
@@ -184,14 +184,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           const charDelay = 50; // 50ms per karakter
           const autoplayDelay = Math.min(baseDelay + (textLength * charDelay), 8000); // maksimal 8 detik
           
-          console.log(`Autoplay untuk dialog ${currentDialog.id} dalam ${autoplayDelay}ms (non-persistent)`);
+          // Log removed
           
           autoPlayTimerRef.current = setTimeout(() => {
             handleContinue();
           }, autoplayDelay);
         } else {
           // Dialog yang membutuhkan respons (persistent) tidak auto-continue
-          console.log(`Dialog ${currentDialog.id} adalah persistent, menunggu interaksi user`);
+          // Log removed
         }
       }
     } else if (isComplete && dialogSource === 'hover') {
@@ -200,7 +200,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         // Hover dialog yang tidak memerlukan respons seperti "Arghh... whatever you want. I'm done."
         const dismissDelay = 3000; // 3 detik untuk membaca pesan
         
-        console.log(`Hover dialog akan dismiss dalam ${dismissDelay}ms (non-persistent)`);
+        // Log removed
         
         autoPlayTimerRef.current = setTimeout(() => {
           // Reset dialog hover state
@@ -220,7 +220,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           }
         }, dismissDelay);
       } else {
-        console.log(`Hover dialog adalah persistent, menunggu interaksi user`);
+        // Log removed
       }
     }
     
@@ -717,26 +717,39 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         /* Extra small devices */
         @media (max-width: 480px) {
           .dialog-box-container {
-            bottom: 1rem;
+            bottom: 0.5rem;
+            padding: 0 0.5rem; /* Narrower padding */
           }
           
           .dialog-box {
-            padding: 0.8rem;
-            max-width: 98%;
+            padding: 1rem 0.8rem; /* More vertical padding, less horizontal */
+            max-width: 100%; /* Full width */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Stronger shadow */
           }
           
           .dialog-text {
-            font-size: 0.9rem;
+            font-size: 0.95rem; /* Slightly larger text for readability */
             line-height: 1.5;
-            min-height: 2.5rem; /* Shorter for mobile */
-            max-height: 6rem; /* Shorter max-height for mobile */
+            min-height: 2.5rem;
+            max-height: 6.5rem;
+            margin-bottom: 0.8rem; /* Reduced space at bottom */
           }
           
           .character-name {
-            top: -1rem;
+            top: -0.9rem;
             left: 0.5rem;
             font-size: 0.75rem;
             padding: 0.2rem 0.6rem;
+            font-weight: 600; /* Slightly bolder */
+          }
+          
+          .dialog-actions {
+            margin-top: 0.4rem; /* Reduced space */
+          }
+          
+          .just-text-button {
+            padding: 0.3rem 0.5rem; /* Smaller buttons, more touch-friendly */
+            min-width: 60px; /* Wider touch target */
           }
           
           .dialog-hints {

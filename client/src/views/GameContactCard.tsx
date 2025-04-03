@@ -321,21 +321,30 @@ const GameContactCard: React.FC = () => {
         /* Extra small devices */
         @media (max-width: 480px) {
           .content-wrapper {
-            top: 42vh; /* Adjusted for better visibility */
+            top: 38vh; /* Positioned higher for better visibility */
+            width: 100%; /* Use full width */
+            padding: 0 1rem; /* Add padding */
+            display: flex;
+            justify-content: center;
           }
           
           .unified-card {
-            max-width: min(200px, 70%); /* Slightly larger for tiny screens */
-            padding: 0.4rem; /* Better padding for touch */
-            opacity: 0.8; /* Even more visible on small devices */
+            max-width: min(240px, 85%); /* Wider for tiny screens */
+            padding: 0.5rem; /* Better padding for touch */
+            opacity: 0.9; /* More visible on small devices */
           }
           
           .social-links {
-            gap: 0.3rem; /* Very tight spacing */
+            gap: 0.4rem; /* More spacing for touch */
+            padding: 0.3rem 0; /* Vertical padding */
           }
           
           .skill-name {
-            font-size: 0.55rem;
+            font-size: 0.6rem;
+          }
+          
+          .card-content {
+            gap: 0.5rem; /* More spacing between sections */
           }
           
           .skill-level {
