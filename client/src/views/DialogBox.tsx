@@ -318,14 +318,35 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             )}
           </div>
           
-          {/* Tombol mute untuk karakter */}
-          <button 
-            className="voice-mute-button"
-            onClick={toggleMute}
-            title={isMuted ? "Unmute character" : "Mute character"}
-          >
-            {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
-          </button>
+          <div className="dialog-controls">
+            {/* Tombol mute untuk karakter */}
+            <button 
+              className="voice-mute-button"
+              onClick={toggleMute}
+              title={isMuted ? "Unmute character" : "Mute character"}
+            >
+              {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
+            </button>
+            
+            {/* Only show one button at a time based on dialog state */}
+            {isComplete ? (
+              <button 
+                className="just-text-button next-button"
+                onClick={handleContinue}
+              >
+                <span className="button-icon">→</span>
+                <span className="button-text">NEXT</span>
+              </button>
+            ) : (
+              <button 
+                className="just-text-button skip-button"
+                onClick={handleContinue}
+              >
+                <span className="button-icon">▶</span>
+                <span className="button-text">SKIP</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
       
@@ -594,6 +615,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         }
         
         /* Styling for voice mute button */
+        .dialog-controls {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        
         .voice-mute-button {
           background: rgba(25, 20, 15, 0.7);
           border: 1px solid rgba(150, 130, 100, 0.35);
@@ -606,7 +633,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           justify-content: center;
           cursor: pointer;
           transition: all 0.2s ease;
-          margin-left: auto;
         }
         
         .voice-mute-button:hover {
@@ -626,7 +652,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           display: flex;
           align-items: center;
           font-size: 0.7rem;
-          margin-left: auto;
           padding: 0.3rem;
           text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
         }
