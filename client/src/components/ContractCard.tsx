@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaScroll, FaSearchPlus, FaSearchMinus, FaArrowLeft, FaArrowRight, FaFilePdf } from 'react-icons/fa';
 import DialogController from '../controllers/dialogController';
 import { useAudio } from '../context/AudioManager';
+
+// Import swipe sound
+import swipeSoundSrc from '@assets/Screen swipe sound effect (mp3cut.net).m4a';
 
 // Respon variasi saat kartu diklik
 const CONTRACT_RESPONSES = [
@@ -13,17 +16,28 @@ const CONTRACT_RESPONSES = [
   "Believe me now? Thought so. Next time, don't question what you don't understand."
 ];
 
-// Path ke file dokumen - menggunakan URL publik
+// Import gambar sertifikat
+import ijazah from '@assets/Ijazah.jpg';
+import transkrip1 from '@assets/Transkrip Nilai_page-0001.jpg';
+import transkrip2 from '@assets/Transkrip Nilai_page-0002.jpg';
+import universitas from '@assets/111202012560mhs.dinus.ac.id_page-0001.jpg';
+import bnsp1 from '@assets/BNSP_page-0001.jpg';
+import bnsp2 from '@assets/BNSP_page-0002.jpg';
+import kampusMerdeka from '@assets/Backend Java MSIB_page-0001.jpg';
+import studentReport1 from '@assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0001.jpg';
+import studentReport2 from '@assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0002.jpg';
+
+// Path ke file dokumen
 const CONTRACT_IMAGES = [
-  '/attached_assets/Ijazah.jpg',
-  '/attached_assets/Transkrip Nilai_page-0001.jpg',
-  '/attached_assets/Transkrip Nilai_page-0002.jpg',
-  '/attached_assets/111202012560mhs.dinus.ac.id_page-0001.jpg',
-  '/attached_assets/BNSP_page-0001.jpg',
-  '/attached_assets/BNSP_page-0002.jpg',
-  '/attached_assets/Backend Java MSIB_page-0001.jpg',
-  '/attached_assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0001.jpg',
-  '/attached_assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0002.jpg',
+  ijazah,
+  transkrip1,
+  transkrip2,
+  universitas,
+  bnsp1,
+  bnsp2,
+  kampusMerdeka,
+  studentReport1,
+  studentReport2,
 ];
 
 // Untuk menampilkan nama file yang lebih pendek
@@ -53,32 +67,30 @@ const ContractCard: React.FC = () => {
   const dialogController = DialogController.getInstance();
   const { setVolume, currentVolume } = useAudio();
   
-  // Generate swipe sound using Web Audio API
+  // Audio reference for swipe sound
+  const swipeSoundRef = useRef<HTMLAudioElement | null>(null);
+  
+  // Initialize swipe sound audio on component mount
+  useEffect(() => {
+    swipeSoundRef.current = new Audio(swipeSoundSrc);
+    swipeSoundRef.current.volume = 0.3; // Set appropriate volume
+    
+    // Clean up
+    return () => {
+      if (swipeSoundRef.current) {
+        swipeSoundRef.current.pause();
+        swipeSoundRef.current = null;
+      }
+    };
+  }, []);
+  
+  // Play swipe sound function
   const playSwipeSound = () => {
     try {
-      // Create audio context
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      
-      // Create oscillator for swipe sound
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      // Connect nodes
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      // Set parameters for swipe sound
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
-      oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.15);
-      
-      // Set volume
-      gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-      
-      // Play and stop
-      oscillator.start();
-      oscillator.stop(audioContext.currentTime + 0.15);
+      if (swipeSoundRef.current) {
+        swipeSoundRef.current.currentTime = 0; // Reset to start
+        swipeSoundRef.current.play().catch(e => console.error("Error playing swipe sound:", e));
+      }
     } catch (err) {
       console.error("Error playing swipe sound:", err);
     }
@@ -89,17 +101,19 @@ const ContractCard: React.FC = () => {
   
   // Adjust volume when opening/closing contract
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && originalVolume === null) {
       // Store current volume before lowering it
       setOriginalVolume(currentVolume);
       
-      // Lower volume to 50% of original
-      setVolume(currentVolume * 0.5);
-    } else if (originalVolume !== null) {
+      // Lower volume to 70% of original (still audible but lower)
+      setVolume(currentVolume * 0.7);
+    } else if (!isOpen && originalVolume !== null) {
       // Restore original volume when closing
       setVolume(originalVolume);
+      // Reset original volume state
+      setOriginalVolume(null);
     }
-  }, [isOpen, setVolume, currentVolume, originalVolume]);
+  }, [isOpen, currentVolume]);
 
   const handleContractClick = () => {
     if (!isOpen) {
@@ -155,15 +169,15 @@ const ContractCard: React.FC = () => {
 
   return (
     <>
-      {/* Kontrak Card tersembunyi di sisi kiri layar */}
+      {/* Kontrak Card tersembunyi di sisi kanan layar */}
       <motion.div 
         className="contract-card"
-        initial={{ x: -10 }}
-        animate={{ x: isOpen ? -120 : -10 }}
+        initial={{ x: 10 }}
+        animate={{ x: isOpen ? 120 : 10 }}
         onClick={handleContractClick}
       >
-        <FaScroll size={24} />
         <span className="contract-label">CONTRACT</span>
+        <FaScroll size={24} style={{ marginLeft: '8px' }} />
       </motion.div>
 
       {/* Overlay Modal untuk menampilkan dokumen */}
@@ -230,12 +244,12 @@ const ContractCard: React.FC = () => {
       <style>{`
         .contract-card {
           position: fixed;
-          left: 0;
+          right: 0;
           top: 20px;
           background: rgba(30, 25, 20, 0.9);
           color: #d4c9a8;
-          padding: 15px 10px 15px 15px;
-          border-radius: 0 5px 5px 0;
+          padding: 15px 15px 15px 10px;
+          border-radius: 5px 0 0 5px;
           border: 1px solid rgba(150, 130, 100, 0.4);
           display: flex;
           flex-direction: row;
@@ -247,7 +261,7 @@ const ContractCard: React.FC = () => {
         }
 
         .contract-card:hover {
-          left: 5px;
+          right: 5px;
           background: rgba(40, 35, 30, 0.95);
           border-color: rgba(180, 160, 120, 0.6);
           box-shadow: 0 0 15px rgba(0, 0, 0, 0.4), 0 0 5px rgba(255, 220, 150, 0.2);
@@ -454,7 +468,7 @@ const ContractCard: React.FC = () => {
         @media (max-width: 768px) {
           .contract-card {
             top: 10px;
-            padding: 10px 8px 10px 12px;
+            padding: 10px 12px 10px 8px;
           }
           
           .contract-label {
