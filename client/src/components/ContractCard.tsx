@@ -11,10 +11,22 @@ const CONTRACT_RESPONSES = [
   "Believe me now? Thought so. Next time, don't question what you don't understand."
 ];
 
-// Path ke file SVG dokumen
+// Path ke file dokumen dengan import dari assets
+import ijazahImage from '@assets/Ijazah.jpg';
+import transkripPdf from '@assets/Transkrip Nilai.pdf';
+import cfltPdf from '@assets/111202012560@mhs.dinus.ac.id.pdf';
+import bnspPdf from '@assets/BNSP.pdf';
+import backendJavaPdf from '@assets/Backend Java MSIB.pdf';
+import kmPdf from '@assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2.pdf';
+
+// Urutan dokumen sesuai permintaan
 const CONTRACT_IMAGES = [
-  '/assets/certificate1.svg',
-  '/assets/certificate2.svg',
+  ijazahImage,
+  transkripPdf,
+  cfltPdf,
+  bnspPdf,
+  backendJavaPdf,
+  kmPdf,
 ];
 
 const ContractCard: React.FC = () => {
@@ -162,15 +174,29 @@ const ContractCard: React.FC = () => {
                 onMouseUp={handleDragEnd}
                 onMouseLeave={handleDragEnd}
               >
-                <motion.img 
-                  src={CONTRACT_IMAGES[currentImageIndex]} 
-                  alt={`Contract page ${currentImageIndex + 1}`}
-                  style={{ 
-                    transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-                    cursor: isDragging ? 'grabbing' : 'grab'
-                  }}
-                  draggable={false}
-                />
+                {currentImageIndex === 0 ? (
+                  // Dokumen pertama adalah image (Ijazah.jpg)
+                  <motion.img 
+                    src={CONTRACT_IMAGES[currentImageIndex]} 
+                    alt={`Contract document ${currentImageIndex + 1}`}
+                    style={{ 
+                      transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                      cursor: isDragging ? 'grabbing' : 'grab'
+                    }}
+                    draggable={false}
+                  />
+                ) : (
+                  // Semua dokumen lainnya adalah PDF
+                  <iframe
+                    src={CONTRACT_IMAGES[currentImageIndex]}
+                    title={`Contract document ${currentImageIndex + 1}`}
+                    className="contract-document"
+                    style={{ 
+                      transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                      cursor: isDragging ? 'grabbing' : 'grab'
+                    }}
+                  />
+                )}
               </div>
             </motion.div>
           </motion.div>
@@ -295,13 +321,20 @@ const ContractCard: React.FC = () => {
           position: relative;
         }
 
-        .contract-image-container img {
+        .contract-image-container img, .contract-document {
           max-width: 100%;
           max-height: 100%;
           transition: transform 0.1s ease;
           transform-origin: center center;
           touch-action: none;
           will-change: transform;
+        }
+        
+        .contract-document {
+          width: 90%;
+          height: 90%;
+          border: none;
+          background: white;
         }
 
         .page-indicator {
