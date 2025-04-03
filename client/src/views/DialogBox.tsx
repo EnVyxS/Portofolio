@@ -55,17 +55,48 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // Handle Continue sebagai useCallback untuk dapat digunakan dalam useEffect
   const handleContinue = useCallback(() => {
     if (dialogSource === 'main') {
+      // Jika dialog masih dalam proses typing tetapi user menekan tombol SKIP/NEXT
       if (!isComplete) {
-        // Skip to the end of the current dialog
+        // Hentikan dialog dan audio yang sedang berjalan
         dialogController.skipToFullText();
+        
+        // Langsung lanjut ke dialog berikutnya tanpa menunggu user klik lagi
+        // Gunakan setTimeout dengan delay singkat untuk memastikan UI diupdate
+        setTimeout(() => {
+          // Cek apakah user sudah berinteraksi dengan hover dialog
+          if (hoverDialogController.hasUserInteractedWithHover()) {
+            setIsDialogFinished(true);
+            if (onDialogComplete) onDialogComplete();
+            return;
+          }
+          
+          // Move to the next dialog
+          dialogController.nextDialog((text, complete) => {
+            setText(text);
+            setIsComplete(complete);
+            
+            // Get current dialog to display character name
+            const currentDialog = dialogController.getCurrentDialog();
+            if (currentDialog) {
+              setCharacterName(currentDialog.character);
+              // Update hover dialog controller with completion status
+              hoverDialogController.setDialogCompleted(complete);
+            } else {
+              // No more dialogs - we're finished
+              setIsDialogFinished(true);
+              // Set dialog as fully completed for hover interactions
+              hoverDialogController.setDialogCompleted(true);
+              if (onDialogComplete) onDialogComplete();
+            }
+          });
+        }, 50); // Delay kecil untuk memastikan UI diupdate dengan benar
       } else {
+        // Dialog sudah selesai dan user menekan NEXT
         // Cek apakah user sudah berinteraksi dengan hover dialog
         if (hoverDialogController.hasUserInteractedWithHover()) {
           // Jika user sudah berinteraksi dengan hover dialog, jangan tampilkan dialog utama lagi
           setIsDialogFinished(true);
-          if (onDialogComplete) {
-            onDialogComplete();
-          }
+          if (onDialogComplete) onDialogComplete();
           return;
         }
         
@@ -85,9 +116,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             setIsDialogFinished(true);
             // Set dialog as fully completed for hover interactions
             hoverDialogController.setDialogCompleted(true);
-            if (onDialogComplete) {
-              onDialogComplete();
-            }
+            if (onDialogComplete) onDialogComplete();
           }
         });
       }

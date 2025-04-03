@@ -170,8 +170,8 @@ class DialogController {
       this.typingInterval = null;
     }
     
-    // Jangan menghentikan audio, biarkan audio tetap dimainkan sampai selesai
-    // (Berbeda dengan stopTyping() yang benar-benar menghentikan everything)
+    // Hentikan audio yang sedang berjalan
+    this.elevenlabsService.stopSpeaking();
     
     // Set fullText untuk ditampilkan langsung
     this.currentText = this.fullText;

@@ -202,7 +202,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     const endPositionX = -50 + randomOffsetX;
     
     // Durasi total efek dalam ms (diperlambat untuk efek yang lebih terasa)
-    const duration = 5000; 
+    const duration = 5800; // Ditingkatkan dari 5000ms menjadi 5800ms untuk animasi lebih terlihat
     // Interval animasi
     const interval = 16; // 60fps untuk animasi yang lebih halus
     // Jumlah langkah
@@ -234,14 +234,21 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     
     // Fungsi untuk membuat efek bobbing (gerakan naik-turun seperti langkah kaki)
     function getBobbingOffset(progress: number): number {
-      // Frekuensi langkah kaki (meningkatkan menjadi 8 langkah selama durasi untuk gerakan yang lebih realistis)
-      const frequency = 8;
+      // Frekuensi langkah kaki (meningkatkan menjadi 12 langkah selama durasi untuk gerakan yang lebih realistis)
+      const frequency = 12; // Ditingkatkan dari 8 menjadi 12 untuk langkah yang lebih realistis
       // Amplitudo efek bobbing (seberapa tinggi/rendah)
-      const amplitude = 0.2;
+      const amplitude = 0.35; // Ditingkatkan dari 0.2 menjadi 0.35 untuk gerakan lebih terlihat
+      
+      // Membuat amplitude berubah mengikuti kecepatan berjalan
       // Multiplier untuk membuat amplitude lebih besar saat tengah gerakan (saat berjalan lebih cepat)
-      const amplitudeMultiplier = Math.sin(progress * Math.PI) * 0.5 + 0.5;
+      const speedCurve = Math.sin(progress * Math.PI); // Perubahan kecepatan: lambat->cepat->lambat
+      const amplitudeMultiplier = speedCurve * 0.7 + 0.3; // Memberikan range 0.3-1.0
+      
+      // Perubahan fase untuk membuat gerakan lebih alamiah (gerakan manusia tidak sempurna)
+      const phaseShift = progress * 0.3; // Memberikan perubahan fase progresif
+      
       // Sinusoidal function untuk gerakan naik-turun dengan amplitude yang bervariasi
-      return Math.sin(progress * Math.PI * frequency) * amplitude * amplitudeMultiplier;
+      return Math.sin((progress + phaseShift) * Math.PI * frequency) * amplitude * amplitudeMultiplier;
     }
     
     // Variabel waktu untuk animasi frame-based
@@ -287,13 +294,28 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         const brightnessValue = brightnessBase + 
                               (brightnessProgress * (brightnessMaxVal - brightnessBase));
         
-        // Tambahkan efek swaying horizontal untuk gerakan seperti berjalan
+        // Tambahkan efek swaying horizontal yang lebih realistis untuk gerakan seperti berjalan
         // Gerakan horizontal yang lebih kecil dibanding vertikal dengan fase yang berbeda
-        // Definisikan ulang frequency dan amplitudeMultiplier untuk swayOffset
-        const swayFrequency = 8; // Sama dengan bobbing frequency
-        const swayAmplitude = 0.1; // Lebih kecil dari bobbing amplitude
-        const swayMultiplier = Math.sin(progress * Math.PI) * 0.5 + 0.5;
-        const swayOffset = progress > 0.1 ? Math.sin(progress * Math.PI * swayFrequency * 0.5 + Math.PI/2) * swayAmplitude * swayMultiplier : 0;
+        // Frequency ditingkatkan untuk menyelaraskan dengan efek bobbing yang sudah ditingkatkan
+        const swayFrequency = 12; // Diselaraskan dengan frequensi bobbing
+        const swayAmplitude = 0.20; // Ditingkatkan dari 0.1 menjadi 0.20 untuk lebih terlihat
+        
+        // Perubahan fase dengan pengaturan tertentu untuk membuat gerakan horizontal/vertikal sesuai langkah kaki manusia
+        // Otak manusia mendeteksi pola saat berjalan: naik turun dan sway kiri kanan harus selaras
+        const phaseShift = Math.PI/3; // Shifting fase untuk membuat gerakan lebih natural
+        
+        // Variasi kecepatan seperti pada bobbing
+        const speedCurve = Math.sin(progress * Math.PI); // Perubahan kecepatan: lambat->cepat->lambat
+        const swayMultiplier = speedCurve * 0.7 + 0.3; // Range 0.3-1.0
+        
+        // Menambahkan sedikit randomisasi untuk kesan lebih manusiawi
+        const noiseAmplitude = 0.03; // Amplitudo noise kecil
+        const noise = Math.sin(progress * 100) * noiseAmplitude; // High-frequency noise
+        
+        // Efek swaying dimulai setelah 10% progress seperti efek bobbing
+        const swayOffset = progress > 0.1 ? 
+                         Math.sin(progress * Math.PI * swayFrequency * 0.5 + phaseShift) * 
+                         swayAmplitude * swayMultiplier + noise : 0;
         
         // Terapkan semua efek transform dan filter
         bgElement.style.transform = `translate(${currentPositionX + swayOffset}%, ${currentPositionY + bobOffset}%) scale(${currentScale})`;
