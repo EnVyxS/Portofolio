@@ -126,6 +126,10 @@ class HoverDialogController {
   public hasUserInteractedWithHover(): boolean {
     return this.hasInteractedWithHover;
   }
+  
+  public setHasInteractedWithHover(value: boolean): void {
+    this.hasInteractedWithHover = value;
+  }
 
   // Method untuk menentukan apakah link termasuk kategori kontak atau sosial
   private getLinkCategory(

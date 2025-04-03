@@ -386,10 +386,14 @@ class IdleTimeoutController {
   private showIdleWarning(text: string): void {
     // Hentikan dialog yang sedang berjalan
     this.dialogController.stopTyping();
-    this.hoverDialogController.stopTyping();
     
-    // Reset hover state agar tidak ada konflik
-    this.hoverDialogController.resetHoverState();
+    // Jangan reset hover state agar dialog bisa berkelanjutan
+    // this.hoverDialogController.resetHoverState();
+    
+    // Jangan hentikan hover dialog yang sedang berjalan
+    if (!this.hoverDialogController.isTypingHoverDialog()) {
+      this.hoverDialogController.stopTyping();
+    }
     
     // Pastikan tidak ada audio yang sedang diputar
     if (this.elevenlabsService.isCurrentlyPlaying()) {
@@ -400,7 +404,8 @@ class IdleTimeoutController {
     // Dialog Controller akan mengelola audio secara otomatis
     this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
       if (isComplete) {
-        // Tidak ada tindakan khusus saat ini
+        // Tandai bahwa user sudah berinteraksi dengan dialog
+        this.hoverDialogController.setHasInteractedWithHover(true);
       }
     });
     

@@ -252,8 +252,20 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   }, [isComplete, dialogSource, text, handleContinue, dialogController, hoverDialogController, setIsDialogFinished]);
 
   useEffect(() => {
+    // Set hover dialog callback terlebih dahulu untuk menangkap hover dialog yang sudah aktif
+    hoverDialogController.setHoverTextCallback((text, complete) => {
+      setText(text);
+      setIsComplete(complete);
+      setDialogSource('hover');
+      setCharacterName('DIVA JUAN NUR TAQARRUB'); // Dialog hover dari DIVA JUAN (idle warnings juga)
+    });
+    
+    // Periksa apakah hover dialog sedang aktif (typing)
+    const isHoverDialogActive = hoverDialogController.isTypingHoverDialog();
+    
     // Start the dialog sequence hanya jika user belum berinteraksi dengan hover dialog
-    if (!hoverDialogController.hasUserInteractedWithHover()) {
+    // dan tidak ada hover dialog yang sedang aktif
+    if (!hoverDialogController.hasUserInteractedWithHover() && !isHoverDialogActive) {
       dialogController.startDialog((text, complete) => {
         setText(text);
         setIsComplete(complete);
@@ -270,21 +282,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       });
     }
     
-    // Set hover dialog callback
-    hoverDialogController.setHoverTextCallback((text, complete) => {
-      setText(text);
-      setIsComplete(complete);
-      setDialogSource('hover');
-      setCharacterName('DIVA JUAN NUR TAQARRUB'); // Dialog hover dari DIVA JUAN (idle warnings juga)
-    });
-    
     // Cleanup on unmount
     return () => {
       dialogController.stopTyping();
-      hoverDialogController.resetHoverState();
       if (autoPlayTimerRef.current) {
         clearTimeout(autoPlayTimerRef.current);
       }
+      // Jangan reset hover state saat unmount untuk mempertahankan hover dialog
+      // hoverDialogController.resetHoverState(); - dihapus karena mengakibatkan reset dialog
     };
   }, []);
 
