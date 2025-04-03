@@ -269,40 +269,74 @@ const GameContactCard: React.FC = () => {
           
           .unified-card {
             max-width: min(220px, 80%); /* Slightly wider on tablets but still small */
+            opacity: 0.25; /* Slightly dimmer on tablets */
+          }
+          
+          .social-links {
+            gap: 0.5rem; /* Reduce spacing between links */
           }
         }
 
         @media (max-width: 640px) {
           .content-wrapper {
-            top: 15vh; /* Even higher position on mobile */
+            top: 8vh; /* Much higher position on mobile */
             right: 0; /* Center on small screens */
             left: 0;
             margin: 0 auto;
           }
           
           .social-links {
-            gap: clamp(0.4rem, 1.5vh, 0.8rem); /* Tighter spacing on mobile */
+            gap: 0.4rem; /* Tighter spacing on mobile */
           }
           
           .unified-card {
             max-width: min(200px, 70%); /* Even smaller on mobile */
+            opacity: 0.2; /* Even more transparent on mobile */
+            padding: 0.4rem;
+          }
+          
+          .card-corner {
+            width: 6px;
+            height: 6px;
+          }
+        }
+        
+        /* Extra small devices */
+        @media (max-width: 480px) {
+          .content-wrapper {
+            top: 5vh; /* Very high to ensure visibility */
+          }
+          
+          .unified-card {
+            max-width: min(180px, 65%); /* Even smaller on tiny screens */
+            padding: 0.3rem;
+          }
+          
+          .social-links {
+            gap: 0.3rem; /* Very tight spacing */
           }
         }
 
         /* Landscape mode on mobile devices */
         @media (max-height: 500px) and (orientation: landscape) {
           .content-wrapper {
-            top: 10vh; /* Adjust for landscape mode */
+            top: 5vh; /* Much higher in landscape */
             right: 5vw;
           }
 
           .unified-card {
-            padding: 0.5rem;
-            max-width: 180px;
+            padding: 0.4rem;
+            max-width: 160px;
+            opacity: 0.15; /* Very transparent in landscape */
           }
 
           .social-links {
-            gap: 0.4rem; /* Very compact in landscape */
+            gap: 0.3rem; /* Very compact in landscape */
+          }
+          
+          /* Hide decorative elements in landscape to save space */
+          .card-accent-corner {
+            display: none;
           }
         }
       `}</style>

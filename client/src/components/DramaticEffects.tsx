@@ -214,4 +214,77 @@ export const dramaticEffectsStyles = `
     30% { opacity: 0.7; }
     100% { opacity: 0; transform: translateX(-50%) translateY(-100px) scale(1.5); }
   }
+  
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    .impact-lines {
+      width: 200px;
+      height: 200px;
+    }
+    
+    .dust-cloud {
+      width: 300px;
+      height: 150px;
+    }
+    
+    .punch-impact {
+      width: 150px;
+      height: 150px;
+    }
+  }
+  
+  /* Extra small devices */
+  @media (max-width: 480px) {
+    .impact-lines {
+      width: 150px;
+      height: 150px;
+    }
+    
+    .dust-cloud {
+      width: 200px;
+      height: 100px;
+    }
+    
+    .punch-impact {
+      width: 100px;
+      height: 100px;
+    }
+    
+    @keyframes dustRise {
+      0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+      30% { opacity: 0.6; }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-60px) scale(1.3); }
+    }
+  }
+  
+  /* Landscape mode */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .impact-lines {
+      width: 120px;
+      height: 120px;
+    }
+    
+    .dust-cloud {
+      width: 180px;
+      height: 80px;
+      bottom: 20%;
+    }
+    
+    .punch-impact {
+      width: 80px;
+      height: 80px;
+    }
+    
+    @keyframes pulseAndFade {
+      0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
+      30% { opacity: 0.7; }
+      100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+    }
+    
+    @keyframes dustRise {
+      0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+      30% { opacity: 0.5; }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-40px) scale(1.2); }
+    }
+  }
 `;

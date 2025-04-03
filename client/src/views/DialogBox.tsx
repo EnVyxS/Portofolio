@@ -427,11 +427,76 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         @media (max-width: 768px) {
           .dialog-box {
             padding: 1rem;
+            max-width: 95%;
           }
           
           .dialog-text {
             min-height: 3.5rem;
             margin-bottom: 0.5rem;
+            font-size: 1rem;
+          }
+          
+          .character-name {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.8rem;
+          }
+          
+          .dialog-actions {
+            padding-top: 0.4rem;
+          }
+          
+          .dialog-continue {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.5rem;
+          }
+          
+          .auto-continue-hint,
+          .waiting-interaction-hint {
+            font-size: 0.7rem;
+          }
+        }
+        
+        /* Extra small devices */
+        @media (max-width: 480px) {
+          .dialog-box-container {
+            bottom: 1rem;
+          }
+          
+          .dialog-box {
+            padding: 0.8rem;
+            max-width: 98%;
+          }
+          
+          .dialog-text {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            min-height: 2.8rem;
+          }
+          
+          .character-name {
+            top: -1rem;
+            left: 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+          }
+        }
+        
+        /* Landscape mode */
+        @media (max-height: 500px) and (orientation: landscape) {
+          .dialog-box-container {
+            bottom: 0.5rem;
+          }
+          
+          .dialog-box {
+            padding: 0.6rem 0.8rem;
+            max-width: 90%;
+          }
+          
+          .dialog-text {
+            min-height: 2.2rem;
+            margin-bottom: 0.3rem;
+            font-size: 0.85rem;
+            line-height: 1.4;
           }
         }
       `}</style>
