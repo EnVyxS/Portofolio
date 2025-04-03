@@ -163,7 +163,7 @@ const GameContactCard: React.FC = () => {
           margin: 0 auto;
           position: absolute;
           top: 40%; /* Lebih tinggi dari tengah agar tidak tumpang tindih dengan dialog box */
-          right: 20px; /* Position to the right side */
+          right: 40px; /* Position further to the right side */
           transform: translateY(-50%); /* Perfect vertical centering */
         }
 

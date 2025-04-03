@@ -281,12 +281,12 @@ const ContractCard: React.FC = () => {
       <style>{`
         .contract-card {
           position: fixed;
-          left: 0;
+          left: 15px; /* Dipindahkan 15px ke kanan */
           top: 4px; /* Posisi lebih pas di top */
           background: rgba(30, 25, 20, 0.9);
           color: #d4c9a8;
           padding: 12px 10px 12px 15px;
-          border-radius: 0 5px 5px 0;
+          border-radius: 5px;
           border: 1px solid rgba(150, 130, 100, 0.4);
           display: flex;
           flex-direction: row;
@@ -298,7 +298,7 @@ const ContractCard: React.FC = () => {
         }
 
         .contract-card:hover {
-          left: 5px;
+          transform: translateY(1px);
           background: rgba(40, 35, 30, 0.95);
           border-color: rgba(180, 160, 120, 0.6);
           box-shadow: 0 0 15px rgba(0, 0, 0, 0.4), 0 0 5px rgba(255, 220, 150, 0.2);
@@ -582,6 +582,7 @@ const ContractCard: React.FC = () => {
         @media (max-width: 768px) {
           .contract-card {
             top: 4px; /* Konsisten dengan desktop */
+            left: 15px; /* Konsisten dengan desktop */
             padding: 10px 12px 10px 8px;
           }
           
