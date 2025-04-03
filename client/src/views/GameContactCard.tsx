@@ -162,7 +162,7 @@ const GameContactCard: React.FC = () => {
           max-width: 500px;
           margin: 0 auto;
           position: absolute;
-          top: 50%; /* Center vertically */
+          top: 40%; /* Lebih tinggi dari tengah agar tidak tumpang tindih dengan dialog box */
           right: 20px; /* Position to the right side */
           transform: translateY(-50%); /* Perfect vertical centering */
         }
@@ -263,7 +263,7 @@ const GameContactCard: React.FC = () => {
         /* Media query with simpler clamp and consistent rem/vh usage */
         @media (max-width: 768px) {
           .content-wrapper {
-            top: 50vh; /* Position in the middle of the screen for better visibility */
+            top: 40%; /* Konsisten dengan desktop */
             right: 2vw; /* Closer to edge on tablets */
             max-width: 320px;
             z-index: 10; /* Ensure it's above other elements */
