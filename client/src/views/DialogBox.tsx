@@ -231,8 +231,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           <button 
             className={`dialog-continue ${dialogSource === 'hover' ? 'hover-continue' : ''}`}
             onClick={handleContinue}
+            title={!isComplete ? "Skip to the end of dialog" : "Continue to next dialog"}
           >
-            {isComplete ? (dialogSource === 'main' ? 'Next' : 'Continue') : 'Skip'}
+            {isComplete ? (dialogSource === 'main' ? 'Next / Skip' : 'Continue') : 'Skip'}
             <span className="continue-indicator">{isComplete ? (dialogSource === 'main' ? '▼' : '▼') : '▶'}</span>
           </button>
         </div>
