@@ -329,9 +329,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           align-items: center;
           position: relative;
           border-top: 1px solid rgba(150, 130, 100, 0.15);
-          padding-top: 0.6rem;
+          padding-top: 0.5rem;
           margin-top: 0.5rem;
-          height: 40px; /* Fixed height untuk tombol */
+          height: 30px; /* Reduced height untuk tombol */
         }
         
         .dialog-hints {
@@ -460,18 +460,18 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           color: #d4c9a8;
           border: 1px solid rgba(170, 150, 110, 0.5);
           font-family: 'Trajan Pro', 'Cinzel', serif;
-          font-size: 0.9rem;
+          font-size: 0.8rem;
           text-transform: uppercase;
-          letter-spacing: 1px;
+          letter-spacing: 0.5px;
           position: absolute;
           right: 0;
           bottom: 0;
-          padding: 0.5rem 1rem;
+          padding: 0.35rem 0.7rem;
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.4rem;
           cursor: pointer;
-          min-width: 100px;
+          min-width: 80px;
           justify-content: center;
         }
         
@@ -484,13 +484,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         }
         
         .button-icon {
-          font-size: 1.1rem;
+          font-size: 0.9rem;
           line-height: 1;
-          margin-right: 0.25rem;
+          margin-right: 0.2rem;
         }
         
         .button-text {
           font-weight: 500;
+          font-size: 0.75rem;
           line-height: 1;
         }
         
