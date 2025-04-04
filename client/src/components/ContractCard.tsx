@@ -232,9 +232,6 @@ const ContractCard: React.FC = () => {
       setVolume(originalVolume);
     }
     
-    // Play footstep sound when closing contract
-    playFootstepSound();
-    
     // Display a random CONTRACT_RESPONSE dialog
     const randomIndex = Math.floor(Math.random() * CONTRACT_RESPONSES.length);
     const randomResponse = CONTRACT_RESPONSES[randomIndex];

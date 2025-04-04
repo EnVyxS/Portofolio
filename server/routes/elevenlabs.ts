@@ -71,7 +71,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
     }
     
     // Gunakan voice_id dari body atau default dari env
-    const defaultVoiceId = process.env.VITE_ELEVENLABS_DEFAULT_VOICE_ID || '';
+    const defaultVoiceId = process.env.VITE_ELEVENLABS_DEFAULT_VOICE_ID || 'dBynzNhvSFj0l1D7I9yV';
     const finalVoiceId = voice_id || defaultVoiceId;
     
     if (!finalVoiceId) {

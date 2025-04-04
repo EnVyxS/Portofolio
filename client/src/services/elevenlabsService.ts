@@ -5,7 +5,7 @@ class ElevenLabsService {
   private audioElement: HTMLAudioElement | null = null;
   
   // Voice ID dari environment variable
-  private voiceId: string = import.meta.env.VITE_ELEVENLABS_DEFAULT_VOICE_ID || '';
+  private voiceId: string = import.meta.env.VITE_ELEVENLABS_DEFAULT_VOICE_ID || 'dBynzNhvSFj0l1D7I9yV';
   
   // Cache untuk menyimpan audio yang sudah di-generate
   private audioCache: Record<string, Blob | null> = {};

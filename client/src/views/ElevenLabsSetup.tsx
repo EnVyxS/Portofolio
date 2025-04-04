@@ -17,7 +17,7 @@ const ElevenLabsSetup: React.FC<ElevenLabsSetupProps> = ({ onClose }) => {
       // 2. Hardcoded key provided by user (as fallback)
       // 3. Default to using local audio
       const envApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
-      const userProvidedKey = 'sk_40f10d60860ef775cb850a893fa825e534a7563a45fe1603'; // Key yang diberikan pengguna
+      const userProvidedKey = 'sk_4b8b0d124618ba1dc624db8081859a5ab3684b0304c1b27e'; // Key yang diberikan pengguna
       
       if (envApiKey) {
         console.log("Using ElevenLabs API key from environment");
@@ -31,7 +31,7 @@ const ElevenLabsSetup: React.FC<ElevenLabsSetupProps> = ({ onClose }) => {
       }
       
       // Set default voice ID jika diperlukan
-      const defaultVoiceId = import.meta.env.VITE_ELEVENLABS_DEFAULT_VOICE_ID || 'B716PSrQrzRiI4pc6wxc';
+      const defaultVoiceId = import.meta.env.VITE_ELEVENLABS_DEFAULT_VOICE_ID || 'dBynzNhvSFj0l1D7I9yV';
       console.log("Using voice ID:", defaultVoiceId);
       
       // Set loading complete dan close dialog
