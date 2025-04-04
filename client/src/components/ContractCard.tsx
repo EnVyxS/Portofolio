@@ -239,10 +239,21 @@ const ContractCard: React.FC = () => {
     const randomIndex = Math.floor(Math.random() * CONTRACT_RESPONSES.length);
     const randomResponse = CONTRACT_RESPONSES[randomIndex];
     
-    // Show custom dialog with the selected response
-    dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
-      // Dialog callback function - no action needed here
-    });
+    // Hentikan dialog yang sedang berjalan
+    dialogController.stopTyping();
+    
+    // Pastikan dialog model tidak menampilkan dialog lagi setelah dialog custom
+    // dengan cara memindahkan indeks ke dialog terakhir
+    const dialogs = dialogController.getDialogModel().getAllDialogs();
+    const lastDialogIndex = dialogs.length - 1;
+    dialogController.getDialogModel().setCurrentDialogIndex(lastDialogIndex);
+    
+    // Show custom dialog with the selected response setelah semua preset
+    setTimeout(() => {
+      dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
+        // Dialog callback function - no action needed here
+      });
+    }, 300);
     
     setIsOpen(false);
     setCurrentIndex(0);
