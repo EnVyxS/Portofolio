@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaScroll, FaSearchPlus, FaSearchMinus, FaArrowLeft, FaArrowRight, FaFilePdf } from 'react-icons/fa';
 import DialogController from '../controllers/dialogController';
 import { useAudio } from '../context/AudioManager';
+import { useToast, toast } from '../hooks/use-toast';
 
 // Import swipe sound
 import swipeSoundSrc from '@assets/Screen swipe sound effect (mp3cut.net).m4a';
@@ -72,6 +73,7 @@ const ContractCard: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const dialogController = DialogController.getInstance();
   const { setVolume, currentVolume } = useAudio();
+  const { toast } = useToast();
   
   // State untuk posisi panning (geser) gambar
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
@@ -140,7 +142,17 @@ const ContractCard: React.FC = () => {
 
   const handleZoomIn = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setScale(prev => Math.min(prev + 0.2, 3)); // Maksimal zoom 3x
+    const newScale = Math.min(scale + 0.2, 3); // Maksimal zoom 3x
+    setScale(newScale);
+    
+    // Tampilkan instruksi untuk zoom
+    if (newScale > 1.0 && scale <= 1.0) {
+      toast({
+        title: "Gambar diperbesar",
+        description: "Klik dan tahan untuk menggeser gambar. Gunakan mouse atau jari pada layar sentuh.",
+        duration: 3500
+      });
+    }
   };
 
   const handleZoomOut = (e: React.MouseEvent) => {
@@ -327,7 +339,17 @@ const ContractCard: React.FC = () => {
                         alt={IMAGE_TITLES[currentIndex]} 
                         className="document-image"
                         onDoubleClick={openImageInNewTab}
-                        title="Double-click to open in new tab"
+                        title="Double-click to open in new tab. Zoom dan geser untuk melihat detail."
+                        onClick={() => {
+                          if (scale <= 1.0) {
+                            setScale(1.5);
+                            toast({
+                              title: "Gambar diperbesar",
+                              description: "Klik dan tahan untuk menggeser gambar. Gunakan mouse atau jari pada layar sentuh.",
+                              duration: 3500
+                            });
+                          }
+                        }}
                       />
                     </div>
                     <div className={`page-fold ${pageDirection ? 'active' : ''} ${pageDirection || ''}`}></div>
@@ -532,8 +554,9 @@ const ContractCard: React.FC = () => {
         }
 
         .document-image {
-          max-width: 85%;
-          max-height: 76%;
+          width: auto;
+          max-width: 82%;
+          max-height: 72%;
           object-fit: contain;
           box-shadow: 0 5px 25px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 0, 0, 0.4);
           border: 2px solid rgba(170, 150, 120, 0.5);
