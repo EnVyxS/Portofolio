@@ -308,12 +308,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
               isDialogPersistent(text) ? (
                 <div className="waiting-interaction-hint">Waiting for your action...</div>
               ) : (
-                // Hanya tampilkan "Auto-continues" untuk dialog utama (bukan dialog hover/idle/contract)
-                dialogSource === 'main' && 
-                !dialogController.isShowingPostResetDialog() && 
-                !hoverDialogController.isTypingHoverDialog() && (
-                  <div className="auto-continue-hint">Auto-continues in a moment...</div>
-                )
+                <div className="auto-continue-hint">Auto-continues in a moment...</div>
               )
             )}
           </div>

@@ -4,7 +4,7 @@ import { FaScroll, FaSearchPlus, FaSearchMinus, FaArrowLeft, FaArrowRight, FaFil
 import DialogController from '../controllers/dialogController';
 import { useAudio } from '../context/AudioManager';
 
-// Import sound
+// Import swipe sound
 import swipeSoundSrc from '@assets/Screen swipe sound effect (mp3cut.net).m4a';
 
 // Respon variasi saat kartu diklik
@@ -74,9 +74,8 @@ const ContractCard: React.FC = () => {
   // Audio reference for swipe sound
   const swipeSoundRef = useRef<HTMLAudioElement | null>(null);
   
-  // Initialize audio element on component mount
+  // Initialize swipe sound audio on component mount
   useEffect(() => {
-    // Setup swipe sound
     swipeSoundRef.current = new Audio(swipeSoundSrc);
     swipeSoundRef.current.volume = 0.3; // Set appropriate volume
     
@@ -209,16 +208,6 @@ const ContractCard: React.FC = () => {
     if (originalVolume !== null) {
       setVolume(originalVolume);
     }
-    
-    // Tampilkan dialog acak dari CONTRACT_RESPONSES
-    // Pilih dialog acak
-    const randomIndex = Math.floor(Math.random() * CONTRACT_RESPONSES.length);
-    const responseText = CONTRACT_RESPONSES[randomIndex];
-    
-    // Tampilkan dialog segera, tanpa delay
-    dialogController.showCustomDialog(responseText, (text, isComplete) => {
-      console.log("Showing contract close dialog:", text, isComplete);
-    });
     
     setIsOpen(false);
     setCurrentIndex(0);
