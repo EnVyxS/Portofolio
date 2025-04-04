@@ -1,5 +1,6 @@
 import ElevenLabsService from "../services/elevenlabsService";
 import DialogController from "./dialogController";
+import IdleTimeoutController from "./idleTimeoutController";
 import { debounce } from "../lib/utils";
 
 // Jenis link yang mungkin di-hover
@@ -168,7 +169,24 @@ class HoverDialogController {
 
     // Jika sama dengan hover terakhir, abaikan
     if (this.lastHoveredLink === linkType) return;
-
+    
+    // Get category of the current hovered link
+    const currentCategory = this.getLinkCategory(linkType);
+    const previousCategory = this.getLinkCategory(this.lastHoveredLink);
+    
+    // Determine overall total utterances across all main categories (excluding annoyance)
+    const totalUtterances = 
+      this.categoryUtteranceCount.interruption.contact + 
+      this.categoryUtteranceCount.interruption.social +
+      this.categoryUtteranceCount.completed.contact +
+      this.categoryUtteranceCount.completed.social +
+      this.categoryUtteranceCount.transition.contactToSocial +
+      this.categoryUtteranceCount.transition.socialToContact;
+    
+    // Always increment hoverCount for tracking excessive hovering
+    this.hoverCount++;
+    
+    // Call the actual handler with debounce
     this.debouncedHoverHandler(linkType);
   }
 
@@ -331,16 +349,42 @@ class HoverDialogController {
       this.dialogController.isCurrentlyTyping = () => false;
     }
 
+    // Determine overall total utterances across all main categories (excluding annoyance)
+    const totalUtterances = 
+      this.categoryUtteranceCount.interruption.contact + 
+      this.categoryUtteranceCount.interruption.social +
+      this.categoryUtteranceCount.completed.contact +
+      this.categoryUtteranceCount.completed.social +
+      this.categoryUtteranceCount.transition.contactToSocial +
+      this.categoryUtteranceCount.transition.socialToContact;
+    
     // Jika user terlalu banyak hover bolak-balik, tampilkan dialog kesal
-    if (this.hoverCount > 5) {
+    // Jika sudah diucapkan 2x untuk semua kategori, gunakan annoyance level pertama
+    if (totalUtterances >= 8 && this.hoverCount > 15) {
+      // Very annoyed - level 2, trigger idleTimeoutController (if available)
+      // This will cause the punch effect from idleTimeoutController
+      try {
+        const idleController = IdleTimeoutController.getInstance();
+        
+        if (idleController && idleController.startExcessiveHoverTimers) {
+          console.log("Triggering excessive hover punishment via IdleTimeoutController");
+          idleController.startExcessiveHoverTimers();
+        }
+      } catch (e) {
+        console.error("Could not trigger IdleTimeoutController:", e);
+      }
+      
+      // Very annoyed response
       const annoyedTexts = HOVER_DIALOGS.annoyance.secondLevel;
       const randomIndex = Math.floor(Math.random() * annoyedTexts.length);
       dialogText = annoyedTexts[randomIndex];
-    } else if (this.hoverCount > 3) {
+      console.log("Excessive hovering detected! Using second level annoyance dialog");
+    } else if (totalUtterances >= 6) {
+      // Moderately annoyed - level 1
       const annoyedTexts = HOVER_DIALOGS.annoyance.firstLevel;
       const randomIndex = Math.floor(Math.random() * annoyedTexts.length);
       dialogText = annoyedTexts[randomIndex];
-      this.hoverCount++;
+      console.log("All categories reached limit! Using first level annoyance dialog");
     }
     // Jika kategori berubah (dari sosial ke kontak atau sebaliknya)
     else if (
