@@ -1,0 +1,70 @@
+const HOVER_DIALOGS = {
+  // Saat DIVA JUAN sedang berbicara (interupsi)
+  interruption: {
+    contact: [
+      "Hmph... In a rush, are we? Fine. Tell me what you need done.",
+      "Can't wait till I'm done talking? Fine. What do you want?",
+      "Interrupting me? Rude. But I'm listening.",
+      "Not even letting me finish? Fine, what's the contract?",
+      "Hmm. Impatient, aren't you? What is it?",
+    ],
+    social: [
+      "Not listening, huh? Fine. Decide after you've checked.",
+      "My story's boring you? Go on then, look elsewhere.",
+      "Hmm. Distracted already? Go ahead, check it out.",
+      "Prefer looking around than listening? Your choice.",
+      "Lost interest so quickly? Whatever. Go look.",
+    ],
+  },
+  // Saat DIVA JUAN sudah selesai berbicara
+  completed: {
+    contact: [
+      "Straight to the point—I like that. Fine. Give me the contract.",
+      "Business it is then. What's the job?",
+      "Contract details? Let's hear it.",
+      "Talk business. I'm listening.",
+      "Hmm. Cutting to the chase. Good.",
+    ],
+    social: [
+      "Need to check first before deciding? Fine. Not like I'm in a hurry.",
+      "Want to know more about me first? Suit yourself.",
+      "Curious about my past work? Take a look.",
+      "Checking my credentials? Smart. Not that I care.",
+      "Due diligence, huh? Look all you want.",
+    ],
+  },
+  // Transisi antar kategori
+  transition: {
+    socialToContact: [
+      "Took your time, didn't you? Fine. Hand me the damn contract.",
+      "Done looking? Ready for business now?",
+      "Satisfied with what you found? Let's talk work.",
+      "Seen enough? What's the job then?",
+      "Research complete? Let's hear about the contract.",
+    ],
+    contactToSocial: [
+      "Fine. Go ahead, check it first.",
+      "Having second thoughts? Look around then.",
+      "Changed your mind? Go on, look me up.",
+      "Not convinced yet? See for yourself.",
+      "Hmm. Still uncertain? Check my background.",
+    ],
+  },
+  // Saat user bermain-main (bolak-balik hover)
+  annoyance: {
+    firstLevel: [
+      "Talk... You got a job, or just wasting my time?",
+      "Make up your mind. I don't have all day.",
+      "Hmm. This back and forth is getting irritating.",
+      "Decide already. Contract or not?",
+      "Getting annoyed with the indecision here.",
+    ],
+    secondLevel: [
+      "Arghh... whatever you want. I'm done.",
+      "That's it. I'm done with this nonsense.",
+      "Enough of this. Make a choice or leave me be.",
+      "HAHH...I've lost my patience. We're done here.",
+      "I'm through with this game. Decide or go away.",
+    ],
+  },
+};

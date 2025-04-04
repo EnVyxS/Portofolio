@@ -93,6 +93,17 @@ class HoverDialogController {
   private isHandlingHover: boolean = false;
   private hasInteractedWithHover: boolean = false;
   private processedTexts: Set<string> = new Set(); // Menyimpan teks yang sudah ditampilkan
+  
+  // Menyimpan jumlah kalimat yang sudah diucapkan berdasarkan kategori
+  private categoryUtteranceCount: {
+    interruption: { contact: number; social: number; };
+    completed: { contact: number; social: number; };
+    transition: { socialToContact: number; contactToSocial: number; };
+  } = {
+    interruption: { contact: 0, social: 0 },
+    completed: { contact: 0, social: 0 },
+    transition: { socialToContact: 0, contactToSocial: 0 }
+  };
 
   // Debounce function untuk menghindari terlalu banyak trigger saat hover
   private debouncedHoverHandler = debounce(
@@ -285,9 +296,19 @@ class HoverDialogController {
     let dialogText = "";
 
     // Fungsi helper untuk mendapatkan dialog acak dari array
+    // Memastikan dialog yang dipilih belum pernah diucapkan
     const getRandomDialog = (dialogArray: string[]): string => {
-      const randomIndex = Math.floor(Math.random() * dialogArray.length);
-      return dialogArray[randomIndex];
+      // Filter dialog yang belum pernah diucapkan
+      const unusedDialogs = dialogArray.filter(dialog => !this.processedTexts.has(dialog));
+      
+      // Jika semua dialog sudah diucapkan, gunakan annoyance dialog sebagai fallback
+      if (unusedDialogs.length === 0) {
+        return HOVER_DIALOGS.annoyance.firstLevel[Math.floor(Math.random() * HOVER_DIALOGS.annoyance.firstLevel.length)];
+      }
+      
+      // Pilih secara acak dari dialog yang belum diucapkan
+      const randomIndex = Math.floor(Math.random() * unusedDialogs.length);
+      return unusedDialogs[randomIndex];
     };
 
     // Fungsi helper untuk mengecek apakah dialog utama sedang berlangsung (interruption detection)
@@ -326,17 +347,28 @@ class HoverDialogController {
       previousCategory !== "none" &&
       currentCategory !== previousCategory
     ) {
+      // Cek apakah sudah mencapai batas 2 ucapan untuk kategori ini
       if (previousCategory === "social" && currentCategory === "contact") {
-        const texts = HOVER_DIALOGS.transition.socialToContact;
-        const randomIndex = Math.floor(Math.random() * texts.length);
-        dialogText = texts[randomIndex];
+        if (this.categoryUtteranceCount.transition.socialToContact < 2) {
+          const texts = HOVER_DIALOGS.transition.socialToContact;
+          dialogText = getRandomDialog(texts);
+          this.categoryUtteranceCount.transition.socialToContact++;
+        } else {
+          // Jika sudah mencapai batas, gunakan annoyance dialog sebagai fallback
+          dialogText = HOVER_DIALOGS.annoyance.firstLevel[Math.floor(Math.random() * HOVER_DIALOGS.annoyance.firstLevel.length)];
+        }
       } else if (
         previousCategory === "contact" &&
         currentCategory === "social"
       ) {
-        const texts = HOVER_DIALOGS.transition.contactToSocial;
-        const randomIndex = Math.floor(Math.random() * texts.length);
-        dialogText = texts[randomIndex];
+        if (this.categoryUtteranceCount.transition.contactToSocial < 2) {
+          const texts = HOVER_DIALOGS.transition.contactToSocial;
+          dialogText = getRandomDialog(texts);
+          this.categoryUtteranceCount.transition.contactToSocial++;
+        } else {
+          // Jika sudah mencapai batas, gunakan annoyance dialog sebagai fallback
+          dialogText = HOVER_DIALOGS.annoyance.firstLevel[Math.floor(Math.random() * HOVER_DIALOGS.annoyance.firstLevel.length)];
+        }
       }
       this.hoverCount++;
     }
@@ -346,17 +378,35 @@ class HoverDialogController {
       const isInterruption = isDialogInProgress();
 
       if (currentCategory === "contact") {
-        const texts = isInterruption
-          ? HOVER_DIALOGS.interruption.contact
-          : HOVER_DIALOGS.completed.contact;
-        const randomIndex = Math.floor(Math.random() * texts.length);
-        dialogText = texts[randomIndex];
+        const category = isInterruption ? "interruption" : "completed";
+        const subCategory = "contact";
+        
+        // Cek apakah sudah mencapai batas 2 ucapan untuk kategori ini
+        if (this.categoryUtteranceCount[category][subCategory] < 2) {
+          const texts = isInterruption
+            ? HOVER_DIALOGS.interruption.contact
+            : HOVER_DIALOGS.completed.contact;
+          dialogText = getRandomDialog(texts);
+          this.categoryUtteranceCount[category][subCategory]++;
+        } else {
+          // Jika sudah mencapai batas, gunakan annoyance dialog sebagai fallback
+          dialogText = HOVER_DIALOGS.annoyance.firstLevel[Math.floor(Math.random() * HOVER_DIALOGS.annoyance.firstLevel.length)];
+        }
       } else if (currentCategory === "social") {
-        const texts = isInterruption
-          ? HOVER_DIALOGS.interruption.social
-          : HOVER_DIALOGS.completed.social;
-        const randomIndex = Math.floor(Math.random() * texts.length);
-        dialogText = texts[randomIndex];
+        const category = isInterruption ? "interruption" : "completed";
+        const subCategory = "social";
+        
+        // Cek apakah sudah mencapai batas 2 ucapan untuk kategori ini
+        if (this.categoryUtteranceCount[category][subCategory] < 2) {
+          const texts = isInterruption
+            ? HOVER_DIALOGS.interruption.social
+            : HOVER_DIALOGS.completed.social;
+          dialogText = getRandomDialog(texts);
+          this.categoryUtteranceCount[category][subCategory]++;
+        } else {
+          // Jika sudah mencapai batas, gunakan annoyance dialog sebagai fallback
+          dialogText = HOVER_DIALOGS.annoyance.firstLevel[Math.floor(Math.random() * HOVER_DIALOGS.annoyance.firstLevel.length)];
+        }
       }
 
       // Log status interupsi untuk debugging
@@ -367,16 +417,21 @@ class HoverDialogController {
       }
     }
 
-    // Cek apakah dialog ini sudah pernah ditampilkan sebelumnya
-    // Jika hoverCount > 5, selalu tampilkan dialog terakhir (walaupun sudah ditampilkan sebelumnya)
-    if (
-      dialogText &&
-      (!this.processedTexts.has(dialogText) || this.hoverCount > 5)
-    ) {
-      // Kecuali untuk dialog dari kategori jengkel level 2,
-      // tambahkan teks ke daftar yang sudah ditampilkan
-      const isAnnoyedLastLevel =
-        HOVER_DIALOGS.annoyance.secondLevel.includes(dialogText);
+    // Cek apakah dialog ini sudah pernah ditampilkan sebelumnya atau jika sudah melebihi batas kategori
+    if (dialogText) {
+      // Log untuk debugging kategori dan jumlah ucapan
+      console.log(`Hover dialog kategori: ${currentCategory} (${
+        isDialogInProgress() ? 'interruption' : 'completed'
+      }), telah diucapkan: ${
+        currentCategory === 'contact' 
+          ? this.categoryUtteranceCount[isDialogInProgress() ? 'interruption' : 'completed'].contact 
+          : this.categoryUtteranceCount[isDialogInProgress() ? 'interruption' : 'completed'].social
+      } kali`);
+      
+      // Kecuali untuk dialog dari kategori jengkel level 2, tambahkan teks ke daftar yang sudah ditampilkan
+      const isAnnoyedLastLevel = HOVER_DIALOGS.annoyance.secondLevel.includes(dialogText);
+      const isAnnoyedFirstLevel = HOVER_DIALOGS.annoyance.firstLevel.includes(dialogText);
+      
       if (!isAnnoyedLastLevel) {
         this.processedTexts.add(dialogText);
       }
@@ -387,12 +442,11 @@ class HoverDialogController {
       // Speak the dialog text menggunakan default voice
       await this.elevenlabsService.speakText(dialogText);
 
-      // Jika dialog jengkel terakhir, ini akan menjadi dialog terakhir sebelum menghilang
-      // Dialog box akan otomatis hilang karena sudah ditandai sebagai non-persistent di dialogToToneMap
+      // Log untuk informasi tambahan
       if (isAnnoyedLastLevel) {
-        console.log(
-          "DIVA JUAN jengkel dan dialog akan menghilang setelah selesai",
-        );
+        console.log("DIVA JUAN sangat jengkel (level 2) dan dialog akan menghilang setelah selesai");
+      } else if (isAnnoyedFirstLevel) {
+        console.log("DIVA JUAN mulai jengkel (level 1)");
       }
     }
 
@@ -418,6 +472,13 @@ class HoverDialogController {
     this.hasInteractedWithHover = false;
     this.processedTexts.clear(); // Clear set teks yang sudah ditampilkan
     this.stopTyping();
+    
+    // Reset category utterance counts
+    this.categoryUtteranceCount = {
+      interruption: { contact: 0, social: 0 },
+      completed: { contact: 0, social: 0 },
+      transition: { socialToContact: 0, contactToSocial: 0 }
+    };
   }
 }
 
