@@ -336,7 +336,8 @@ class HoverDialogController {
       if (idleController && 
           (idleController.isExcessiveHoverWarningShown() || 
            idleController.isFinalHoverWarningShown() || 
-           idleController.isPunchExecuted())) {
+           idleController.isPunchExecuted() ||
+           (idleController.isAnyIdleWarningActive && idleController.isAnyIdleWarningActive()))) {
         // Jika sudah ada dialog dari IdleTimeoutController, jangan interrupt
         console.log("IdleTimeoutController sedang menampilkan dialog, hover dialog diabaikan");
         this.isHandlingHover = false;

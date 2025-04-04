@@ -156,6 +156,17 @@ class IdleTimeoutController {
   public isPunchExecuted(): boolean {
     return this.hasBeenPunched;
   }
+  
+  // Method untuk mengecek apakah ada idle warning dialog yang aktif
+  public isAnyIdleWarningActive(): boolean {
+    return this.hasShownFirstWarning || 
+           this.hasShownSecondWarning || 
+           this.hasShownFinalWarning || 
+           this.hasBeenThrown ||
+           this.hasShownExcessiveHoverWarning ||
+           this.hasShownFinalHoverWarning ||
+           this.hasBeenPunched;
+  }
 
   // Cek apakah ada audio atau dialog yang sedang berjalan
   private isAudioOrDialogActive(): boolean {
@@ -492,7 +503,7 @@ class IdleTimeoutController {
     // Log removed
 
     // Tambahkan dialog peringatan untuk 'memukul'
-    const punchText = "THAT'S IT! I'M GOING TO SHUT YOU UP MYSELF!";
+    const punchText = "YOU ASKED FOR THIS.";
     this.showIdleWarning(punchText);
 
     // Notifikasi HoverDialogController bahwa idle timeout telah terjadi
