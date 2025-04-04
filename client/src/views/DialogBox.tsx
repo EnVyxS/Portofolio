@@ -19,22 +19,10 @@ function generateSimpleHash(text: string): string {
 }
 
 // Helper untuk menentukan apakah dialog perlu persistensi (tetap terbuka)
-// Versi sederhana: semua dialog autoplay kecuali yang memiliki pola tertentu
+// Versi sederhana: semua dialog menjadi non-persistent (auto-close)
 function isDialogPersistent(text: string): boolean {
-  // Dialog dari dialogModel.ts hampir semua non-persistent
-  // kita menggunakan pola false secara default
-  
-  // Dialog khusus (dari hover) yang perlu persistent
-  if (text.includes('?') && 
-      (text.includes('credentials') || 
-       text.includes('check') || 
-       text.includes('want to know') || 
-       text.includes('need to') || 
-       text.includes('convinced'))) {
-    return true;
-  }
-  
-  // Default: semua dialog regular autoplay (non-persistent)
+  // Buat semua dialog menjadi non-persistent agar otomatis hilang
+  // tanpa perlu diklik
   return false;
 }
 

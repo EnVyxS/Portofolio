@@ -121,8 +121,21 @@ const ContractCard: React.FC = () => {
   const handleContractClick = () => {
     if (!isOpen) {
       // Saat kontrak dibuka, tidak perlu dialog yang menggangu
-      // Setiap dialog yang saat ini berjalan harus dihentikan
+      // Hentikan dialog yang sedang berlangsung
       dialogController.stopTyping();
+      
+      // Pastikan elevenlabs berhenti berbicara
+      const elevenlabsService = dialogController.getElevenLabsService();
+      if (elevenlabsService) {
+        elevenlabsService.stopSpeaking();
+      }
+      
+      // Clear dialog box dengan memaksa callback dengan teks kosong
+      // Ini akan menghapus dialog yang aktif dari dialog box
+      const emptyCallback = dialogController.getTypewriterCallback();
+      if (emptyCallback) {
+        emptyCallback("", true);
+      }
       
       // Mencegah dialog ditampilkan saat kontrak terbuka dengan cara
       // memindahkan indeks dialog ke dialog terakhir (agar bisa dimulai dari awal lagi nanti)

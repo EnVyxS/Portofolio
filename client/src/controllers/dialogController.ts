@@ -91,11 +91,9 @@ class DialogController {
     this.typewriterCallback = callback;
     this.isTyping = true;
     
-    // Deteksi apakah dialog harus persistent berdasarkan konten dialog
-    if (dialog.persistent === undefined) {
-      // Deteksi berdasarkan dialog content (pertanyaan atau tidak)
-      dialog.persistent = dialog.text.includes('?');
-    }
+    // Buat semua dialog menjadi non-persistent
+    // Override apapun yang didefinisikan dalam dialog model
+    dialog.persistent = false;
     
     // Perkiraan durasi dialog berdasarkan panjang teks
     // Rata-rata pembacaan 12 karakter per detik (standar untuk bahasa Inggris - lebih lambat untuk DIVA JUAN)
@@ -206,11 +204,12 @@ class DialogController {
       // Pastikan audio benar-benar berhenti
       this.elevenlabsService.stopSpeaking();
       
-      // Buat dialog custom
+      // Buat dialog custom dengan flag persistent: false agar menghilang setelah selesai
       const customDialog: Dialog = {
         id: 9999, // ID khusus untuk dialog timeout
         text: text,
-        character: "DIVA JUAN NUR TAQARRUB" // Karakter untuk dialog timeout/idle
+        character: "DIVA JUAN NUR TAQARRUB", // Karakter untuk dialog timeout/idle
+        persistent: false // Pastikan dialog menghilang setelah selesai
       };
       
       // Tampilkan dialog custom
@@ -252,6 +251,16 @@ class DialogController {
   // Method untuk mengakses dialog model
   public getDialogModel(): DialogModel {
     return this.dialogModel;
+  }
+  
+  // Getter untuk mengakses ElevenLabsService
+  public getElevenLabsService() {
+    return this.elevenlabsService;
+  }
+  
+  // Getter untuk mengakses typewriter callback
+  public getTypewriterCallback() {
+    return this.typewriterCallback;
   }
 }
 

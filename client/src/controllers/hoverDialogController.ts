@@ -189,17 +189,8 @@ class HoverDialogController {
 
   // Helper untuk mengecek apakah dialog perlu persistent
   private isPersistent(text: string): boolean {
-    // Dialog yang sangat pendek atau adalah efek suara, selalu non-persistent
-    if (text.length < 15 || text === "........" || text.startsWith("*")) {
-      return false;
-    }
-
-    // Cek apakah ada tanda tanya (kemungkinan pertanyaan)
-    if (text.includes("?")) {
-      return true;
-    }
-
-    // Default untuk dialog umum: tidak persistent
+    // Buat semua dialog menjadi non-persistent (false) agar menghilang setelah selesai
+    // tanpa perlu klik lagi
     return false;
   }
 
