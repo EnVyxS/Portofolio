@@ -228,10 +228,8 @@ class DialogController {
       // Pastikan audio benar-benar berhenti
       this.elevenlabsService.stopSpeaking();
       
-      // Reset dialog model ke awal agar sequence selanjutnya normal
-      this.dialogModel.resetDialog();
-      
       // Tandai bahwa ini adalah dialog khusus setelah reset
+      // PENTING: Jangan reset dialog model ke awal, biarkan tetap pada posisi terakhir
       this.isPostResetDialog = true;
       
       // Tampilkan dialog return yang sudah didefinisikan

@@ -115,6 +115,8 @@ const ContractCard: React.FC = () => {
   
   // Track original volume to restore later
   const [originalVolume, setOriginalVolume] = useState<number | null>(null);
+  // Track if we've shown the contract response dialog this session
+  const [hasShownContractResponse, setHasShownContractResponse] = useState(false);
 
   const handleContractClick = () => {
     if (!isOpen) {
@@ -123,7 +125,7 @@ const ContractCard: React.FC = () => {
       dialogController.stopTyping();
       
       // Mencegah dialog ditampilkan saat kontrak terbuka dengan cara
-      // memindahkan indeks dialog ke dialog terakhir
+      // memindahkan indeks dialog ke dialog terakhir (agar bisa dimulai dari awal lagi nanti)
       const dialogs = dialogController.getDialogModel().getAllDialogs();
       const lastDialogIndex = dialogs.length - 1;
       dialogController.getDialogModel().setCurrentDialogIndex(lastDialogIndex);
@@ -215,6 +217,22 @@ const ContractCard: React.FC = () => {
     setIsOpen(false);
     setCurrentIndex(0);
     setScale(0.8); // Kembalikan ke default zoom 80%
+    
+    // Tampilkan dialog respon hanya jika belum pernah ditampilkan di sesi ini
+    if (!hasShownContractResponse) {
+      // Menunggu animasi close selesai baru menampilkan dialog
+      setTimeout(() => {
+        // Get random response from list
+        const randomIndex = Math.floor(Math.random() * CONTRACT_RESPONSES.length);
+        const responseText = CONTRACT_RESPONSES[randomIndex];
+        
+        // Tampilkan dialog dengan responseText
+        dialogController.showCustomDialog(responseText, () => {});
+        
+        // Tandai dialog sudah ditampilkan sekali di sesi ini
+        setHasShownContractResponse(true);
+      }, 500); // Tunggu 500ms agar animasi close modal selesai dulu
+    }
   };
 
   const openImageInNewTab = (e: React.MouseEvent) => {
