@@ -64,6 +64,9 @@ const ContractCard: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scale, setScale] = useState(0.8); // Default zoom 80%
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [position, setPosition] = useState({ x: 0, y: 0 }); // Posisi untuk panning/dragging
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const dialogController = DialogController.getInstance();
   const { setVolume, currentVolume } = useAudio();
   
@@ -129,12 +132,24 @@ const ContractCard: React.FC = () => {
 
   const handleZoomIn = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setScale(prev => Math.min(prev + 0.2, 3)); // Maksimal zoom 3x
+    const newScale = Math.min(scale + 0.2, 3); // Maksimal zoom 3x
+    setScale(newScale);
+    
+    // Reset posisi jika skalanya berubah dari 1 ke lebih besar (pertama kali zoom in)
+    if (scale <= 1 && newScale > 1) {
+      setPosition({ x: 0, y: 0 }); // Reset posisi
+    }
   };
 
   const handleZoomOut = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setScale(prev => Math.max(prev - 0.2, 0.5)); // Minimal zoom 0.5x
+    const newScale = Math.max(scale - 0.2, 0.5); // Minimal zoom 0.5x
+    setScale(newScale);
+    
+    // Reset posisi jika skala ≤ 1 (saat tidak bisa drag lagi)
+    if (newScale <= 1) {
+      setPosition({ x: 0, y: 0 }); // Reset posisi
+    }
   };
 
   const handleNextDoc = (e: React.MouseEvent) => {
@@ -149,6 +164,7 @@ const ContractCard: React.FC = () => {
       setTimeout(() => {
         setCurrentIndex(prev => prev + 1);
         setScale(0.8); // Reset zoom ke 80%
+        setPosition({ x: 0, y: 0 }); // Reset posisi saat ganti halaman
         
         // Beri jeda sedikit sebelum mengizinkan animasi lagi
         setTimeout(() => {
@@ -171,6 +187,7 @@ const ContractCard: React.FC = () => {
       setTimeout(() => {
         setCurrentIndex(prev => prev - 1);
         setScale(0.8); // Reset zoom ke 80%
+        setPosition({ x: 0, y: 0 }); // Reset posisi saat ganti halaman
         
         // Beri jeda sedikit sebelum mengizinkan animasi lagi
         setTimeout(() => {
@@ -192,6 +209,7 @@ const ContractCard: React.FC = () => {
     setIsOpen(false);
     setCurrentIndex(0);
     setScale(0.8); // Kembalikan ke default zoom 80%
+    setPosition({ x: 0, y: 0 }); // Reset posisi
   };
 
   const openImageInNewTab = (e: React.MouseEvent) => {
@@ -256,8 +274,42 @@ const ContractCard: React.FC = () => {
               
               <div className="contract-document-container">
                 <div 
-                  className={`document-content ${pageDirection ? `page-flip-${pageDirection}` : ''}`} 
-                  style={{ transform: `scale(${scale})` }}
+                  className={`document-content ${pageDirection ? `page-flip-${pageDirection}` : ''} ${isDragging ? 'dragging' : ''}`} 
+                  style={{ 
+                    transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
+                    cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
+                  }}
+                  onMouseDown={(e) => {
+                    // Hanya aktifkan dragging jika zoom lebih dari 1x
+                    if (scale > 1) {
+                      setIsDragging(true);
+                      setDragStart({
+                        x: e.clientX - position.x,
+                        y: e.clientY - position.y
+                      });
+                    }
+                  }}
+                  onMouseMove={(e) => {
+                    if (isDragging && scale > 1) {
+                      // Batas pergerakan - semakin tinggi zoom, semakin luas area gerak
+                      const maxMove = (scale - 1) * 300;
+                      
+                      const newX = e.clientX - dragStart.x;
+                      const newY = e.clientY - dragStart.y;
+                      
+                      // Batasi pergerakan dalam batas tertentu
+                      const clampedX = Math.max(Math.min(newX, maxMove), -maxMove);
+                      const clampedY = Math.max(Math.min(newY, maxMove), -maxMove);
+                      
+                      setPosition({ x: clampedX, y: clampedY });
+                    }
+                  }}
+                  onMouseUp={() => {
+                    setIsDragging(false);
+                  }}
+                  onMouseLeave={() => {
+                    setIsDragging(false);
+                  }}
                 >
                   <div className="document-header">
                     <h3 className="document-title">{IMAGE_TITLES[currentIndex]}</h3>
@@ -270,6 +322,7 @@ const ContractCard: React.FC = () => {
                       className="document-image"
                       onDoubleClick={openImageInNewTab}
                       title="Double-click to open in new tab"
+                      draggable="false" // Cegah drag default image
                     />
                     <div className={`page-fold ${pageDirection ? 'active' : ''} ${pageDirection || ''}`}></div>
                   </div>
@@ -434,6 +487,11 @@ const ContractCard: React.FC = () => {
           margin: 0 auto; /* Pastikan berada di tengah layar */
         }
         
+        .document-content.dragging {
+          transition: none; /* Hapus transisi saat melakukan drag untuk responsivitas langsung */
+          cursor: grabbing !important;
+        }
+        
         .document-header {
           margin-bottom: 20px;
           text-align: center;
@@ -506,13 +564,15 @@ const ContractCard: React.FC = () => {
         }
         
         .page-flip-next .book-container {
-          animation: flipNext 0.25s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+          animation: flipNext 0.35s cubic-bezier(0.645, 0.045, 0.355, 1.000);
           transform: translateX(-50%); /* Pertahankan posisi center saat animasi */
+          perspective-origin: left center; /* Animasi dari kiri ke kanan */
         }
         
         .page-flip-prev .book-container {
-          animation: flipPrev 0.25s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+          animation: flipPrev 0.35s cubic-bezier(0.645, 0.045, 0.355, 1.000);
           transform: translateX(-50%); /* Pertahankan posisi center saat animasi */
+          perspective-origin: right center; /* Animasi dari kanan ke kiri */
         }
         
         .page-shadow {
@@ -536,37 +596,77 @@ const ContractCard: React.FC = () => {
           top: 0;
           width: 0;
           height: 100%;
-          background: linear-gradient(to right, rgba(255,255,255,0.1), rgba(30,25,20,0.3));
-          box-shadow: -5px 0 15px rgba(0,0,0,0.25);
+          background: linear-gradient(to right, rgba(255,255,255,0.15), rgba(30,25,20,0.4));
+          box-shadow: -5px 0 20px rgba(0,0,0,0.35);
           z-index: 2;
           opacity: 0;
-          transition: all 0.1s ease-out;
+          transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          transform-origin: left center;
+          transform: skewX(2deg);
         }
         
         .page-fold.active {
           opacity: 1;
+          width: 40px; /* Lebar lipatan saat aktif */
+          animation: foldPulse 0.35s ease-in-out;
+        }
+        
+        @keyframes foldPulse {
+          0% { width: 0; opacity: 0; }
+          50% { width: 60px; opacity: 1; }
+          100% { width: 40px; opacity: 1; }
         }
         
         .page-fold.next {
           left: 0;
+          transform-origin: left center;
+          transform: skewX(2deg);
         }
         
         .page-fold.prev {
           right: 0;
-          background: linear-gradient(to left, rgba(255,255,255,0.1), rgba(30,25,20,0.3));
-          box-shadow: 5px 0 15px rgba(0,0,0,0.25);
+          transform-origin: right center;
+          transform: skewX(-2deg);
+          background: linear-gradient(to left, rgba(255,255,255,0.15), rgba(30,25,20,0.4));
+          box-shadow: 5px 0 20px rgba(0,0,0,0.35);
         }
         
         @keyframes flipNext {
-          0% { transform: translateX(-50%) rotateY(0deg); }
-          50% { transform: translateX(-50%) rotateY(-15deg); }
-          100% { transform: translateX(-50%) rotateY(0deg); }
+          0% { 
+            transform: translateX(-50%) rotateY(0deg); 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); 
+          }
+          25% { 
+            transform: translateX(-52%) rotateY(-10deg); 
+            box-shadow: -10px 5px 25px rgba(0, 0, 0, 0.4); 
+          }
+          75% { 
+            transform: translateX(-48%) rotateY(-20deg); 
+            box-shadow: -20px 5px 35px rgba(0, 0, 0, 0.5); 
+          }
+          100% { 
+            transform: translateX(-50%) rotateY(0deg); 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); 
+          }
         }
         
         @keyframes flipPrev {
-          0% { transform: translateX(-50%) rotateY(0deg); }
-          50% { transform: translateX(-50%) rotateY(15deg); }
-          100% { transform: translateX(-50%) rotateY(0deg); }
+          0% { 
+            transform: translateX(-50%) rotateY(0deg); 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); 
+          }
+          25% { 
+            transform: translateX(-48%) rotateY(10deg); 
+            box-shadow: 10px 5px 25px rgba(0, 0, 0, 0.4); 
+          }
+          75% { 
+            transform: translateX(-52%) rotateY(20deg); 
+            box-shadow: 20px 5px 35px rgba(0, 0, 0, 0.5); 
+          }
+          100% { 
+            transform: translateX(-50%) rotateY(0deg); 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); 
+          }
         }
 
         .pdf-container {
