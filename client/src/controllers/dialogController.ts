@@ -229,27 +229,30 @@ class DialogController {
           character: "DIVA JUAN NUR TAQARRUB" // Karakter untuk dialog timeout/idle
         };
         
-        // Periksa dulu apakah ini adalah CONTRACT_RESPONSES dari ContractCard
-        // CONTRACT_RESPONSES tidak boleh diubah ke 'hover' karena sudah diatur dari ContractCard
+        // Periksa tipe dialog berdasarkan teksnya
         try {
           // Import HoverDialogController jika belum diimport
           const hoverDialogController = HoverDialogController.getInstance();
           
-          // Cek apakah dialog ini adalah dari ContractCard
-          // Dengan memeriksa apakah ini adalah salah satu dari text di CONTRACT_RESPONSES
-          
-          // Jangan ubah dialog source jika dialog ini berasal dari ContractCard
-          // ContractCard sudah mengatur ke 'main' sebelum memanggil showCustomDialog
+          // Identifikasi jenis dialog berdasarkan konten teks
           const isFromContract = text.includes("Didn't lie") || 
-                                text.includes("Not a liar") || 
-                                text.includes("Told you the truth") || 
-                                text.includes("Believe me now");
+                               text.includes("Not a liar") || 
+                               text.includes("Told you the truth") || 
+                               text.includes("Believe me now");
+                               
+          const isIdleWarning = text.includes("distracted") || 
+                               text.includes("paying attention") || 
+                               text.includes("Staring at me") || 
+                               text.includes("fuck you") ||
+                               text.includes("throw") ||
+                               text.includes("punch");
           
-          // Jika bukan dari ContractCard, maka ini adalah dialog custom lain 
-          // seperti idle warning yang memang harus ditampilkan sebagai 'hover'
-          if (!isFromContract && hoverDialogController.setDialogSource) {
-            console.log("[DialogController] Setting dialog source to 'hover' for idle/custom dialog");
-            hoverDialogController.setDialogSource('hover');
+          // Semua dialog khusus (CONTRACT_RESPONSES, IDLE_DIALOGS, punchText, throwText)
+          // harus selalu ditampilkan di dialogBox utama sebagai 'main'
+          if (hoverDialogController.setDialogSource) {
+            // Semua dialog khusus ditampilkan sebagai 'main' untuk memastikan muncul di dialog box utama
+            console.log("[DialogController] Setting dialog source to 'main' for custom dialog");
+            hoverDialogController.setDialogSource('main');
           }
         } catch (e) {
           console.error("[DialogController] Error checking/setting dialog source:", e);

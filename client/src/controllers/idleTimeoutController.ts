@@ -437,6 +437,12 @@ class IdleTimeoutController {
       
       console.log(`[IdleTimeoutController] Showing warning message: "${text}"`);
       
+      // Set dialog source ke 'main' terlebih dahulu untuk memastikan teks muncul di dialog box utama
+      if (this.hoverDialogController.setDialogSource) {
+        console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing idle warning");
+        this.hoverDialogController.setDialogSource('main');
+      }
+      
       // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
       setTimeout(() => {
         // Tampilkan dialog peringatan dengan text custom
@@ -460,6 +466,14 @@ class IdleTimeoutController {
 
     // Tambahkan dialog peringatan untuk 'melempar'
     const throwText = "That's it. GET OUT OF MY SIGHT!";
+    
+    // Atur dialogSource ke 'main' sebelum menampilkan peringatan
+    // untuk memastikan teks muncul di dialog box utama
+    if (this.hoverDialogController.setDialogSource) {
+      console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing throw dialog");
+      this.hoverDialogController.setDialogSource('main');
+    }
+    
     this.showIdleWarning(throwText);
     
     // Pastikan bahwa dialog controller tahu ini adalah post-reset dialog
@@ -511,6 +525,14 @@ class IdleTimeoutController {
 
     // Tambahkan dialog peringatan untuk 'memukul'
     const punchText = "YOU ASKED FOR THIS.";
+    
+    // Atur dialogSource ke 'main' sebelum menampilkan peringatan
+    // untuk memastikan teks muncul di dialog box utama
+    if (this.hoverDialogController.setDialogSource) {
+      console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing punch dialog");
+      this.hoverDialogController.setDialogSource('main');
+    }
+    
     this.showIdleWarning(punchText);
 
     // Notifikasi HoverDialogController bahwa idle timeout telah terjadi
