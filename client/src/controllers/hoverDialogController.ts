@@ -95,6 +95,13 @@ class HoverDialogController {
   private hasInteractedWithHover: boolean = false;
   private processedTexts: Set<string> = new Set(); // Menyimpan teks yang sudah ditampilkan
   
+  // Flag untuk kontrol annoyance level agar hanya ditampilkan sekali per sesi
+  private hasShownFirstLevelAnnoyance: boolean = false;
+  private hasShownSecondLevelAnnoyance: boolean = false;
+  
+  // Flag untuk kontrol jika idle timeout telah terjadi
+  private hasIdleTimeoutOccurred: boolean = false;
+  
   // Menyimpan jumlah kalimat yang sudah diucapkan berdasarkan kategori
   private categoryUtteranceCount: {
     interruption: { contact: number; social: number; };
@@ -142,6 +149,11 @@ class HoverDialogController {
   public setHasInteractedWithHover(value: boolean): void {
     this.hasInteractedWithHover = value;
   }
+  
+  // Method untuk mengatur status idle timeout dari IdleTimeoutController
+  public setIdleTimeoutOccurred(value: boolean): void {
+    this.hasIdleTimeoutOccurred = value;
+  }
 
   // Method untuk menentukan apakah link termasuk kategori kontak atau sosial
   private getLinkCategory(
@@ -173,6 +185,21 @@ class HoverDialogController {
     // Get category of the current hovered link
     const currentCategory = this.getLinkCategory(linkType);
     const previousCategory = this.getLinkCategory(this.lastHoveredLink);
+    
+    // Jika idle timeout sudah terjadi, tidak perlu menampilkan hover dialog lagi
+    if (this.hasIdleTimeoutOccurred) {
+      console.log("Idle timeout telah terjadi, hover dialog diabaikan");
+      this.lastHoveredLink = linkType; // Update last hovered link tanpa trigger dialog
+      return;
+    }
+    
+    // Jika perpindahan dalam kategori yang sama (LinkedIn ke GitHub atau Email ke WhatsApp)
+    // Maka tidak perlu memunculkan dialog
+    if (previousCategory !== "none" && currentCategory === previousCategory) {
+      console.log(`Perpindahan dalam kategori yang sama: ${previousCategory} -> ${currentCategory}, dialog diabaikan`);
+      this.lastHoveredLink = linkType; // Update last hovered link tanpa trigger dialog
+      return;
+    }
     
     // Determine overall total utterances across all main categories (excluding annoyance)
     const totalUtterances = 
@@ -360,7 +387,7 @@ class HoverDialogController {
     
     // Jika user terlalu banyak hover bolak-balik, tampilkan dialog kesal
     // Jika sudah diucapkan 2x untuk semua kategori, gunakan annoyance level pertama
-    if (totalUtterances >= 8 && this.hoverCount > 15) {
+    if (totalUtterances >= 8 && this.hoverCount > 15 && !this.hasShownSecondLevelAnnoyance) {
       // Very annoyed - level 2, trigger idleTimeoutController (if available)
       // This will cause the punch effect from idleTimeoutController
       try {
@@ -374,17 +401,19 @@ class HoverDialogController {
         console.error("Could not trigger IdleTimeoutController:", e);
       }
       
-      // Very annoyed response
+      // Very annoyed response - hanya ditampilkan sekali
+      this.hasShownSecondLevelAnnoyance = true;
       const annoyedTexts = HOVER_DIALOGS.annoyance.secondLevel;
       const randomIndex = Math.floor(Math.random() * annoyedTexts.length);
       dialogText = annoyedTexts[randomIndex];
-      console.log("Excessive hovering detected! Using second level annoyance dialog");
-    } else if (totalUtterances >= 6) {
-      // Moderately annoyed - level 1
+      console.log("Excessive hovering detected! Using second level annoyance dialog (only once)");
+    } else if (totalUtterances >= 6 && !this.hasShownFirstLevelAnnoyance) {
+      // Moderately annoyed - level 1 - hanya ditampilkan sekali
+      this.hasShownFirstLevelAnnoyance = true;
       const annoyedTexts = HOVER_DIALOGS.annoyance.firstLevel;
       const randomIndex = Math.floor(Math.random() * annoyedTexts.length);
       dialogText = annoyedTexts[randomIndex];
-      console.log("All categories reached limit! Using first level annoyance dialog");
+      console.log("All categories reached limit! Using first level annoyance dialog (only once)");
     }
     // Jika kategori berubah (dari sosial ke kontak atau sebaliknya)
     else if (
@@ -516,6 +545,11 @@ class HoverDialogController {
     this.hasInteractedWithHover = false;
     this.processedTexts.clear(); // Clear set teks yang sudah ditampilkan
     this.stopTyping();
+    
+    // Reset annoyance flags
+    this.hasShownFirstLevelAnnoyance = false;
+    this.hasShownSecondLevelAnnoyance = false;
+    this.hasIdleTimeoutOccurred = false;
     
     // Reset category utterance counts
     this.categoryUtteranceCount = {

@@ -425,6 +425,17 @@ class IdleTimeoutController {
     this.hasBeenReset = true;
     this.hasInteractedAfterReset = false;
     
+    // Notifikasi HoverDialogController bahwa idle timeout telah terjadi
+    try {
+      // Ini akan mencegah hover dialog muncul lagi setelah idle timeout
+      if (this.hoverDialogController && typeof this.hoverDialogController.setIdleTimeoutOccurred === 'function') {
+        this.hoverDialogController.setIdleTimeoutOccurred(true);
+        console.log("Notified HoverDialogController that idle timeout has occurred");
+      }
+    } catch (e) {
+      console.error("Could not notify HoverDialogController about idle timeout:", e);
+    }
+    
     // Jalankan callback jika ada setelah delay singkat agar dialog dapat dibaca
     setTimeout(() => {
       if (this.throwUserCallback) {
@@ -445,6 +456,17 @@ class IdleTimeoutController {
     // Tambahkan dialog peringatan untuk 'memukul'
     const punchText = "You're really asking for it...";
     this.showIdleWarning(punchText);
+    
+    // Notifikasi HoverDialogController bahwa idle timeout telah terjadi
+    try {
+      // Ini akan mencegah hover dialog muncul lagi setelah idle timeout
+      if (this.hoverDialogController && typeof this.hoverDialogController.setIdleTimeoutOccurred === 'function') {
+        this.hoverDialogController.setIdleTimeoutOccurred(true);
+        console.log("Notified HoverDialogController that excessive hover punishment has occurred");
+      }
+    } catch (e) {
+      console.error("Could not notify HoverDialogController about excessive hover punishment:", e);
+    }
     
     // Jalankan callback jika ada setelah delay singkat
     setTimeout(() => {
@@ -477,6 +499,16 @@ class IdleTimeoutController {
     this.hasInteractedAfterReset = false;
     
     this.lastInteractionTime = Date.now();
+    
+    // Reset juga status idle timeout di HoverDialogController
+    try {
+      if (this.hoverDialogController && typeof this.hoverDialogController.setIdleTimeoutOccurred === 'function') {
+        this.hoverDialogController.setIdleTimeoutOccurred(false);
+        console.log("Reset HoverDialogController idle timeout status");
+      }
+    } catch (e) {
+      console.error("Could not reset HoverDialogController idle timeout status:", e);
+    }
     
     // Setup timer baru
     this.setupIdleTimers();
