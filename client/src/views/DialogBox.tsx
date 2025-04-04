@@ -250,6 +250,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       setCharacterName('DIVA JUAN NUR TAQARRUB'); // Dialog hover dari DIVA JUAN (idle warnings juga)
     });
     
+    // Buat function untuk set dialogSource dari luar komponen
+    hoverDialogController.setDialogSource = (source: 'main' | 'hover') => {
+      setDialogSource(source);
+      if (source === 'main') {
+        setCharacterName('DIVA JUAN NUR TAQARRUB');
+      }
+    };
+    
     // Periksa apakah hover dialog sedang aktif (typing)
     const isHoverDialogActive = hoverDialogController.isTypingHoverDialog();
     

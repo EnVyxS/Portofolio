@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaScroll, FaSearchPlus, FaSearchMinus, FaArrowLeft, FaArrowRight, FaFilePdf } from 'react-icons/fa';
 import DialogController from '../controllers/dialogController';
+import HoverDialogController from '../controllers/hoverDialogController';
 import { useAudio } from '../context/AudioManager';
 
 // Import sounds
@@ -236,6 +237,8 @@ const ContractCard: React.FC = () => {
     const randomIndex = Math.floor(Math.random() * CONTRACT_RESPONSES.length);
     const randomResponse = CONTRACT_RESPONSES[randomIndex];
     
+    // Jangan putar suara footstep saat menutup kontrak
+    
     // Hentikan dialog yang sedang berjalan
     dialogController.stopTyping();
     
@@ -247,8 +250,14 @@ const ContractCard: React.FC = () => {
     
     // Show custom dialog with the selected response setelah semua preset
     setTimeout(() => {
+      // Dapatkan instance HoverDialogController untuk set source
+      const hoverDialogController = HoverDialogController.getInstance();
+      
       dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
-        // Dialog callback function - no action needed here
+        // Set dialog source ke 'main' agar ditampilkan sebagai dialog utama, bukan dialog hover
+        if (hoverDialogController.setDialogSource) {
+          hoverDialogController.setDialogSource('main');
+        }
       });
     }, 300);
     
