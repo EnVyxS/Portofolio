@@ -327,6 +327,10 @@ class DialogModel {
       this.currentDialogIndex = index;
     }
   }
+  
+  public getCurrentIndex(): number {
+    return this.currentDialogIndex;
+  }
 
   public getAllDialogs(): Dialog[] {
     return [...this.dialogs];

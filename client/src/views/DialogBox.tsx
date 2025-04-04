@@ -199,9 +199,22 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           const charDelay = 50; // 50ms per karakter
           const autoplayDelay = Math.min(baseDelay + (textLength * charDelay), 8000); // maksimal 8 detik
           
-          autoPlayTimerRef.current = setTimeout(() => {
-            handleContinue();
-          }, autoplayDelay);
+          // Cek apakah ini adalah dialog terakhir dari dialogModel
+          const allDialogs = dialogController.getDialogModel().getAllDialogs();
+          const currentIndex = dialogController.getDialogModel().getCurrentIndex();
+          const isLastDialog = currentIndex >= allDialogs.length - 1;
+          
+          if (isLastDialog) {
+            // Jika ini dialog terakhir, hilangkan dialog box setelah 3 detik
+            autoPlayTimerRef.current = setTimeout(() => {
+              setIsDialogFinished(true);
+            }, 3000);
+          } else {
+            // Jika bukan dialog terakhir, lanjutkan ke dialog berikutnya seperti biasa
+            autoPlayTimerRef.current = setTimeout(() => {
+              handleContinue();
+            }, autoplayDelay);
+          }
         }
       }
     } else if (isComplete && dialogSource === 'hover') {
@@ -214,17 +227,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           // Reset dialog hover state
           hoverDialogController.resetHoverState();
           
-          // PERUBAHAN: Tidak kembali ke dialog utama jika sudah di mode hover
-          // Cukup biarkan dialog hover bertahan sebagai dialog terakhir
-          // atau hilangkan dialog box jika diperlukan
+          // Hilangkan dialog box
           setIsDialogFinished(true);
-          
-          // Jika ingin tetap menampilkan dialog box tanpa kembali ke dialog utama,
-          // bisa menggunakan pendekatan ini:
-          /*
-          setText("");
-          setCharacterName("");
-          */
         }, dismissDelay);
       }
     }
@@ -319,24 +323,43 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
               {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
             </button>
             
-            {/* Only show one button at a time based on dialog state */}
-            {isComplete ? (
-              <button 
-                className="just-text-button next-button"
-                onClick={handleContinue}
-              >
-                <span className="button-icon">→</span>
-                <span className="button-text">NEXT</span>
-              </button>
-            ) : (
-              <button 
-                className="just-text-button skip-button"
-                onClick={handleContinue}
-              >
-                <span className="button-icon">▶</span>
-                <span className="button-text">SKIP</span>
-              </button>
-            )}
+            {/* Tentukan apakah tombol NEXT/SKIP harus ditampilkan */}
+            {(() => {
+              // Untuk dialog hover, tidak perlu menampilkan tombol NEXT/SKIP
+              if (dialogSource === 'hover') {
+                return null;
+              }
+              
+              // Untuk dialog terakhir dari dialogModel, tidak perlu menampilkan tombol NEXT/SKIP
+              if (dialogSource === 'main') {
+                const allDialogs = dialogController.getDialogModel().getAllDialogs();
+                const currentIndex = dialogController.getDialogModel().getCurrentIndex();
+                const isLastDialog = currentIndex >= allDialogs.length - 1;
+                
+                if (isLastDialog) {
+                  return null;
+                }
+              }
+              
+              // Untuk dialog lainnya, tampilkan tombol NEXT/SKIP seperti biasa
+              return isComplete ? (
+                <button 
+                  className="just-text-button next-button"
+                  onClick={handleContinue}
+                >
+                  <span className="button-icon">→</span>
+                  <span className="button-text">NEXT</span>
+                </button>
+              ) : (
+                <button 
+                  className="just-text-button skip-button"
+                  onClick={handleContinue}
+                >
+                  <span className="button-icon">▶</span>
+                  <span className="button-text">SKIP</span>
+                </button>
+              );
+            })()}
           </div>
         </div>
       </div>
