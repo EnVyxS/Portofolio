@@ -283,35 +283,37 @@ const ContractCard: React.FC = () => {
       <style>{`
         .contract-card {
           position: fixed;
-          left: 15px; /* Dipindahkan 15px ke kanan */
-          top: 12px; /* Diturunkan sedikit dari atas */
-          background: rgba(30, 25, 20, 0.9);
-          color: #d4c9a8;
-          padding: 12px 10px 12px 15px;
-          border-radius: 5px;
-          border: 1px solid rgba(150, 130, 100, 0.4);
+          left: 25px; /* Diposisikan lebih ke kanan untuk sempurna */
+          top: 14px; /* Diturunkan sedikit lagi */
+          background: rgba(30, 25, 20, 0.92);
+          color: #e5d9b8;
+          padding: 12px 16px 12px 14px;
+          border-radius: 6px;
+          border: 1px solid rgba(170, 150, 120, 0.5);
           display: flex;
           flex-direction: row;
           align-items: center;
           cursor: pointer;
           z-index: 40;
           transition: all 0.3s ease;
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4), 0 0 5px rgba(255, 220, 150, 0.1);
         }
 
         .contract-card:hover {
-          transform: translateY(1px);
-          background: rgba(40, 35, 30, 0.95);
-          border-color: rgba(180, 160, 120, 0.6);
-          box-shadow: 0 0 15px rgba(0, 0, 0, 0.4), 0 0 5px rgba(255, 220, 150, 0.2);
+          transform: translateY(-1px);
+          background: rgba(45, 40, 35, 0.97);
+          border-color: rgba(200, 180, 140, 0.7);
+          box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5), 0 0 8px rgba(255, 220, 150, 0.25);
         }
 
         .contract-label {
-          margin-left: 8px;
+          margin-left: 10px;
           font-family: 'Trajan Pro', 'Cinzel', serif;
-          font-size: 0.7rem;
-          letter-spacing: 1px;
+          font-size: 0.75rem;
+          letter-spacing: 1.5px;
           text-transform: uppercase;
+          font-weight: 500;
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
         }
 
         .contract-overlay {
@@ -320,25 +322,25 @@ const ContractCard: React.FC = () => {
           left: 0;
           width: 100%;
           height: 100%;
-          background: rgba(0, 0, 0, 0.85);
+          background: rgba(0, 0, 0, 0.88);
           display: flex;
           justify-content: center;
           align-items: center;
           z-index: 100;
-          backdrop-filter: blur(3px);
+          backdrop-filter: blur(5px);
         }
 
         .contract-modal {
-          background: rgba(20, 16, 14, 0.95);
-          border: 1px solid rgba(150, 130, 100, 0.3);
-          border-radius: 2px;
-          width: 90%;
-          max-width: 900px;
-          height: 85vh;
+          background: rgba(25, 20, 18, 0.97);
+          border: 2px solid rgba(170, 150, 120, 0.4);
+          border-radius: 4px;
+          width: 92%;
+          max-width: 950px;
+          height: 88vh;
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+          box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 0, 0, 0.5), 0 0 8px rgba(255, 220, 150, 0.15);
           position: relative;
         }
 
@@ -346,46 +348,67 @@ const ContractCard: React.FC = () => {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 10px 15px;
-          background: rgba(30, 25, 20, 0.9);
-          border-bottom: 1px solid rgba(150, 130, 100, 0.2);
+          padding: 14px 20px;
+          background: rgba(35, 30, 25, 0.95);
+          border-bottom: 2px solid rgba(170, 150, 120, 0.35);
           flex-wrap: wrap;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+          position: relative;
+          z-index: 5;
         }
 
         .zoom-controls, .navigation-controls {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
         }
 
         .control-button {
-          background: rgba(40, 35, 30, 0.9);
-          color: #d4c9a8;
-          border: 1px solid rgba(150, 130, 100, 0.3);
-          border-radius: 2px;
-          width: 35px;
-          height: 35px;
+          background: rgba(45, 40, 35, 0.9);
+          color: #e5d9b8;
+          border: 1px solid rgba(170, 150, 120, 0.4);
+          border-radius: 4px;
+          width: 38px;
+          height: 38px;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
         .control-button:hover {
-          background: rgba(50, 45, 40, 0.95);
-          border-color: rgba(180, 160, 120, 0.5);
-          color: #f0eadc;
+          background: rgba(55, 50, 45, 0.95);
+          border-color: rgba(200, 180, 140, 0.7);
+          color: #f5eeda;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), 0 0 5px rgba(255, 220, 150, 0.2);
+        }
+
+        .control-button:active {
+          transform: translateY(0px);
+          box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
         }
 
         .control-button.disabled {
-          opacity: 0.4;
+          opacity: 0.35;
           cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
         }
 
         .close-button {
           font-size: 24px;
           font-weight: bold;
+          color: #f0e6cc;
+          background: rgba(60, 40, 30, 0.9);
+          transition: all 0.25s ease;
+        }
+        
+        .close-button:hover {
+          background: rgba(80, 50, 40, 0.95);
+          color: #fff;
         }
 
         .contract-document-container {
@@ -411,36 +434,57 @@ const ContractCard: React.FC = () => {
         }
         
         .document-header {
-          margin-bottom: 15px;
+          margin-bottom: 20px;
           text-align: center;
           width: 100%; /* Full width */
+          padding: 15px 10px 5px;
+          background: rgba(20, 16, 14, 0.7);
+          border-bottom: 1px solid rgba(170, 150, 120, 0.3);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
         
         .document-title {
           font-family: 'Trajan Pro', 'Cinzel', serif;
-          color: #d4c9a8;
-          font-size: 1.2rem;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-          letter-spacing: 1px;
+          color: #f0e6cc;
+          font-size: 1.4rem;
+          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 4px rgba(255, 220, 150, 0.2);
+          letter-spacing: 1.8px;
           margin: 0;
+          position: relative;
+          padding-bottom: 8px;
+          font-weight: 500;
+        }
+        
+        .document-title::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 60px;
+          height: 2px;
+          background: linear-gradient(90deg, rgba(170, 150, 120, 0), rgba(200, 180, 140, 0.8), rgba(170, 150, 120, 0));
         }
 
         .document-image {
-          max-width: 90%;
-          max-height: 80%;
+          max-width: 92%;
+          max-height: 84%;
           object-fit: contain;
-          box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
-          border: 1px solid rgba(150, 130, 100, 0.3);
-          transition: all 0.3s ease;
+          box-shadow: 0 5px 25px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 0, 0, 0.4);
+          border: 2px solid rgba(170, 150, 120, 0.5);
+          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
           cursor: zoom-in;
           display: block;
           margin: 0 auto; /* Center horizontally */
+          border-radius: 2px;
+          filter: brightness(1.1) contrast(1.05);
         }
         
         .document-image:hover {
-          transform: scale(1.02);
-          box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), 0 0 8px rgba(255, 220, 150, 0.2);
-          border-color: rgba(180, 160, 120, 0.5);
+          transform: scale(1.025) translateY(-2px);
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 12px rgba(255, 220, 150, 0.25);
+          border-color: rgba(200, 180, 140, 0.8);
+          filter: brightness(1.15) contrast(1.08);
         }
         
         /* Animasi transisi buku */
@@ -583,40 +627,62 @@ const ContractCard: React.FC = () => {
 
         @media (max-width: 768px) {
           .contract-card {
-            top: 4px; /* Konsisten dengan desktop */
-            left: 15px; /* Konsisten dengan desktop */
-            padding: 10px 12px 10px 8px;
+            top: 6px;
+            left: 22px; /* Konsisten dengan posisi desktop */
+            padding: 11px 14px 11px 12px;
           }
           
           .contract-label {
-            font-size: 0.6rem;
+            font-size: 0.65rem;
+            letter-spacing: 1.2px;
           }
           
           .contract-modal {
             width: 95%;
-            height: 85vh;
-            margin-top: 10px;
+            height: 88vh;
+            margin-top: 15px;
           }
           
           .contract-controls {
             flex-direction: row;
             justify-content: space-between;
-            gap: 8px;
-            padding: 8px;
+            gap: 10px;
+            padding: 12px 15px;
           }
           
           .control-button {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
           }
           
           .zoom-controls, .navigation-controls {
-            gap: 5px;
+            gap: 8px;
           }
           
           .page-indicator {
             font-size: 0.7rem;
-            min-width: 30px;
+            min-width: 32px;
+            letter-spacing: 0.5px;
+          }
+          
+          .document-title {
+            font-size: 1.2rem;
+            padding-bottom: 6px;
+          }
+          
+          .document-header {
+            padding: 12px 8px 3px;
+            margin-bottom: 15px;
+          }
+          
+          .document-title::after {
+            width: 50px;
+            height: 1.5px;
+          }
+          
+          .document-image {
+            max-width: 95%;
+            max-height: 82%;
           }
           
           .pdf-preview {
