@@ -30,13 +30,6 @@ const HOVER_DIALOGS = {
       "Prefer looking around than listening? Your choice.",
       "Lost interest so quickly? Whatever. Go look.",
     ],
-    professional: [
-      "Checking my professional background? Fine, but let me finish first.",
-      "My credentials interest you more than what I'm saying? Typical.",
-      "Interrupting to verify my experience? At least you're thorough.",
-      "Can't wait to see my career history? Patience isn't your strong suit.",
-      "More interested in my resume than my words? Go ahead then.",
-    ],
   },
   // Saat DIVA JUAN sudah selesai berbicara
   completed: {
@@ -54,13 +47,6 @@ const HOVER_DIALOGS = {
       "Checking my credentials? Smart. Not that I care.",
       "Due diligence, huh? Look all you want.",
     ],
-    professional: [
-      "Interested in my professional background? There's not much to see.",
-      "Checking if I'm qualified? I've done this longer than you've been alive.",
-      "My career history might surprise you. Not that I care if it does.",
-      "Professional experience? Yeah, I've got plenty. Too much, actually.",
-      "Looking at my professional side? It's just part of the package.",
-    ],
   },
   // Transisi antar kategori
   transition: {
@@ -77,34 +63,6 @@ const HOVER_DIALOGS = {
       "Changed your mind? Go on, look me up.",
       "Not convinced yet? See for yourself.",
       "Hmm. Still uncertain? Check my background.",
-    ],
-    professionalToContact: [
-      "Done reviewing my qualifications? Let's talk business now.",
-      "Satisfied with my experience? Good. Tell me about the contract.",
-      "Credentials check complete? Let's move on to business.",
-      "Seen enough of my resume? Fine. What's the job?",
-      "Professional assessment done? Now for the actual work.",
-    ],
-    contactToProfessional: [
-      "Need to verify my credentials first? Take your time.",
-      "Want proof of my skills before committing? Wise move.",
-      "Contract can wait? Fine, check my background first.",
-      "Trust issues? Go ahead, review my professional history.",
-      "Changed your mind? Fine, look at my qualifications.",
-    ],
-    socialToProfessional: [
-      "Projects not enough? Want to see my formal background too?",
-      "Want the official version now? Check away.",
-      "Code samples to resume, huh? Whatever you need.",
-      "From my projects to my career history? Be my guest.",
-      "GitHub not convincing enough? LinkedIn might help you decide.",
-    ],
-    professionalToSocial: [
-      "Resume too formal? My projects tell a better story.",
-      "CV doesn't show my real skills. Check my actual work.",
-      "Credentials are just paper. Want to see real proof?",
-      "Professional history isn't everything. See what I've built.",
-      "Formal background not enough? See my projects in action.",
     ],
   },
   // Saat user bermain-main (bolak-balik hover)
@@ -146,27 +104,13 @@ class HoverDialogController {
   
   // Menyimpan jumlah kalimat yang sudah diucapkan berdasarkan kategori
   private categoryUtteranceCount: {
-    interruption: { contact: number; social: number; professional: number; };
-    completed: { contact: number; social: number; professional: number; };
-    transition: { 
-      socialToContact: number; 
-      contactToSocial: number;
-      professionalToContact: number;
-      contactToProfessional: number;
-      socialToProfessional: number;
-      professionalToSocial: number;
-    };
+    interruption: { contact: number; social: number; };
+    completed: { contact: number; social: number; };
+    transition: { socialToContact: number; contactToSocial: number; };
   } = {
-    interruption: { contact: 0, social: 0, professional: 0 },
-    completed: { contact: 0, social: 0, professional: 0 },
-    transition: { 
-      socialToContact: 0, 
-      contactToSocial: 0,
-      professionalToContact: 0,
-      contactToProfessional: 0,
-      socialToProfessional: 0,
-      professionalToSocial: 0 
-    }
+    interruption: { contact: 0, social: 0 },
+    completed: { contact: 0, social: 0 },
+    transition: { socialToContact: 0, contactToSocial: 0 }
   };
 
   // Debounce function untuk menghindari terlalu banyak trigger saat hover
@@ -214,12 +158,10 @@ class HoverDialogController {
   // Method untuk menentukan apakah link termasuk kategori kontak atau sosial
   private getLinkCategory(
     linkType: HoverLinkType,
-  ): "contact" | "social" | "professional" | "none" {
+  ): "contact" | "social" | "none" {
     if (linkType === "whatsapp" || linkType === "email") {
       return "contact";
-    } else if (linkType === "linkedin") {
-      return "professional";
-    } else if (linkType === "github") {
+    } else if (linkType === "linkedin" || linkType === "github") {
       return "social";
     }
     return "none";
@@ -649,16 +591,9 @@ class HoverDialogController {
     
     // Reset category utterance counts
     this.categoryUtteranceCount = {
-      interruption: { contact: 0, social: 0, professional: 0 },
-      completed: { contact: 0, social: 0, professional: 0 },
-      transition: { 
-        socialToContact: 0, 
-        contactToSocial: 0,
-        professionalToContact: 0,
-        contactToProfessional: 0,
-        socialToProfessional: 0,
-        professionalToSocial: 0 
-      }
+      interruption: { contact: 0, social: 0 },
+      completed: { contact: 0, social: 0 },
+      transition: { socialToContact: 0, contactToSocial: 0 }
     };
   }
 }
