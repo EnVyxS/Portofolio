@@ -91,9 +91,11 @@ class DialogController {
     this.typewriterCallback = callback;
     this.isTyping = true;
     
-    // Buat semua dialog menjadi non-persistent
-    // Override apapun yang didefinisikan dalam dialog model
-    dialog.persistent = false;
+    // Deteksi apakah dialog harus persistent berdasarkan konten dialog
+    if (dialog.persistent === undefined) {
+      // Deteksi berdasarkan dialog content (pertanyaan atau tidak)
+      dialog.persistent = dialog.text.includes('?');
+    }
     
     // Perkiraan durasi dialog berdasarkan panjang teks
     // Rata-rata pembacaan 12 karakter per detik (standar untuk bahasa Inggris - lebih lambat untuk DIVA JUAN)
@@ -204,12 +206,11 @@ class DialogController {
       // Pastikan audio benar-benar berhenti
       this.elevenlabsService.stopSpeaking();
       
-      // Buat dialog custom dengan flag persistent: false agar menghilang setelah selesai
+      // Buat dialog custom
       const customDialog: Dialog = {
         id: 9999, // ID khusus untuk dialog timeout
         text: text,
-        character: "DIVA JUAN NUR TAQARRUB", // Karakter untuk dialog timeout/idle
-        persistent: false // Pastikan dialog menghilang setelah selesai
+        character: "DIVA JUAN NUR TAQARRUB" // Karakter untuk dialog timeout/idle
       };
       
       // Tampilkan dialog custom
@@ -227,8 +228,10 @@ class DialogController {
       // Pastikan audio benar-benar berhenti
       this.elevenlabsService.stopSpeaking();
       
+      // Reset dialog model ke awal agar sequence selanjutnya normal
+      this.dialogModel.resetDialog();
+      
       // Tandai bahwa ini adalah dialog khusus setelah reset
-      // PENTING: Jangan reset dialog model ke awal, biarkan tetap pada posisi terakhir
       this.isPostResetDialog = true;
       
       // Tampilkan dialog return yang sudah didefinisikan
@@ -251,16 +254,6 @@ class DialogController {
   // Method untuk mengakses dialog model
   public getDialogModel(): DialogModel {
     return this.dialogModel;
-  }
-  
-  // Getter untuk mengakses ElevenLabsService
-  public getElevenLabsService() {
-    return this.elevenlabsService;
-  }
-  
-  // Getter untuk mengakses typewriter callback
-  public getTypewriterCallback() {
-    return this.typewriterCallback;
   }
 }
 

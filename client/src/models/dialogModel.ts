@@ -12,7 +12,7 @@ export const RETURN_DIALOG: Dialog = {
   character: "DIVA JUAN NUR TAQARRUB",
   text: "Now what, you little filth!? Back for more punishment?",
   voiceId: "geralt",
-  persistent: false // Ubah menjadi false agar dialog menghilang setelah selesai
+  persistent: true
 };
 
 class DialogModel {

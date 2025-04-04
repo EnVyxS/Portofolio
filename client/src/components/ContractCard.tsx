@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaScroll, FaSearchPlus, FaSearchMinus, FaArrowLeft, FaArrowRight, FaFilePdf } from 'react-icons/fa';
 import DialogController from '../controllers/dialogController';
 import { useAudio } from '../context/AudioManager';
-import { useToast, toast } from '../hooks/use-toast';
 
 // Import swipe sound
 import swipeSoundSrc from '@assets/Screen swipe sound effect (mp3cut.net).m4a';
@@ -61,24 +60,12 @@ const getDocumentName = (path: string) => {
   return fileName.length > 20 ? fileName.substring(0, 17) + '...' : fileName;
 };
 
-// Interface untuk posisi
-interface Position {
-  x: number;
-  y: number;
-}
-
 const ContractCard: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scale, setScale] = useState(0.8); // Default zoom 80%
   const [currentIndex, setCurrentIndex] = useState(0);
   const dialogController = DialogController.getInstance();
   const { setVolume, currentVolume } = useAudio();
-  const { toast } = useToast();
-  
-  // State untuk posisi panning (geser) gambar
-  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState<Position>({ x: 0, y: 0 });
   
   // Audio reference for swipe sound
   const swipeSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -115,30 +102,15 @@ const ContractCard: React.FC = () => {
   
   // Track original volume to restore later
   const [originalVolume, setOriginalVolume] = useState<number | null>(null);
-  // Track if we've shown the contract response dialog this session
-  const [hasShownContractResponse, setHasShownContractResponse] = useState(false);
 
   const handleContractClick = () => {
     if (!isOpen) {
       // Saat kontrak dibuka, tidak perlu dialog yang menggangu
-      // Hentikan dialog yang sedang berlangsung
+      // Setiap dialog yang saat ini berjalan harus dihentikan
       dialogController.stopTyping();
       
-      // Pastikan elevenlabs berhenti berbicara
-      const elevenlabsService = dialogController.getElevenLabsService();
-      if (elevenlabsService) {
-        elevenlabsService.stopSpeaking();
-      }
-      
-      // Clear dialog box dengan memaksa callback dengan teks kosong
-      // Ini akan menghapus dialog yang aktif dari dialog box
-      const emptyCallback = dialogController.getTypewriterCallback();
-      if (emptyCallback) {
-        emptyCallback("", true);
-      }
-      
       // Mencegah dialog ditampilkan saat kontrak terbuka dengan cara
-      // memindahkan indeks dialog ke dialog terakhir (agar bisa dimulai dari awal lagi nanti)
+      // memindahkan indeks dialog ke dialog terakhir
       const dialogs = dialogController.getDialogModel().getAllDialogs();
       const lastDialogIndex = dialogs.length - 1;
       dialogController.getDialogModel().setCurrentDialogIndex(lastDialogIndex);
@@ -157,17 +129,7 @@ const ContractCard: React.FC = () => {
 
   const handleZoomIn = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const newScale = Math.min(scale + 0.2, 3); // Maksimal zoom 3x
-    setScale(newScale);
-    
-    // Tampilkan instruksi untuk zoom
-    if (newScale > 1.0 && scale <= 1.0) {
-      toast({
-        title: "Gambar diperbesar",
-        description: "Klik dan tahan untuk menggeser gambar. Gunakan mouse atau jari pada layar sentuh.",
-        duration: 3500
-      });
-    }
+    setScale(prev => Math.min(prev + 0.2, 3)); // Maksimal zoom 3x
   };
 
   const handleZoomOut = (e: React.MouseEvent) => {
@@ -192,8 +154,8 @@ const ContractCard: React.FC = () => {
         setTimeout(() => {
           setIsAnimating(false);
           setPageDirection(null);
-        }, 50);
-      }, 150); // Tunggu 150ms untuk animasi flip lebih cepat
+        }, 100);
+      }, 200); // Tunggu 200ms untuk animasi flip
     }
   };
 
@@ -214,86 +176,28 @@ const ContractCard: React.FC = () => {
         setTimeout(() => {
           setIsAnimating(false);
           setPageDirection(null);
-        }, 50);
-      }, 150); // Tunggu 150ms untuk animasi flip lebih cepat
+        }, 100);
+      }, 200); // Tunggu 200ms untuk animasi flip
     }
   };
 
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    // Tandai card sebagai "akan ditutup" untuk mencegah audio baru dimulai
-    setIsOpen(false);
-    
-    // Hentikan audio yang sedang berjalan
-    const elevenLabsService = dialogController.getElevenLabsService();
-    if (elevenLabsService) {
-      elevenLabsService.stopSpeaking();
+    // Kembalikan volume saat kontrak ditutup
+    if (originalVolume !== null) {
+      setVolume(originalVolume);
     }
     
-    // Tunggu 100ms untuk memastikan audio berhenti sebelum melanjutkan
-    setTimeout(() => {
-      // Kembalikan volume saat kontrak ditutup
-      if (originalVolume !== null) {
-        setVolume(originalVolume);
-      }
-      
-      // Reset tampilan
-      setCurrentIndex(0);
-      setScale(0.8); // Kembalikan ke default zoom 80%
-      
-      // Tampilkan dialog respon hanya jika belum pernah ditampilkan di sesi ini
-      if (!hasShownContractResponse) {
-        // Tunggu lebih lama untuk memastikan animasi close selesai dan audio sebelumnya berhenti sepenuhnya
-        setTimeout(() => {
-          // Get random response from list
-          const randomIndex = Math.floor(Math.random() * CONTRACT_RESPONSES.length);
-          const responseText = CONTRACT_RESPONSES[randomIndex];
-          
-          // Tampilkan dialog dengan responseText
-          dialogController.showCustomDialog(responseText, () => {});
-          
-          // Tandai dialog sudah ditampilkan sekali di sesi ini
-          setHasShownContractResponse(true);
-        }, 1000); // Tunggu 1000ms agar animasi close modal selesai dulu
-      }
-    }, 100);
+    setIsOpen(false);
+    setCurrentIndex(0);
+    setScale(0.8); // Kembalikan ke default zoom 80%
   };
 
   const openImageInNewTab = (e: React.MouseEvent) => {
     e.stopPropagation();
     window.open(CONTRACT_IMAGES[currentIndex], '_blank');
   };
-  
-  // Mouse handlers for dragging/panning gambar
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (scale > 1.0) { // Hanya aktifkan dragging jika di-zoom in (>100%)
-      setIsDragging(true);
-      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
-    }
-  };
-  
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && scale > 1.0) {
-      const newX = e.clientX - dragStart.x;
-      const newY = e.clientY - dragStart.y;
-      setPosition({ x: newX, y: newY });
-      
-      // Mencegah event default browser agar tidak mengganggu drag
-      e.preventDefault();
-    }
-  };
-  
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-  
-  // Reset position saat zoom out ke normal atau ganti dokumen
-  useEffect(() => {
-    if (scale <= 1.0) {
-      setPosition({ x: 0, y: 0 });
-    }
-  }, [scale, currentIndex]);
 
   return (
     <>
@@ -357,74 +261,16 @@ const ContractCard: React.FC = () => {
                 >
                   <div className="document-header">
                     <h3 className="document-title">{IMAGE_TITLES[currentIndex]}</h3>
-                    <div className="zoom-hint">
-                      {scale > 1.0 ? (
-                        <span className="drag-hint">
-                          <svg viewBox="0 0 24 24" width="16" height="16" stroke="#f0e6cc" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M9 3.5V2m0 20v-1.5M4 13H2m20 0h-2M4.2 5.2l1.4 1.4M18.4 19.4l-1.4-1.4M19.4 5.2l-1.4 1.4M5.6 19.4l1.4-1.4M12.5 6.5l-1 1.5M12.5 6.5h-1.5M12.5 6.5V5M12.5 6.5l1.5.5"/>
-                          </svg>
-                          Klik dan tarik untuk melihat seluruh dokumen
-                        </span>
-                      ) : (
-                        <span className="zoom-instruction">Klik gambar untuk memperbesar</span>
-                      )}
-                    </div>
                   </div>
-                  <div 
-                    className="book-container"
-                    style={{ 
-                      cursor: isDragging ? 'grabbing' : (scale > 1.0 ? 'grab' : 'default'),
-                    }}
-                    onMouseDown={handleMouseDown}
-                    onMouseMove={handleMouseMove}
-                    onMouseUp={handleMouseUp}
-                    onMouseLeave={handleMouseUp}
-                    onTouchStart={(e) => {
-                      if (scale > 1.0) {
-                        const touch = e.touches[0];
-                        setIsDragging(true);
-                        setDragStart({ x: touch.clientX - position.x, y: touch.clientY - position.y });
-                      }
-                    }}
-                    onTouchMove={(e) => {
-                      if (isDragging && scale > 1.0 && e.touches.length === 1) {
-                        const touch = e.touches[0];
-                        const newX = touch.clientX - dragStart.x;
-                        const newY = touch.clientY - dragStart.y;
-                        setPosition({ x: newX, y: newY });
-                        e.preventDefault(); // Prevent scrolling while dragging
-                      }
-                    }}
-                    onTouchEnd={() => setIsDragging(false)}
-                    onTouchCancel={() => setIsDragging(false)}
-                  >
+                  <div className="book-container">
                     <div className={`page-shadow ${pageDirection ? 'active' : ''}`}></div>
-                    <div 
-                      className="img-container"
-                      style={{ 
-                        transform: scale > 1.0 ? `translate(${position.x}px, ${position.y}px)` : 'none',
-                        cursor: isDragging ? 'grabbing' : (scale > 1.0 ? 'grab' : 'zoom-in'),
-                        transition: isDragging ? 'none' : 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-                      }}
-                    >
-                      <img 
-                        src={CONTRACT_IMAGES[currentIndex]} 
-                        alt={IMAGE_TITLES[currentIndex]} 
-                        className="document-image"
-                        onDoubleClick={openImageInNewTab}
-                        title="Double-click to open in new tab. Zoom dan geser untuk melihat detail."
-                        onClick={() => {
-                          if (scale <= 1.0) {
-                            setScale(1.5);
-                            toast({
-                              title: "Gambar diperbesar",
-                              description: "Klik dan tahan untuk menggeser gambar. Gunakan mouse atau jari pada layar sentuh.",
-                              duration: 3500
-                            });
-                          }
-                        }}
-                      />
-                    </div>
+                    <img 
+                      src={CONTRACT_IMAGES[currentIndex]} 
+                      alt={IMAGE_TITLES[currentIndex]} 
+                      className="document-image"
+                      onDoubleClick={openImageInNewTab}
+                      title="Double-click to open in new tab"
+                    />
                     <div className={`page-fold ${pageDirection ? 'active' : ''} ${pageDirection || ''}`}></div>
                   </div>
                 </div>
@@ -601,18 +447,13 @@ const ContractCard: React.FC = () => {
         .document-title {
           font-family: 'Trajan Pro', 'Cinzel', serif;
           color: #f0e6cc;
-          font-size: 1.2rem;
+          font-size: 1.4rem;
           text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 4px rgba(255, 220, 150, 0.2);
-          letter-spacing: 1.5px;
+          letter-spacing: 1.8px;
           margin: 0;
           position: relative;
-          padding-bottom: 6px;
+          padding-bottom: 8px;
           font-weight: 500;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          max-width: 90%;
-          margin: 0 auto;
         }
         
         .document-title::after {
@@ -625,38 +466,10 @@ const ContractCard: React.FC = () => {
           height: 2px;
           background: linear-gradient(90deg, rgba(170, 150, 120, 0), rgba(200, 180, 140, 0.8), rgba(170, 150, 120, 0));
         }
-        
-        .zoom-hint {
-          font-size: 0.75rem;
-          color: rgba(240, 230, 204, 0.7);
-          margin-top: 6px;
-          text-align: center;
-          font-style: italic;
-          transition: opacity 0.3s ease;
-        }
-        
-        .drag-hint {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 5px;
-        }
-        
-        .drag-hint svg {
-          margin-right: 4px;
-          animation: pulse 1.5s infinite ease-in-out;
-        }
-        
-        @keyframes pulse {
-          0% { opacity: 0.7; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.1); }
-          100% { opacity: 0.7; transform: scale(1); }
-        }
 
         .document-image {
-          width: auto;
-          max-width: 90%; /* Increased from 82% */
-          max-height: 76%; /* Increased from 72% */
+          max-width: 96%;
+          max-height: 84%;
           object-fit: contain;
           box-shadow: 0 5px 25px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 0, 0, 0.4);
           border: 2px solid rgba(170, 150, 120, 0.5);
@@ -665,24 +478,17 @@ const ContractCard: React.FC = () => {
           display: block;
           margin: 0 auto; /* Center horizontally */
           border-radius: 2px;
-          filter: brightness(1.15) contrast(1.08); /* Adjust brightness and contrast */
+          filter: brightness(1.1) contrast(1.05);
+          position: relative; /* Untuk positioning yang lebih baik */
+          left: 50%;
+          transform: translateX(-50%); /* Memastikan benar-benar terpusat */
         }
         
         .document-image:hover {
-          transform: scale(1.025) translateY(-2px);
+          transform: scale(1.025) translateX(-50%) translateY(-2px);
           box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 12px rgba(255, 220, 150, 0.25);
           border-color: rgba(200, 180, 140, 0.8);
           filter: brightness(1.15) contrast(1.08);
-        }
-        
-        .img-container {
-          position: relative;
-          display: inline-block;
-          cursor: grab;
-        }
-
-        .img-container:active {
-          cursor: grabbing;
         }
         
         /* Animasi transisi buku */
@@ -699,11 +505,11 @@ const ContractCard: React.FC = () => {
         }
         
         .page-flip-next .book-container {
-          animation: flipNext 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          animation: flipNext 0.25s cubic-bezier(0.645, 0.045, 0.355, 1.000);
         }
         
         .page-flip-prev .book-container {
-          animation: flipPrev 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          animation: flipPrev 0.25s cubic-bezier(0.645, 0.045, 0.355, 1.000);
         }
         
         .page-shadow {
@@ -727,74 +533,37 @@ const ContractCard: React.FC = () => {
           top: 0;
           width: 0;
           height: 100%;
+          background: linear-gradient(to right, rgba(255,255,255,0.1), rgba(30,25,20,0.3));
+          box-shadow: -5px 0 15px rgba(0,0,0,0.25);
           z-index: 2;
           opacity: 0;
-          transform-origin: left center;
-          transition: all 0.15s ease-out;
-          overflow: hidden;
+          transition: all 0.1s ease-out;
         }
         
         .page-fold.active {
           opacity: 1;
-          width: 30px; /* Lebar fold saat aktif, lebih lebar untuk efek lebih realistis */
-          animation: fold-active 0.22s ease-out;
         }
         
         .page-fold.next {
           left: 0;
-          background: linear-gradient(to right, rgba(255,255,255,0.18), rgba(30,25,20,0.45));
-          box-shadow: -8px 0 20px rgba(0,0,0,0.35);
-          border-right: 1px solid rgba(255,255,255,0.15);
-        }
-        
-        .page-fold.next.active::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
         }
         
         .page-fold.prev {
           right: 0;
-          background: linear-gradient(to left, rgba(255,255,255,0.18), rgba(30,25,20,0.45));
-          box-shadow: 8px 0 20px rgba(0,0,0,0.35);
-          border-left: 1px solid rgba(255,255,255,0.15);
-          transform-origin: right center;
-        }
-        
-        .page-fold.prev.active::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          right: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(to left, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
-        }
-        
-        @keyframes fold-active {
-          0% { width: 0; opacity: 0.5; }
-          50% { width: 40px; opacity: 0.9; }
-          100% { width: 30px; opacity: 1; }
+          background: linear-gradient(to left, rgba(255,255,255,0.1), rgba(30,25,20,0.3));
+          box-shadow: 5px 0 15px rgba(0,0,0,0.25);
         }
         
         @keyframes flipNext {
-          0% { transform: rotateY(0deg) translateX(0) translateZ(0); filter: brightness(1); }
-          15% { transform: rotateY(-10deg) translateX(-30px) translateZ(-5px); filter: brightness(0.85); }
-          40% { transform: rotateY(-25deg) translateX(-15px) translateZ(-15px); filter: brightness(0.9); }
-          75% { transform: rotateY(-8deg) translateX(-5px) translateZ(-3px); filter: brightness(0.95); } 
-          100% { transform: rotateY(0deg) translateX(0) translateZ(0); filter: brightness(1); }
+          0% { transform: rotateY(0deg); }
+          50% { transform: rotateY(-15deg); }
+          100% { transform: rotateY(0deg); }
         }
         
         @keyframes flipPrev {
-          0% { transform: rotateY(0deg) translateX(0) translateZ(0); filter: brightness(1); }
-          15% { transform: rotateY(10deg) translateX(30px) translateZ(-5px); filter: brightness(0.85); }
-          40% { transform: rotateY(25deg) translateX(15px) translateZ(-15px); filter: brightness(0.9); }
-          75% { transform: rotateY(8deg) translateX(5px) translateZ(-3px); filter: brightness(0.95); }
-          100% { transform: rotateY(0deg) translateX(0) translateZ(0); filter: brightness(1); }
+          0% { transform: rotateY(0deg); }
+          50% { transform: rotateY(15deg); }
+          100% { transform: rotateY(0deg); }
         }
 
         .pdf-container {

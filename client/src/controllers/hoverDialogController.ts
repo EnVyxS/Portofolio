@@ -10,9 +10,6 @@ export type HoverLinkType =
   | "github"
   | "none";
 
-// Dialog khusus untuk situasi after reset hover
-export const HOVER_AFTER_RESET = "Hmph... Finally, you decide to move... Suit yourself. You want to check it or just get on with signing the damn contract?";
-
 // Dialog khusus berdasarkan status dan jenis link
 // Menyediakan beberapa variasi untuk setiap kategori agar DIVA JUAN tidak mengulang kalimat yang sama
 const HOVER_DIALOGS = {
@@ -189,8 +186,17 @@ class HoverDialogController {
 
   // Helper untuk mengecek apakah dialog perlu persistent
   private isPersistent(text: string): boolean {
-    // Buat semua dialog menjadi non-persistent (false) agar menghilang setelah selesai
-    // tanpa perlu klik lagi
+    // Dialog yang sangat pendek atau adalah efek suara, selalu non-persistent
+    if (text.length < 15 || text === "........" || text.startsWith("*")) {
+      return false;
+    }
+
+    // Cek apakah ada tanda tanya (kemungkinan pertanyaan)
+    if (text.includes("?")) {
+      return true;
+    }
+
+    // Default untuk dialog umum: tidak persistent
     return false;
   }
 
@@ -271,23 +277,6 @@ class HoverDialogController {
 
     // Tandai bahwa user sudah berinteraksi dengan hover dialog
     this.hasInteractedWithHover = true;
-
-    // Cek apakah ini adalah kondisi setelah reset
-    const isAfterReset = this.dialogController.isShowingPostResetDialog();
-
-    // Jika ini adalah setelah reset, gunakan dialog khusus untuk situasi itu
-    if (isAfterReset) {
-      // Gunakan dialog setelah reset yang khusus
-      const dialogText = HOVER_AFTER_RESET;
-      
-      // Tampilkan dialog tanpa audio
-      this.typeHoverText(dialogText);
-      
-      // Update last hovered link
-      this.lastHoveredLink = linkType;
-      this.isHandlingHover = false;
-      return;
-    }
 
     // Tentukan kategori link yang di-hover sekarang dan sebelumnya
     const currentCategory = this.getLinkCategory(linkType);

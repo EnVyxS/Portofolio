@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import DialogController from '../controllers/dialogController';
 import HoverDialogController from '../controllers/hoverDialogController';
-import IdleTimeoutController from '../controllers/idleTimeoutController';
 import { FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
 import ElevenLabsService from '../services/elevenlabsService';
 
@@ -20,10 +19,22 @@ function generateSimpleHash(text: string): string {
 }
 
 // Helper untuk menentukan apakah dialog perlu persistensi (tetap terbuka)
-// Versi sederhana: semua dialog menjadi non-persistent (auto-close)
+// Versi sederhana: semua dialog autoplay kecuali yang memiliki pola tertentu
 function isDialogPersistent(text: string): boolean {
-  // Buat semua dialog menjadi non-persistent agar otomatis hilang
-  // tanpa perlu diklik
+  // Dialog dari dialogModel.ts hampir semua non-persistent
+  // kita menggunakan pola false secara default
+  
+  // Dialog khusus (dari hover) yang perlu persistent
+  if (text.includes('?') && 
+      (text.includes('credentials') || 
+       text.includes('check') || 
+       text.includes('want to know') || 
+       text.includes('need to') || 
+       text.includes('convinced'))) {
+    return true;
+  }
+  
+  // Default: semua dialog regular autoplay (non-persistent)
   return false;
 }
 
@@ -41,7 +52,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   
   const dialogController = DialogController.getInstance();
   const hoverDialogController = HoverDialogController.getInstance();
-  const idleTimeoutController = IdleTimeoutController.getInstance();
   const elevenLabsService = ElevenLabsService.getInstance();
 
   // Timer reference untuk auto-continue
@@ -232,21 +242,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   }, [isComplete, dialogSource, text, handleContinue, dialogController, hoverDialogController, setIsDialogFinished]);
 
   useEffect(() => {
-    // Set callback untuk idle timeout controller terlebih dahulu
-    idleTimeoutController.setThrowUserCallback(() => {
-      // Idle timeout akan menangani dialog sendiri melalui dialogController
-      setIsDialogFinished(false); // Pastikan dialog box ditampilkan
-    });
-    
-    // Set hover dialog callback untuk menangkap hover dialog yang sudah aktif
+    // Set hover dialog callback terlebih dahulu untuk menangkap hover dialog yang sudah aktif
     hoverDialogController.setHoverTextCallback((text, complete) => {
       setText(text);
       setIsComplete(complete);
       setDialogSource('hover');
       setCharacterName('DIVA JUAN NUR TAQARRUB'); // Dialog hover dari DIVA JUAN (idle warnings juga)
-      
-      // Pastikan dialog box ditampilkan
-      setIsDialogFinished(false);
     });
     
     // Periksa apakah hover dialog sedang aktif (typing)
@@ -307,10 +308,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
               isDialogPersistent(text) ? (
                 <div className="waiting-interaction-hint">Waiting for your action...</div>
               ) : (
-                // Tampilkan 'auto-continues' hanya pada dialog dari dialogModel (bukan hover atau idle)
-                dialogSource === 'main' && !dialogController.isShowingPostResetDialog() ? (
-                  <div className="auto-continue-hint">Auto-continues in a moment...</div>
-                ) : null
+                <div className="auto-continue-hint">Auto-continues in a moment...</div>
               )
             )}
           </div>
