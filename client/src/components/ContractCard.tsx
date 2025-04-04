@@ -60,12 +60,23 @@ const getDocumentName = (path: string) => {
   return fileName.length > 20 ? fileName.substring(0, 17) + '...' : fileName;
 };
 
+// Interface untuk posisi
+interface Position {
+  x: number;
+  y: number;
+}
+
 const ContractCard: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scale, setScale] = useState(0.8); // Default zoom 80%
   const [currentIndex, setCurrentIndex] = useState(0);
   const dialogController = DialogController.getInstance();
   const { setVolume, currentVolume } = useAudio();
+  
+  // State untuk posisi panning (geser) gambar
+  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState<Position>({ x: 0, y: 0 });
   
   // Audio reference for swipe sound
   const swipeSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -198,6 +209,36 @@ const ContractCard: React.FC = () => {
     e.stopPropagation();
     window.open(CONTRACT_IMAGES[currentIndex], '_blank');
   };
+  
+  // Mouse handlers for dragging/panning gambar
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (scale > 1.0) { // Hanya aktifkan dragging jika di-zoom in (>100%)
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+    }
+  };
+  
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && scale > 1.0) {
+      const newX = e.clientX - dragStart.x;
+      const newY = e.clientY - dragStart.y;
+      setPosition({ x: newX, y: newY });
+      
+      // Mencegah event default browser agar tidak mengganggu drag
+      e.preventDefault();
+    }
+  };
+  
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+  
+  // Reset position saat zoom out ke normal atau ganti dokumen
+  useEffect(() => {
+    if (scale <= 1.0) {
+      setPosition({ x: 0, y: 0 });
+    }
+  }, [scale, currentIndex]);
 
   return (
     <>
@@ -262,15 +303,33 @@ const ContractCard: React.FC = () => {
                   <div className="document-header">
                     <h3 className="document-title">{IMAGE_TITLES[currentIndex]}</h3>
                   </div>
-                  <div className="book-container">
+                  <div 
+                    className="book-container"
+                    style={{ 
+                      cursor: isDragging ? 'grabbing' : (scale > 1.0 ? 'grab' : 'default'),
+                    }}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                  >
                     <div className={`page-shadow ${pageDirection ? 'active' : ''}`}></div>
-                    <img 
-                      src={CONTRACT_IMAGES[currentIndex]} 
-                      alt={IMAGE_TITLES[currentIndex]} 
-                      className="document-image"
-                      onDoubleClick={openImageInNewTab}
-                      title="Double-click to open in new tab"
-                    />
+                    <div 
+                      className="img-container"
+                      style={{ 
+                        transform: scale > 1.0 ? `translate(${position.x}px, ${position.y}px)` : 'none',
+                        cursor: isDragging ? 'grabbing' : (scale > 1.0 ? 'grab' : 'zoom-in'),
+                        transition: isDragging ? 'none' : 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                      }}
+                    >
+                      <img 
+                        src={CONTRACT_IMAGES[currentIndex]} 
+                        alt={IMAGE_TITLES[currentIndex]} 
+                        className="document-image"
+                        onDoubleClick={openImageInNewTab}
+                        title="Double-click to open in new tab"
+                      />
+                    </div>
                     <div className={`page-fold ${pageDirection ? 'active' : ''} ${pageDirection || ''}`}></div>
                   </div>
                 </div>
@@ -486,6 +545,16 @@ const ContractCard: React.FC = () => {
           box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 12px rgba(255, 220, 150, 0.25);
           border-color: rgba(200, 180, 140, 0.8);
           filter: brightness(1.15) contrast(1.08);
+        }
+        
+        .img-container {
+          position: relative;
+          display: inline-block;
+          cursor: grab;
+        }
+
+        .img-container:active {
+          cursor: grabbing;
         }
         
         /* Animasi transisi buku */
