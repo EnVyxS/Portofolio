@@ -407,7 +407,13 @@ class HoverDialogController {
     
     // Jika user terlalu banyak hover bolak-balik, tampilkan dialog kesal
     // Jika sudah diucapkan beberapa kali, gunakan annoyance level pertama dan kedua
-    if (totalUtterances >= 4 && this.hoverCount > 8 && !this.hasShownSecondLevelAnnoyance) {
+    
+    // Jika sudah menampilkan annoyance level pertama dan user terus hover
+    // bolak-balik antar kategori, maka tampilkan level kedua
+    if (this.hasShownFirstLevelAnnoyance && 
+        previousCategory !== currentCategory &&
+        previousCategory !== "none" &&
+        !this.hasShownSecondLevelAnnoyance) {
       // Very annoyed - level 2, trigger idleTimeoutController (if available)
       // This will cause the punch effect from idleTimeoutController
       try {
@@ -427,13 +433,25 @@ class HoverDialogController {
       const randomIndex = Math.floor(Math.random() * annoyedTexts.length);
       dialogText = annoyedTexts[randomIndex];
       console.log("Excessive hovering detected! Using second level annoyance dialog (only once)");
-    } else if (totalUtterances >= 2 && !this.hasShownFirstLevelAnnoyance) {
+    } 
+    // Jika mencapai batas utterances tapi belum menampilkan annoyance level pertama
+    else if (totalUtterances >= 2 && !this.hasShownFirstLevelAnnoyance) {
       // Moderately annoyed - level 1 - hanya ditampilkan sekali
       this.hasShownFirstLevelAnnoyance = true;
       const annoyedTexts = HOVER_DIALOGS.annoyance.firstLevel;
       const randomIndex = Math.floor(Math.random() * annoyedTexts.length);
       dialogText = annoyedTexts[randomIndex];
       console.log("All categories reached limit! Using first level annoyance dialog (only once)");
+    }
+    // Jika sudah menampilkan first level annoyance, jangan tampilkan dialog apapun saat hover
+    // kecuali saat pindah kategori yang akan memicu second level
+    else if (this.hasShownFirstLevelAnnoyance && !this.hasShownSecondLevelAnnoyance) {
+      // Tidak menampilkan dialog baru, hanya tingkatkan counter
+      this.hoverCount++;
+      console.log("First level annoyance sudah ditampilkan, mengabaikan hover dialog sampai pindah kategori");
+      // Set isHandlingHover ke false dan return untuk keluar dari fungsi tanpa menampilkan dialog
+      this.isHandlingHover = false;
+      return;
     }
     // Jika kategori berubah (dari sosial ke kontak atau sebaliknya)
     else if (
