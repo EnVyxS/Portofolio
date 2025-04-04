@@ -196,25 +196,41 @@ class DialogController {
     return this.isTyping;
   }
   
+  // Cek apakah audio sedang diproses
+  public isAudioProcessing(): boolean {
+    try {
+      return this.elevenlabsService.isCurrentlyPlaying();
+    } catch (e) {
+      console.error("Error checking if audio is processing:", e);
+      return false;
+    }
+  }
+  
   // Method khusus untuk menampilkan dialog timeout/idle
   public showCustomDialog(text: string, callback: (text: string, isComplete: boolean) => void): void {
     // Hentikan dialog yang sedang berjalan
     this.stopTyping();
+    
+    // Log untuk debugging
+    console.log(`[DialogController] Memulai dialog custom: "${text}"`);
     
     // Tunggu sebentar untuk memastikan audio sebelumnya sudah selesai
     setTimeout(() => {
       // Pastikan audio benar-benar berhenti
       this.elevenlabsService.stopSpeaking();
       
-      // Buat dialog custom
-      const customDialog: Dialog = {
-        id: 9999, // ID khusus untuk dialog timeout
-        text: text,
-        character: "DIVA JUAN NUR TAQARRUB" // Karakter untuk dialog timeout/idle
-      };
-      
-      // Tampilkan dialog custom
-      this.typeDialog(customDialog, callback);
+      // Tambahkan delay lagi untuk memastikan benar-benar bersih
+      setTimeout(() => {
+        // Buat dialog custom
+        const customDialog: Dialog = {
+          id: 9999, // ID khusus untuk dialog timeout
+          text: text,
+          character: "DIVA JUAN NUR TAQARRUB" // Karakter untuk dialog timeout/idle
+        };
+        
+        // Tampilkan dialog custom
+        this.typeDialog(customDialog, callback);
+      }, 200);
     }, 300); // Delay 300ms untuk menghindari tumpang tindih audio
   }
   

@@ -326,6 +326,22 @@ class HoverDialogController {
       this.isHandlingHover = false;
       return;
     }
+    
+    // Cek apakah ada dialog yang sedang berjalan dari IdleTimeoutController
+    try {
+      const idleController = IdleTimeoutController.getInstance();
+      if (idleController && 
+          (idleController.isExcessiveHoverWarningShown() || 
+           idleController.isFinalHoverWarningShown() || 
+           idleController.isPunchExecuted())) {
+        // Jika sudah ada dialog dari IdleTimeoutController, jangan interrupt
+        console.log("IdleTimeoutController sedang menampilkan dialog, hover dialog diabaikan");
+        this.isHandlingHover = false;
+        return;
+      }
+    } catch (e) {
+      console.error("Could not check IdleTimeoutController status:", e);
+    }
 
     // Hentikan dialog yang sedang berjalan jika ada
     this.dialogController.stopTyping();
