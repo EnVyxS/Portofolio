@@ -506,13 +506,18 @@ const ContractCard: React.FC = () => {
         .document-title {
           font-family: 'Trajan Pro', 'Cinzel', serif;
           color: #f0e6cc;
-          font-size: 1.4rem;
+          font-size: 1.2rem;
           text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 4px rgba(255, 220, 150, 0.2);
-          letter-spacing: 1.8px;
+          letter-spacing: 1.5px;
           margin: 0;
           position: relative;
-          padding-bottom: 8px;
+          padding-bottom: 6px;
           font-weight: 500;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 90%;
+          margin: 0 auto;
         }
         
         .document-title::after {
@@ -527,8 +532,8 @@ const ContractCard: React.FC = () => {
         }
 
         .document-image {
-          max-width: 90%;
-          max-height: 84%;
+          max-width: 85%;
+          max-height: 76%;
           object-fit: contain;
           box-shadow: 0 5px 25px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 0, 0, 0.4);
           border: 2px solid rgba(170, 150, 120, 0.5);
@@ -599,28 +604,58 @@ const ContractCard: React.FC = () => {
           top: 0;
           width: 0;
           height: 100%;
-          background: linear-gradient(to right, rgba(255,255,255,0.15), rgba(30,25,20,0.4));
-          box-shadow: -8px 0 20px rgba(0,0,0,0.35);
           z-index: 2;
           opacity: 0;
-          transition: all 0.12s ease-out;
+          transform-origin: left center;
+          transition: all 0.15s ease-out;
+          overflow: hidden;
         }
         
         .page-fold.active {
           opacity: 1;
-          width: 8px; /* Lebar fold saat aktif, sedikit lebih lebar */
+          width: 30px; /* Lebar fold saat aktif, lebih lebar untuk efek lebih realistis */
+          animation: fold-active 0.22s ease-out;
         }
         
         .page-fold.next {
           left: 0;
-          border-right: 1px solid rgba(255,255,255,0.1);
+          background: linear-gradient(to right, rgba(255,255,255,0.18), rgba(30,25,20,0.45));
+          box-shadow: -8px 0 20px rgba(0,0,0,0.35);
+          border-right: 1px solid rgba(255,255,255,0.15);
+        }
+        
+        .page-fold.next.active::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
         }
         
         .page-fold.prev {
           right: 0;
-          background: linear-gradient(to left, rgba(255,255,255,0.15), rgba(30,25,20,0.4));
+          background: linear-gradient(to left, rgba(255,255,255,0.18), rgba(30,25,20,0.45));
           box-shadow: 8px 0 20px rgba(0,0,0,0.35);
-          border-left: 1px solid rgba(255,255,255,0.1);
+          border-left: 1px solid rgba(255,255,255,0.15);
+          transform-origin: right center;
+        }
+        
+        .page-fold.prev.active::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(to left, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
+        }
+        
+        @keyframes fold-active {
+          0% { width: 0; opacity: 0.5; }
+          50% { width: 40px; opacity: 0.9; }
+          100% { width: 30px; opacity: 1; }
         }
         
         @keyframes flipNext {

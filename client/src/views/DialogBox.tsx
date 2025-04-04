@@ -308,7 +308,10 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
               isDialogPersistent(text) ? (
                 <div className="waiting-interaction-hint">Waiting for your action...</div>
               ) : (
-                <div className="auto-continue-hint">Auto-continues in a moment...</div>
+                // Tampilkan 'auto-continues' hanya pada dialog dari dialogModel (bukan hover atau idle)
+                dialogSource === 'main' && !dialogController.isShowingPostResetDialog() ? (
+                  <div className="auto-continue-hint">Auto-continues in a moment...</div>
+                ) : null
               )
             )}
           </div>
