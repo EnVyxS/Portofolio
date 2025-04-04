@@ -475,69 +475,9 @@ class IdleTimeoutController {
       }
     }, 1000); // Delay 1 detik untuk dialog dapat dibaca
     
-    // Setelah beberapa detik, tampilkan halaman blackout
+    // Setelah beberapa detik, paksa reload website
     setTimeout(() => {
-      // Buat elemen div untuk blackout screen
-      const blackoutScreen = document.createElement('div');
-      blackoutScreen.id = 'permanent-blackout';
-      blackoutScreen.style.position = 'fixed';
-      blackoutScreen.style.top = '0';
-      blackoutScreen.style.left = '0';
-      blackoutScreen.style.width = '100vw';
-      blackoutScreen.style.height = '100vh';
-      blackoutScreen.style.backgroundColor = '#000000';
-      blackoutScreen.style.zIndex = '99999';
-      blackoutScreen.style.display = 'flex';
-      blackoutScreen.style.flexDirection = 'column';
-      blackoutScreen.style.justifyContent = 'center';
-      blackoutScreen.style.alignItems = 'center';
-      blackoutScreen.style.color = 'white';
-      blackoutScreen.style.fontFamily = 'monospace';
-      blackoutScreen.style.fontSize = '28px';
-      blackoutScreen.style.textAlign = 'center';
-      blackoutScreen.style.padding = '20px';
-      
-      // Pesan knockout
-      const message = document.createElement('div');
-      message.textContent = 'YOU HAVE BEEN KNOCKED OUT';
-      message.style.marginBottom = '30px';
-      message.style.animation = 'blackout-blink 1s infinite';
-      
-      // Buat styling untuk animasi blink
-      const style = document.createElement('style');
-      style.textContent = `
-        @keyframes blackout-blink {
-          0% { opacity: 1; }
-          50% { opacity: 0.3; }
-          100% { opacity: 1; }
-        }
-      `;
-      
-      // Tambahkan reset button
-      const resetButton = document.createElement('button');
-      resetButton.textContent = 'WAKE UP';
-      resetButton.style.padding = '10px 20px';
-      resetButton.style.background = '#333';
-      resetButton.style.color = 'white';
-      resetButton.style.border = '1px solid #666';
-      resetButton.style.borderRadius = '4px';
-      resetButton.style.fontSize = '16px';
-      resetButton.style.marginTop = '40px';
-      resetButton.style.cursor = 'pointer';
-      resetButton.onclick = () => {
-        location.reload();
-      };
-      
-      // Tambahkan ke DOM
-      document.head.appendChild(style);
-      blackoutScreen.appendChild(message);
-      blackoutScreen.appendChild(resetButton);
-      document.body.appendChild(blackoutScreen);
-      
-      // Hapus semua event listener global
-      window.onmousemove = null;
-      window.onclick = null;
-      window.onkeydown = null;
+      window.location.href = "about:blank"; // Redirect ke halaman kosong
     }, 3000);
   }
   

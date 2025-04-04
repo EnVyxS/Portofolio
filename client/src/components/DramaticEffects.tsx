@@ -65,8 +65,8 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
             className="dramatic-effect-punch"
             initial={{ opacity: 0 }}
             animate={{ 
-              opacity: [0, 1, 1, 1],
-              scale: [0.8, 1.2, 1.5, 1],
+              opacity: [0, 1, 1, 0],
+              scale: [0.8, 1.2, 1.5, 3],
             }}
             transition={{ 
               duration: 2.5,
@@ -78,74 +78,35 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
             {/* Efek memukul */}
             <div className="punch-effect-inner">
               <motion.div 
-                className="punch-fist"
-                animate={{
-                  x: [-200, 0], 
-                  opacity: [0, 1, 0],
-                  rotate: [0, 20],
-                  scale: [2, 1]
-                }}
-                transition={{ 
-                  duration: 0.3, 
-                  ease: "easeOut",
-                  opacity: { duration: 0.6, times: [0, 0.2, 1] }
-                }}
-              />
-              <motion.div 
                 className="punch-impact"
                 animate={{
-                  scale: [0, 2.5, 5],
-                  opacity: [0, 1, 0]
+                  scale: [1, 1.5, 2, 5],
+                  opacity: [0.8, 1, 0.6, 0]
                 }}
-                transition={{ duration: 0.8, times: [0, 0.2, 1], delay: 0.1 }}
+                transition={{ duration: 1.5, times: [0, 0.2, 0.5, 1] }}
               />
               <motion.div 
                 className="screen-crack"
                 animate={{
-                  opacity: [0, 1],
-                  scale: [0.5, 1]
-                }}
-                transition={{ 
-                  duration: 0.2,
-                  delay: 0.15, 
-                  ease: "easeOut"
-                }}
-              />
-              <motion.div 
-                className="screen-shake"
-                animate={{
-                  x: [0, -15, 20, -15, 10, -5, 0],
-                  y: [0, 10, -15, 5, -10, 5, 0],
-                  rotate: [0, -1, 2, -1, 1, 0]
+                  opacity: [0, 0.8, 1],
+                  scale: [0.5, 1, 1.1]
                 }}
                 transition={{ 
                   duration: 0.5,
-                  delay: 0.1,
+                  delay: 0.2, 
                   ease: "easeOut"
                 }}
               />
               <motion.div 
                 className="screen-blackout"
                 animate={{
-                  opacity: [0, 0, 0.5, 1]
+                  opacity: [0, 0, 0.2, 0.9]
                 }}
                 transition={{ 
                   duration: 2,
                   delay: 0.5,
-                  times: [0, 0.5, 0.8, 1],
+                  times: [0, 0.5, 0.7, 1],
                   ease: "easeIn"
-                }}
-              />
-              <motion.div
-                className="screen-unconscious"
-                animate={{
-                  opacity: [0, 1],
-                  y: [20, 0]
-                }}
-                transition={{
-                  duration: 1,
-                  delay: 1.2,
-                  ease: "easeOut"
                 }}
               />
             </div>
@@ -242,42 +203,6 @@ export const dramaticEffectsStyles = `
     opacity: 0;
   }
   
-  .screen-shake {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-  
-  .punch-fist {
-    position: absolute;
-    top: 40%;
-    right: 60%;
-    width: 100px;
-    height: 100px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M30,50 C30,40 35,30 45,25 C55,20 65,25 70,35 C75,45 70,60 60,65 C50,70 40,65 35,55 C30,45 35,30 45,25' fill='%23c2956e' stroke='%23422006' stroke-width='2'/%3E%3Ccircle cx='55' cy='45' r='12' fill='%23422006'/%3E%3C/svg%3E");
-    transform-origin: right center;
-    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
-  }
-  
-  .screen-unconscious {
-    position: absolute;
-    bottom: 120px;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    color: white;
-    font-family: 'Courier New', monospace;
-    font-size: 32px;
-    text-shadow: 0 0 8px rgba(255,255,255,0.7);
-  }
-  
-  .screen-unconscious:after {
-    content: "YOU HAVE BEEN KNOCKED OUT";
-    animation: blink 1s infinite;
-  }
-  
   @keyframes pulseAndFade {
     0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
     30% { opacity: 0.8; }
@@ -288,12 +213,6 @@ export const dramaticEffectsStyles = `
     0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
     30% { opacity: 0.7; }
     100% { opacity: 0; transform: translateX(-50%) translateY(-100px) scale(1.5); }
-  }
-  
-  @keyframes blink {
-    0% { opacity: 1; }
-    50% { opacity: 0.3; }
-    100% { opacity: 1; }
   }
   
   /* Mobile optimizations */
