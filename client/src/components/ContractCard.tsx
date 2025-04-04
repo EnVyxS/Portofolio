@@ -479,13 +479,10 @@ const ContractCard: React.FC = () => {
           margin: 0 auto; /* Center horizontally */
           border-radius: 2px;
           filter: brightness(1.1) contrast(1.05);
-          position: relative; /* Untuk positioning yang lebih baik */
-          left: 50%;
-          transform: translateX(-50%); /* Memastikan benar-benar terpusat */
         }
         
         .document-image:hover {
-          transform: scale(1.025) translateX(-50%) translateY(-2px);
+          transform: scale(1.025) translateY(-2px);
           box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 12px rgba(255, 220, 150, 0.25);
           border-color: rgba(200, 180, 140, 0.8);
           filter: brightness(1.15) contrast(1.08);
@@ -502,14 +499,20 @@ const ContractCard: React.FC = () => {
           height: 100%;
           margin: 0 auto; /* Pastikan berada di tengah */
           text-align: center; /* Membantu posisi elemen-elemen dalam container */
+          overflow: hidden; /* Mencegah overflow */
+          max-width: 1000px;
+          left: 50%;
+          transform: translateX(-50%);
         }
         
         .page-flip-next .book-container {
           animation: flipNext 0.25s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+          transform: translateX(-50%); /* Pertahankan posisi center saat animasi */
         }
         
         .page-flip-prev .book-container {
           animation: flipPrev 0.25s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+          transform: translateX(-50%); /* Pertahankan posisi center saat animasi */
         }
         
         .page-shadow {
@@ -555,15 +558,15 @@ const ContractCard: React.FC = () => {
         }
         
         @keyframes flipNext {
-          0% { transform: rotateY(0deg); }
-          50% { transform: rotateY(-15deg); }
-          100% { transform: rotateY(0deg); }
+          0% { transform: translateX(-50%) rotateY(0deg); }
+          50% { transform: translateX(-50%) rotateY(-15deg); }
+          100% { transform: translateX(-50%) rotateY(0deg); }
         }
         
         @keyframes flipPrev {
-          0% { transform: rotateY(0deg); }
-          50% { transform: rotateY(15deg); }
-          100% { transform: rotateY(0deg); }
+          0% { transform: translateX(-50%) rotateY(0deg); }
+          50% { transform: translateX(-50%) rotateY(15deg); }
+          100% { transform: translateX(-50%) rotateY(0deg); }
         }
 
         .pdf-container {
