@@ -154,8 +154,8 @@ const ContractCard: React.FC = () => {
         setTimeout(() => {
           setIsAnimating(false);
           setPageDirection(null);
-        }, 100);
-      }, 200); // Tunggu 200ms untuk animasi flip
+        }, 50);
+      }, 150); // Tunggu 150ms untuk animasi flip lebih cepat
     }
   };
 
@@ -176,8 +176,8 @@ const ContractCard: React.FC = () => {
         setTimeout(() => {
           setIsAnimating(false);
           setPageDirection(null);
-        }, 100);
-      }, 200); // Tunggu 200ms untuk animasi flip
+        }, 50);
+      }, 150); // Tunggu 150ms untuk animasi flip lebih cepat
     }
   };
 
@@ -468,7 +468,7 @@ const ContractCard: React.FC = () => {
         }
 
         .document-image {
-          max-width: 96%;
+          max-width: 90%;
           max-height: 84%;
           object-fit: contain;
           box-shadow: 0 5px 25px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 0, 0, 0.4);
@@ -479,13 +479,10 @@ const ContractCard: React.FC = () => {
           margin: 0 auto; /* Center horizontally */
           border-radius: 2px;
           filter: brightness(1.1) contrast(1.05);
-          position: relative; /* Untuk positioning yang lebih baik */
-          left: 50%;
-          transform: translateX(-50%); /* Memastikan benar-benar terpusat */
         }
         
         .document-image:hover {
-          transform: scale(1.025) translateX(-50%) translateY(-2px);
+          transform: scale(1.025) translateY(-2px);
           box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 12px rgba(255, 220, 150, 0.25);
           border-color: rgba(200, 180, 140, 0.8);
           filter: brightness(1.15) contrast(1.08);
@@ -505,11 +502,11 @@ const ContractCard: React.FC = () => {
         }
         
         .page-flip-next .book-container {
-          animation: flipNext 0.25s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+          animation: flipNext 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
         .page-flip-prev .book-container {
-          animation: flipPrev 0.25s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+          animation: flipPrev 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
         .page-shadow {
@@ -533,15 +530,16 @@ const ContractCard: React.FC = () => {
           top: 0;
           width: 0;
           height: 100%;
-          background: linear-gradient(to right, rgba(255,255,255,0.1), rgba(30,25,20,0.3));
-          box-shadow: -5px 0 15px rgba(0,0,0,0.25);
+          background: linear-gradient(to right, rgba(255,255,255,0.15), rgba(30,25,20,0.4));
+          box-shadow: -8px 0 20px rgba(0,0,0,0.35);
           z-index: 2;
           opacity: 0;
-          transition: all 0.1s ease-out;
+          transition: all 0.08s ease-out;
         }
         
         .page-fold.active {
           opacity: 1;
+          width: 5px; /* Lebar fold saat aktif */
         }
         
         .page-fold.next {
@@ -550,20 +548,22 @@ const ContractCard: React.FC = () => {
         
         .page-fold.prev {
           right: 0;
-          background: linear-gradient(to left, rgba(255,255,255,0.1), rgba(30,25,20,0.3));
-          box-shadow: 5px 0 15px rgba(0,0,0,0.25);
+          background: linear-gradient(to left, rgba(255,255,255,0.15), rgba(30,25,20,0.4));
+          box-shadow: 8px 0 20px rgba(0,0,0,0.35);
         }
         
         @keyframes flipNext {
-          0% { transform: rotateY(0deg); }
-          50% { transform: rotateY(-15deg); }
-          100% { transform: rotateY(0deg); }
+          0% { transform: rotateY(0deg) translateZ(0); filter: brightness(1); }
+          25% { transform: rotateY(-30deg) translateZ(-20px); filter: brightness(0.9); }
+          75% { transform: rotateY(-5deg) translateZ(-5px); filter: brightness(0.95); } 
+          100% { transform: rotateY(0deg) translateZ(0); filter: brightness(1); }
         }
         
         @keyframes flipPrev {
-          0% { transform: rotateY(0deg); }
-          50% { transform: rotateY(15deg); }
-          100% { transform: rotateY(0deg); }
+          0% { transform: rotateY(0deg) translateZ(0); filter: brightness(1); }
+          25% { transform: rotateY(30deg) translateZ(-20px); filter: brightness(0.9); }
+          75% { transform: rotateY(5deg) translateZ(-5px); filter: brightness(0.95); }
+          100% { transform: rotateY(0deg) translateZ(0); filter: brightness(1); }
         }
 
         .pdf-container {
