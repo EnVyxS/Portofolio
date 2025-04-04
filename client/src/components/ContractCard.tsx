@@ -277,7 +277,9 @@ const ContractCard: React.FC = () => {
                   className={`document-content ${pageDirection ? `page-flip-${pageDirection}` : ''} ${isDragging ? 'dragging' : ''}`} 
                   style={{ 
                     transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
-                    cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
+                    cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
+                    userSelect: 'none', // Prevent text selection during drag
+                    touchAction: 'none' // Improve touch interactions
                   }}
                   onMouseDown={(e) => {
                     // Hanya aktifkan dragging jika zoom lebih dari 1x
@@ -479,17 +481,72 @@ const ContractCard: React.FC = () => {
           flex-direction: column;
           justify-content: center;
           align-items: center;
-          transition: transform 0.3s ease;
+          transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
           transform-origin: center;
           width: 100%;
           height: 100%;
           padding: 0 10px; /* Tambah padding horizontal */
           margin: 0 auto; /* Pastikan berada di tengah layar */
+          position: relative;
         }
         
         .document-content.dragging {
           transition: none; /* Hapus transisi saat melakukan drag untuk responsivitas langsung */
           cursor: grabbing !important;
+        }
+        
+        .document-content::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(255, 255, 255, 0.05);
+          z-index: 9;
+          opacity: 0;
+          pointer-events: none;
+          border-radius: 8px;
+          transition: opacity 0.2s ease;
+        }
+        
+        .document-content[style*="scale(1.2)"]::before,
+        .document-content[style*="scale(1.4)"]::before,
+        .document-content[style*="scale(1.6)"]::before,
+        .document-content[style*="scale(1.8)"]::before,
+        .document-content[style*="scale(2)"]::before,
+        .document-content[style*="scale(2.2)"]::before,
+        .document-content[style*="scale(2.4)"]::before,
+        .document-content[style*="scale(2.6)"]::before,
+        .document-content[style*="scale(2.8)"]::before,
+        .document-content[style*="scale(3)"]::before {
+          content: '✥ Klik dan geser untuk menelusuri dokumen ✥';
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: rgba(255, 220, 150, 0.9);
+          font-size: 16px;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+          font-family: 'Trajan Pro', serif;
+          letter-spacing: 1px;
+          font-weight: bold;
+          padding: 10px 20px;
+          background: rgba(60, 40, 30, 0.4);
+          border-radius: 6px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+          border: 1px solid rgba(200, 180, 140, 0.3);
+          opacity: 0.85;
+          animation: pulseTip 2s infinite alternate ease-in-out;
+          transform: translateY(-20px);
+        }
+        
+        @keyframes pulseTip {
+          0% { opacity: 0.85; transform: translateY(-20px) scale(1); }
+          100% { opacity: 0.95; transform: translateY(-20px) scale(1.05); }
+        }
+        
+        .document-content.dragging::before {
+          opacity: 0;
         }
         
         .document-header {
@@ -537,6 +594,24 @@ const ContractCard: React.FC = () => {
           margin: 0 auto; /* Center horizontally */
           border-radius: 2px;
           filter: brightness(1.1) contrast(1.05);
+          position: relative;
+        }
+        
+        .document-image::after {
+          content: 'Double click untuk membuka di tab baru';
+          position: absolute;
+          bottom: -30px;
+          left: 0;
+          right: 0;
+          text-align: center;
+          font-size: 0.75rem;
+          color: rgba(170, 150, 120, 0.7);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+        
+        .document-image:hover::after {
+          opacity: 1;
         }
         
         .document-image:hover {
@@ -612,9 +687,11 @@ const ContractCard: React.FC = () => {
         }
         
         @keyframes foldPulse {
-          0% { width: 0; opacity: 0; }
-          50% { width: 60px; opacity: 1; }
-          100% { width: 40px; opacity: 1; }
+          0% { width: 0; opacity: 0; transform: skewX(0deg); }
+          20% { width: 20px; opacity: 0.4; transform: skewX(3deg); }
+          50% { width: 60px; opacity: 1; transform: skewX(1deg); }
+          80% { width: 45px; opacity: 0.9; transform: skewX(2deg); }
+          100% { width: 40px; opacity: 1; transform: skewX(2deg); }
         }
         
         .page-fold.next {
@@ -635,18 +712,32 @@ const ContractCard: React.FC = () => {
           0% { 
             transform: translateX(-50%) rotateY(0deg); 
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); 
+            filter: brightness(1);
           }
-          25% { 
-            transform: translateX(-52%) rotateY(-10deg); 
-            box-shadow: -10px 5px 25px rgba(0, 0, 0, 0.4); 
+          15% { 
+            transform: translateX(-51%) rotateY(-5deg); 
+            box-shadow: -5px 5px 15px rgba(0, 0, 0, 0.4); 
+            filter: brightness(0.97);
           }
-          75% { 
-            transform: translateX(-48%) rotateY(-20deg); 
-            box-shadow: -20px 5px 35px rgba(0, 0, 0, 0.5); 
+          30% { 
+            transform: translateX(-52%) rotateY(-15deg); 
+            box-shadow: -10px 5px 25px rgba(0, 0, 0, 0.45); 
+            filter: brightness(0.95);
+          }
+          70% { 
+            transform: translateX(-48%) rotateY(-22deg); 
+            box-shadow: -18px 5px 35px rgba(0, 0, 0, 0.5); 
+            filter: brightness(0.93);
+          }
+          85% { 
+            transform: translateX(-49%) rotateY(-10deg); 
+            box-shadow: -8px 5px 20px rgba(0, 0, 0, 0.4); 
+            filter: brightness(0.97);
           }
           100% { 
             transform: translateX(-50%) rotateY(0deg); 
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); 
+            filter: brightness(1);
           }
         }
         
@@ -654,18 +745,32 @@ const ContractCard: React.FC = () => {
           0% { 
             transform: translateX(-50%) rotateY(0deg); 
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); 
+            filter: brightness(1);
           }
-          25% { 
-            transform: translateX(-48%) rotateY(10deg); 
-            box-shadow: 10px 5px 25px rgba(0, 0, 0, 0.4); 
+          15% { 
+            transform: translateX(-49%) rotateY(5deg); 
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4); 
+            filter: brightness(0.97);
           }
-          75% { 
-            transform: translateX(-52%) rotateY(20deg); 
-            box-shadow: 20px 5px 35px rgba(0, 0, 0, 0.5); 
+          30% { 
+            transform: translateX(-48%) rotateY(15deg); 
+            box-shadow: 10px 5px 25px rgba(0, 0, 0, 0.45); 
+            filter: brightness(0.95);
+          }
+          70% { 
+            transform: translateX(-52%) rotateY(22deg); 
+            box-shadow: 18px 5px 35px rgba(0, 0, 0, 0.5); 
+            filter: brightness(0.93);
+          }
+          85% { 
+            transform: translateX(-51%) rotateY(10deg); 
+            box-shadow: 8px 5px 20px rgba(0, 0, 0, 0.4); 
+            filter: brightness(0.97);
           }
           100% { 
             transform: translateX(-50%) rotateY(0deg); 
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); 
+            filter: brightness(1);
           }
         }
 
