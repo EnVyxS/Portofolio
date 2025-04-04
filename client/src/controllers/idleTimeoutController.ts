@@ -20,10 +20,10 @@ export const IDLE_DIALOGS = {
   HOVER_AFTER_RESET: "Hmph... Finally, you decide to move... Suit yourself. You want to check it or just get on with signing the damn contract?",
   
   // Dialog untuk hover berlebihan
-  EXCESSIVE_HOVER_WARNING: "So this is how it is? You think you can play me for a fool?",
+  EXCESSIVE_HOVER_WARNING: "YOU'RE TESTING MY PATIENCE! STOP IT RIGHT NOW!",
   
   // Dialog terakhir sebelum 'diusir'
-  FINAL_HOVER_WARNING: "ENOUGH"
+  FINAL_HOVER_WARNING: "I'VE HAD ENOUGH OF YOUR GAMES!"
 };
 
 // Waktu timeout dalam milidetik
@@ -32,13 +32,13 @@ export const TIMEOUT_DURATIONS = {
   SECOND_WARNING: 5 * 60 * 1000, // 5 menit
   FINAL_WARNING: 9 * 60 * 1000, // 9 menit
   THROW_USER: 10 * 60 * 1000, // 10 menit
-  EXCESSIVE_HOVER_WARNING: 1 * 60 * 1000, // 1 menit
-  FINAL_HOVER_WARNING: 2 * 60 * 1000, // 2 menit
-  PUNCH_USER: 3 * 60 * 1000 // 3 menit
+  EXCESSIVE_HOVER_WARNING: 10 * 1000, // 10 detik - Sangat cepat karena triggered oleh HoverDialogController
+  FINAL_HOVER_WARNING: 20 * 1000, // 20 detik
+  PUNCH_USER: 30 * 1000 // 30 detik
 };
 
 // Untuk testing/development, gunakan timeout yang lebih singkat
-const DEBUG_MODE = false; // Mode normal dengan durasi timeout standard
+const DEBUG_MODE = true; // Mode debug dengan durasi timeout yang lebih singkat
 if (DEBUG_MODE) {
   Object.keys(TIMEOUT_DURATIONS).forEach(key => {
     // Gunakan waktu yang lebih singkat untuk testing
@@ -454,7 +454,7 @@ class IdleTimeoutController {
     // Log removed
     
     // Tambahkan dialog peringatan untuk 'memukul'
-    const punchText = "You're really asking for it...";
+    const punchText = "THAT'S IT! I'M GOING TO SHUT YOU UP MYSELF!";
     this.showIdleWarning(punchText);
     
     // Notifikasi HoverDialogController bahwa idle timeout telah terjadi

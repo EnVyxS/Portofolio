@@ -75,11 +75,11 @@ const HOVER_DIALOGS = {
       "Getting annoyed with the indecision here.",
     ],
     secondLevel: [
-      "Arghh... whatever you want. I'm done.",
-      "That's it. I'm done with this nonsense.",
-      "Enough of this. Make a choice or leave me be.",
-      "HAHH...I've lost my patience. We're done here.",
-      "I'm through with this game. Decide or go away.",
+      "ENOUGH! Stop this childish behavior RIGHT NOW!",
+      "I SAID STOP! This is your FINAL warning!",
+      "THAT'S IT! You're getting on my LAST nerve!",
+      "I'M DONE with this ridiculous game. LAST WARNING!",
+      "STOP THIS IMMEDIATELY or you'll REGRET it!",
     ],
   },
 };
@@ -386,8 +386,8 @@ class HoverDialogController {
       this.categoryUtteranceCount.transition.socialToContact;
     
     // Jika user terlalu banyak hover bolak-balik, tampilkan dialog kesal
-    // Jika sudah diucapkan 2x untuk semua kategori, gunakan annoyance level pertama
-    if (totalUtterances >= 8 && this.hoverCount > 15 && !this.hasShownSecondLevelAnnoyance) {
+    // Jika sudah diucapkan beberapa kali, gunakan annoyance level pertama dan kedua
+    if (totalUtterances >= 4 && this.hoverCount > 8 && !this.hasShownSecondLevelAnnoyance) {
       // Very annoyed - level 2, trigger idleTimeoutController (if available)
       // This will cause the punch effect from idleTimeoutController
       try {
@@ -407,7 +407,7 @@ class HoverDialogController {
       const randomIndex = Math.floor(Math.random() * annoyedTexts.length);
       dialogText = annoyedTexts[randomIndex];
       console.log("Excessive hovering detected! Using second level annoyance dialog (only once)");
-    } else if (totalUtterances >= 6 && !this.hasShownFirstLevelAnnoyance) {
+    } else if (totalUtterances >= 2 && !this.hasShownFirstLevelAnnoyance) {
       // Moderately annoyed - level 1 - hanya ditampilkan sekali
       this.hasShownFirstLevelAnnoyance = true;
       const annoyedTexts = HOVER_DIALOGS.annoyance.firstLevel;
