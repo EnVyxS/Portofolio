@@ -13,7 +13,7 @@ export type HoverLinkType =
 
 // Dialog khusus berdasarkan status dan jenis link
 // Menyediakan beberapa variasi untuk setiap kategori agar DIVA JUAN tidak mengulang kalimat yang sama
-const HOVER_DIALOGS = {
+export const HOVER_DIALOGS = {
   // Saat DIVA JUAN sedang berbicara (interupsi)
   interruption: {
     contact: [
@@ -456,7 +456,8 @@ class HoverDialogController {
     // Jika kategori berubah (dari sosial ke kontak atau sebaliknya)
     else if (
       previousCategory !== "none" &&
-      currentCategory !== previousCategory
+      currentCategory !== previousCategory &&
+      currentCategory !== "none" // Pastikan kategori saat ini valid
     ) {
       // Cek apakah sudah mencapai batas 2 ucapan untuk kategori ini
       if (previousCategory === "social" && currentCategory === "contact") {
@@ -483,8 +484,9 @@ class HoverDialogController {
       }
       this.hoverCount++;
     }
-    // Jika dialog normal sudah selesai atau belum selesai (interruption or not)
-    else {
+    // Jika tidak ada kategori sebelumnya atau kategori sebelumnya adalah none
+    // Ini adalah kasus pertama kali user hover ke sebuah kategori
+    else if (previousCategory === "none" || this.lastHoveredLink === "none") {
       // Deteksi interupsi berdasarkan status dialog saat ini
       const isInterruption = isDialogInProgress();
 
@@ -519,24 +521,25 @@ class HoverDialogController {
           dialogText = HOVER_DIALOGS.annoyance.firstLevel[Math.floor(Math.random() * HOVER_DIALOGS.annoyance.firstLevel.length)];
         }
       }
+    }
 
-      // Log status interupsi untuk debugging
-      if (isInterruption) {
-        console.log(
-          "Hover dialog terjadi sebagai interupsi karena dialog utama masih berlangsung",
-        );
-      }
+    // Log status interupsi untuk debugging
+    const isInterrupting = isDialogInProgress();
+    if (isInterrupting) {
+      console.log(
+        "Hover dialog terjadi sebagai interupsi karena dialog utama masih berlangsung",
+      );
     }
 
     // Cek apakah dialog ini sudah pernah ditampilkan sebelumnya atau jika sudah melebihi batas kategori
     if (dialogText) {
       // Log untuk debugging kategori dan jumlah ucapan
       console.log(`Hover dialog kategori: ${currentCategory} (${
-        isDialogInProgress() ? 'interruption' : 'completed'
+        isInterrupting ? 'interruption' : 'completed'
       }), telah diucapkan: ${
         currentCategory === 'contact' 
-          ? this.categoryUtteranceCount[isDialogInProgress() ? 'interruption' : 'completed'].contact 
-          : this.categoryUtteranceCount[isDialogInProgress() ? 'interruption' : 'completed'].social
+          ? this.categoryUtteranceCount[isInterrupting ? 'interruption' : 'completed'].contact 
+          : this.categoryUtteranceCount[isInterrupting ? 'interruption' : 'completed'].social
       } kali`);
       
       // Kecuali untuk dialog dari kategori jengkel level 2, tambahkan teks ke daftar yang sudah ditampilkan
