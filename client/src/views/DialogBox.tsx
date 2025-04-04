@@ -308,7 +308,20 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
               isDialogPersistent(text) ? (
                 <div className="waiting-interaction-hint">Waiting for your action...</div>
               ) : (
-                <div className="auto-continue-hint">Auto-continues in a moment...</div>
+                // Only show auto-continue hint for main dialog and not for other types
+                // Check if it's not a hover dialog, idle warning, or contract response
+                dialogSource === 'main' && 
+                !text.includes("fuck you") && // Idle timeout specific phrases
+                !text.includes("Staring at me") && 
+                !text.includes("throw") && 
+                !text.includes("punch") && 
+                !text.includes("next time, use your") && // Contract responses specific phrases
+                !text.includes("next time, don't waste") && 
+                !text.includes("next time, keep your") && 
+                !text.includes("next time, think twice") && 
+                !text.includes("Believe me now") ? (
+                  <div className="auto-continue-hint">Auto-continues in a moment...</div>
+                ) : null
               )
             )}
           </div>

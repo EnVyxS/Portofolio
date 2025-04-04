@@ -4,8 +4,9 @@ import { FaScroll, FaSearchPlus, FaSearchMinus, FaArrowLeft, FaArrowRight, FaFil
 import DialogController from '../controllers/dialogController';
 import { useAudio } from '../context/AudioManager';
 
-// Import swipe sound
+// Import sounds
 import swipeSoundSrc from '@assets/Screen swipe sound effect (mp3cut.net).m4a';
+import footstepSoundSrc from '@assets/footsteps sound effect - walking sound effect - copyright free sound effects (mp3cut.net) (1).m4a';
 
 // Respon variasi saat kartu diklik
 const CONTRACT_RESPONSES = [
@@ -71,19 +72,29 @@ const ContractCard: React.FC = () => {
   const dialogController = DialogController.getInstance();
   const { setVolume, currentVolume } = useAudio();
   
-  // Audio reference for swipe sound
+  // Audio references for sounds
   const swipeSoundRef = useRef<HTMLAudioElement | null>(null);
+  const footstepSoundRef = useRef<HTMLAudioElement | null>(null);
   
-  // Initialize swipe sound audio on component mount
+  // Initialize audio elements on component mount
   useEffect(() => {
+    // Initialize swipe sound
     swipeSoundRef.current = new Audio(swipeSoundSrc);
     swipeSoundRef.current.volume = 0.3; // Set appropriate volume
+    
+    // Initialize footstep sound
+    footstepSoundRef.current = new Audio(footstepSoundSrc);
+    footstepSoundRef.current.volume = 0.4; // Set appropriate volume
     
     // Clean up
     return () => {
       if (swipeSoundRef.current) {
         swipeSoundRef.current.pause();
         swipeSoundRef.current = null;
+      }
+      if (footstepSoundRef.current) {
+        footstepSoundRef.current.pause();
+        footstepSoundRef.current = null;
       }
     };
   }, []);
@@ -201,6 +212,18 @@ const ContractCard: React.FC = () => {
     }
   };
 
+  // Play footsteps sound function
+  const playFootstepSound = () => {
+    try {
+      if (footstepSoundRef.current) {
+        footstepSoundRef.current.currentTime = 0; // Reset to start
+        footstepSoundRef.current.play().catch(e => console.error("Error playing footstep sound:", e));
+      }
+    } catch (err) {
+      console.error("Error playing footstep sound:", err);
+    }
+  };
+  
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
     
@@ -208,6 +231,18 @@ const ContractCard: React.FC = () => {
     if (originalVolume !== null) {
       setVolume(originalVolume);
     }
+    
+    // Play footstep sound when closing contract
+    playFootstepSound();
+    
+    // Display a random CONTRACT_RESPONSE dialog
+    const randomIndex = Math.floor(Math.random() * CONTRACT_RESPONSES.length);
+    const randomResponse = CONTRACT_RESPONSES[randomIndex];
+    
+    // Show custom dialog with the selected response
+    dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
+      // Dialog callback function - no action needed here
+    });
     
     setIsOpen(false);
     setCurrentIndex(0);
@@ -529,7 +564,7 @@ const ContractCard: React.FC = () => {
         .document-content[style*="scale(2.6)"]::before,
         .document-content[style*="scale(2.8)"]::before,
         .document-content[style*="scale(3)"]::before {
-          content: '✥ Klik dan geser untuk menelusuri dokumen ✥';
+          content: '✥ Click and drag to navigate document ✥';
           display: flex;
           align-items: center;
           justify-content: center;
@@ -608,7 +643,7 @@ const ContractCard: React.FC = () => {
         }
         
         .document-image::after {
-          content: 'Double click untuk membuka di tab baru';
+          content: 'Double click to open in new tab';
           position: absolute;
           bottom: -30px;
           left: 0;
