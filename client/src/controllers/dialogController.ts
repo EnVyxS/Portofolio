@@ -1,5 +1,6 @@
 import DialogModel, { Dialog, RETURN_DIALOG } from '../models/dialogModel';
 import ElevenLabsService from '../services/elevenlabsService';
+import HoverDialogController from './hoverDialogController';
 
 class DialogController {
   private static instance: DialogController;
@@ -227,6 +228,18 @@ class DialogController {
           text: text,
           character: "DIVA JUAN NUR TAQARRUB" // Karakter untuk dialog timeout/idle
         };
+        
+        // Coba atur dialog source ke 'hover' untuk custom dialogs
+        try {
+          // Import HoverDialogController jika belum diimport
+          const hoverDialogController = HoverDialogController.getInstance();
+          if (hoverDialogController.setDialogSource) {
+            console.log("[DialogController] Setting dialog source to 'hover' for custom dialog");
+            hoverDialogController.setDialogSource('hover');
+          }
+        } catch (e) {
+          console.error("[DialogController] Error setting dialog source:", e);
+        }
         
         // Tampilkan dialog custom
         this.typeDialog(customDialog, callback);

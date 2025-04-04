@@ -461,6 +461,13 @@ class IdleTimeoutController {
     // Tambahkan dialog peringatan untuk 'melempar'
     const throwText = "That's it. GET OUT OF MY SIGHT!";
     this.showIdleWarning(throwText);
+    
+    // Pastikan bahwa dialog controller tahu ini adalah post-reset dialog
+    try {
+      this.dialogController.resetPostResetDialogStatus();
+    } catch (e) {
+      console.error("Could not reset dialog controller post-reset status:", e);
+    }
 
     // Tandai bahwa user telah dilempar
     this.hasBeenReset = true;
