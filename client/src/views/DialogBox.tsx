@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import DialogController from '../controllers/dialogController';
 import HoverDialogController from '../controllers/hoverDialogController';
+import IdleTimeoutController from '../controllers/idleTimeoutController';
 import { FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
 import ElevenLabsService from '../services/elevenlabsService';
 
@@ -40,6 +41,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   
   const dialogController = DialogController.getInstance();
   const hoverDialogController = HoverDialogController.getInstance();
+  const idleTimeoutController = IdleTimeoutController.getInstance();
   const elevenLabsService = ElevenLabsService.getInstance();
 
   // Timer reference untuk auto-continue
@@ -230,12 +232,21 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   }, [isComplete, dialogSource, text, handleContinue, dialogController, hoverDialogController, setIsDialogFinished]);
 
   useEffect(() => {
-    // Set hover dialog callback terlebih dahulu untuk menangkap hover dialog yang sudah aktif
+    // Set callback untuk idle timeout controller terlebih dahulu
+    idleTimeoutController.setThrowUserCallback(() => {
+      // Idle timeout akan menangani dialog sendiri melalui dialogController
+      setIsDialogFinished(false); // Pastikan dialog box ditampilkan
+    });
+    
+    // Set hover dialog callback untuk menangkap hover dialog yang sudah aktif
     hoverDialogController.setHoverTextCallback((text, complete) => {
       setText(text);
       setIsComplete(complete);
       setDialogSource('hover');
       setCharacterName('DIVA JUAN NUR TAQARRUB'); // Dialog hover dari DIVA JUAN (idle warnings juga)
+      
+      // Pastikan dialog box ditampilkan
+      setIsDialogFinished(false);
     });
     
     // Periksa apakah hover dialog sedang aktif (typing)

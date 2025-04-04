@@ -222,30 +222,42 @@ const ContractCard: React.FC = () => {
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    // Kembalikan volume saat kontrak ditutup
-    if (originalVolume !== null) {
-      setVolume(originalVolume);
-    }
-    
+    // Tandai card sebagai "akan ditutup" untuk mencegah audio baru dimulai
     setIsOpen(false);
-    setCurrentIndex(0);
-    setScale(0.8); // Kembalikan ke default zoom 80%
     
-    // Tampilkan dialog respon hanya jika belum pernah ditampilkan di sesi ini
-    if (!hasShownContractResponse) {
-      // Menunggu animasi close selesai baru menampilkan dialog
-      setTimeout(() => {
-        // Get random response from list
-        const randomIndex = Math.floor(Math.random() * CONTRACT_RESPONSES.length);
-        const responseText = CONTRACT_RESPONSES[randomIndex];
-        
-        // Tampilkan dialog dengan responseText
-        dialogController.showCustomDialog(responseText, () => {});
-        
-        // Tandai dialog sudah ditampilkan sekali di sesi ini
-        setHasShownContractResponse(true);
-      }, 500); // Tunggu 500ms agar animasi close modal selesai dulu
+    // Hentikan audio yang sedang berjalan
+    const elevenLabsService = dialogController.getElevenLabsService();
+    if (elevenLabsService) {
+      elevenLabsService.stopSpeaking();
     }
+    
+    // Tunggu 100ms untuk memastikan audio berhenti sebelum melanjutkan
+    setTimeout(() => {
+      // Kembalikan volume saat kontrak ditutup
+      if (originalVolume !== null) {
+        setVolume(originalVolume);
+      }
+      
+      // Reset tampilan
+      setCurrentIndex(0);
+      setScale(0.8); // Kembalikan ke default zoom 80%
+      
+      // Tampilkan dialog respon hanya jika belum pernah ditampilkan di sesi ini
+      if (!hasShownContractResponse) {
+        // Tunggu lebih lama untuk memastikan animasi close selesai dan audio sebelumnya berhenti sepenuhnya
+        setTimeout(() => {
+          // Get random response from list
+          const randomIndex = Math.floor(Math.random() * CONTRACT_RESPONSES.length);
+          const responseText = CONTRACT_RESPONSES[randomIndex];
+          
+          // Tampilkan dialog dengan responseText
+          dialogController.showCustomDialog(responseText, () => {});
+          
+          // Tandai dialog sudah ditampilkan sekali di sesi ini
+          setHasShownContractResponse(true);
+        }, 1000); // Tunggu 1000ms agar animasi close modal selesai dulu
+      }
+    }, 100);
   };
 
   const openImageInNewTab = (e: React.MouseEvent) => {
@@ -345,6 +357,18 @@ const ContractCard: React.FC = () => {
                 >
                   <div className="document-header">
                     <h3 className="document-title">{IMAGE_TITLES[currentIndex]}</h3>
+                    <div className="zoom-hint">
+                      {scale > 1.0 ? (
+                        <span className="drag-hint">
+                          <svg viewBox="0 0 24 24" width="16" height="16" stroke="#f0e6cc" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 3.5V2m0 20v-1.5M4 13H2m20 0h-2M4.2 5.2l1.4 1.4M18.4 19.4l-1.4-1.4M19.4 5.2l-1.4 1.4M5.6 19.4l1.4-1.4M12.5 6.5l-1 1.5M12.5 6.5h-1.5M12.5 6.5V5M12.5 6.5l1.5.5"/>
+                          </svg>
+                          Klik dan tarik untuk melihat seluruh dokumen
+                        </span>
+                      ) : (
+                        <span className="zoom-instruction">Klik gambar untuk memperbesar</span>
+                      )}
+                    </div>
                   </div>
                   <div 
                     className="book-container"
@@ -355,6 +379,24 @@ const ContractCard: React.FC = () => {
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
                     onMouseLeave={handleMouseUp}
+                    onTouchStart={(e) => {
+                      if (scale > 1.0) {
+                        const touch = e.touches[0];
+                        setIsDragging(true);
+                        setDragStart({ x: touch.clientX - position.x, y: touch.clientY - position.y });
+                      }
+                    }}
+                    onTouchMove={(e) => {
+                      if (isDragging && scale > 1.0 && e.touches.length === 1) {
+                        const touch = e.touches[0];
+                        const newX = touch.clientX - dragStart.x;
+                        const newY = touch.clientY - dragStart.y;
+                        setPosition({ x: newX, y: newY });
+                        e.preventDefault(); // Prevent scrolling while dragging
+                      }
+                    }}
+                    onTouchEnd={() => setIsDragging(false)}
+                    onTouchCancel={() => setIsDragging(false)}
                   >
                     <div className={`page-shadow ${pageDirection ? 'active' : ''}`}></div>
                     <div 
@@ -583,11 +625,38 @@ const ContractCard: React.FC = () => {
           height: 2px;
           background: linear-gradient(90deg, rgba(170, 150, 120, 0), rgba(200, 180, 140, 0.8), rgba(170, 150, 120, 0));
         }
+        
+        .zoom-hint {
+          font-size: 0.75rem;
+          color: rgba(240, 230, 204, 0.7);
+          margin-top: 6px;
+          text-align: center;
+          font-style: italic;
+          transition: opacity 0.3s ease;
+        }
+        
+        .drag-hint {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 5px;
+        }
+        
+        .drag-hint svg {
+          margin-right: 4px;
+          animation: pulse 1.5s infinite ease-in-out;
+        }
+        
+        @keyframes pulse {
+          0% { opacity: 0.7; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.1); }
+          100% { opacity: 0.7; transform: scale(1); }
+        }
 
         .document-image {
           width: auto;
-          max-width: 82%;
-          max-height: 72%;
+          max-width: 90%; /* Increased from 82% */
+          max-height: 76%; /* Increased from 72% */
           object-fit: contain;
           box-shadow: 0 5px 25px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 0, 0, 0.4);
           border: 2px solid rgba(170, 150, 120, 0.5);
@@ -596,7 +665,7 @@ const ContractCard: React.FC = () => {
           display: block;
           margin: 0 auto; /* Center horizontally */
           border-radius: 2px;
-          filter: brightness(1.1) contrast(1.05);
+          filter: brightness(1.15) contrast(1.08); /* Adjust brightness and contrast */
         }
         
         .document-image:hover {
