@@ -571,11 +571,11 @@ const ContractCard: React.FC = () => {
         }
         
         .page-flip-next .book-container {
-          animation: flipNext 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          animation: flipNext 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
         .page-flip-prev .book-container {
-          animation: flipPrev 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          animation: flipPrev 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
         .page-shadow {
@@ -603,36 +603,40 @@ const ContractCard: React.FC = () => {
           box-shadow: -8px 0 20px rgba(0,0,0,0.35);
           z-index: 2;
           opacity: 0;
-          transition: all 0.08s ease-out;
+          transition: all 0.12s ease-out;
         }
         
         .page-fold.active {
           opacity: 1;
-          width: 5px; /* Lebar fold saat aktif */
+          width: 8px; /* Lebar fold saat aktif, sedikit lebih lebar */
         }
         
         .page-fold.next {
           left: 0;
+          border-right: 1px solid rgba(255,255,255,0.1);
         }
         
         .page-fold.prev {
           right: 0;
           background: linear-gradient(to left, rgba(255,255,255,0.15), rgba(30,25,20,0.4));
           box-shadow: 8px 0 20px rgba(0,0,0,0.35);
+          border-left: 1px solid rgba(255,255,255,0.1);
         }
         
         @keyframes flipNext {
-          0% { transform: rotateY(0deg) translateZ(0); filter: brightness(1); }
-          25% { transform: rotateY(-30deg) translateZ(-20px); filter: brightness(0.9); }
-          75% { transform: rotateY(-5deg) translateZ(-5px); filter: brightness(0.95); } 
-          100% { transform: rotateY(0deg) translateZ(0); filter: brightness(1); }
+          0% { transform: rotateY(0deg) translateX(0) translateZ(0); filter: brightness(1); }
+          15% { transform: rotateY(-10deg) translateX(-30px) translateZ(-5px); filter: brightness(0.85); }
+          40% { transform: rotateY(-25deg) translateX(-15px) translateZ(-15px); filter: brightness(0.9); }
+          75% { transform: rotateY(-8deg) translateX(-5px) translateZ(-3px); filter: brightness(0.95); } 
+          100% { transform: rotateY(0deg) translateX(0) translateZ(0); filter: brightness(1); }
         }
         
         @keyframes flipPrev {
-          0% { transform: rotateY(0deg) translateZ(0); filter: brightness(1); }
-          25% { transform: rotateY(30deg) translateZ(-20px); filter: brightness(0.9); }
-          75% { transform: rotateY(5deg) translateZ(-5px); filter: brightness(0.95); }
-          100% { transform: rotateY(0deg) translateZ(0); filter: brightness(1); }
+          0% { transform: rotateY(0deg) translateX(0) translateZ(0); filter: brightness(1); }
+          15% { transform: rotateY(10deg) translateX(30px) translateZ(-5px); filter: brightness(0.85); }
+          40% { transform: rotateY(25deg) translateX(15px) translateZ(-15px); filter: brightness(0.9); }
+          75% { transform: rotateY(8deg) translateX(5px) translateZ(-3px); filter: brightness(0.95); }
+          100% { transform: rotateY(0deg) translateX(0) translateZ(0); filter: brightness(1); }
         }
 
         .pdf-container {
