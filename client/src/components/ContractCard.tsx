@@ -67,6 +67,7 @@ const ContractCard: React.FC = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 }); // Posisi untuk panning/dragging
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [hasDragged, setHasDragged] = useState(false); // Track if user has already dragged
   const dialogController = DialogController.getInstance();
   const { setVolume, currentVolume } = useAudio();
   
@@ -165,13 +166,14 @@ const ContractCard: React.FC = () => {
         setCurrentIndex(prev => prev + 1);
         setScale(0.8); // Reset zoom ke 80%
         setPosition({ x: 0, y: 0 }); // Reset posisi saat ganti halaman
+        // Tidak mereset hasDragged sehingga tooltip tetap tersembunyi jika pernah digunakan
         
         // Beri jeda sedikit sebelum mengizinkan animasi lagi
         setTimeout(() => {
           setIsAnimating(false);
           setPageDirection(null);
-        }, 100);
-      }, 200); // Tunggu 200ms untuk animasi flip
+        }, 50);
+      }, 100); // Tunggu 100ms untuk animasi flip (dipercepat)
     }
   };
 
@@ -188,13 +190,14 @@ const ContractCard: React.FC = () => {
         setCurrentIndex(prev => prev - 1);
         setScale(0.8); // Reset zoom ke 80%
         setPosition({ x: 0, y: 0 }); // Reset posisi saat ganti halaman
+        // Tidak mereset hasDragged sehingga tooltip tetap tersembunyi jika pernah digunakan
         
         // Beri jeda sedikit sebelum mengizinkan animasi lagi
         setTimeout(() => {
           setIsAnimating(false);
           setPageDirection(null);
-        }, 100);
-      }, 200); // Tunggu 200ms untuk animasi flip
+        }, 50);
+      }, 100); // Tunggu 100ms untuk animasi flip (dipercepat)
     }
   };
 
@@ -210,6 +213,7 @@ const ContractCard: React.FC = () => {
     setCurrentIndex(0);
     setScale(0.8); // Kembalikan ke default zoom 80%
     setPosition({ x: 0, y: 0 }); // Reset posisi
+    setHasDragged(false); // Reset status drag agar tooltip muncul kembali saat user membuka dokumen baru
   };
 
   const openImageInNewTab = (e: React.MouseEvent) => {
@@ -274,7 +278,7 @@ const ContractCard: React.FC = () => {
               
               <div className="contract-document-container">
                 <div 
-                  className={`document-content ${pageDirection ? `page-flip-${pageDirection}` : ''} ${isDragging ? 'dragging' : ''}`} 
+                  className={`document-content ${pageDirection ? `page-flip-${pageDirection}` : ''} ${isDragging ? 'dragging' : ''} ${hasDragged ? 'has-dragged' : ''}`} 
                   style={{ 
                     transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
                     cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
@@ -302,6 +306,11 @@ const ContractCard: React.FC = () => {
                       // Batasi pergerakan dalam batas tertentu
                       const clampedX = Math.max(Math.min(newX, maxMove), -maxMove);
                       const clampedY = Math.max(Math.min(newY, maxMove), -maxMove);
+                      
+                      // Set hasDragged saat pengguna benar-benar melakukan drag (sudah bergerak)
+                      if (!hasDragged && (Math.abs(clampedX) > 5 || Math.abs(clampedY) > 5)) {
+                        setHasDragged(true);
+                      }
                       
                       setPosition({ x: clampedX, y: clampedY });
                     }
@@ -545,7 +554,8 @@ const ContractCard: React.FC = () => {
           100% { opacity: 0.95; transform: translateY(-20px) scale(1.05); }
         }
         
-        .document-content.dragging::before {
+        .document-content.dragging::before,
+        .document-content.has-dragged::before {
           opacity: 0;
         }
         
@@ -639,13 +649,13 @@ const ContractCard: React.FC = () => {
         }
         
         .page-flip-next .book-container {
-          animation: flipNext 0.35s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+          animation: flipNext 0.2s cubic-bezier(0.25, 0.1, 0.25, 1.0);
           transform: translateX(-50%); /* Pertahankan posisi center saat animasi */
           perspective-origin: left center; /* Animasi dari kiri ke kanan */
         }
         
         .page-flip-prev .book-container {
-          animation: flipPrev 0.35s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+          animation: flipPrev 0.2s cubic-bezier(0.25, 0.1, 0.25, 1.0);
           transform: translateX(-50%); /* Pertahankan posisi center saat animasi */
           perspective-origin: right center; /* Animasi dari kanan ke kiri */
         }
