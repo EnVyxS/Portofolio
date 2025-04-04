@@ -253,11 +253,16 @@ const ContractCard: React.FC = () => {
       // Dapatkan instance HoverDialogController untuk set source
       const hoverDialogController = HoverDialogController.getInstance();
       
+      // Set dialog source ke 'main' SEBELUM memanggil showCustomDialog
+      // Ini penting karena showCustomDialog akan mengubahnya ke 'hover' di dalamnya
+      if (hoverDialogController.setDialogSource) {
+        console.log("[ContractCard] Setting dialog source to 'main' before showing custom dialog");
+        hoverDialogController.setDialogSource('main');
+      }
+      
       dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
-        // Set dialog source ke 'main' agar ditampilkan sebagai dialog utama, bukan dialog hover
-        if (hoverDialogController.setDialogSource) {
-          hoverDialogController.setDialogSource('main');
-        }
+        // Callback ini dipanggil setiap karakter (saat dialog sedang berjalan dan setelah selesai)
+        // Tidak perlu mengatur ulang dialogSource di sini karena dialogController sudah mengaturnya
       });
     }, 300);
     

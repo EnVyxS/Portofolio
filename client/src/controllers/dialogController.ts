@@ -229,16 +229,30 @@ class DialogController {
           character: "DIVA JUAN NUR TAQARRUB" // Karakter untuk dialog timeout/idle
         };
         
-        // Coba atur dialog source ke 'hover' untuk custom dialogs
+        // Periksa dulu apakah ini adalah CONTRACT_RESPONSES dari ContractCard
+        // CONTRACT_RESPONSES tidak boleh diubah ke 'hover' karena sudah diatur dari ContractCard
         try {
           // Import HoverDialogController jika belum diimport
           const hoverDialogController = HoverDialogController.getInstance();
-          if (hoverDialogController.setDialogSource) {
-            console.log("[DialogController] Setting dialog source to 'hover' for custom dialog");
+          
+          // Cek apakah dialog ini adalah dari ContractCard
+          // Dengan memeriksa apakah ini adalah salah satu dari text di CONTRACT_RESPONSES
+          
+          // Jangan ubah dialog source jika dialog ini berasal dari ContractCard
+          // ContractCard sudah mengatur ke 'main' sebelum memanggil showCustomDialog
+          const isFromContract = text.includes("Didn't lie") || 
+                                text.includes("Not a liar") || 
+                                text.includes("Told you the truth") || 
+                                text.includes("Believe me now");
+          
+          // Jika bukan dari ContractCard, maka ini adalah dialog custom lain 
+          // seperti idle warning yang memang harus ditampilkan sebagai 'hover'
+          if (!isFromContract && hoverDialogController.setDialogSource) {
+            console.log("[DialogController] Setting dialog source to 'hover' for idle/custom dialog");
             hoverDialogController.setDialogSource('hover');
           }
         } catch (e) {
-          console.error("[DialogController] Error setting dialog source:", e);
+          console.error("[DialogController] Error checking/setting dialog source:", e);
         }
         
         // Tampilkan dialog custom
