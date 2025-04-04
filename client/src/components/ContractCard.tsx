@@ -62,7 +62,7 @@ const getDocumentName = (path: string) => {
 
 const ContractCard: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(0.8); // Default zoom 80%
   const [currentIndex, setCurrentIndex] = useState(0);
   const dialogController = DialogController.getInstance();
   const { setVolume, currentVolume } = useAudio();
@@ -148,7 +148,7 @@ const ContractCard: React.FC = () => {
       // Tunggu animasi selesai sebelum update index
       setTimeout(() => {
         setCurrentIndex(prev => prev + 1);
-        setScale(1); // Reset zoom
+        setScale(0.8); // Reset zoom ke 80%
         
         // Beri jeda sedikit sebelum mengizinkan animasi lagi
         setTimeout(() => {
@@ -170,7 +170,7 @@ const ContractCard: React.FC = () => {
       // Tunggu animasi selesai sebelum update index
       setTimeout(() => {
         setCurrentIndex(prev => prev - 1);
-        setScale(1); // Reset zoom
+        setScale(0.8); // Reset zoom ke 80%
         
         // Beri jeda sedikit sebelum mengizinkan animasi lagi
         setTimeout(() => {
@@ -191,7 +191,7 @@ const ContractCard: React.FC = () => {
     
     setIsOpen(false);
     setCurrentIndex(0);
-    setScale(1);
+    setScale(0.8); // Kembalikan ke default zoom 80%
   };
 
   const openImageInNewTab = (e: React.MouseEvent) => {
@@ -431,6 +431,7 @@ const ContractCard: React.FC = () => {
           width: 100%;
           height: 100%;
           padding: 0 10px; /* Tambah padding horizontal */
+          margin: 0 auto; /* Pastikan berada di tengah layar */
         }
         
         .document-header {
@@ -467,7 +468,7 @@ const ContractCard: React.FC = () => {
         }
 
         .document-image {
-          max-width: 92%;
+          max-width: 96%;
           max-height: 84%;
           object-fit: contain;
           box-shadow: 0 5px 25px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 0, 0, 0.4);
@@ -478,10 +479,13 @@ const ContractCard: React.FC = () => {
           margin: 0 auto; /* Center horizontally */
           border-radius: 2px;
           filter: brightness(1.1) contrast(1.05);
+          position: relative; /* Untuk positioning yang lebih baik */
+          left: 50%;
+          transform: translateX(-50%); /* Memastikan benar-benar terpusat */
         }
         
         .document-image:hover {
-          transform: scale(1.025) translateY(-2px);
+          transform: scale(1.025) translateX(-50%) translateY(-2px);
           box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 12px rgba(255, 220, 150, 0.25);
           border-color: rgba(200, 180, 140, 0.8);
           filter: brightness(1.15) contrast(1.08);
@@ -496,6 +500,8 @@ const ContractCard: React.FC = () => {
           align-items: center;
           width: 100%;
           height: 100%;
+          margin: 0 auto; /* Pastikan berada di tengah */
+          text-align: center; /* Membantu posisi elemen-elemen dalam container */
         }
         
         .page-flip-next .book-container {
