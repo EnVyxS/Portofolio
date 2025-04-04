@@ -75,11 +75,11 @@ const HOVER_DIALOGS = {
       "Getting annoyed with the indecision here.",
     ],
     secondLevel: [
-      "ENOUGH! Stop this childish behavior RIGHT NOW!",
-      "I SAID STOP! This is your FINAL warning!",
-      "THAT'S IT! You're getting on my LAST nerve!",
-      "I'M DONE with this ridiculous game. LAST WARNING!",
-      "STOP THIS IMMEDIATELY or you'll REGRET it!",
+      "Enough. You're trying my patience.",
+      "Stop this. Now.",
+      "This ends here. Last warning.",
+      "I've had enough of this nonsense.",
+      "You've pushed your luck too far...",
     ],
   },
 };
