@@ -340,6 +340,35 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        #escape-message {
+            animation: escapeMessage 0.1s linear infinite, pulseSize 2s ease-in-out infinite;
+            font-size: 4rem !important;
+            font-family: 'Impact', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: darkred !important;
+            text-shadow: 
+                0 0 10px rgba(255, 0, 0, 0.8),
+                0 0 20px rgba(255, 0, 0, 0.5),
+                0 0 30px rgba(255, 0, 0, 0.3),
+                2px 2px 0px rgba(0, 0, 0, 1) !important;
+            transform-origin: center;
+            width: 100%;
+        }
+        
+        @keyframes escapeMessage {
+            0% { transform: translateX(-2px) translateY(-1px); }
+            25% { transform: translateX(2px) translateY(1px); }
+            50% { transform: translateX(-1px) translateY(2px); }
+            75% { transform: translateX(1px) translateY(-1px); }
+            100% { transform: translateX(-2px) translateY(-2px); }
+        }
+        
+        @keyframes pulseSize {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
 
         .ripple {
             position: absolute;
@@ -385,7 +414,7 @@
         <p class="dream-quote">"The dream is the small hidden door in the deepest and most intimate sanctum of the soul."</p>
         
         <div class="video-container">
-            <iframe id="player" src="https://www.youtube.com/embed/ArmDp-zijuc?enablejsapi=1&autoplay=1&controls=0&rel=0&loop=1&playlist=ArmDp-zijuc&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <iframe id="player" src="https://www.youtube.com/embed/fRUJjOViokk?enablejsapi=1&autoplay=1&controls=0&rel=0&modestbranding=1&disablekb=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
         
         <button id="wakeUpBtn" class="wake-up-btn">WAKE UP</button>
@@ -397,6 +426,133 @@
     <div class="blur-edge"></div>
 
     <script>
+        // Block navigation and prevent closing until video ends
+        const videoLength = 225; // Video length in seconds (fRUJjOViokk length is ~3:45)
+        let allowExit = false;
+        let videoDuration = 0;
+        let videoStartTime = Date.now();
+        
+        // Prevent closing tab/window or navigating away
+        window.addEventListener('beforeunload', function(e) {
+            if (!allowExit) {
+                // Display a confirmation dialog
+                e.preventDefault();
+                e.returnValue = 'Are you sure you want to leave?';
+                return e.returnValue;
+            }
+        });
+        
+        // Intercept keyboard shortcuts that could allow escape
+        document.addEventListener('keydown', function(e) {
+            // Prevent F5 (refresh), Alt+Left (back), Backspace (back), Escape
+            if (
+                e.key === 'F5' || 
+                (e.altKey && e.key === 'ArrowLeft') || 
+                (e.key === 'Backspace' && !e.target.matches('input, textarea')) || 
+                e.key === 'Escape' ||
+                (e.ctrlKey && e.key === 'w') ||  // Ctrl+W (close tab)
+                (e.ctrlKey && e.key === 'F4') || // Ctrl+F4 (close tab)
+                (e.altKey && e.key === 'F4') ||  // Alt+F4 (close window)
+                (e.ctrlKey && e.key === 'r') ||  // Ctrl+R (refresh)
+                (e.ctrlKey && e.key === 'l') ||  // Ctrl+L (address bar focus)
+                (e.ctrlKey && e.key === 't')     // Ctrl+T (new tab)
+            ) {
+                if (!allowExit) {
+                    e.preventDefault();
+                    showEscapeAttemptMessage();
+                    return false;
+                }
+            }
+        });
+        
+        // Create and display message when user tries to escape
+        function showEscapeAttemptMessage() {
+            // Check if message already exists
+            if (document.getElementById('escape-message')) return;
+            
+            const message = document.createElement('div');
+            message.id = 'escape-message';
+            message.style.position = 'fixed';
+            message.style.top = '20%';
+            message.style.left = '50%';
+            message.style.transform = 'translateX(-50%)';
+            message.style.zIndex = '1000';
+            message.style.opacity = '0';
+            message.style.transition = 'opacity 0.5s ease-in-out';
+            message.innerText = 'YOU CANNOT ESCAPE';
+            
+            // Play horrifying sound effect
+            const scarySound = new Audio();
+            scarySound.src = 'data:audio/mp3;base64,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//////////////////9VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//tUwAAAEgBJhdMGAaCfCTEaeMbBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
+            scarySound.volume = 0.3;
+            scarySound.play();
+
+            document.body.appendChild(message);
+            
+            // Create screen flash effect
+            const flash = document.createElement('div');
+            flash.style.position = 'fixed';
+            flash.style.top = '0';
+            flash.style.left = '0';
+            flash.style.width = '100%';
+            flash.style.height = '100%';
+            flash.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
+            flash.style.zIndex = '999';
+            flash.style.opacity = '0';
+            flash.style.transition = 'opacity 0.1s ease-in-out';
+            document.body.appendChild(flash);
+            
+            // Screen glitch effect
+            document.body.style.animation = 'escapeMessage 0.05s linear 5';
+            
+            // Flash screen then show message
+            setTimeout(() => {
+                flash.style.opacity = '1';
+                setTimeout(() => {
+                    flash.style.opacity = '0';
+                    message.style.opacity = '1';
+                    
+                    // Keep message longer, then fade out
+                    setTimeout(() => {
+                        message.style.opacity = '0';
+                        document.body.style.animation = '';
+                        
+                        setTimeout(() => {
+                            message.remove();
+                            flash.remove();
+                        }, 500);
+                    }, 3000);
+                }, 100);
+            }, 10);
+        }
+        
+        // Check video progress periodically
+        function checkVideoProgress() {
+            if (player && player.getDuration) {
+                const currentTime = player.getCurrentTime();
+                videoDuration = player.getDuration();
+                
+                const remainingTime = videoDuration - currentTime;
+                
+                // If less than 5 seconds remain or video ended, allow exit
+                if (remainingTime < 5 || player.getPlayerState() === YT.PlayerState.ENDED) {
+                    allowExit = true;
+                    showWakeUpButton();
+                }
+            }
+            
+            // Fallback time-based exit permission (in case video API fails)
+            const elapsedTime = (Date.now() - videoStartTime) / 1000;
+            if (elapsedTime > videoLength) {
+                allowExit = true;
+                showWakeUpButton();
+            }
+            
+            if (!allowExit) {
+                setTimeout(checkVideoProgress, 1000);
+            }
+        }
+        
         // YouTube API code
         let tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
@@ -417,7 +573,9 @@
 
         function onPlayerReady(event) {
             event.target.playVideo();
-            event.target.setVolume(85); // Set volume to 85%
+            event.target.setVolume(100); // Set volume to maximum
+            videoStartTime = Date.now(); // Reset start time when video actually loads
+            checkVideoProgress(); // Start checking video progress
         }
 
         function onPlayerStateChange(event) {
