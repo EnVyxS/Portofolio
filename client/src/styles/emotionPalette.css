@@ -1,0 +1,183 @@
+/* Styling untuk Palette Emosi */
+.emotion-palette-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  z-index: 1000;
+}
+
+.emotion-toggle-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2a2a2a;
+  border: 2px solid #444;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #eee;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
+}
+
+.emotion-toggle-button:hover {
+  background-color: #333;
+  border-color: #555;
+}
+
+.emotion-toggle-button.active {
+  background-color: #3a3a3a;
+  border-color: #666;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.emotion-preview {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  text-transform: capitalize;
+}
+
+.emotion-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background-color: #222;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 12px;
+  width: 250px;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.emotion-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.emotion-item:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+}
+
+.emotion-item.selected {
+  background-color: #3a3a3a;
+  border-color: #666;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.emotion-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: #333;
+  border-radius: 50%;
+  margin-bottom: 4px;
+  font-size: 16px;
+  color: #eee;
+}
+
+.emotion-label {
+  font-size: 12px;
+  color: #eee;
+  text-transform: capitalize;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Styling untuk emosi spesifik */
+.emotion-neutral {
+  background-color: #555;
+}
+
+.emotion-angry {
+  background-color: #a13030;
+}
+
+.emotion-annoyed {
+  background-color: #ba7d33;
+}
+
+.emotion-curious {
+  background-color: #3c7fbf;
+}
+
+.emotion-suspicious {
+  background-color: #6a33a1;
+}
+
+.emotion-smirk {
+  background-color: #33a184;
+}
+
+.emotion-threatening {
+  background-color: #8c2a2a;
+}
+
+.emotion-frustrated {
+  background-color: #bf5f3c;
+}
+
+.emotion-satisfied {
+  background-color: #3cab6e;
+}
+
+.emotion-dismissive {
+  background-color: #666;
+}
+
+.emotion-sarcastic {
+  background-color: #9e44aa;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+  .emotion-grid {
+    width: 200px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .emotion-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  
+  .emotion-label {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .emotion-palette-container {
+    top: 5px;
+    right: 5px;
+  }
+  
+  .emotion-toggle-button {
+    padding: 6px 8px;
+  }
+  
+  .emotion-preview {
+    font-size: 12px;
+  }
+}

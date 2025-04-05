@@ -4,6 +4,8 @@ import DialogController from '../controllers/dialogController';
 import HoverDialogController from '../controllers/hoverDialogController';
 import { FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
 import ElevenLabsService from '../services/elevenlabsService';
+import { useEmotion } from '../context/EmotionContext';
+import { EmotionType } from '../types/emotions';
 
 // Respon variasi saat kartu diklik
 export const CONTRACT_RESPONSES = [
@@ -59,6 +61,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const [dialogSource, setDialogSource] = useState<'main' | 'hover'>('main');
   const [isMuted, setIsMuted] = useState<boolean>(false);
   
+  // Menggunakan EmotionContext
+  const { setEmotion } = useEmotion();
+  
   const dialogController = DialogController.getInstance();
   const hoverDialogController = HoverDialogController.getInstance();
   const elevenLabsService = ElevenLabsService.getInstance();
@@ -112,6 +117,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             const currentDialog = dialogController.getCurrentDialog();
             if (currentDialog) {
               setCharacterName(currentDialog.character);
+              
+              // Update emosi karakter jika ada pada dialog ini
+              if (currentDialog.emotion) {
+                setEmotion(currentDialog.emotion);
+              }
+              
               // Update hover dialog controller with completion status
               hoverDialogController.setDialogCompleted(complete);
             } else {
@@ -146,6 +157,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           const currentDialog = dialogController.getCurrentDialog();
           if (currentDialog) {
             setCharacterName(currentDialog.character);
+            
+            // Update emosi karakter jika ada pada dialog ini
+            if (currentDialog.emotion) {
+              setEmotion(currentDialog.emotion);
+            }
+            
             // Update hover dialog controller with completion status
             hoverDialogController.setDialogCompleted(complete);
           } else {
@@ -175,7 +192,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         // Ini perbaikan utama yang dilakukan
       }
     }
-  }, [dialogSource, isComplete, dialogController, hoverDialogController, onDialogComplete, setText, setIsComplete, setIsDialogFinished, setCharacterName]);
+  }, [dialogSource, isComplete, dialogController, hoverDialogController, onDialogComplete, setText, setIsComplete, setIsDialogFinished, setCharacterName, setEmotion]);
 
   // Effect untuk auto-continue ketika dialog selesai - dimodifikasi untuk berjalan untuk semua dialog
   useEffect(() => {
@@ -267,6 +284,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       }
     };
     
+    // Set callback untuk perubahan emosi
+    dialogController.setEmotionChangeCallback((emotion: EmotionType) => {
+      console.log(`[DialogBox] Emosi berubah ke: ${emotion}`);
+      setEmotion(emotion);
+    });
+    
     // Periksa apakah hover dialog sedang aktif (typing)
     const isHoverDialogActive = hoverDialogController.isTypingHoverDialog();
     
@@ -282,6 +305,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         const currentDialog = dialogController.getCurrentDialog();
         if (currentDialog) {
           setCharacterName(currentDialog.character);
+          
+          // Update emosi karakter jika ada pada dialog ini
+          if (currentDialog.emotion) {
+            setEmotion(currentDialog.emotion);
+          }
         }
         
         // Notify HoverDialogController about dialog completion status
@@ -298,7 +326,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       // Jangan reset hover state saat unmount untuk mempertahankan hover dialog
       // hoverDialogController.resetHoverState(); - dihapus karena mengakibatkan reset dialog
     };
-  }, []);
+  }, [setEmotion]);
 
   // Dialog box akan tetap muncul meskipun dialog selesai
   // JANGAN return null di sini agar dialog box tetap ditampilkan
