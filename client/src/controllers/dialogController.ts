@@ -1,7 +1,6 @@
 import DialogModel, { Dialog, RETURN_DIALOG } from '../models/dialogModel';
 import ElevenLabsService from '../services/elevenlabsService';
 import HoverDialogController from './hoverDialogController';
-import { EmotionType } from '../types/emotions';
 
 class DialogController {
   private static instance: DialogController;
@@ -15,7 +14,6 @@ class DialogController {
   private charIndex: number = 0;
   private typingInterval: NodeJS.Timeout | null = null;
   private isPostResetDialog: boolean = false; // Melacak apakah dialog khusus setelah reset sedang aktif
-  private emotionChangeCallback: ((emotion: EmotionType) => void) | null = null; // Callback untuk perubahan emosi
 
   private constructor() {
     this.dialogModel = DialogModel.getInstance();
@@ -98,12 +96,6 @@ class DialogController {
     if (dialog.persistent === undefined) {
       // Deteksi berdasarkan dialog content (pertanyaan atau tidak)
       dialog.persistent = dialog.text.includes('?');
-    }
-    
-    // Periksa dan perbarui emosi karakter jika ada
-    if (dialog.emotion && this.emotionChangeCallback) {
-      console.log(`[DialogController] Dialog memiliki emosi: ${dialog.emotion}`);
-      this.emotionChangeCallback(dialog.emotion);
     }
     
     // Perkiraan durasi dialog berdasarkan panjang teks
@@ -216,7 +208,7 @@ class DialogController {
   }
   
   // Method khusus untuk menampilkan dialog timeout/idle
-  public showCustomDialog(text: string, callback: (text: string, isComplete: boolean) => void, emotion?: EmotionType): void {
+  public showCustomDialog(text: string, callback: (text: string, isComplete: boolean) => void): void {
     // Hentikan dialog yang sedang berjalan
     this.stopTyping();
     
@@ -234,8 +226,7 @@ class DialogController {
         const customDialog: Dialog = {
           id: 9999, // ID khusus untuk dialog timeout
           text: text,
-          character: "DIVA JUAN NUR TAQARRUB", // Karakter untuk dialog timeout/idle
-          emotion: emotion // Gunakan emosi yang diberikan atau undefined
+          character: "DIVA JUAN NUR TAQARRUB" // Karakter untuk dialog timeout/idle
         };
         
         // Periksa tipe dialog berdasarkan teksnya
@@ -309,25 +300,6 @@ class DialogController {
   // Method untuk mengakses dialog model
   public getDialogModel(): DialogModel {
     return this.dialogModel;
-  }
-  
-  // Mengatur callback untuk perubahan emosi
-  public setEmotionChangeCallback(callback: (emotion: EmotionType) => void): void {
-    this.emotionChangeCallback = callback;
-  }
-  
-  // Mendapatkan emosi dari dialog saat ini
-  public getCurrentEmotion(): EmotionType {
-    const currentDialog = this.dialogModel.getCurrentDialog();
-    return currentDialog?.emotion || 'neutral';
-  }
-  
-  // Method untuk mengatur emosi secara manual
-  public setEmotion(emotion: EmotionType): void {
-    if (this.emotionChangeCallback) {
-      console.log(`[DialogController] Setting emotion: ${emotion}`);
-      this.emotionChangeCallback(emotion);
-    }
   }
 }
 

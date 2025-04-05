@@ -1,7 +1,6 @@
 import DialogController from "./dialogController";
 import HoverDialogController from "./hoverDialogController";
 import ElevenLabsService from "../services/elevenlabsService";
-import { EmotionType } from "../types/emotions";
 
 // Dialog yang akan ditampilkan pada timeout tertentu
 export const IDLE_DIALOGS = {
@@ -466,26 +465,14 @@ class IdleTimeoutController {
       
       // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
       setTimeout(() => {
-        // Tentukan emosi berdasarkan jenis pesan
-        let emotion: EmotionType = 'neutral';
-        
-        if (text.includes("staring at me") || text.includes("keep ignoring me")) {
-          emotion = 'annoyed';
-        } else if (text.includes("Fuck you") || text.includes("PUSHING") || 
-                  text.includes("ENOUGH") || text.includes("REGRET IT")) {
-          emotion = 'angry';
-        } else if (text.includes("Finally, you decide") || text.includes("you think this is funny")) {
-          emotion = 'threatening';
-        }
-        
-        // Tampilkan dialog peringatan dengan text custom dan emosi yang sesuai
+        // Tampilkan dialog peringatan dengan text custom
         // Dialog Controller akan mengelola audio secara otomatis
         this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
           if (isComplete) {
             // Tandai bahwa user sudah berinteraksi dengan dialog
             this.hoverDialogController.setHasInteractedWithHover(true);
           }
-        }, emotion);
+        });
       }, 200);
     }, 100);
     

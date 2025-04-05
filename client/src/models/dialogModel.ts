@@ -1,12 +1,9 @@
-import { EmotionType } from '../types/emotions';
-
 export interface Dialog {
   id: number;
   text: string;
   character: string;
   voiceId?: string; // For ElevenLabs voice ID
   persistent?: boolean; // Apakah dialog tetap visible setelah selesai
-  emotion?: EmotionType; // Emosi karakter saat dialog ini ditampilkan
 }
 
 // Dialog khusus untuk situasi setelah reset
@@ -15,8 +12,7 @@ export const RETURN_DIALOG: Dialog = {
   character: "DIVA JUAN NUR TAQARRUB",
   text: "Now what, you little filth!? Back for more punishment?",
   voiceId: "dBynzNhvSFj0l1D7I9yV",
-  persistent: true,
-  emotion: 'threatening'
+  persistent: true
 };
 
 class DialogModel {
@@ -27,21 +23,18 @@ class DialogModel {
       character: "DIVA JUAN NUR TAQARRUB",
       text: "...Didn't ask for company.",
       voiceId: "dBynzNhvSFj0l1D7I9yV", // Voice ID untuk DIVA JUAN NUR TAQARRUB
-      emotion: 'dismissive'
     },
     {
       id: 2,
       character: "DIVA JUAN NUR TAQARRUB",
       text: "Fire's warm... Always brings strays....",
       voiceId: "dBynzNhvSFj0l1D7I9yV",
-      emotion: 'dismissive'
     },
     {
       id: 3,
       character: "DIVA JUAN NUR TAQARRUB",
       text: "Haahhhh... You need something or are you just here to waste my time?",
       voiceId: "dBynzNhvSFj0l1D7I9yV",
-      emotion: 'annoyed'
     },
     {
       id: 4,
@@ -90,14 +83,12 @@ class DialogModel {
       character: "DIVA JUAN NUR TAQARRUB",
       text: "Heh... Yeah, real fucking hilarious, isn't it?",
       voiceId: "dBynzNhvSFj0l1D7I9yV",
-      emotion: 'sarcastic'
     },
     {
       id: 12,
       character: "DIVA JUAN NUR TAQARRUB",
       text: "...You got a name?",
       voiceId: "dBynzNhvSFj0l1D7I9yV",
-      emotion: 'curious'
     },
     {
       id: 13,
@@ -278,21 +269,18 @@ class DialogModel {
       character: "DIVA JUAN NUR TAQARRUB",
       text: "...Enough about me",
       voiceId: "dBynzNhvSFj0l1D7I9yV",
-      emotion: 'dismissive'
     },
     {
       id: 43,
       character: "DIVA JUAN NUR TAQARRUB",
       text: "What do you want?..",
       voiceId: "dBynzNhvSFj0l1D7I9yV",
-      emotion: 'suspicious'
     },
     {
       id: 44,
       character: "DIVA JUAN NUR TAQARRUB",
       text: "Talk... You got a job, or just wasting my time?..",
       voiceId: "dBynzNhvSFj0l1D7I9yV",
-      emotion: 'annoyed'
     },
   ];
 
