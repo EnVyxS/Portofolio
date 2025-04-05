@@ -19,8 +19,7 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
     
     // Clean up effect atau panggil callback setelah efek selesai
     if (effect !== 'none') {
-      // Reduce animation time - punch effect more immediate
-      const effectDuration = effect === 'throw' ? 2000 : 2000; // Reduced from 3000 to 2000ms
+      const effectDuration = effect === 'throw' ? 2000 : 3000; // throw lebih cepat dari punch
       
       // Play punch sound effect if punch effect is active
       if (effect === 'punch') {
@@ -28,26 +27,12 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
           // Create audio element for punch sound
           punchSoundRef.current = new Audio('/assets/sounds/punch_sfx.m4a');
           if (punchSoundRef.current) {
-            // Ensure audio is loaded before playing
-            punchSoundRef.current.volume = 0.8; // Increased volume for impact
-            punchSoundRef.current.preload = 'auto';
-            
-            // Force load and play with better error handling
-            punchSoundRef.current.addEventListener('canplaythrough', () => {
-              punchSoundRef.current?.play()
-                .catch(e => console.error("Couldn't play punch sound:", e));
-            }, { once: true });
-            
-            // Fallback if the event doesn't fire
-            setTimeout(() => {
-              if (punchSoundRef.current) {
-                punchSoundRef.current.play()
-                  .catch(e => console.error("Fallback play failed:", e));
-              }
-            }, 100);
+            punchSoundRef.current.volume = 0.6; // Set appropriate volume
+            punchSoundRef.current.play()
+              .catch(e => console.log("Couldn't play punch sound:", e));
           }
         } catch (error) {
-          console.error("Error setting up punch sound:", error);
+          console.log("Error playing punch sound:", error);
         }
       }
       
@@ -121,16 +106,16 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
                 }}
               />
               
-              {/* Getaran kamera dengan jitter acak - intensified and faster */}
+              {/* Getaran kamera dengan jitter acak */}
               <motion.div 
                 className="camera-shake"
                 animate={{
-                  x: [0, -25, 30, -15, 10, -5, 0],
-                  y: [0, 15, -20, 8, -3, 0],
-                  rotate: [0, -2, 3, -2, 1, 0]
+                  x: [0, -15, 25, -12, 8, -3, 0],
+                  y: [0, 10, -15, 5, -2, 0],
+                  rotate: [0, -1, 2, -1.5, 0.5, 0]
                 }}
                 transition={{ 
-                  duration: 0.5, // Faster camera shake
+                  duration: 0.8, 
                   ease: "easeOut",
                   times: [0, 0.1, 0.2, 0.4, 0.6, 1] 
                 }}
@@ -139,49 +124,32 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
                 <div className="screen-content"></div>
               </motion.div>
               
-              {/* Luka/memar yang muncul - faster and more intense */}
+              {/* Luka/memar yang muncul */}
               <motion.div 
                 className="bruise-overlay"
                 initial={{ opacity: 0 }}
                 animate={{
-                  opacity: [0, 0.85, 0.95]
+                  opacity: [0, 0.7, 0.9]
                 }}
                 transition={{ 
-                  duration: 0.4, // Faster bruise appearance
-                  delay: 0.1, // Quicker start
+                  duration: 0.7, 
+                  delay: 0.2,
                   ease: "easeOut" 
                 }}
               />
               
-              {/* Darah realistis - enhanced for more impact */}
+              {/* Darah realistis */}
               <motion.div 
                 className="blood-splatter"
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{
-                  opacity: [0, 1, 0.9],
-                  scale: [0.5, 1.3, 1.1],
-                  y: [0, 5, 15]
-                }}
-                transition={{ 
-                  duration: 0.6, // Faster blood animation
-                  delay: 0.1, // Almost immediate
-                  ease: "easeOut" 
-                }}
-              />
-              
-              {/* More blood splatters for realism */}
-              <motion.div 
-                className="blood-splatter-extra"
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{
-                  opacity: [0, 0.9, 0.7],
+                  opacity: [0, 1, 0.8],
                   scale: [0.5, 1.2, 1],
-                  y: [0, 8, 12],
-                  x: [0, 10, 15]
+                  y: [0, 10, 25]
                 }}
                 transition={{ 
-                  duration: 0.5,
-                  delay: 0.15,
+                  duration: 1.2, 
+                  delay: 0.3,
                   ease: "easeOut" 
                 }}
               />
@@ -190,11 +158,11 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
               <motion.div 
                 className="screen-crack-realistic"
                 animate={{
-                  opacity: [0, 0.95, 1],
+                  opacity: [0, 0.9, 1],
                 }}
                 transition={{ 
-                  duration: 0.2, // Faster crack
-                  delay: 0.05, // Almost immediate
+                  duration: 0.3,
+                  delay: 0.1, 
                   ease: "easeOut"
                 }}
               />
@@ -203,11 +171,11 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
               <motion.div 
                 className="vignette-effect"
                 animate={{
-                  opacity: [0, 0.5, 0.9]
+                  opacity: [0, 0.4, 0.9]
                 }}
                 transition={{ 
-                  duration: 1.0, // Faster vignette
-                  delay: 0.4, // Earlier start
+                  duration: 1.5,
+                  delay: 0.6,
                   ease: "easeIn"
                 }}
               />
@@ -216,11 +184,11 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
               <motion.div 
                 className="screen-blackout"
                 animate={{
-                  opacity: [0, 0.3, 0.6, 0.9, 1]
+                  opacity: [0, 0.2, 0.5, 0.8, 1]
                 }}
                 transition={{ 
-                  duration: 1.3, // Faster blackout
-                  delay: 0.7, // Earlier start
+                  duration: 2,
+                  delay: 1.0,
                   times: [0, 0.2, 0.4, 0.7, 1],
                   ease: "easeIn"
                 }}
@@ -230,12 +198,12 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
               <motion.div 
                 className="vision-blur"
                 animate={{
-                  opacity: [0, 0.5, 0.9, 1],
-                  filter: ["blur(0px)", "blur(3px)", "blur(10px)", "blur(18px)"],
+                  opacity: [0, 0.4, 0.8, 1],
+                  filter: ["blur(0px)", "blur(2px)", "blur(8px)", "blur(15px)"],
                 }}
                 transition={{ 
-                  duration: 1.0, // Faster blur
-                  delay: 0.3, // Earlier start
+                  duration: 1.8,
+                  delay: 0.5,
                   times: [0, 0.3, 0.6, 1],
                   ease: "easeIn"
                 }}
@@ -245,13 +213,13 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
               <motion.div 
                 className="double-vision"
                 animate={{
-                  opacity: [0, 0.7, 0.4],
-                  x: [0, 12, 6],
-                  y: [0, -5, -2]
+                  opacity: [0, 0.6, 0.3],
+                  x: [0, 8, 4],
+                  y: [0, -3, -1]
                 }}
                 transition={{ 
-                  duration: 0.8, // Faster double vision
-                  delay: 0.4, // Earlier start
+                  duration: 1.2,
+                  delay: 0.7,
                   ease: "easeInOut"
                 }}
               />
@@ -395,25 +363,9 @@ export const dramaticEffectsStyles = `
     left: 45%;
     width: 15%;
     height: 15%;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpath d='M10,10 Q15,5 20,10 T30,15 Q40,5 45,15 T55,20 Q60,15 65,25 T75,20' stroke='%23990000' stroke-width='3' fill='none'/%3E%3Ccircle cx='20' cy='15' r='5' fill='%23800000'/%3E%3Ccircle cx='40' cy='20' r='4' fill='%23800000'/%3E%3Ccircle cx='60' cy='15' r='6' fill='%23800000'/%3E%3Ccircle cx='30' cy='25' r='3' fill='%23800000'/%3E%3Ccircle cx='50' cy='10' r='4' fill='%23800000'/%3E%3Cpath d='M15,30 Q25,35 30,30 T40,25' stroke='%23990000' stroke-width='2' fill='none'/%3E%3Ccircle cx='25' cy='32' r='3' fill='%23990000'/%3E%3Ccircle cx='35' cy='28' r='2' fill='%23990000'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpath d='M10,10 Q15,5 20,10 T30,15 Q40,5 45,15 T55,20 Q60,15 65,25 T75,20' stroke='%23990000' stroke-width='3' fill='none'/%3E%3Ccircle cx='20' cy='15' r='5' fill='%23800000'/%3E%3Ccircle cx='40' cy='20' r='4' fill='%23800000'/%3E%3Ccircle cx='60' cy='15' r='6' fill='%23800000'/%3E%3Ccircle cx='30' cy='25' r='3' fill='%23800000'/%3E%3Ccircle cx='50' cy='10' r='4' fill='%23800000'/%3E%3C/svg%3E");
     opacity: 0;
     z-index: 7;
-    filter: saturate(1.5);
-    mix-blend-mode: multiply;
-  }
-  
-  .blood-splatter-extra {
-    position: absolute;
-    top: 48%;
-    left: 47%;
-    width: 18%;
-    height: 18%;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpath d='M5,15 Q10,5 18,12 T30,8 Q40,12 50,8 T65,15' stroke='%23AA0000' stroke-width='4' fill='none'/%3E%3Ccircle cx='15' cy='10' r='7' fill='%23990000'/%3E%3Ccircle cx='35' cy='8' r='5' fill='%23AA0000'/%3E%3Ccircle cx='55' cy='12' r='8' fill='%23990000'/%3E%3Ccircle cx='25' cy='15' r='4' fill='%23990000'/%3E%3Ccircle cx='45' cy='5' r='6' fill='%23AA0000'/%3E%3Cpath d='M10,25 Q20,30 30,25 T45,20 Q55,15 65,20' stroke='%23990000' stroke-width='3' fill='none'/%3E%3Ccircle cx='20' cy='27' r='4' fill='%23990000'/%3E%3Ccircle cx='40' cy='22' r='5' fill='%23AA0000'/%3E%3Ccircle cx='58' cy='18' r='3' fill='%23990000'/%3E%3C/svg%3E");
-    opacity: 0;
-    z-index: 7;
-    transform: rotate(15deg);
-    filter: saturate(1.8) contrast(1.2);
-    mix-blend-mode: multiply;
   }
   
   .screen-crack-realistic {
