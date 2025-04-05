@@ -96,10 +96,8 @@ function MainApp() {
   // Handler untuk efek punch - ketika DIVA JUAN memukul user
   const handlePunchUser = useCallback(() => {
     setDramaticEffect('punch');
-    // Setelah beberapa detik, redirect ke halaman kosong
-    setTimeout(() => {
-      window.location.href = "about:blank";
-    }, 3000);
+    // Redirect ke halaman kosong akan ditangani oleh IdleTimeoutController
+    // dengan delay yang sudah diatur untuk memberikan waktu untuk efek visual
   }, [setDramaticEffect]);
   
   // Reset scene callback

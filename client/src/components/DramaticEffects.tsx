@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface DramaticEffectsProps {
@@ -11,6 +11,7 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
   onEffectComplete 
 }) => {
   const [isEffectActive, setIsEffectActive] = useState<boolean>(effect !== 'none');
+  const punchSoundRef = useRef<HTMLAudioElement | null>(null);
   
   // Jalankan efek saat prop effect berubah
   useEffect(() => {
@@ -20,12 +21,34 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
     if (effect !== 'none') {
       const effectDuration = effect === 'throw' ? 2000 : 3000; // throw lebih cepat dari punch
       
+      // Play punch sound effect if punch effect is active
+      if (effect === 'punch') {
+        try {
+          // Create audio element for punch sound
+          punchSoundRef.current = new Audio('/assets/sounds/punch_sfx.m4a');
+          if (punchSoundRef.current) {
+            punchSoundRef.current.volume = 0.6; // Set appropriate volume
+            punchSoundRef.current.play()
+              .catch(e => console.log("Couldn't play punch sound:", e));
+          }
+        } catch (error) {
+          console.log("Error playing punch sound:", error);
+        }
+      }
+      
       const timer = setTimeout(() => {
         setIsEffectActive(false);
         if (onEffectComplete) onEffectComplete();
       }, effectDuration);
       
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        // Clean up audio when component unmounts
+        if (punchSoundRef.current) {
+          punchSoundRef.current.pause();
+          punchSoundRef.current = null;
+        }
+      };
     }
   }, [effect, onEffectComplete]);
   
@@ -75,7 +98,7 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
             }}
             exit={{ opacity: 0 }}
           >
-            {/* Efek memukul */}
+            {/* Efek memukul yang lebih realistis */}
             <div className="punch-effect-inner">
               <motion.div 
                 className="punch-impact"
@@ -97,16 +120,46 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
                   ease: "easeOut"
                 }}
               />
+              {/* Efek pingsan dengan blackout yang lebih intensif */}
               <motion.div 
                 className="screen-blackout"
                 animate={{
-                  opacity: [0, 0, 0.2, 0.9]
+                  opacity: [0, 0.3, 0.7, 1]
                 }}
                 transition={{ 
                   duration: 2,
                   delay: 0.5,
-                  times: [0, 0.5, 0.7, 1],
+                  times: [0, 0.3, 0.6, 1],
                   ease: "easeIn"
+                }}
+              />
+              {/* Tambahan efek blur untuk simulasi pingsan */}
+              <motion.div 
+                className="screen-blur"
+                animate={{
+                  opacity: [0, 0.6, 1],
+                  filter: ["blur(0px)", "blur(5px)", "blur(15px)"],
+                }}
+                transition={{ 
+                  duration: 1.5,
+                  delay: 0.7,
+                  times: [0, 0.5, 1],
+                  ease: "easeIn"
+                }}
+              />
+              {/* Efek stars untuk simulasi pusing setelah dipukul */}
+              <motion.div 
+                className="punch-stars"
+                animate={{
+                  opacity: [0, 0.8, 0],
+                  y: [0, -20, -40],
+                  rotate: [0, 20]
+                }}
+                transition={{ 
+                  duration: 2,
+                  delay: 0.3,
+                  times: [0, 0.5, 1],
+                  ease: "easeOut"
                 }}
               />
             </div>
@@ -201,6 +254,33 @@ export const dramaticEffectsStyles = `
     height: 100%;
     background-color: #000;
     opacity: 0;
+  }
+  
+  .screen-blur {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(0px);
+    opacity: 0;
+  }
+  
+  .punch-stars {
+    position: absolute;
+    top: 40%;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cg%3E%3Cpath d='M80,15 L82,22 L89,22 L83,27 L85,34 L80,30 L75,34 L77,27 L71,22 L78,22 Z' fill='%23fff' /%3E%3Cpath d='M160,20 L162,27 L169,27 L163,32 L165,39 L160,35 L155,39 L157,32 L151,27 L158,27 Z' fill='%23fff' /%3E%3Cpath d='M240,20 L242,27 L249,27 L243,32 L245,39 L240,35 L235,39 L237,32 L231,27 L238,27 Z' fill='%23fff' /%3E%3Cpath d='M320,15 L322,22 L329,22 L323,27 L325,34 L320,30 L315,34 L317,27 L311,22 L318,22 Z' fill='%23fff' /%3E%3Cpath d='M400,25 L402,32 L409,32 L403,37 L405,44 L400,40 L395,44 L397,37 L391,32 L398,32 Z' fill='%23fff' /%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0;
+    animation: starsFloat 2s ease-out 0.3s forwards;
+  }
+  
+  @keyframes starsFloat {
+    0% { opacity: 0; transform: translateY(0); }
+    40% { opacity: 0.7; }
+    100% { opacity: 0; transform: translateY(-40px) rotate(10deg); }
   }
   
   @keyframes pulseAndFade {

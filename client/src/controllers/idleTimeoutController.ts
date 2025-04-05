@@ -533,38 +533,64 @@ class IdleTimeoutController {
       this.hoverDialogController.setDialogSource('main');
     }
     
-    this.showIdleWarning(punchText);
-
-    // Notifikasi HoverDialogController bahwa idle timeout telah terjadi
-    try {
-      // Ini akan mencegah hover dialog muncul lagi setelah idle timeout
-      if (
-        this.hoverDialogController &&
-        typeof this.hoverDialogController.setIdleTimeoutOccurred === "function"
-      ) {
-        this.hoverDialogController.setIdleTimeoutOccurred(true);
-        console.log(
-          "Notified HoverDialogController that excessive hover punishment has occurred",
+    // Fungsi untuk menjalankan proses pukulan
+    const executePunch = () => {
+      console.log("[IdleTimeoutController] Executing punch effect");
+      
+      // Notifikasi HoverDialogController bahwa idle timeout telah terjadi
+      try {
+        // Ini akan mencegah hover dialog muncul lagi setelah idle timeout
+        if (
+          this.hoverDialogController &&
+          typeof this.hoverDialogController.setIdleTimeoutOccurred === "function"
+        ) {
+          this.hoverDialogController.setIdleTimeoutOccurred(true);
+          console.log(
+            "Notified HoverDialogController that excessive hover punishment has occurred",
+          );
+        }
+      } catch (e) {
+        console.error(
+          "Could not notify HoverDialogController about excessive hover punishment:",
+          e,
         );
       }
-    } catch (e) {
-      console.error(
-        "Could not notify HoverDialogController about excessive hover punishment:",
-        e,
-      );
-    }
 
-    // Jalankan callback jika ada setelah delay singkat
-    setTimeout(() => {
-      if (this.punchUserCallback) {
-        this.punchUserCallback();
+      // Jalankan callback jika ada setelah dialog terbaca
+      setTimeout(() => {
+        if (this.punchUserCallback) {
+          console.log("[IdleTimeoutController] Triggering punch animation");
+          this.punchUserCallback();
+        }
+      }, 1000); // Delay 1 detik untuk dialog dapat dibaca
+      
+      // Setelah beberapa detik lebih lama, baru redirect ke about:blank
+      // Ini memberi waktu untuk efek animasi fainting dan punch selesai
+      setTimeout(() => {
+        console.log("[IdleTimeoutController] Redirecting to about:blank");
+        window.location.href = "about:blank"; // Redirect ke halaman kosong
+      }, 4000); // Diperpanjang menjadi 4 detik (termasuk 1 detik delay additional)
+    };
+    
+    // Tampilkan peringatan, tetapi tunggu dialog selesai sebelum melanjutkan
+    this.showIdleWarning(punchText);
+    
+    // Cek apakah ada dialog atau audio aktif
+    const checkDialogAndPunch = () => {
+      if (this.isAudioOrDialogActive()) {
+        console.log("[IdleTimeoutController] Dialog/Audio still active, will check again in 500ms");
+        // Jika masih ada aktivitas dialog atau audio, cek lagi nanti
+        setTimeout(checkDialogAndPunch, 500);
+      } else {
+        console.log("[IdleTimeoutController] Dialog/Audio completed, proceeding with punch effect");
+        // Jika tidak ada aktivitas dialog/audio, jalankan efek pukulan
+        executePunch();
       }
-    }, 1000); // Delay 1 detik untuk dialog dapat dibaca
-
-    // Setelah beberapa detik, paksa reload website
-    setTimeout(() => {
-      window.location.href = "about:blank"; // Redirect ke halaman kosong
-    }, 3000);
+    };
+    
+    // Setelah menampilkan dialog, berikan waktu untuk menunggu dialog muncul
+    // dan tunggu hingga dialog selesai
+    setTimeout(checkDialogAndPunch, 500);
   }
 
   // Reset semua timer dan status
