@@ -4,19 +4,11 @@ import { FaScroll, FaSearchPlus, FaSearchMinus, FaArrowLeft, FaArrowRight, FaFil
 import DialogController from '../controllers/dialogController';
 import HoverDialogController from '../controllers/hoverDialogController';
 import { useAudio } from '../context/AudioManager';
+import { CONTRACT_RESPONSES } from '../views/DialogBox';
 
 // Import sounds
 import swipeSoundSrc from '@assets/Screen swipe sound effect (mp3cut.net).m4a';
 import footstepSoundSrc from '@assets/footsteps sound effect - walking sound effect - copyright free sound effects (mp3cut.net) (1).m4a';
-
-// Respon variasi saat kartu diklik
-const CONTRACT_RESPONSES = [
-  "Didn't lie. Never have, never will. Maybe next time, use your damn brain before throwing accusations.",
-  "Not a liar. Never was. Maybe next time, don't waste my time with your doubts.",
-  "Told you the truth. Always do. Maybe next time, keep your mouth shut until you know better.",
-  "Didn't lie. Don't need to. Maybe next time, think twice before making a fool of yourself.",
-  "Believe me now? Thought so. Next time, don't question what you don't understand."
-];
 
 // Import gambar sertifikat
 import ijazah from '@assets/Ijazah.jpg';
