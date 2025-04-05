@@ -564,10 +564,10 @@ class IdleTimeoutController {
       let punchSoundCompleted = false;
       let punchSoundStarted = false;
       
-      // Precarga y reproducción del sonido de golpe
+      // Reproducir suara pukulan segera
       try {
         const punchSound = new Audio('/assets/sounds/punch_sfx.m4a');
-        punchSound.volume = 0.8; // Volumen alto para asegurar que se escuche
+        punchSound.volume = 0.8; // Volumen tinggi untuk memastikan terdengar
         punchSound.load();
         
         // Siapkan event listener untuk mengetahui kapan suara selesai diputar
@@ -576,8 +576,7 @@ class IdleTimeoutController {
           punchSoundCompleted = true;
         });
         
-        // Reproducir el sonido directamente para asegurar que se escuche
-        // Incluso antes de llamar al callback
+        // Putar suara pukulan segera
         const playSoundPromise = punchSound.play();
         
         if (playSoundPromise !== undefined) {
@@ -588,23 +587,19 @@ class IdleTimeoutController {
             })
             .catch(err => {
               console.error("[IdleTimeoutController] Error playing punch sound:", err);
-              // Tandai sebagai selesai meskipun gagal agar proses tetap berlanjut
               punchSoundCompleted = true;
             });
         }
       } catch (soundError) {
         console.error("[IdleTimeoutController] Failed to initialize punch sound:", soundError);
-        // Tandai sebagai selesai meskipun gagal agar proses tetap berlanjut
         punchSoundCompleted = true;
       }
 
-      // Jalankan callback jika ada setelah dialog terbaca
-      setTimeout(() => {
-        if (this.punchUserCallback) {
-          console.log("[IdleTimeoutController] Triggering punch animation");
-          this.punchUserCallback();
-        }
-      }, 500); // Tunda 500ms agar animasi mulai mendekati waktu suara
+      // Segera jalankan callback animasi pukulan
+      if (this.punchUserCallback) {
+        console.log("[IdleTimeoutController] Triggering punch animation");
+        this.punchUserCallback();
+      }
       
       // Setelah beberapa detik, arahkan ke halaman hitam kustom
       // Ini memberi waktu untuk efek animasi pingsan dan pukulan selesai
@@ -624,28 +619,19 @@ class IdleTimeoutController {
         
         // Mulai proses pemeriksaan dan pengalihan
         checkAndRedirect();
-      }, 3500); // Tunda sedikit lebih pendek (3.5 detik) karena kita akan menunggu suara selesai
+      }, 3500); // Tunggu 3.5 detik sebelum mengarahkan ke layar hitam
     };
     
-    // Tampilkan peringatan, tetapi tunggu dialog selesai sebelum melanjutkan
+    // Tampilkan peringatan terlebih dahulu
     this.showIdleWarning(punchText);
     
-    // Cek apakah ada dialog atau audio aktif
-    const checkDialogAndPunch = () => {
-      if (this.isAudioOrDialogActive()) {
-        console.log("[IdleTimeoutController] Dialog/Audio still active, will check again in 500ms");
-        // Jika masih ada aktivitas dialog atau audio, cek lagi nanti
-        setTimeout(checkDialogAndPunch, 500);
-      } else {
-        console.log("[IdleTimeoutController] Dialog/Audio completed, proceeding with punch effect");
-        // Jika tidak ada aktivitas dialog/audio, jalankan efek pukulan
-        executePunch();
-      }
-    };
-    
-    // Setelah menampilkan dialog, berikan waktu untuk menunggu dialog muncul
-    // dan tunggu hingga dialog selesai
-    setTimeout(checkDialogAndPunch, 500);
+    // PERUBAHAN PENTING: Jalankan pukulan setelah dialog muncul, bukan setelah dialog selesai
+    // Untuk mencegah kasus di mana efek pukulan tidak terjadi karena isAudioOrDialogActive
+    // selalu mengembalikan true
+    setTimeout(() => {
+      console.log("[IdleTimeoutController] Dialog/Audio completed, proceeding with punch effect");
+      executePunch();
+    }, 1500); // Tunggu 1.5 detik, cukup waktu untuk dialog ditampilkan tapi tidak perlu menunggu selesai
   }
 
   // Reset semua timer dan status
