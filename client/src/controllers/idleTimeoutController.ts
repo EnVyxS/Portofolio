@@ -583,12 +583,12 @@ class IdleTimeoutController {
         }
       }, 200); // Reducido de 500ms a 200ms para una respuesta más rápida
       
-      // Redirección a about:blank después del efecto blackout
-      // Aumentamos el tiempo para permitir que se vea claramente el efecto de "pingsan" (desmayo)
+      // Redirección a la página de sueño (dream) después del efecto blackout
+      // Mantenemos el tiempo para permitir que se vea claramente el efecto de "pingsan" (desmayo)
       setTimeout(() => {
-        console.log("[IdleTimeoutController] Redirecting to about:blank after blackout effect");
-        window.location.href = "about:blank"; // Redirigir a página en blanco
-      }, 2500); // Aumentado de 1000ms a 2500ms para una transición más clara del efecto blackout
+        console.log("[IdleTimeoutController] Redirecting to dream page after blackout effect");
+        window.location.href = "/dream.html"; // Redirigir a la página de sueño con video de música
+      }, 2500); // Mantenemos 2500ms para una transición clara del efecto blackout
     };
     
     // Tampilkan peringatan, tetapi tunggu dialog selesai sebelum melanjutkan
