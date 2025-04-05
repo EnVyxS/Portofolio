@@ -441,30 +441,20 @@ class IdleTimeoutController {
       if (this.hoverDialogController.setDialogSource) {
         console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing idle warning");
         this.hoverDialogController.setDialogSource('main');
-        
-        // Tambahkan delay yang lebih lama untuk memastikan UI telah diupdate
-        // sebelum menampilkan dialog baru
-        setTimeout(() => {
-          // Tampilkan dialog peringatan dengan text custom
-          // Dialog Controller akan mengelola audio secara otomatis
-          this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
-            if (isComplete) {
-              // Tandai bahwa user sudah berinteraksi dengan dialog
-              this.hoverDialogController.setHasInteractedWithHover(true);
-            }
-          });
-        }, 300); // Tambahkan delay lebih lama untuk memastikan UI telah diupdate
-      } else {
-        // Fallback jika setDialogSource tidak tersedia
-        setTimeout(() => {
-          this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
-            if (isComplete) {
-              this.hoverDialogController.setHasInteractedWithHover(true);
-            }
-          });
-        }, 200);
       }
-    }, 200); // Increase delay for UI sync
+      
+      // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
+      setTimeout(() => {
+        // Tampilkan dialog peringatan dengan text custom
+        // Dialog Controller akan mengelola audio secara otomatis
+        this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
+          if (isComplete) {
+            // Tandai bahwa user sudah berinteraksi dengan dialog
+            this.hoverDialogController.setHasInteractedWithHover(true);
+          }
+        });
+      }, 200);
+    }, 100);
     
     // Tidak perlu memanggil elevenlabsService.speakText disini
     // karena sudah dipanggil oleh dialogController.showCustomDialog

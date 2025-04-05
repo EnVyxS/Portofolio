@@ -253,25 +253,13 @@ class DialogController {
             // Semua dialog khusus ditampilkan sebagai 'main' untuk memastikan muncul di dialog box utama
             console.log("[DialogController] Setting dialog source to 'main' for custom dialog");
             hoverDialogController.setDialogSource('main');
-            
-            // Force terapkan dialog source 'main' sebelum mengetik
-            setTimeout(() => {
-              // Lanjutkan dengan menampilkan dialog tanpa mencoba set dialog source lagi
-              // Cukup sekali saja agar tidak error
-              setTimeout(() => {
-                // Tampilkan dialog custom
-                this.typeDialog(customDialog, callback);
-              }, 100);
-            }, 200);
-          } else {
-            // Fallback jika setDialogSource tidak tersedia
-            this.typeDialog(customDialog, callback);
           }
         } catch (e) {
           console.error("[DialogController] Error checking/setting dialog source:", e);
-          // Fallback - tetap menampilkan dialog jika terjadi error
-          this.typeDialog(customDialog, callback);
         }
+        
+        // Tampilkan dialog custom
+        this.typeDialog(customDialog, callback);
       }, 200);
     }, 300); // Delay 300ms untuk menghindari tumpang tindih audio
   }

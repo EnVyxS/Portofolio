@@ -244,39 +244,17 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   useEffect(() => {
     // Set hover dialog callback terlebih dahulu untuk menangkap hover dialog yang sudah aktif
     hoverDialogController.setHoverTextCallback((text, complete) => {
-      // Bersihkan teks existing untuk memastikan transisi visual yang jelas
-      setText('');
-      // Jeda singkat sebelum menampilkan teks baru
-      setTimeout(() => {
-        setText(text);
-        setIsComplete(complete);
-        setDialogSource('hover');
-        setCharacterName('DIVA JUAN NUR TAQARRUB'); // Dialog hover dari DIVA JUAN
-      }, 50);
+      setText(text);
+      setIsComplete(complete);
+      setDialogSource('hover');
+      setCharacterName('DIVA JUAN NUR TAQARRUB'); // Dialog hover dari DIVA JUAN (idle warnings juga)
     });
     
     // Buat function untuk set dialogSource dari luar komponen
     hoverDialogController.setDialogSource = (source: 'main' | 'hover') => {
-      console.log(`[DialogBox] Setting dialog source to '${source}'`);
-      
-      // Jika mengubah dari hover ke main, perlu memastikan UI diperbarui sepenuhnya
-      if (dialogSource === 'hover' && source === 'main') {
-        // Bersihkan teks existing untuk memastikan transisi visual yang jelas
-        setText('');
-        
-        // Jeda singkat sebelum mengubah source
-        setTimeout(() => {
-          setDialogSource(source);
-          if (source === 'main') {
-            setCharacterName('DIVA JUAN NUR TAQARRUB');
-          }
-        }, 50);
-      } else {
-        // Untuk kasus lain, langsung update
-        setDialogSource(source);
-        if (source === 'main') {
-          setCharacterName('DIVA JUAN NUR TAQARRUB');
-        }
+      setDialogSource(source);
+      if (source === 'main') {
+        setCharacterName('DIVA JUAN NUR TAQARRUB');
       }
     };
     
