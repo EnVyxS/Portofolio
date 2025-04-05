@@ -180,11 +180,15 @@ class IdleTimeoutController {
   
   // Metode publik untuk memicu efek lempar dari luar
   public handleThrowUser(): void {
+    // Log this interaction for analytics
+    console.log("User is being thrown out of the screen");
     this.throwUser();
   }
   
   // Metode publik untuk memicu efek pukul dari luar
   public handlePunchUser(): void {
+    // Log this interaction for analytics
+    console.log("User is being punched, preparing dream sequence");
     this.punchUser();
   }
 

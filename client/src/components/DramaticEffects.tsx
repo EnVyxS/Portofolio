@@ -4,11 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface DramaticEffectsProps {
   effect: 'throw' | 'punch' | 'none';
   onEffectComplete?: () => void;
+  intensity?: 'low' | 'medium' | 'high'; // Controls the intensity of the effect
 }
 
 const DramaticEffects: React.FC<DramaticEffectsProps> = ({ 
   effect, 
-  onEffectComplete 
+  onEffectComplete,
+  intensity = 'medium' // Default intensity is medium
 }) => {
   const [isEffectActive, setIsEffectActive] = useState<boolean>(effect !== 'none');
   const punchSoundRef = useRef<HTMLAudioElement | null>(null);

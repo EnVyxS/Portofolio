@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&family=Quicksand:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Audiowide&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body, html {
@@ -21,6 +21,308 @@
             color: white;
             cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.5'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z'%3E%3C/path%3E%3C/svg%3E") 16 16, auto;
         }
+        
+        /* Matrix Rain Effect */
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.5;
+            mix-blend-mode: screen;
+        }
+        
+        /* Glitch Effect for Title */
+        .glitch-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        
+        .glitch {
+            position: relative;
+            font-family: 'Audiowide', cursive;
+            font-size: 3.5rem;
+            letter-spacing: 0.5rem;
+            animation: glitch-skew 1s infinite linear alternate-reverse;
+            text-shadow: 
+                0 0 10px rgba(0, 255, 255, 0.8),
+                0 0 20px rgba(0, 255, 255, 0.5),
+                0 0 30px rgba(0, 255, 255, 0.3);
+        }
+        
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 #ff00c1;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+        
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 #00fff9, 2px 2px #ff00c1;
+            animation: glitch-anim2 1s infinite linear alternate-reverse;
+        }
+        
+        @keyframes glitch-anim {
+            0% {
+                clip: rect(70px, 9999px, 12px, 0);
+                transform: skew(0.4deg);
+            }
+            5% {
+                clip: rect(29px, 9999px, 94px, 0);
+                transform: skew(0.1deg);
+            }
+            10% {
+                clip: rect(48px, 9999px, 18px, 0);
+                transform: skew(0.6deg);
+            }
+            15% {
+                clip: rect(42px, 9999px, 11px, 0);
+                transform: skew(0.3deg);
+            }
+            20% {
+                clip: rect(24px, 9999px, 48px, 0);
+                transform: skew(0.2deg);
+            }
+            25% {
+                clip: rect(52px, 9999px, 53px, 0);
+                transform: skew(0.8deg);
+            }
+            30% {
+                clip: rect(98px, 9999px, 68px, 0);
+                transform: skew(0.2deg);
+            }
+            35% {
+                clip: rect(86px, 9999px, 77px, 0);
+                transform: skew(0.5deg);
+            }
+            40% {
+                clip: rect(65px, 9999px, 5px, 0);
+                transform: skew(0.6deg);
+            }
+            45% {
+                clip: rect(83px, 9999px, 93px, 0);
+                transform: skew(0.5deg);
+            }
+            50% {
+                clip: rect(18px, 9999px, 67px, 0);
+                transform: skew(0.1deg);
+            }
+            55% {
+                clip: rect(9px, 9999px, 19px, 0);
+                transform: skew(0.4deg);
+            }
+            60% {
+                clip: rect(19px, 9999px, 67px, 0);
+                transform: skew(0.6deg);
+            }
+            65% {
+                clip: rect(65px, 9999px, 91px, 0);
+                transform: skew(0.5deg);
+            }
+            70% {
+                clip: rect(82px, 9999px, 31px, 0);
+                transform: skew(0.7deg);
+            }
+            75% {
+                clip: rect(95px, 9999px, 91px, 0);
+                transform: skew(0.3deg);
+            }
+            80% {
+                clip: rect(63px, 9999px, 29px, 0);
+                transform: skew(0.7deg);
+            }
+            85% {
+                clip: rect(18px, 9999px, 28px, 0);
+                transform: skew(0.9deg);
+            }
+            90% {
+                clip: rect(32px, 9999px, 94px, 0);
+                transform: skew(0.7deg);
+            }
+            95% {
+                clip: rect(88px, 9999px, 58px, 0);
+                transform: skew(0.9deg);
+            }
+            100% {
+                clip: rect(60px, 9999px, 33px, 0);
+                transform: skew(0.4deg);
+            }
+        }
+        
+        @keyframes glitch-anim2 {
+            0% {
+                clip: rect(96px, 9999px, 78px, 0);
+                transform: skew(0.6deg);
+            }
+            5% {
+                clip: rect(25px, 9999px, 55px, 0);
+                transform: skew(0.9deg);
+            }
+            10% {
+                clip: rect(22px, 9999px, 26px, 0);
+                transform: skew(0.5deg);
+            }
+            15% {
+                clip: rect(40px, 9999px, 35px, 0);
+                transform: skew(0.4deg);
+            }
+            20% {
+                clip: rect(64px, 9999px, 15px, 0);
+                transform: skew(0.1deg);
+            }
+            25% {
+                clip: rect(31px, 9999px, 77px, 0);
+                transform: skew(0.3deg);
+            }
+            30% {
+                clip: rect(81px, 9999px, 72px, 0);
+                transform: skew(0.5deg);
+            }
+            35% {
+                clip: rect(89px, 9999px, 57px, 0);
+                transform: skew(0.4deg);
+            }
+            40% {
+                clip: rect(6px, 9999px, 10px, 0);
+                transform: skew(0.3deg);
+            }
+            45% {
+                clip: rect(44px, 9999px, 66px, 0);
+                transform: skew(0.1deg);
+            }
+            50% {
+                clip: rect(35px, 9999px, 56px, 0);
+                transform: skew(0.1deg);
+            }
+            55% {
+                clip: rect(74px, 9999px, 29px, 0);
+                transform: skew(0.8deg);
+            }
+            60% {
+                clip: rect(26px, 9999px, 44px, 0);
+                transform: skew(0.8deg);
+            }
+            65% {
+                clip: rect(40px, 9999px, 84px, 0);
+                transform: skew(0.2deg);
+            }
+            70% {
+                clip: rect(13px, 9999px, 67px, 0);
+                transform: skew(0.6deg);
+            }
+            75% {
+                clip: rect(47px, 9999px, 27px, 0);
+                transform: skew(0.3deg);
+            }
+            80% {
+                clip: rect(71px, 9999px, 37px, 0);
+                transform: skew(0.7deg);
+            }
+            85% {
+                clip: rect(7px, 9999px, 91px, 0);
+                transform: skew(0.9deg);
+            }
+            90% {
+                clip: rect(20px, 9999px, 75px, 0);
+                transform: skew(0.5deg);
+            }
+            95% {
+                clip: rect(72px, 9999px, 70px, 0);
+                transform: skew(0.3deg);
+            }
+            100% {
+                clip: rect(60px, 9999px, 15px, 0);
+                transform: skew(0.7deg);
+            }
+        }
+        
+        @keyframes glitch-skew {
+            0% {
+                transform: skew(-1deg);
+            }
+            10% {
+                transform: skew(0.5deg);
+            }
+            20% {
+                transform: skew(1deg);
+            }
+            30% {
+                transform: skew(-0.5deg);
+            }
+            40% {
+                transform: skew(0.5deg);
+            }
+            50% {
+                transform: skew(-0.5deg);
+            }
+            60% {
+                transform: skew(0deg);
+            }
+            70% {
+                transform: skew(0.5deg);
+            }
+            80% {
+                transform: skew(-1deg);
+            }
+            90% {
+                transform: skew(0.5deg);
+            }
+            100% {
+                transform: skew(0deg);
+            }
+        }
+        
+        /* Digital Noise Effect */
+        .digital-noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.05;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 4;
+        }
+        
+        /* Wake Up Button Animation */
+        .wake-up-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-text {
+            position: relative;
+            z-index: 2;
+            display: inline-block;
+        }
+        
+        .loading-dots {
+            position: absolute;
+            right: 10px;
+            display: inline-block;
+            opacity: 0;
+            animation: loadingDots 1.5s infinite;
+        }
+        
+        @keyframes loadingDots {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
 
         .dream-container {
             position: fixed;
@@ -32,7 +334,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(ellipse at center, #191236 0%, #000 100%);
+            background: radial-gradient(ellipse at center, #1a0c24 0%, #000 100%);
             z-index: 1;
             overflow: hidden;
         }
@@ -689,18 +991,23 @@
     </style>
 </head>
 <body>
+    <canvas id="matrixCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.3;"></canvas>
+    
     <div class="dream-container">
         <div class="aurora"></div>
         <div class="dreamveil"></div>
         
-        <div class="header-text">THE JOURNEY THROUGH THE DREAMSCAPE MUST BE COMPLETED</div>
+        <div class="glitch-container">
+            <h1 class="dream-title glitch" data-text="NEURAL OVERRIDE">NEURAL OVERRIDE</h1>
+        </div>
+        <p class="dream-message">CONSCIOUSNESS TERMINATED // INITIATING REBOOT SEQUENCE</p>
         
         <div class="cinema-interface">
             <div class="video-header">
-                <div class="video-channel"><i class="fas fa-film"></i> Ethereal Dreamscape Experience</div>
+                <div class="video-channel"><i class="fas fa-microchip"></i> Synaptic Relay Protocol</div>
                 <div class="video-controls">
-                    <span class="video-control"><i class="fas fa-clock"></i> Tontonan nanti</span>
-                    <span class="video-control"><i class="fas fa-share"></i> Bagikan</span>
+                    <span class="video-control"><i class="fas fa-lock"></i> LOCKED</span>
+                    <span class="video-control"><i class="fas fa-eye"></i> FORCED</span>
                 </div>
             </div>
             
@@ -717,10 +1024,13 @@
         
         <div class="dream-oracle">
             <div class="oracle-circle"></div>
-            <div class="oracle-text">Observe the patterns within the dream...</div>
+            <div class="oracle-text">Neural recalibration at 38%... Data fragments being reassembled...</div>
         </div>
         
-        <button id="wakeUpBtn" class="wake-up-btn">ASCEND</button>
+        <button id="wakeUpBtn" class="wake-up-btn">
+            <span class="btn-text">REBOOT CONSCIOUSNESS</span>
+            <span class="loading-dots">...</span>
+        </button>
     </div>
 
     <div class="moving-stars" id="starField"></div>
@@ -783,7 +1093,11 @@
             message.style.zIndex = '1000';
             message.style.opacity = '0';
             message.style.transition = 'opacity 0.5s ease-in-out';
-            message.innerText = 'YOU CANNOT ESCAPE';
+            message.innerText = 'NEURAL PATTERNS DESTABILIZING';
+            message.style.fontFamily = 'Audiowide, cursive';
+            message.style.color = '#00ffff';
+            message.style.textShadow = '0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(0, 0, 255, 0.5)';
+            message.style.fontSize = '2rem';
             
             // Play horrifying sound effect
             const scarySound = new Audio();
@@ -800,7 +1114,7 @@
             flash.style.left = '0';
             flash.style.width = '100%';
             flash.style.height = '100%';
-            flash.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
+            flash.style.backgroundColor = 'rgba(0, 255, 255, 0.3)';
             flash.style.zIndex = '999';
             flash.style.opacity = '0';
             flash.style.transition = 'opacity 0.1s ease-in-out';
@@ -1099,6 +1413,71 @@
                 dreamQuote.style.transform = `translateX(${mouseX * -15}px) translateY(${mouseY * -10}px)`;
             }
         });
+        
+        // Matrix Rain Effect
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Make canvas fill the entire screen
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // Add resize listener
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        // Characters to display
+        const chars = 'アィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        
+        // Column setup
+        const fontSize = 14; // Size of each character
+        const columns = Math.floor(canvas.width / fontSize);
+        
+        // Array to track the y position of each column
+        const drops = [];
+        
+        // Initialize all columns to start at random positions
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.random() * -100;
+        }
+        
+        // Draw function
+        function draw() {
+            // Set a semi-transparent black fill for "trail" effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Set the font and color
+            ctx.font = fontSize + 'px monospace';
+            
+            // Draw each column
+            for (let i = 0; i < drops.length; i++) {
+                // Get a random character
+                const char = chars[Math.floor(Math.random() * chars.length)];
+                
+                // Set main bright character color
+                const gradient = ctx.createLinearGradient(0, drops[i] * fontSize, 0, (drops[i] + 1) * fontSize);
+                gradient.addColorStop(0, 'rgba(0, 255, 0, 1)'); // Bright green at top
+                gradient.addColorStop(1, 'rgba(0, 255, 255, 0.8)'); // Cyan at bottom
+                ctx.fillStyle = gradient;
+                
+                // Draw the character
+                ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+                
+                // Move the drop down
+                drops[i]++;
+                
+                // Random chance of resetting column to top
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+            }
+        }
+        
+        // Set up animation
+        setInterval(draw, 33); // ~30 FPS
     </script>
 </body>
 </html>
