@@ -160,35 +160,132 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
                 <div className="screen-content"></div>
               </motion.div>
               
-              {/* Luka/memar yang muncul */}
+              {/* Efecto de hematoma/moretón más realista */}
               <motion.div 
-                className="bruise-overlay"
+                className="bruise-container"
                 initial={{ opacity: 0 }}
-                animate={{
-                  opacity: [0, 0.7, 0.9]
-                }}
-                transition={{ 
-                  duration: 0.7, 
-                  delay: 0.2,
-                  ease: "easeOut" 
-                }}
-              />
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2, delay: 0.1 }}
+              >
+                {/* Capa principal del moretón con degradado */}
+                <motion.div 
+                  className="bruise-overlay bruise-main"
+                  initial={{ opacity: 0, scale: 0.7 }}
+                  animate={{
+                    opacity: [0, 0.8, 0.75],
+                    scale: [0.7, 1.2, 1.1]
+                  }}
+                  transition={{ 
+                    duration: 0.8, 
+                    delay: 0.15,
+                    ease: "easeOut" 
+                  }}
+                />
+                
+                {/* Contusión secundaria más pequeña */}
+                <motion.div 
+                  className="bruise-overlay bruise-secondary"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{
+                    opacity: [0, 0.9, 0.85],
+                    scale: [0.5, 1.05, 1]
+                  }}
+                  transition={{ 
+                    duration: 0.7, 
+                    delay: 0.2,
+                    ease: "easeOut" 
+                  }}
+                />
+                
+                {/* Hinchazón alrededor del moretón */}
+                <motion.div 
+                  className="bruise-swelling"
+                  initial={{ opacity: 0, scale: 1.2 }}
+                  animate={{
+                    opacity: [0, 0.4, 0.35],
+                    scale: [1.2, 1.5, 1.4]
+                  }}
+                  transition={{ 
+                    duration: 1.1, 
+                    delay: 0.3,
+                    ease: "easeOut" 
+                  }}
+                />
+              </motion.div>
               
-              {/* Darah realistis */}
+              {/* Darah realistis dengan multiple elements */}
               <motion.div 
-                className="blood-splatter"
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{
-                  opacity: [0, 1, 0.8],
-                  scale: [0.5, 1.2, 1],
-                  y: [0, 10, 25]
-                }}
-                transition={{ 
-                  duration: 1.2, 
-                  delay: 0.3,
-                  ease: "easeOut" 
-                }}
-              />
+                className="blood-splatter-container"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2, delay: 0.15 }}
+              >
+                {/* Salpicadura principal grande */}
+                <motion.div 
+                  className="blood-splatter blood-splatter-main"
+                  initial={{ opacity: 0, scale: 0.5, rotate: 0 }}
+                  animate={{
+                    opacity: [0, 0.9, 0.8],
+                    scale: [0.5, 1.3, 1.2],
+                    y: [0, 15, 25],
+                    x: [0, -5, -8]
+                  }}
+                  transition={{ 
+                    duration: 1.2, 
+                    delay: 0.25,
+                    ease: "easeOut" 
+                  }}
+                />
+                
+                {/* Gotas pequeñas que se esparcen rápidamente */}
+                <motion.div 
+                  className="blood-splatter blood-splatter-drops"
+                  initial={{ opacity: 0, scale: 0.4, rotate: -10 }}
+                  animate={{
+                    opacity: [0, 0.95, 0.7],
+                    scale: [0.4, 1.1, 1],
+                    y: [0, 20, 35],
+                    x: [0, 12, 18]
+                  }}
+                  transition={{ 
+                    duration: 0.9, 
+                    delay: 0.2,
+                    ease: "easeOut" 
+                  }}
+                />
+                
+                {/* Gotas que caen lentamente */}
+                <motion.div 
+                  className="blood-drip-effect"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{
+                    opacity: [0, 0.9, 0.85],
+                    height: [0, 20, 45]
+                  }}
+                  transition={{ 
+                    duration: 2, 
+                    delay: 0.5,
+                    ease: "easeOut" 
+                  }}
+                />
+                
+                {/* Pequeñas salpicaduras */}
+                <motion.div 
+                  className="blood-splatter blood-splatter-tiny"
+                  initial={{ opacity: 0, scale: 0.3, rotate: 15 }}
+                  animate={{
+                    opacity: [0, 0.9, 0.7],
+                    scale: [0.3, 0.9, 0.85],
+                    y: [0, -8, -5],
+                    x: [0, -15, -20]
+                  }}
+                  transition={{ 
+                    duration: 0.7, 
+                    delay: 0.3,
+                    ease: "easeOut" 
+                  }}
+                />
+              </motion.div>
               
               {/* Retakan kaca yang lebih realistis */}
               <motion.div 
@@ -379,29 +476,114 @@ export const dramaticEffectsStyles = `
     height: 100%;
   }
   
+  /* Contenedor para el efecto de hematoma */
+  .bruise-container {
+    position: absolute;
+    top: 38%;
+    left: 38%;
+    width: 25%;
+    height: 25%;
+    z-index: 6;
+  }
+
+  /* Estilos base para el hematoma */
   .bruise-overlay {
     position: absolute;
-    top: 40%;
-    left: 40%;
-    width: 35%;
-    height: 25%;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
-    background: radial-gradient(ellipse, rgba(128,0,0,0.7) 0%, rgba(128,0,0,0) 70%);
-    transform: rotate(-15deg);
     opacity: 0;
     z-index: 6;
+  }
+  
+  /* Hematoma principal con color más intenso */
+  .bruise-main {
+    top: 0;
+    left: 0;
+    background: radial-gradient(ellipse, rgba(128,0,0,0.8) 0%, rgba(102,0,0,0.6) 40%, rgba(102,0,0,0) 80%);
+    transform: rotate(-15deg);
     filter: blur(5px);
   }
   
+  /* Hematoma secundario con color más púrpura */
+  .bruise-secondary {
+    top: 5%;
+    left: -5%;
+    width: 70%;
+    height: 65%;
+    background: radial-gradient(ellipse, rgba(102,0,51,0.7) 0%, rgba(77,0,38,0.6) 50%, rgba(77,0,38,0) 75%);
+    transform: rotate(10deg);
+    filter: blur(6px);
+  }
+  
+  /* Efecto de hinchazón alrededor del hematoma */
+  .bruise-swelling {
+    top: -15%;
+    left: -15%;
+    width: 130%;
+    height: 130%;
+    background: radial-gradient(ellipse, rgba(153,51,51,0.1) 0%, rgba(153,51,51,0.3) 50%, rgba(153,51,51,0) 100%);
+    border-radius: 40%;
+    filter: blur(10px);
+    opacity: 0;
+    z-index: 5;
+  }
+  
+  /* Blood effects container */
+  .blood-splatter-container {
+    position: absolute;
+    top: 42%;
+    left: 42%;
+    width: 20%;
+    height: 20%;
+    z-index: 7;
+  }
+  
+  /* Realistic blood splatter elements with different patterns */
   .blood-splatter {
     position: absolute;
-    top: 45%;
-    left: 45%;
-    width: 15%;
-    height: 15%;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpath d='M10,10 Q15,5 20,10 T30,15 Q40,5 45,15 T55,20 Q60,15 65,25 T75,20' stroke='%23990000' stroke-width='3' fill='none'/%3E%3Ccircle cx='20' cy='15' r='5' fill='%23800000'/%3E%3Ccircle cx='40' cy='20' r='4' fill='%23800000'/%3E%3Ccircle cx='60' cy='15' r='6' fill='%23800000'/%3E%3Ccircle cx='30' cy='25' r='3' fill='%23800000'/%3E%3Ccircle cx='50' cy='10' r='4' fill='%23800000'/%3E%3C/svg%3E");
+    width: 100%;
+    height: 100%;
     opacity: 0;
+    border-radius: 50%;
     z-index: 7;
+  }
+  
+  .blood-splatter-main {
+    top: 0;
+    left: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpath d='M30,30 Q40,10 50,25 T70,15 Q90,5 75,30 T95,40 Q105,25 115,45 T130,35' stroke='%23990000' stroke-width='3' fill='none'/%3E%3Ccircle cx='30' cy='25' r='8' fill='%23800000'/%3E%3Ccircle cx='50' cy='20' r='10' fill='%23660000'/%3E%3Ccircle cx='70' cy='30' r='12' fill='%23990000'/%3E%3Ccircle cx='50' cy='40' r='7' fill='%23800000'/%3E%3Ccircle cx='80' cy='25' r='9' fill='%23660000'/%3E%3Cpath d='M40,30 C45,25 55,25 60,30 S65,40 60,45 S45,45 40,40 S35,35 40,30' fill='%23800000'/%3E%3C/svg%3E");
+    transform: rotate(-15deg);
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+  }
+  
+  .blood-splatter-drops {
+    top: 5%;
+    left: 10%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Ccircle cx='20' cy='20' r='3' fill='%23990000'/%3E%3Ccircle cx='30' cy='10' r='2' fill='%23800000'/%3E%3Ccircle cx='40' cy='25' r='4' fill='%23660000'/%3E%3Ccircle cx='50' cy='15' r='2.5' fill='%23800000'/%3E%3Ccircle cx='60' cy='30' r='3' fill='%23990000'/%3E%3Ccircle cx='70' cy='20' r='1.5' fill='%23660000'/%3E%3Ccircle cx='80' cy='25' r='3' fill='%23800000'/%3E%3Cpath d='M25,35 Q30,45 35,35' stroke='%23800000' stroke-width='2' fill='none'/%3E%3Cpath d='M45,30 Q55,45 65,35' stroke='%23990000' stroke-width='2.5' fill='none'/%3E%3C/svg%3E");
+    filter: blur(0.5px);
+  }
+  
+  .blood-splatter-tiny {
+    top: -10%;
+    left: -15%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Ccircle cx='30' cy='30' r='2' fill='%23800000'/%3E%3Ccircle cx='40' cy='20' r='1' fill='%23660000'/%3E%3Ccircle cx='25' cy='40' r='1.5' fill='%23990000'/%3E%3Ccircle cx='45' cy='35' r='1' fill='%23800000'/%3E%3Ccircle cx='15' cy='25' r='1.5' fill='%23660000'/%3E%3Cpath d='M30,50 C35,45 40,45 45,50' stroke='%23990000' stroke-width='1' fill='none'/%3E%3C/svg%3E");
+    transform: scale(0.8) rotate(25deg);
+  }
+  
+  /* Dripping blood effect */
+  .blood-drip-effect {
+    position: absolute;
+    top: 60%;
+    left: 40%;
+    width: 20%;
+    height: 0px;
+    background: linear-gradient(to bottom, rgba(153,0,0,0.8) 0%, rgba(102,0,0,0.7) 50%, rgba(153,0,0,0) 100%);
+    border-top-left-radius: 50%;
+    border-top-right-radius: 40%;
+    transform: skew(-10deg, 5deg);
+    z-index: 7;
+    filter: blur(1px);
   }
   
   .screen-crack-realistic {
