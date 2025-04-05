@@ -223,16 +223,22 @@ class HoverDialogController {
           console.error("Could not trigger IdleTimeoutController final warning:", e);
         }
       }
-      // Setelah 4 kali hover, trigger throwUser
+      // Setelah 4 kali hover, trigger punchUser (bukan throwUser)
       else if (this.hoverCountAfterSecondLevel === 4) {
         try {
           const idleController = IdleTimeoutController.getInstance();
           if (idleController) {
-            console.log("Triggering throw user effect via IdleTimeoutController after 4 hovers following second level warning");
-            idleController.handleThrowUser();
+            console.log("Triggering punch user effect via IdleTimeoutController after 4 hovers following second level warning");
+            // Perlu menambahkan metode public handlePunchUser di IdleTimeoutController
+            if (typeof idleController.handlePunchUser === 'function') {
+              idleController.handlePunchUser();
+            } else {
+              // Fallback jika metode belum diimplementasikan
+              idleController.startExcessiveHoverTimers();
+            }
           }
         } catch (e) {
-          console.error("Could not trigger IdleTimeoutController throw user:", e);
+          console.error("Could not trigger IdleTimeoutController punch user:", e);
         }
       }
       

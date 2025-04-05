@@ -182,6 +182,11 @@ class IdleTimeoutController {
   public handleThrowUser(): void {
     this.throwUser();
   }
+  
+  // Metode publik untuk memicu efek pukul dari luar
+  public handlePunchUser(): void {
+    this.punchUser();
+  }
 
   // Cek apakah ada audio atau dialog yang sedang berjalan
   private isAudioOrDialogActive(): boolean {
