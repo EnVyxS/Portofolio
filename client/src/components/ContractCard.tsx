@@ -253,17 +253,36 @@ const ContractCard: React.FC = () => {
       // Dapatkan instance HoverDialogController untuk set source
       const hoverDialogController = HoverDialogController.getInstance();
       
+      // Bersihkan dialog box terlebih dahulu jika ada
+      if (hoverDialogController.stopTyping) {
+        hoverDialogController.stopTyping();
+      }
+      
       // Set dialog source ke 'main' SEBELUM memanggil showCustomDialog
-      // Ini penting karena showCustomDialog akan mengubahnya ke 'hover' di dalamnya
+      // Ini penting karena showCustomDialog akan mengubahnya ke 'main' secara benar
       if (hoverDialogController.setDialogSource) {
         console.log("[ContractCard] Setting dialog source to 'main' before showing custom dialog");
         hoverDialogController.setDialogSource('main');
       }
       
-      dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
-        // Callback ini dipanggil setiap karakter (saat dialog sedang berjalan dan setelah selesai)
-        // Tidak perlu mengatur ulang dialogSource di sini karena dialogController sudah mengaturnya
-      });
+      // Tunggu sebentar agar UI terupdate dulu
+      setTimeout(() => {
+        // Pastikan sekali lagi bahwa dialog source adalah 'main'
+        if (hoverDialogController.setDialogSource) {
+          hoverDialogController.setDialogSource('main');
+        }
+        
+        // Panggil showCustomDialog dengan additional delay untuk memastikan UI sync
+        setTimeout(() => {
+          dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
+            // Callback ini dipanggil setiap karakter (saat dialog sedang berjalan dan setelah selesai)
+            // Log untuk debugging
+            if (isComplete) {
+              console.log("[ContractCard] Dialog response completed: ", text);
+            }
+          });
+        }, 100);
+      }, 150);
     }, 300);
     
     setIsOpen(false);

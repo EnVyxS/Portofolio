@@ -256,10 +256,8 @@ class DialogController {
             
             // Force terapkan dialog source 'main' sebelum mengetik
             setTimeout(() => {
-              // Tambahan - force aplikasikan lagi untuk memastikan perubahan diterapkan
-              hoverDialogController.setDialogSource('main');
-              
-              // Lanjutkan dengan menampilkan dialog
+              // Lanjutkan dengan menampilkan dialog tanpa mencoba set dialog source lagi
+              // Cukup sekali saja agar tidak error
               setTimeout(() => {
                 // Tampilkan dialog custom
                 this.typeDialog(customDialog, callback);
