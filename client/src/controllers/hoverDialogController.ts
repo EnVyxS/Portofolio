@@ -234,33 +234,12 @@ class HoverDialogController {
       this.categoryUtteranceCount.transition.contactToSocial +
       this.categoryUtteranceCount.transition.socialToContact;
 
-    // Always increment appropriate hover counter
-    if (this.hasShownSecondLevelAnnoyance) {
-      // Jika sudah menampilkan peringatan level kedua, increment counter khusus
-      this.hoverCountAfterSecondLevel++;
-      console.log(`Hover setelah peringatan level kedua: ${this.hoverCountAfterSecondLevel}/5`);
-      
-      // Cek apakah sudah mencapai batas 5 hover setelah peringatan level kedua
-      if (this.hoverCountAfterSecondLevel >= 5) {
-        try {
-          const idleController = IdleTimeoutController.getInstance();
-          if (idleController && idleController.startExcessiveHoverTimers) {
-            console.log(
-              "Triggering excessive hover punishment via IdleTimeoutController after 5 hovers following second level warning",
-            );
-            idleController.startExcessiveHoverTimers();
-            
-            // Reset counter setelah trigger punishment
-            this.hoverCountAfterSecondLevel = 0;
-          }
-        } catch (e) {
-          console.error("Could not trigger IdleTimeoutController:", e);
-        }
-      }
-    } else {
-      // Increment counter normal jika belum menampilkan peringatan level kedua
+    // Hanya menghitung hover jika second level annoyance belum ditampilkan
+    if (!this.hasShownSecondLevelAnnoyance) {
       this.hoverCount++;
-    }
+    } 
+    // Jika sudah menampilkan second level annoyance, gunakan penghitung terpisah
+    // tapi jangan lakukan apapun di sini, handle di handleHoverDialogActual
 
     // Call the actual handler with debounce
     this.debouncedHoverHandler(linkType);
