@@ -6,6 +6,7 @@ import GameContactCard from './views/GameContactCard';
 import ElevenLabsSetup from './views/ElevenLabsSetup';
 import ApproachScreen from './views/ApproachScreen';
 import { AudioProvider, useAudio } from './context/AudioManager';
+import { EmotionProvider } from './context/EmotionContext';
 import IdleTimeoutController from './controllers/idleTimeoutController';
 import DialogController from './controllers/dialogController';
 import DramaticEffects, { dramaticEffectsStyles } from './components/DramaticEffects';
@@ -250,7 +251,9 @@ function MainApp() {
 function App() {
   return (
     <AudioProvider>
-      <MainApp />
+      <EmotionProvider>
+        <MainApp />
+      </EmotionProvider>
     </AudioProvider>
   );
 }
