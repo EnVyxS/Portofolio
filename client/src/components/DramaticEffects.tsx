@@ -174,53 +174,21 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
                 }}
               />
               
-              {/* Darah realistis yang lebih kompleks */}
-              <div className="blood-effects-container">
-                {/* Cipratan darah utama */}
-                <motion.div 
-                  className="blood-splatter-main"
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{
-                    opacity: [0, 1, 0.9],
-                    scale: [0.5, 1.2, 1.1],
-                    y: [0, 10, 15]
-                  }}
-                  transition={{ 
-                    duration: 1.2, 
-                    delay: 0.2,
-                    ease: "easeOut" 
-                  }}
-                />
-                
-                {/* Percikan darah kecil */}
-                <motion.div 
-                  className="blood-droplets"
-                  initial={{ opacity: 0 }}
-                  animate={{
-                    opacity: [0, 0.95, 0.8],
-                  }}
-                  transition={{ 
-                    duration: 0.8, 
-                    delay: 0.25,
-                    ease: "easeOut" 
-                  }}
-                />
-                
-                {/* Aliran darah dari luka */}
-                <motion.div 
-                  className="blood-stream"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{
-                    opacity: [0, 0.9, 0.85],
-                    height: [0, 40, 55],
-                  }}
-                  transition={{ 
-                    duration: 1.4, 
-                    delay: 0.4,
-                    ease: "easeOut" 
-                  }}
-                />
-              </div>
+              {/* Darah realistis */}
+              <motion.div 
+                className="blood-splatter"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{
+                  opacity: [0, 1, 0.8],
+                  scale: [0.5, 1.2, 1],
+                  y: [0, 10, 25]
+                }}
+                transition={{ 
+                  duration: 1.2, 
+                  delay: 0.3,
+                  ease: "easeOut" 
+                }}
+              />
               
               {/* Retakan kaca yang lebih realistis */}
               <motion.div 
@@ -425,57 +393,6 @@ export const dramaticEffectsStyles = `
     filter: blur(5px);
   }
   
-  /* Container para todos los efectos de sangre */
-  .blood-effects-container {
-    position: absolute;
-    top: 40%;
-    left: 40%;
-    width: 25%;
-    height: 25%;
-    z-index: 7;
-    overflow: visible;
-  }
-  
-  /* Salpicadura principal de sangre - forma más orgánica y realista */
-  .blood-splatter-main {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cpath d='M80,80 C95,60 120,70 100,90 C85,105 95,115 110,105 C125,95 135,105 115,120 C100,130 110,145 125,140 C140,135 150,145 140,155 C130,165 140,175 150,170 M90,70 C70,65 65,85 80,85 C95,85 105,75 90,70 M110,60 C100,50 85,55 95,65 C105,75 120,70 110,60 M60,100 C50,95 45,115 55,110 C65,105 70,105 60,100' fill='%23800000' stroke='%23990000' stroke-width='1'/%3E%3Cpath d='M80,85 C75,95 85,100 90,90 M100,95 C105,105 115,100 110,90 M70,70 C60,80 70,90 80,75' fill='%23660000' stroke='%23800000' stroke-width='1'/%3E%3C/svg%3E");
-    opacity: 0;
-    transform-origin: center;
-    filter: drop-shadow(0 0 2px rgba(0,0,0,0.3));
-  }
-  
-  /* Pequeñas gotas de sangre esparcidas alrededor */
-  .blood-droplets {
-    position: absolute;
-    top: -20%;
-    left: -10%;
-    width: 120%;
-    height: 150%;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='30' cy='30' r='3' fill='%23990000'/%3E%3Ccircle cx='50' cy='20' r='2' fill='%23800000'/%3E%3Ccircle cx='80' cy='15' r='4' fill='%23990000'/%3E%3Ccircle cx='100' cy='25' r='2' fill='%23800000'/%3E%3Ccircle cx='120' cy='30' r='3' fill='%23990000'/%3E%3Ccircle cx='150' cy='20' r='2.5' fill='%23800000'/%3E%3Ccircle cx='170' cy='40' r='2' fill='%23990000'/%3E%3Ccircle cx='20' cy='60' r='2.5' fill='%23800000'/%3E%3Ccircle cx='40' cy='80' r='3' fill='%23990000'/%3E%3Ccircle cx='160' cy='60' r='2' fill='%23800000'/%3E%3Ccircle cx='140' cy='80' r='2.5' fill='%23990000'/%3E%3Ccircle cx='180' cy='90' r='2' fill='%23800000'/%3E%3Ccircle cx='160' cy='100' r='3' fill='%23990000'/%3E%3Ccircle cx='30' cy='100' r='2' fill='%23800000'/%3E%3Ccircle cx='70' cy='140' r='3' fill='%23990000'/%3E%3Ccircle cx='120' cy='160' r='2.5' fill='%23800000'/%3E%3Ccircle cx='150' cy='150' r='2' fill='%23990000'/%3E%3Cellipse cx='40' cy='50' rx='5' ry='3' transform='rotate(30 40 50)' fill='%23800000'/%3E%3Cellipse cx='130' cy='50' rx='4' ry='2' transform='rotate(-20 130 50)' fill='%23990000'/%3E%3Cellipse cx='65' cy='120' rx='6' ry='3' transform='rotate(10 65 120)' fill='%23800000'/%3E%3Cellipse cx='140' cy='130' rx='3' ry='5' transform='rotate(-40 140 130)' fill='%23990000'/%3E%3C/svg%3E");
-    opacity: 0;
-  }
-  
-  /* Reguero de sangre que fluye hacia abajo */
-  .blood-stream {
-    position: absolute;
-    top: 60%;
-    left: 40%;
-    width: 20%;
-    height: 0;
-    background: linear-gradient(to bottom, rgba(153,0,0,0.9) 0%, rgba(128,0,0,0.7) 70%, rgba(128,0,0,0.3) 100%);
-    border-radius: 40% 40% 10% 10% / 20% 20% 10% 10%;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    opacity: 0;
-    filter: blur(1px);
-    overflow: hidden;
-  }
-  
-  /* La clase original mantenida por compatibilidad */
   .blood-splatter {
     position: absolute;
     top: 45%;

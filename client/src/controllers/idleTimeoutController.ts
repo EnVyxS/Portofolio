@@ -537,10 +537,6 @@ class IdleTimeoutController {
     const executePunch = () => {
       console.log("[IdleTimeoutController] Executing punch effect");
       
-      // Jika sudah di-punch, jangan berikan pukulan lagi
-      if (this.hasBeenPunched) return;
-      this.hasBeenPunched = true;
-      
       // Notifikasi HoverDialogController bahwa idle timeout telah terjadi
       try {
         // Ini akan mencegah hover dialog muncul lagi setelah idle timeout
@@ -560,78 +556,60 @@ class IdleTimeoutController {
         );
       }
 
-      // Variabel untuk melacak apakah suara pukulan selesai dimainkan
-      let punchSoundCompleted = false;
-      let punchSoundStarted = false;
-      
-      // Reproducir suara pukulan segera
+      // Precarga y reproducción del sonido de golpe
       try {
         const punchSound = new Audio('/assets/sounds/punch_sfx.m4a');
-        punchSound.volume = 0.8; // Volumen tinggi untuk memastikan terdengar
+        punchSound.volume = 0.8; // Volumen alto para asegurar que se escuche
         punchSound.load();
         
-        // Siapkan event listener untuk mengetahui kapan suara selesai diputar
-        punchSound.addEventListener('ended', () => {
-          console.log("[IdleTimeoutController] Punch sound playback completed");
-          punchSoundCompleted = true;
-        });
-        
-        // Putar suara pukulan segera
+        // Reproducir el sonido directamente para asegurar que se escuche
+        // Incluso antes de llamar al callback
         const playSoundPromise = punchSound.play();
         
         if (playSoundPromise !== undefined) {
           playSoundPromise
-            .then(() => {
-              console.log("[IdleTimeoutController] Punch sound playing successfully");
-              punchSoundStarted = true;
-            })
-            .catch(err => {
-              console.error("[IdleTimeoutController] Error playing punch sound:", err);
-              punchSoundCompleted = true;
-            });
+            .then(() => console.log("[IdleTimeoutController] Punch sound playing successfully"))
+            .catch(err => console.error("[IdleTimeoutController] Error playing punch sound:", err));
         }
       } catch (soundError) {
         console.error("[IdleTimeoutController] Failed to initialize punch sound:", soundError);
-        punchSoundCompleted = true;
       }
 
-      // Segera jalankan callback animasi pukulan
-      if (this.punchUserCallback) {
-        console.log("[IdleTimeoutController] Triggering punch animation");
-        this.punchUserCallback();
-      }
-      
-      // Setelah beberapa detik, arahkan ke halaman hitam kustom
-      // Ini memberi waktu untuk efek animasi pingsan dan pukulan selesai
+      // Jalankan callback jika ada setelah dialog terbaca
       setTimeout(() => {
-        // Periksa apakah suara pukulan sudah selesai dimainkan
-        const checkAndRedirect = () => {
-          if (punchSoundCompleted || !punchSoundStarted) {
-            console.log("[IdleTimeoutController] Redirecting to black screen page");
-            // Gunakan halaman hitam kustom sebagai pengganti about:blank
-            window.location.href = "/black-screen.html";
-          } else {
-            // Jika suara belum selesai, tunggu sebentar dan periksa lagi
-            console.log("[IdleTimeoutController] Waiting for punch sound to complete before redirecting");
-            setTimeout(checkAndRedirect, 200);
-          }
-        };
-        
-        // Mulai proses pemeriksaan dan pengalihan
-        checkAndRedirect();
-      }, 3500); // Tunggu 3.5 detik sebelum mengarahkan ke layar hitam
+        if (this.punchUserCallback) {
+          console.log("[IdleTimeoutController] Triggering punch animation");
+          this.punchUserCallback();
+        }
+      }, 500); // Reduced delay to 500ms so the animation starts closer to the sound
+      
+      // Setelah beberapa detik lebih lama, baru redirect ke about:blank
+      // Ini memberi waktu untuk efek animasi fainting dan punch selesai
+      setTimeout(() => {
+        console.log("[IdleTimeoutController] Redirecting to about:blank");
+        window.location.href = "about:blank"; // Redirect ke halaman kosong
+      }, 4000); // Diperpanjang menjadi 4 detik (termasuk delay additional)
     };
     
-    // Tampilkan peringatan terlebih dahulu
+    // Tampilkan peringatan, tetapi tunggu dialog selesai sebelum melanjutkan
     this.showIdleWarning(punchText);
     
-    // PERUBAHAN PENTING: Jalankan pukulan setelah dialog muncul, bukan setelah dialog selesai
-    // Untuk mencegah kasus di mana efek pukulan tidak terjadi karena isAudioOrDialogActive
-    // selalu mengembalikan true
-    setTimeout(() => {
-      console.log("[IdleTimeoutController] Dialog/Audio completed, proceeding with punch effect");
-      executePunch();
-    }, 1500); // Tunggu 1.5 detik, cukup waktu untuk dialog ditampilkan tapi tidak perlu menunggu selesai
+    // Cek apakah ada dialog atau audio aktif
+    const checkDialogAndPunch = () => {
+      if (this.isAudioOrDialogActive()) {
+        console.log("[IdleTimeoutController] Dialog/Audio still active, will check again in 500ms");
+        // Jika masih ada aktivitas dialog atau audio, cek lagi nanti
+        setTimeout(checkDialogAndPunch, 500);
+      } else {
+        console.log("[IdleTimeoutController] Dialog/Audio completed, proceeding with punch effect");
+        // Jika tidak ada aktivitas dialog/audio, jalankan efek pukulan
+        executePunch();
+      }
+    };
+    
+    // Setelah menampilkan dialog, berikan waktu untuk menunggu dialog muncul
+    // dan tunggu hingga dialog selesai
+    setTimeout(checkDialogAndPunch, 500);
   }
 
   // Reset semua timer dan status
