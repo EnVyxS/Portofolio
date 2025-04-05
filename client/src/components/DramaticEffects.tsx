@@ -348,16 +348,30 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
                 }}
               />
               
-              {/* Efecto de desmayo con blackout más rápido */}
+              {/* Nuevo efecto de "pingsan" (desmayo) con flash y pulsación antes del blackout */}
+              <motion.div 
+                className="knockout-effect"
+                animate={{
+                  opacity: [0, 0.5, 0.9, 0.7, 0]
+                }}
+                transition={{ 
+                  duration: 0.6,
+                  delay: 0.2,
+                  times: [0, 0.2, 0.4, 0.7, 1],
+                  ease: "easeInOut"
+                }}
+              />
+              
+              {/* Efecto mejorado de "pingsan" (desmayo) con blackout más intenso */}
               <motion.div 
                 className="screen-blackout"
                 animate={{
-                  opacity: [0, 0.3, 0.6, 0.9, 1]
+                  opacity: [0, 0.4, 0.7, 0.9, 1]
                 }}
                 transition={{ 
-                  duration: 0.8, // Reducido de 2s a 0.8s
-                  delay: 0.4, // Reducido de 1.0s a 0.4s
-                  times: [0, 0.2, 0.4, 0.7, 1],
+                  duration: 1.8, // Aumentado de 0.8s a 1.8s para efecto más claro
+                  delay: 0.3, // Ligeramente reducido para que empiece más pronto
+                  times: [0, 0.2, 0.4, 0.6, 1],
                   ease: "easeIn"
                 }}
               />
@@ -662,6 +676,17 @@ export const dramaticEffectsStyles = `
     background: radial-gradient(ellipse at center, rgba(0,0,0,0) 50%, rgba(0,0,0,1) 100%);
     opacity: 0;
     z-index: 8;
+  }
+  
+  .knockout-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    opacity: 0;
+    z-index: 11;
   }
   
   .vision-blur {

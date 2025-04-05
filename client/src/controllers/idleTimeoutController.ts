@@ -583,12 +583,12 @@ class IdleTimeoutController {
         }
       }, 200); // Reducido de 500ms a 200ms para una respuesta más rápida
       
-      // Redirección más rápida a about:blank
-      // Dejar apenas tiempo suficiente para que se vea el efecto pero sin esperas innecesarias
+      // Redirección a about:blank después del efecto blackout
+      // Aumentamos el tiempo para permitir que se vea claramente el efecto de "pingsan" (desmayo)
       setTimeout(() => {
-        console.log("[IdleTimeoutController] Redirecting to about:blank");
+        console.log("[IdleTimeoutController] Redirecting to about:blank after blackout effect");
         window.location.href = "about:blank"; // Redirigir a página en blanco
-      }, 1000); // Reducido de 4000ms a 1000ms para una transición más rápida
+      }, 2500); // Aumentado de 1000ms a 2500ms para una transición más clara del efecto blackout
     };
     
     // Tampilkan peringatan, tetapi tunggu dialog selesai sebelum melanjutkan
