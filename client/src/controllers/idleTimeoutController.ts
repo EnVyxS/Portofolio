@@ -168,6 +168,21 @@ class IdleTimeoutController {
            this.hasBeenPunched;
   }
 
+  // Metode publik untuk menampilkan peringatan hover dari luar
+  public handleExcessiveHover(): void {
+    this.showIdleWarning(IDLE_DIALOGS.EXCESSIVE_HOVER_WARNING);
+  }
+  
+  // Metode publik untuk menampilkan peringatan final hover dari luar
+  public handleFinalHoverWarning(): void {
+    this.showIdleWarning(IDLE_DIALOGS.FINAL_HOVER_WARNING);
+  }
+  
+  // Metode publik untuk memicu efek lempar dari luar
+  public handleThrowUser(): void {
+    this.throwUser();
+  }
+
   // Cek apakah ada audio atau dialog yang sedang berjalan
   private isAudioOrDialogActive(): boolean {
     // Cek apakah ada audio yang sedang diputar

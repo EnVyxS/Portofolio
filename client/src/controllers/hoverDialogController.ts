@@ -1,6 +1,6 @@
 import ElevenLabsService from "../services/elevenlabsService";
 import DialogController from "./dialogController";
-import IdleTimeoutController from "./idleTimeoutController";
+import IdleTimeoutController, { IDLE_DIALOGS } from "./idleTimeoutController";
 import { debounce } from "../lib/utils";
 
 // Jenis link yang mungkin di-hover
@@ -94,6 +94,7 @@ class HoverDialogController {
   private isHandlingHover: boolean = false;
   private hasInteractedWithHover: boolean = false;
   private processedTexts: Set<string> = new Set(); // Menyimpan teks yang sudah ditampilkan
+  private hoverCountAfterSecondLevel: number = 0; // Counter untuk hover setelah secondLevel annoyance
 
   // Flag untuk kontrol annoyance level agar hanya ditampilkan sekali per sesi
   private hasShownFirstLevelAnnoyance: boolean = false;
@@ -193,6 +194,53 @@ class HoverDialogController {
       return;
     }
 
+    // Jika sudah menampilkan second level annoyance, hitung hover setelahnya
+    if (this.hasShownSecondLevelAnnoyance) {
+      this.hoverCountAfterSecondLevel++;
+      console.log("Hover setelah peringatan level kedua:", this.hoverCountAfterSecondLevel);
+
+      // Setelah 2 kali hover, trigger EXCESSIVE_HOVER_WARNING
+      if (this.hoverCountAfterSecondLevel === 2) {
+        try {
+          const idleController = IdleTimeoutController.getInstance();
+          if (idleController) {
+            console.log("Triggering excessive hover punishment via IdleTimeoutController after 2 hovers following second level warning");
+            idleController.handleExcessiveHover();
+          }
+        } catch (e) {
+          console.error("Could not trigger IdleTimeoutController warning:", e);
+        }
+      } 
+      // Setelah 3 kali hover, trigger FINAL_HOVER_WARNING
+      else if (this.hoverCountAfterSecondLevel === 3) {
+        try {
+          const idleController = IdleTimeoutController.getInstance();
+          if (idleController) {
+            console.log("Triggering final hover warning via IdleTimeoutController after 3 hovers following second level warning");
+            idleController.handleFinalHoverWarning();
+          }
+        } catch (e) {
+          console.error("Could not trigger IdleTimeoutController final warning:", e);
+        }
+      }
+      // Setelah 4 kali hover, trigger throwUser
+      else if (this.hoverCountAfterSecondLevel === 4) {
+        try {
+          const idleController = IdleTimeoutController.getInstance();
+          if (idleController) {
+            console.log("Triggering throw user effect via IdleTimeoutController after 4 hovers following second level warning");
+            idleController.handleThrowUser();
+          }
+        } catch (e) {
+          console.error("Could not trigger IdleTimeoutController throw user:", e);
+        }
+      }
+      
+      // Update last hovered link tanpa trigger dialog
+      this.lastHoveredLink = linkType;
+      return;
+    }
+
     // Jika first level annoyance sudah muncul, hanya perbolehkan perpindahan antar kategori
     // yang akan memicu second level annoyance, tolak semua tipe dialog lainnya
     if (
@@ -207,7 +255,7 @@ class HoverDialogController {
         );
       } else {
         console.log(
-          "First level annoyance triggered, ignoring all other dialog types",
+          "First level annoyance telah ditampilkan, dialog completed/interruption diabaikan",
         );
         this.lastHoveredLink = linkType; // Update last hovered link tanpa trigger dialog
         return;
@@ -670,6 +718,7 @@ class HoverDialogController {
   public resetHoverState(): void {
     this.lastHoveredLink = "none";
     this.hoverCount = 0;
+    this.hoverCountAfterSecondLevel = 0; // Reset hover counter setelah second level warning
     this.isHandlingHover = false;
     this.stopTyping(); // Stop typing animation jika ada
     // tidak reset processedTexts agar dialog tidak diulang
@@ -679,6 +728,7 @@ class HoverDialogController {
   public resetAllState(): void {
     this.lastHoveredLink = "none";
     this.hoverCount = 0;
+    this.hoverCountAfterSecondLevel = 0; // Reset hover counter setelah second level warning
     this.isHandlingHover = false;
     this.hasInteractedWithHover = false;
     this.processedTexts.clear(); // Clear set teks yang sudah ditampilkan
