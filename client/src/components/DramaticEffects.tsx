@@ -13,6 +13,24 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
   const [isEffectActive, setIsEffectActive] = useState<boolean>(effect !== 'none');
   const punchSoundRef = useRef<HTMLAudioElement | null>(null);
   
+  // Preload the punch sound when component mounts
+  useEffect(() => {
+    // Preload the punch sound to make it available immediately
+    if (effect === 'punch') {
+      punchSoundRef.current = new Audio('/assets/sounds/punch_sfx.m4a');
+      punchSoundRef.current.load(); // Preload the audio
+      console.log("Punch sound preloaded");
+    }
+    
+    return () => {
+      // Clean up audio when component unmounts
+      if (punchSoundRef.current) {
+        punchSoundRef.current.pause();
+        punchSoundRef.current = null;
+      }
+    };
+  }, []);
+
   // Jalankan efek saat prop effect berubah
   useEffect(() => {
     setIsEffectActive(effect !== 'none');
@@ -24,15 +42,38 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
       // Play punch sound effect if punch effect is active
       if (effect === 'punch') {
         try {
-          // Create audio element for punch sound
-          punchSoundRef.current = new Audio('/assets/sounds/punch_sfx.m4a');
-          if (punchSoundRef.current) {
-            punchSoundRef.current.volume = 0.6; // Set appropriate volume
-            punchSoundRef.current.play()
-              .catch(e => console.log("Couldn't play punch sound:", e));
+          // If the sound was not preloaded, create it now
+          if (!punchSoundRef.current) {
+            punchSoundRef.current = new Audio('/assets/sounds/punch_sfx.m4a');
+            console.log("Creating punch sound on-demand");
+          }
+          
+          // Reset the audio to the beginning in case it was played before
+          punchSoundRef.current.currentTime = 0;
+          punchSoundRef.current.volume = 0.7; // Increased volume slightly
+          
+          // Play with user gesture handling
+          const playPromise = punchSoundRef.current.play();
+          
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                console.log("Punch sound playing successfully");
+              })
+              .catch(e => {
+                console.error("Couldn't play punch sound:", e);
+                
+                // Try one more time with a slight delay (browser might need time)
+                setTimeout(() => {
+                  if (punchSoundRef.current) {
+                    punchSoundRef.current.play()
+                      .catch(e2 => console.error("Second attempt to play punch sound failed:", e2));
+                  }
+                }, 100);
+              });
           }
         } catch (error) {
-          console.log("Error playing punch sound:", error);
+          console.error("Error setting up punch sound:", error);
         }
       }
       
@@ -43,11 +84,6 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
       
       return () => {
         clearTimeout(timer);
-        // Clean up audio when component unmounts
-        if (punchSoundRef.current) {
-          punchSoundRef.current.pause();
-          punchSoundRef.current = null;
-        }
       };
     }
   }, [effect, onEffectComplete]);

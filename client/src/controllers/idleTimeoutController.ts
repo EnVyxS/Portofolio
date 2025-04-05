@@ -556,20 +556,39 @@ class IdleTimeoutController {
         );
       }
 
+      // Precarga y reproducción del sonido de golpe
+      try {
+        const punchSound = new Audio('/assets/sounds/punch_sfx.m4a');
+        punchSound.volume = 0.8; // Volumen alto para asegurar que se escuche
+        punchSound.load();
+        
+        // Reproducir el sonido directamente para asegurar que se escuche
+        // Incluso antes de llamar al callback
+        const playSoundPromise = punchSound.play();
+        
+        if (playSoundPromise !== undefined) {
+          playSoundPromise
+            .then(() => console.log("[IdleTimeoutController] Punch sound playing successfully"))
+            .catch(err => console.error("[IdleTimeoutController] Error playing punch sound:", err));
+        }
+      } catch (soundError) {
+        console.error("[IdleTimeoutController] Failed to initialize punch sound:", soundError);
+      }
+
       // Jalankan callback jika ada setelah dialog terbaca
       setTimeout(() => {
         if (this.punchUserCallback) {
           console.log("[IdleTimeoutController] Triggering punch animation");
           this.punchUserCallback();
         }
-      }, 1000); // Delay 1 detik untuk dialog dapat dibaca
+      }, 500); // Reduced delay to 500ms so the animation starts closer to the sound
       
       // Setelah beberapa detik lebih lama, baru redirect ke about:blank
       // Ini memberi waktu untuk efek animasi fainting dan punch selesai
       setTimeout(() => {
         console.log("[IdleTimeoutController] Redirecting to about:blank");
         window.location.href = "about:blank"; // Redirect ke halaman kosong
-      }, 4000); // Diperpanjang menjadi 4 detik (termasuk 1 detik delay additional)
+      }, 4000); // Diperpanjang menjadi 4 detik (termasuk delay additional)
     };
     
     // Tampilkan peringatan, tetapi tunggu dialog selesai sebelum melanjutkan
