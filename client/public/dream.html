@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dream State</title>
+    <title>Dreamscape Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&family=Quicksand:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body, html {
             margin: 0;
@@ -32,7 +32,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(ellipse at center, #4b0082 0%, #000 100%);
+            background: radial-gradient(ellipse at center, #191236 0%, #000 100%);
             z-index: 1;
             overflow: hidden;
         }
@@ -304,6 +304,44 @@
 
         .wake-up-btn:hover::before {
             left: 100%;
+        }
+        
+        .dream-oracle {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            animation: fadeIn 3s ease-in-out 10s forwards;
+        }
+        
+        .oracle-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(148,0,211,0.4) 0%, rgba(75,0,130,0.6) 50%, rgba(0,0,0,0) 100%);
+            border: 2px solid rgba(255,255,255,0.3);
+            margin-bottom: 15px;
+            animation: pulseOracle 4s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(148,0,211,0.5);
+        }
+        
+        @keyframes pulseOracle {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        .oracle-text {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(148,0,211,0.7);
+            max-width: 300px;
         }
 
         .haze {
@@ -655,11 +693,11 @@
         <div class="aurora"></div>
         <div class="dreamveil"></div>
         
-        <div class="header-text">YOU CANNOT LEAVE UNTIL IT'S OVER</div>
+        <div class="header-text">THE JOURNEY THROUGH THE DREAMSCAPE MUST BE COMPLETED</div>
         
         <div class="cinema-interface">
             <div class="video-header">
-                <div class="video-channel"><i class="fas fa-film"></i> 7!! - Orange (MV) Your Lie In April Live Action</div>
+                <div class="video-channel"><i class="fas fa-film"></i> Ethereal Dreamscape Experience</div>
                 <div class="video-controls">
                     <span class="video-control"><i class="fas fa-clock"></i> Tontonan nanti</span>
                     <span class="video-control"><i class="fas fa-share"></i> Bagikan</span>
@@ -670,14 +708,19 @@
                 <div class="pulse-ring"></div>
                 <div class="video-overlay"></div>
                 <div class="video-border"></div>
-                <iframe id="player" src="https://www.youtube.com/embed/VZLVT2_Ldc8?enablejsapi=1&autoplay=1&controls=0&rel=0&modestbranding=1&disablekb=1&iv_load_policy=3&fs=0&showinfo=0&loop=1&start=18" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe id="player" src="https://www.youtube.com/embed/w3HvqM9R-xY?enablejsapi=1&autoplay=1&controls=0&rel=0&modestbranding=1&disablekb=1&iv_load_policy=3&fs=0&showinfo=0&loop=1&start=12" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 <div class="play-button-overlay">
                     <i class="fas fa-play"></i>
                 </div>
             </div>
         </div>
         
-        <button id="wakeUpBtn" class="wake-up-btn">WAKE UP</button>
+        <div class="dream-oracle">
+            <div class="oracle-circle"></div>
+            <div class="oracle-text">Observe the patterns within the dream...</div>
+        </div>
+        
+        <button id="wakeUpBtn" class="wake-up-btn">ASCEND</button>
     </div>
 
     <div class="moving-stars" id="starField"></div>
@@ -688,7 +731,7 @@
 
     <script>
         // Block navigation and prevent closing until video ends
-        const videoLength = 225; // Video length in seconds (fRUJjOViokk length is ~3:45)
+        let videoLength = 225; // Estimated video length in seconds
         let allowExit = false;
         let videoDuration = 0;
         let videoStartTime = Date.now();
