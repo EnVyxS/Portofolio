@@ -107,19 +107,26 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
           >
             {/* Enhanced throwing effect with multiple layers */}
             <div className="throw-effect-inner">
-              {/* Camera shake to simulate being grabbed and thrown */}
+              {/* Camera shake to simulate being grabbed and dragged out */}
               <motion.div 
                 className="camera-shake-throw"
                 animate={{
-                  x: [0, 20, -40, 30, -150, -400, -1000], 
-                  y: [0, -15, 25, -50, -150, 400, 1500],
-                  rotate: [0, 8, -15, 20, -40, 90, 360],
-                  scale: [1, 1.2, 0.85, 1.3, 0.65, 0.35, 0.05]
+                  // Modifikasi: gerakan lebih fokus ke horizontal dan meningkat secara bertahap (efek diseret)
+                  x: [0, 10, -15, 25, -45, -150, -350, -600, -1200], 
+                  // Modifikasi: kurangi variasi vertikal untuk efek seret vs lemparan
+                  y: [0, 5, -10, 15, -20, 15, 30, 60, 100],
+                  // Modifikasi: putar ke kanan saja (efek ditarik dan diseret ke samping)
+                  rotate: [0, 2, 4, 8, 12, 20, 30, 45, 60],
+                  // Modifikasi: buat seolah-olah menjauhi lebih perlahan
+                  scale: [1, 0.98, 0.95, 0.9, 0.85, 0.75, 0.6, 0.4, 0.2]
                 }}
                 transition={{ 
-                  duration: 1.2,
-                  times: [0, 0.05, 0.1, 0.2, 0.4, 0.6, 1],
-                  ease: [0.22, 1, 0.36, 1] // custom cubic bezier for realistic throw physics
+                  // Perlambat sedikit untuk efek tarikan/seretan
+                  duration: 1.3,
+                  // Penyesuaian timing untuk efek seretan bertahap
+                  times: [0, 0.05, 0.1, 0.15, 0.25, 0.4, 0.6, 0.8, 1],
+                  // Kurva Cubic Bezier untuk efek ditarik keluar yang lebih realistis
+                  ease: [0.2, 0.8, 0.3, 1] 
                 }}
               >
                 <div className="screen-content"></div>
@@ -224,34 +231,44 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
                 ))}
               </div>
               
-              {/* Enhanced wind streaks effect */}
+              {/* Enhanced wind streaks for dragging effect */}
               <motion.div
                 className="wind-streaks"
                 initial={{ opacity: 0 }}
                 animate={{
-                  opacity: [0, 0.95, 0],
-                  skewX: ["-25deg", "-35deg", "-15deg"]
+                  opacity: [0, 0.4, 0.7, 0.9, 0.7, 0.4, 0],
+                  // Semakin miring untuk efek seretan yang kuat
+                  skewX: ["-15deg", "-20deg", "-30deg", "-40deg", "-35deg", "-25deg", "-10deg"]
                 }}
                 transition={{
-                  duration: 0.9,
-                  delay: 0.15,
-                  ease: "easeOut"
+                  // Perlambat dan buat lebih bertahap untuk efek seretan
+                  duration: 1.2,
+                  delay: 0.1,
+                  times: [0, 0.1, 0.25, 0.4, 0.6, 0.8, 1],
+                  ease: "easeInOut"
                 }}
               />
               
-              {/* Enhanced screen rotation with more extreme angles */}
+              {/* Enhanced screen rotation for dragging effect */}
               <motion.div
                 className="perspective-container"
                 animate={{
-                  rotateX: [0, 80, 40],
-                  rotateY: [0, -50, -20],
-                  rotateZ: [0, 30, -10],
-                  z: [0, -200, -300]
+                  // Modifikasi: lebih fokus pada putaran horizontal (y-axis)
+                  rotateX: [0, 15, 20, 15, 10],
+                  // Modifikasi: fokus pada rotasi horizontal ke kanan (seperti ditarik)
+                  rotateY: [0, -10, -25, -45, -65],
+                  // Modifikasi: sedikit rotasi Z untuk efek yang lebih natural
+                  rotateZ: [0, 5, 10, 15, 20],
+                  // Modifikasi: efek kedalaman saat diseret
+                  z: [0, -50, -100, -200, -350]
                 }}
                 transition={{
-                  duration: 1,
+                  // Perlambat sedikit untuk efek seretan
+                  duration: 1.2,
                   delay: 0.1,
-                  ease: "easeOut"
+                  // Timing disesuaikan untuk simulasi tarikan
+                  times: [0, 0.2, 0.4, 0.7, 1],
+                  ease: [0.3, 0.6, 0.3, 1]
                 }}
               />
               
@@ -269,33 +286,60 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
                 }}
               />
               
-              {/* Enhanced motion blur when flying through air */}
+              {/* Enhanced horizontal motion blur untuk efek seretan */}
               <motion.div
                 className="throw-blur-effect"
                 animate={{
-                  opacity: [0, 0.85, 0],
-                  filter: ["blur(0px)", "blur(20px)", "blur(5px)"]
+                  opacity: [0, 0.3, 0.6, 0.8, 0.7, 0.5, 0.2, 0],
+                  filter: ["blur(0px)", "blur(5px) brightness(1.1)", "blur(15px) brightness(1.2)", 
+                           "blur(25px) brightness(1.3)", "blur(20px) brightness(1.25)", 
+                           "blur(15px) brightness(1.2)", "blur(10px) brightness(1.1)", "blur(5px)"]
+                }}
+                style={{
+                  // Modifikasi: penambahan filter directionality untuk efek gerakan horizontal
+                  backdropFilter: "blur(8px)",
+                  background: "linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%)"
                 }}
                 transition={{
-                  duration: 1,
-                  delay: 0.3,
+                  duration: 1.3,
+                  delay: 0.2,
+                  times: [0, 0.1, 0.25, 0.4, 0.6, 0.75, 0.9, 1],
                   ease: "easeInOut"
                 }}
               />
               
-              {/* Additional trail effect */}
+              {/* Enhanced motion trail for dragging effect */}
               <motion.div
-                className="motion-trail"
-                initial={{ opacity: 0, scale: 1.2, rotate: 10 }}
+                className="motion-trail drag-trail"
+                initial={{ opacity: 0, scale: 1, x: 0 }}
                 animate={{
-                  opacity: [0, 0.85, 0],
-                  scale: [1.2, 1.6, 2],
-                  rotate: [10, 25, 15]
+                  // Opacity dengan beberapa tahap untuk efek ghosting yang lebih kompleks
+                  opacity: [0, 0.4, 0.7, 0.9, 0.7, 0.4, 0.2, 0],
+                  // Scale yang meregang horizontal untuk kesan tertarik
+                  scaleX: [1, 1.2, 1.5, 1.8, 1.6, 1.4, 1.2, 1],
+                  // Skala vertikal tetap kecil untuk efek seretan
+                  scaleY: [1, 0.95, 0.9, 0.85, 0.9, 0.92, 0.95, 1],
+                  // Translasi horizontal untuk efek tertarik ke kanan
+                  x: [0, 50, 120, 200, 260, 300, 320, 340],
+                  // Translasi vertikal minimal (sedikit ke atas kemudian turun)
+                  y: [0, -15, -25, -20, -10, 0, 10, 20],
+                  // Sedikit rotasi untuk kesan dinamis
+                  rotate: [0, 2, 5, 8, 10, 12, 10, 8]
                 }}
                 transition={{
-                  duration: 0.9,
-                  delay: 0.25,
-                  ease: "easeInOut"
+                  // Perlambat untuk efek yang lebih substansial
+                  duration: 1.3,
+                  // Delay kecil untuk mundur setelah awal tarikan
+                  delay: 0.1,
+                  // Timing lebih detil untuk kontrol pergerakan
+                  times: [0, 0.1, 0.2, 0.35, 0.5, 0.65, 0.8, 1],
+                  // Kurva easing yang menekankan tarikan dan resistensi
+                  ease: [0.2, 0.5, 0.35, 1]
+                }}
+                style={{
+                  // Tambahan style untuk efek seretan
+                  background: "linear-gradient(90deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0) 100%)",
+                  boxShadow: "0 0 25px rgba(255, 255, 255, 0.2)"
                 }}
               />
             </div>
@@ -609,6 +653,21 @@ export default DramaticEffects;
 
 // CSS untuk digunakan sebagai style
 export const dramaticEffectsStyles = `
+  /* Styling CSS untuk efek seretan (dragging) */
+  .motion-trail.drag-trail {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    filter: blur(6px);
+    opacity: 0;
+    border-radius: 8px;
+    transform-origin: left center;
+  }
+  
   .dramatic-effect-throw, .dramatic-effect-punch {
     position: fixed;
     top: 0;
