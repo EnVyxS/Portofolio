@@ -564,12 +564,12 @@ class IdleTimeoutController {
         }
       }, 1000); // Delay 1 detik untuk dialog dapat dibaca
       
-      // Setelah beberapa detik lebih lama, baru redirect ke about:blank
-      // Ini memberi waktu untuk efek animasi fainting dan punch selesai
+      // Redirect ke about:blank setelah efek punch
+      // Lebih cepat untuk memenuhi permintaan pengguna (punch efek lebih cepat)
       setTimeout(() => {
         console.log("[IdleTimeoutController] Redirecting to about:blank");
         window.location.href = "about:blank"; // Redirect ke halaman kosong
-      }, 4000); // Diperpanjang menjadi 4 detik (termasuk 1 detik delay additional)
+      }, 1000); // Hanya 1 detik setelah efek punch (sesuai permintaan)
     };
     
     // Tampilkan peringatan, tetapi tunggu dialog selesai sebelum melanjutkan
