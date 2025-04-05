@@ -575,20 +575,20 @@ class IdleTimeoutController {
         console.error("[IdleTimeoutController] Failed to initialize punch sound:", soundError);
       }
 
-      // Jalankan callback jika ada setelah dialog terbaca
+      // Ejecutar el callback inmediatamente para una respuesta más rápida
       setTimeout(() => {
         if (this.punchUserCallback) {
           console.log("[IdleTimeoutController] Triggering punch animation");
           this.punchUserCallback();
         }
-      }, 500); // Reduced delay to 500ms so the animation starts closer to the sound
+      }, 200); // Reducido de 500ms a 200ms para una respuesta más rápida
       
-      // Setelah beberapa detik lebih lama, baru redirect ke about:blank
-      // Ini memberi waktu untuk efek animasi fainting dan punch selesai
+      // Redirección más rápida a about:blank
+      // Dejar apenas tiempo suficiente para que se vea el efecto pero sin esperas innecesarias
       setTimeout(() => {
         console.log("[IdleTimeoutController] Redirecting to about:blank");
-        window.location.href = "about:blank"; // Redirect ke halaman kosong
-      }, 4000); // Diperpanjang menjadi 4 detik (termasuk delay additional)
+        window.location.href = "about:blank"; // Redirigir a página en blanco
+      }, 1000); // Reducido de 4000ms a 1000ms para una transición más rápida
     };
     
     // Tampilkan peringatan, tetapi tunggu dialog selesai sebelum melanjutkan

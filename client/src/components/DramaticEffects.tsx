@@ -136,24 +136,24 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
                   opacity: [0, 1, 0]
                 }}
                 transition={{ 
-                  duration: 0.3, 
+                  duration: 0.15, // Más rápido (reducido de 0.3s a 0.15s)
                   times: [0, 0.1, 1],
                   ease: "easeOut" 
                 }}
               />
               
-              {/* Getaran kamera dengan jitter acak */}
+              {/* Sacudida de cámara más violenta y rápida */}
               <motion.div 
                 className="camera-shake"
                 animate={{
-                  x: [0, -15, 25, -12, 8, -3, 0],
-                  y: [0, 10, -15, 5, -2, 0],
-                  rotate: [0, -1, 2, -1.5, 0.5, 0]
+                  x: [0, -25, 35, -20, 12, -5, 0], // Valores mayores para sacudidas más fuertes
+                  y: [0, 15, -20, 8, -3, 0], // Valores mayores para sacudidas más fuertes
+                  rotate: [0, -2, 3, -2.5, 1, 0] // Mayor rotación para efecto más dramático
                 }}
                 transition={{ 
-                  duration: 0.8, 
+                  duration: 0.5, // Más rápido (reducido de 0.8s a 0.5s)
                   ease: "easeOut",
-                  times: [0, 0.1, 0.2, 0.4, 0.6, 1] 
+                  times: [0, 0.05, 0.15, 0.3, 0.5, 1] // Tiempos ajustados para que todo sea más rápido al inicio
                 }}
               >
                 {/* Kontent ini akan bergetar bersama dengan layar */}
@@ -220,69 +220,104 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.2, delay: 0.15 }}
               >
-                {/* Salpicadura principal grande */}
+                {/* Efecto de explosión de sangre principal - más intenso y rápido */}
                 <motion.div 
                   className="blood-splatter blood-splatter-main"
-                  initial={{ opacity: 0, scale: 0.5, rotate: 0 }}
+                  initial={{ opacity: 0, scale: 0.3, rotate: -5 }}
                   animate={{
-                    opacity: [0, 0.9, 0.8],
-                    scale: [0.5, 1.3, 1.2],
-                    y: [0, 15, 25],
-                    x: [0, -5, -8]
+                    opacity: [0, 0.95, 0.85],
+                    scale: [0.3, 1.4, 1.3],
+                    y: [0, 12, 20],
+                    x: [0, -8, -12]
                   }}
                   transition={{ 
-                    duration: 1.2, 
+                    duration: 0.8, // Más rápido
+                    delay: 0.1, // Menos retraso
+                    ease: "easeOut",
+                    times: [0, 0.3, 1] // Explosión más rápida al principio
+                  }}
+                />
+                
+                {/* Gotas pequeñas que se esparcen explosivamente */}
+                <motion.div 
+                  className="blood-splatter blood-splatter-drops"
+                  initial={{ opacity: 0, scale: 0.2, rotate: -10 }}
+                  animate={{
+                    opacity: [0, 1, 0.8],
+                    scale: [0.2, 1.2, 1.1],
+                    y: [0, 25, 40],
+                    x: [0, 15, 22]
+                  }}
+                  transition={{ 
+                    duration: 0.7, // Más rápido 
+                    delay: 0.1, // Casi simultáneo
+                    ease: "easeOut",
+                    times: [0, 0.4, 1] // Aceleración al principio
+                  }}
+                />
+                
+                {/* Segunda mancha de sangre en otra dirección */}
+                <motion.div 
+                  className="blood-splatter blood-splatter-extra"
+                  initial={{ opacity: 0, scale: 0.3, rotate: 10 }}
+                  animate={{
+                    opacity: [0, 0.9, 0.8],
+                    scale: [0.3, 1.1, 1],
+                    y: [0, -15, -25],
+                    x: [0, 10, 15]
+                  }}
+                  transition={{ 
+                    duration: 0.6, 
+                    delay: 0.15,
+                    ease: "easeOut" 
+                  }}
+                />
+                
+                {/* Gotas que caen más rápidamente */}
+                <motion.div 
+                  className="blood-drip-effect blood-drip-main"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{
+                    opacity: [0, 0.95, 0.9],
+                    height: [0, 30, 65]
+                  }}
+                  transition={{ 
+                    duration: 1.2, // Más rápido 
+                    delay: 0.3,
+                    ease: "easeOut" 
+                  }}
+                />
+                
+                {/* Segunda gota de sangre */}
+                <motion.div 
+                  className="blood-drip-effect blood-drip-secondary"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{
+                    opacity: [0, 0.9, 0.85],
+                    height: [0, 25, 55]
+                  }}
+                  transition={{ 
+                    duration: 1.4, 
                     delay: 0.25,
                     ease: "easeOut" 
                   }}
                 />
                 
-                {/* Gotas pequeñas que se esparcen rápidamente */}
-                <motion.div 
-                  className="blood-splatter blood-splatter-drops"
-                  initial={{ opacity: 0, scale: 0.4, rotate: -10 }}
-                  animate={{
-                    opacity: [0, 0.95, 0.7],
-                    scale: [0.4, 1.1, 1],
-                    y: [0, 20, 35],
-                    x: [0, 12, 18]
-                  }}
-                  transition={{ 
-                    duration: 0.9, 
-                    delay: 0.2,
-                    ease: "easeOut" 
-                  }}
-                />
-                
-                {/* Gotas que caen lentamente */}
-                <motion.div 
-                  className="blood-drip-effect"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{
-                    opacity: [0, 0.9, 0.85],
-                    height: [0, 20, 45]
-                  }}
-                  transition={{ 
-                    duration: 2, 
-                    delay: 0.5,
-                    ease: "easeOut" 
-                  }}
-                />
-                
-                {/* Pequeñas salpicaduras */}
+                {/* Pequeñas salpicaduras explosivas */}
                 <motion.div 
                   className="blood-splatter blood-splatter-tiny"
-                  initial={{ opacity: 0, scale: 0.3, rotate: 15 }}
+                  initial={{ opacity: 0, scale: 0.2, rotate: 15 }}
                   animate={{
-                    opacity: [0, 0.9, 0.7],
-                    scale: [0.3, 0.9, 0.85],
-                    y: [0, -8, -5],
-                    x: [0, -15, -20]
+                    opacity: [0, 0.95, 0.75],
+                    scale: [0.2, 1, 0.95],
+                    y: [0, -12, -18],
+                    x: [0, -18, -25]
                   }}
                   transition={{ 
-                    duration: 0.7, 
-                    delay: 0.3,
-                    ease: "easeOut" 
+                    duration: 0.5, // Mucho más rápido
+                    delay: 0.1,
+                    ease: "easeOut",
+                    times: [0, 0.3, 1] // Explosión rápida
                   }}
                 />
               </motion.div>
@@ -300,59 +335,59 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
                 }}
               />
               
-              {/* Efek vignette untuk simulasi hilang kesadaran */}
+              {/* Efecto viñeta para simular pérdida de conciencia - más rápido */}
               <motion.div 
                 className="vignette-effect"
                 animate={{
-                  opacity: [0, 0.4, 0.9]
+                  opacity: [0, 0.6, 0.95] // Mayor opacidad final
                 }}
                 transition={{ 
-                  duration: 1.5,
-                  delay: 0.6,
+                  duration: 0.7, // Reducido de 1.5s a 0.7s
+                  delay: 0.3, // Reducido de 0.6s a 0.3s
                   ease: "easeIn"
                 }}
               />
               
-              {/* Efek pingsan dengan blackout yang lebih bertahap */}
+              {/* Efecto de desmayo con blackout más rápido */}
               <motion.div 
                 className="screen-blackout"
                 animate={{
-                  opacity: [0, 0.2, 0.5, 0.8, 1]
+                  opacity: [0, 0.3, 0.6, 0.9, 1]
                 }}
                 transition={{ 
-                  duration: 2,
-                  delay: 1.0,
+                  duration: 0.8, // Reducido de 2s a 0.8s
+                  delay: 0.4, // Reducido de 1.0s a 0.4s
                   times: [0, 0.2, 0.4, 0.7, 1],
                   ease: "easeIn"
                 }}
               />
               
-              {/* Efek vision blur perlahan-lahan */}
+              {/* Efecto de visión borrosa más acelerado */}
               <motion.div 
                 className="vision-blur"
                 animate={{
-                  opacity: [0, 0.4, 0.8, 1],
-                  filter: ["blur(0px)", "blur(2px)", "blur(8px)", "blur(15px)"],
+                  opacity: [0, 0.5, 0.9, 1],
+                  filter: ["blur(0px)", "blur(3px)", "blur(10px)", "blur(20px)"], // Más intenso
                 }}
                 transition={{ 
-                  duration: 1.8,
-                  delay: 0.5,
+                  duration: 0.7, // Reducido de 1.8s a 0.7s
+                  delay: 0.25, // Reducido de 0.5s a 0.25s
                   times: [0, 0.3, 0.6, 1],
                   ease: "easeIn"
                 }}
               />
               
-              {/* Efek double vision (penglihatan ganda) */}
+              {/* Efecto visión doble más rápido e intenso */}
               <motion.div 
                 className="double-vision"
                 animate={{
-                  opacity: [0, 0.6, 0.3],
-                  x: [0, 8, 4],
-                  y: [0, -3, -1]
+                  opacity: [0, 0.8, 0.4], // Mayor opacidad para un efecto más intenso
+                  x: [0, 12, 6], // Mayor desplazamiento
+                  y: [0, -4, -2] // Mayor desplazamiento
                 }}
                 transition={{ 
-                  duration: 1.2,
-                  delay: 0.7,
+                  duration: 0.6, // Reducido de 1.2s a 0.6s
+                  delay: 0.35, // Reducido de 0.7s a 0.35s
                   ease: "easeInOut"
                 }}
               />
@@ -571,19 +606,40 @@ export const dramaticEffectsStyles = `
     transform: scale(0.8) rotate(25deg);
   }
   
-  /* Dripping blood effect */
+  /* Nueva mancha de sangre más explosiva */
+  .blood-splatter-extra {
+    top: 15%;
+    left: -5%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cpath d='M20,20 Q35,10 40,25 T55,15 Q70,5 80,25 T95,35' stroke='%23990000' stroke-width='3.5' fill='none'/%3E%3Ccircle cx='25' cy='20' r='9' fill='%23990000'/%3E%3Ccircle cx='45' cy='15' r='7' fill='%23800000'/%3E%3Ccircle cx='65' cy='25' r='11' fill='%23660000'/%3E%3Ccircle cx='40' cy='35' r='8' fill='%23800000'/%3E%3Cpath d='M30,40 C35,30 50,30 55,40 S60,55 50,60 S30,55 25,45 S25,35 30,40' fill='%23990000'/%3E%3C/svg%3E");
+    transform: scale(1.2) rotate(25deg);
+    filter: drop-shadow(0 0 3px rgba(0,0,0,0.6));
+  }
+  
+  /* Efectos de goteo de sangre */
   .blood-drip-effect {
     position: absolute;
     top: 60%;
     left: 40%;
     width: 20%;
     height: 0px;
-    background: linear-gradient(to bottom, rgba(153,0,0,0.8) 0%, rgba(102,0,0,0.7) 50%, rgba(153,0,0,0) 100%);
+    background: linear-gradient(to bottom, rgba(153,0,0,0.9) 0%, rgba(102,0,0,0.8) 50%, rgba(153,0,0,0) 100%);
     border-top-left-radius: 50%;
     border-top-right-radius: 40%;
     transform: skew(-10deg, 5deg);
     z-index: 7;
     filter: blur(1px);
+  }
+  
+  /* Ajustes para los diferentes goteos */
+  .blood-drip-main {
+    left: 40%;
+    width: 22%;
+  }
+  
+  .blood-drip-secondary {
+    left: 60%;
+    width: 15%;
+    transform: skew(5deg, 2deg);
   }
   
   .screen-crack-realistic {
