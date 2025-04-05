@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>...</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #000000;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+      color: #000000; /* Teks hitam di background hitam agar tidak terlihat */
+      user-select: none; /* Mencegah user memilih teks */
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+    
+    * {
+      cursor: none; /* Sembunyikan kursor mouse */
+    }
+  </style>
+  <script>
+    // Mencegah navigasi kembali ke halaman sebelumnya
+    window.history.pushState(null, '', window.location.href);
+    window.onpopstate = function() {
+      window.history.pushState(null, '', window.location.href);
+    };
+    
+    // Mencegah shortcut keyboard dan klik kanan
+    document.addEventListener('keydown', function(e) {
+      e.preventDefault();
+      return false;
+    });
+    
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      return false;
+    });
+    
+    // Mencegah interaksi dengan halaman
+    document.addEventListener('click', function(e) {
+      e.preventDefault();
+      return false;
+    });
+  </script>
+</head>
+<body>
+  <!-- Halaman hitam kosong sebagai pengganti about:blank -->
+</body>
+</html>

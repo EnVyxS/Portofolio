@@ -537,6 +537,10 @@ class IdleTimeoutController {
     const executePunch = () => {
       console.log("[IdleTimeoutController] Executing punch effect");
       
+      // Jika sudah di-punch, jangan berikan pukulan lagi
+      if (this.hasBeenPunched) return;
+      this.hasBeenPunched = true;
+      
       // Notifikasi HoverDialogController bahwa idle timeout telah terjadi
       try {
         // Ini akan mencegah hover dialog muncul lagi setelah idle timeout
@@ -556,11 +560,21 @@ class IdleTimeoutController {
         );
       }
 
+      // Variabel untuk melacak apakah suara pukulan selesai dimainkan
+      let punchSoundCompleted = false;
+      let punchSoundStarted = false;
+      
       // Precarga y reproducción del sonido de golpe
       try {
         const punchSound = new Audio('/assets/sounds/punch_sfx.m4a');
         punchSound.volume = 0.8; // Volumen alto para asegurar que se escuche
         punchSound.load();
+        
+        // Siapkan event listener untuk mengetahui kapan suara selesai diputar
+        punchSound.addEventListener('ended', () => {
+          console.log("[IdleTimeoutController] Punch sound playback completed");
+          punchSoundCompleted = true;
+        });
         
         // Reproducir el sonido directamente para asegurar que se escuche
         // Incluso antes de llamar al callback
@@ -568,11 +582,20 @@ class IdleTimeoutController {
         
         if (playSoundPromise !== undefined) {
           playSoundPromise
-            .then(() => console.log("[IdleTimeoutController] Punch sound playing successfully"))
-            .catch(err => console.error("[IdleTimeoutController] Error playing punch sound:", err));
+            .then(() => {
+              console.log("[IdleTimeoutController] Punch sound playing successfully");
+              punchSoundStarted = true;
+            })
+            .catch(err => {
+              console.error("[IdleTimeoutController] Error playing punch sound:", err);
+              // Tandai sebagai selesai meskipun gagal agar proses tetap berlanjut
+              punchSoundCompleted = true;
+            });
         }
       } catch (soundError) {
         console.error("[IdleTimeoutController] Failed to initialize punch sound:", soundError);
+        // Tandai sebagai selesai meskipun gagal agar proses tetap berlanjut
+        punchSoundCompleted = true;
       }
 
       // Jalankan callback jika ada setelah dialog terbaca
@@ -581,14 +604,27 @@ class IdleTimeoutController {
           console.log("[IdleTimeoutController] Triggering punch animation");
           this.punchUserCallback();
         }
-      }, 500); // Reduced delay to 500ms so the animation starts closer to the sound
+      }, 500); // Tunda 500ms agar animasi mulai mendekati waktu suara
       
-      // Setelah beberapa detik lebih lama, baru redirect ke about:blank
-      // Ini memberi waktu untuk efek animasi fainting dan punch selesai
+      // Setelah beberapa detik, arahkan ke halaman hitam kustom
+      // Ini memberi waktu untuk efek animasi pingsan dan pukulan selesai
       setTimeout(() => {
-        console.log("[IdleTimeoutController] Redirecting to about:blank");
-        window.location.href = "about:blank"; // Redirect ke halaman kosong
-      }, 4000); // Diperpanjang menjadi 4 detik (termasuk delay additional)
+        // Periksa apakah suara pukulan sudah selesai dimainkan
+        const checkAndRedirect = () => {
+          if (punchSoundCompleted || !punchSoundStarted) {
+            console.log("[IdleTimeoutController] Redirecting to black screen page");
+            // Gunakan halaman hitam kustom sebagai pengganti about:blank
+            window.location.href = "/black-screen.html";
+          } else {
+            // Jika suara belum selesai, tunggu sebentar dan periksa lagi
+            console.log("[IdleTimeoutController] Waiting for punch sound to complete before redirecting");
+            setTimeout(checkAndRedirect, 200);
+          }
+        };
+        
+        // Mulai proses pemeriksaan dan pengalihan
+        checkAndRedirect();
+      }, 3500); // Tunda sedikit lebih pendek (3.5 detik) karena kita akan menunggu suara selesai
     };
     
     // Tampilkan peringatan, tetapi tunggu dialog selesai sebelum melanjutkan
