@@ -1,0 +1,768 @@
+export const dramaticEffectsStyles = `
+`;
+  .dramatic-effect-throw, .dramatic-effect-punch {
+`;
+export const dramaticEffectsStyles = `
+`;
+    position: fixed;
+`;
+export const dramaticEffectsStyles = `
+`;
+    top: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    left: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    width: 100vw;
+`;
+export const dramaticEffectsStyles = `
+`;
+    height: 100vh;
+`;
+export const dramaticEffectsStyles = `
+`;
+    z-index: 100;
+`;
+export const dramaticEffectsStyles = `
+`;
+    display: flex;
+`;
+export const dramaticEffectsStyles = `
+`;
+    justify-content: center;
+`;
+export const dramaticEffectsStyles = `
+`;
+    align-items: center;
+`;
+export const dramaticEffectsStyles = `
+`;
+    pointer-events: none;
+`;
+export const dramaticEffectsStyles = `
+`;
+    overflow: hidden;
+`;
+export const dramaticEffectsStyles = `
+`;
+  }
+`;
+export const dramaticEffectsStyles = `
+`;
+  
+`;
+export const dramaticEffectsStyles = `
+`;
+  .throw-effect-inner, .punch-effect-inner {
+`;
+export const dramaticEffectsStyles = `
+`;
+    position: relative;
+`;
+export const dramaticEffectsStyles = `
+`;
+    width: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    height: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    overflow: hidden;
+`;
+export const dramaticEffectsStyles = `
+`;
+  }
+`;
+export const dramaticEffectsStyles = `
+`;
+  
+`;
+export const dramaticEffectsStyles = `
+`;
+  /* Camera shake for throw effect */
+`;
+export const dramaticEffectsStyles = `
+`;
+  .camera-shake-throw {
+`;
+export const dramaticEffectsStyles = `
+`;
+    position: absolute;
+`;
+export const dramaticEffectsStyles = `
+`;
+    width: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    height: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    top: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    left: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    perspective: 1200px;
+`;
+export const dramaticEffectsStyles = `
+`;
+  }
+`;
+export const dramaticEffectsStyles = `
+`;
+  
+`;
+export const dramaticEffectsStyles = `
+`;
+  /* Spiral rotation overlay for disorientation */
+`;
+export const dramaticEffectsStyles = `
+`;
+  .spiral-rotation-overlay {
+`;
+export const dramaticEffectsStyles = `
+`;
+    position: absolute;
+`;
+export const dramaticEffectsStyles = `
+`;
+    width: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    height: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    top: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    left: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    background: conic-gradient(
+`;
+export const dramaticEffectsStyles = `
+`;
+      from 0deg,
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255, 255, 255, 0.05) 0%,
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255, 255, 255, 0) 25%,
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255, 255, 255, 0.08) 50%,
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255, 255, 255, 0) 75%,
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255, 255, 255, 0.05) 100%
+`;
+export const dramaticEffectsStyles = `
+`;
+    );
+`;
+export const dramaticEffectsStyles = `
+`;
+    opacity: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    mix-blend-mode: overlay;
+`;
+export const dramaticEffectsStyles = `
+`;
+  }
+`;
+export const dramaticEffectsStyles = `
+`;
+  
+`;
+export const dramaticEffectsStyles = `
+`;
+  /* Impact lines with enhanced styling */
+`;
+export const dramaticEffectsStyles = `
+`;
+  .impact-lines {
+`;
+export const dramaticEffectsStyles = `
+`;
+    position: absolute;
+`;
+export const dramaticEffectsStyles = `
+`;
+    top: 50%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    left: 50%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    transform: translate(-50%, -50%);
+`;
+export const dramaticEffectsStyles = `
+`;
+    width: 350px;
+`;
+export const dramaticEffectsStyles = `
+`;
+    height: 350px;
+`;
+export const dramaticEffectsStyles = `
+`;
+    background: radial-gradient(circle, rgba(255,140,0,0.9) 0%, rgba(255,140,0,0) 70%);
+`;
+export const dramaticEffectsStyles = `
+`;
+    opacity: 0.9;
+`;
+export const dramaticEffectsStyles = `
+`;
+    box-shadow: 0 0 40px rgba(255, 160, 0, 0.6);
+`;
+export const dramaticEffectsStyles = `
+`;
+    filter: contrast(1.2);
+`;
+export const dramaticEffectsStyles = `
+`;
+  }
+`;
+export const dramaticEffectsStyles = `
+`;
+  
+`;
+export const dramaticEffectsStyles = `
+`;
+  /* Dust cloud with enhanced styling */
+`;
+export const dramaticEffectsStyles = `
+`;
+  .dust-cloud {
+`;
+export const dramaticEffectsStyles = `
+`;
+    position: absolute;
+`;
+export const dramaticEffectsStyles = `
+`;
+    bottom: 30%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    left: 50%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    transform: translateX(-50%);
+`;
+export const dramaticEffectsStyles = `
+`;
+    width: 600px;
+`;
+export const dramaticEffectsStyles = `
+`;
+    height: 250px;
+`;
+export const dramaticEffectsStyles = `
+`;
+    background: radial-gradient(ellipse, rgba(200,160,120,0.9) 0%, rgba(200,160,120,0) 70%);
+`;
+export const dramaticEffectsStyles = `
+`;
+    opacity: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    filter: blur(4px);
+`;
+export const dramaticEffectsStyles = `
+`;
+  }
+`;
+export const dramaticEffectsStyles = `
+`;
+  
+`;
+export const dramaticEffectsStyles = `
+`;
+  /* Shockwave ripple effect */
+`;
+export const dramaticEffectsStyles = `
+`;
+  .shockwave-ripple {
+`;
+export const dramaticEffectsStyles = `
+`;
+    position: absolute;
+`;
+export const dramaticEffectsStyles = `
+`;
+    top: 50%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    left: 50%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    transform: translate(-50%, -50%);
+`;
+export const dramaticEffectsStyles = `
+`;
+    width: 300px;
+`;
+export const dramaticEffectsStyles = `
+`;
+    height: 300px;
+`;
+export const dramaticEffectsStyles = `
+`;
+    border-radius: 50%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    background: transparent;
+`;
+export const dramaticEffectsStyles = `
+`;
+    border: 8px solid rgba(255, 255, 255, 0.2);
+`;
+export const dramaticEffectsStyles = `
+`;
+    box-shadow: 
+`;
+export const dramaticEffectsStyles = `
+`;
+      0 0 60px rgba(255, 255, 255, 0.5) inset,
+`;
+export const dramaticEffectsStyles = `
+`;
+      0 0 30px rgba(255, 200, 100, 0.3);
+`;
+export const dramaticEffectsStyles = `
+`;
+    opacity: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+  }
+`;
+export const dramaticEffectsStyles = `
+`;
+  
+`;
+export const dramaticEffectsStyles = `
+`;
+  /* Individual dust particles */
+`;
+export const dramaticEffectsStyles = `
+`;
+  .dust-particles-container {
+`;
+export const dramaticEffectsStyles = `
+`;
+    position: absolute;
+`;
+export const dramaticEffectsStyles = `
+`;
+    width: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    height: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    top: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    left: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    pointer-events: none;
+`;
+export const dramaticEffectsStyles = `
+`;
+    overflow: hidden;
+`;
+export const dramaticEffectsStyles = `
+`;
+  }
+`;
+export const dramaticEffectsStyles = `
+`;
+  
+`;
+export const dramaticEffectsStyles = `
+`;
+  .dust-particle {
+`;
+export const dramaticEffectsStyles = `
+`;
+    position: absolute;
+`;
+export const dramaticEffectsStyles = `
+`;
+    bottom: 30%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    background-color: #d0b080;
+`;
+export const dramaticEffectsStyles = `
+`;
+    border-radius: 50%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    filter: blur(1px);
+`;
+export const dramaticEffectsStyles = `
+`;
+    box-shadow: 0 0 8px rgba(210, 180, 120, 0.7);
+`;
+export const dramaticEffectsStyles = `
+`;
+  }
+`;
+export const dramaticEffectsStyles = `
+`;
+  
+`;
+export const dramaticEffectsStyles = `
+`;
+  /* Wind streak effect when flying through air */
+`;
+export const dramaticEffectsStyles = `
+`;
+  .wind-streaks {
+`;
+export const dramaticEffectsStyles = `
+`;
+    position: absolute;
+`;
+export const dramaticEffectsStyles = `
+`;
+    top: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    left: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    width: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    height: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    background: linear-gradient(90deg, 
+`;
+export const dramaticEffectsStyles = `
+`;
+      transparent 0%, 
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255,255,255,0.05) 15%, 
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255,255,255,0.15) 35%, 
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255,255,255,0.15) 65%, 
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255,255,255,0.05) 85%, 
+`;
+export const dramaticEffectsStyles = `
+`;
+      transparent 100%
+`;
+export const dramaticEffectsStyles = `
+`;
+    ), repeating-linear-gradient(90deg,
+`;
+export const dramaticEffectsStyles = `
+`;
+      transparent 0%,
+`;
+export const dramaticEffectsStyles = `
+`;
+      transparent 5%,
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255,255,255,0.03) 5.1%,
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255,255,255,0.03) 7%,
+`;
+export const dramaticEffectsStyles = `
+`;
+      transparent 7.1%,
+`;
+export const dramaticEffectsStyles = `
+`;
+      transparent 10%
+`;
+export const dramaticEffectsStyles = `
+`;
+    );
+`;
+export const dramaticEffectsStyles = `
+`;
+    opacity: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    transform: skewX(-25deg);
+`;
+export const dramaticEffectsStyles = `
+`;
+  }
+`;
+export const dramaticEffectsStyles = `
+`;
+  
+`;
+export const dramaticEffectsStyles = `
+`;
+  /* Perspective container */
+`;
+export const dramaticEffectsStyles = `
+`;
+  .perspective-container {
+`;
+export const dramaticEffectsStyles = `
+`;
+    position: absolute;
+`;
+export const dramaticEffectsStyles = `
+`;
+    width: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    height: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    top: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    left: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    transform-style: preserve-3d;
+`;
+export const dramaticEffectsStyles = `
+`;
+  }
+`;
+export const dramaticEffectsStyles = `
+`;
+  
+`;
+export const dramaticEffectsStyles = `
+`;
+  /* Impact flash */
+`;
+export const dramaticEffectsStyles = `
+`;
+  .impact-flash {
+`;
+export const dramaticEffectsStyles = `
+`;
+    position: absolute;
+`;
+export const dramaticEffectsStyles = `
+`;
+    width: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    height: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    top: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    left: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    background-color: #fff;
+`;
+export const dramaticEffectsStyles = `
+`;
+    opacity: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+  }
+`;
+export const dramaticEffectsStyles = `
+`;
+  
+`;
+export const dramaticEffectsStyles = `
+`;
+  /* Throw blur effect */
+`;
+export const dramaticEffectsStyles = `
+`;
+  .throw-blur-effect {
+`;
+export const dramaticEffectsStyles = `
+`;
+    position: absolute;
+`;
+export const dramaticEffectsStyles = `
+`;
+    width: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    height: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    top: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    left: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    background: radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.7) 100%);
+`;
+export const dramaticEffectsStyles = `
+`;
+    opacity: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+  }
+`;
+export const dramaticEffectsStyles = `
+`;
+  
+`;
+export const dramaticEffectsStyles = `
+`;
+  /* Motion trail effect */
+`;
+export const dramaticEffectsStyles = `
+`;
+  .motion-trail {
+`;
+export const dramaticEffectsStyles = `
+`;
+    position: absolute;
+`;
+export const dramaticEffectsStyles = `
+`;
+    width: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    height: 100%;
+`;
+export const dramaticEffectsStyles = `
+`;
+    top: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    left: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    background: linear-gradient(45deg,
+`;
+export const dramaticEffectsStyles = `
+`;
+      transparent 20%,
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255, 200, 100, 0.05) 30%,
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255, 200, 100, 0.1) 40%,
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255, 255, 255, 0.2) 50%,
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255, 200, 100, 0.1) 60%,
+`;
+export const dramaticEffectsStyles = `
+`;
+      rgba(255, 200, 100, 0.05) 70%,
+`;
+export const dramaticEffectsStyles = `
+`;
+      transparent 80%
+`;
+export const dramaticEffectsStyles = `
+`;
+    );
+`;
+export const dramaticEffectsStyles = `
+`;
+    opacity: 0;
+`;
+export const dramaticEffectsStyles = `
+`;
+    transform: rotate(20deg) scale(1.5);
+`;
+export const dramaticEffectsStyles = `
+`;
+    mix-blend-mode: screen;
+`;
+export const dramaticEffectsStyles = `
+`;
+  }
+`;

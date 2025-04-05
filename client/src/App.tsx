@@ -85,12 +85,12 @@ function MainApp() {
   // Handler untuk efek throw - ketika DIVA JUAN melempar user
   const handleThrowUser = useCallback(() => {
     setDramaticEffect('throw');
-    // Reset semua state setelah beberapa detik
+    // Reset semua state setelah animasi throw selesai (durasi lebih pendek untuk debugging)
     setTimeout(() => {
       setDramaticEffect('none');
       setApproachClicked(false); // Kembali ke approach screen
       setWasReset(true); // Tandai bahwa user telah dilempar
-    }, 2000);
+    }, 1200); // Reduced from 2000ms to 1200ms to match our enhanced animation
   }, [setDramaticEffect, setApproachClicked, setWasReset]);
   
   // Handler untuk efek punch - ketika DIVA JUAN memukul user

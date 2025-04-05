@@ -41,7 +41,7 @@ export const TIMEOUT_DURATIONS = {
 };
 
 // Untuk testing/development, gunakan timeout yang lebih singkat
-const DEBUG_MODE = false; // Mode debug dengan durasi timeout yang lebih singkat
+const DEBUG_MODE = true; // Mode debug dengan durasi timeout yang lebih singkat
 if (DEBUG_MODE) {
   Object.keys(TIMEOUT_DURATIONS).forEach((key) => {
     // Gunakan waktu yang lebih singkat untuk testing
@@ -462,9 +462,22 @@ class IdleTimeoutController {
 
   // Method untuk 'melempar' user
   private throwUser(): void {
-    // Log removed
+    console.log("[IdleTimeoutController] Executing throw user action");
 
-    // Tambahkan dialog peringatan untuk 'melempar'
+    // Play the throw sound effect using the dynamically generated whoosh sound
+    try {
+      if (window.createWhooshSound && typeof window.createWhooshSound === 'function') {
+        // Use our custom sound generator
+        console.log("Playing dynamically generated whoosh sound");
+        window.createWhooshSound();
+      } else {
+        console.warn("Whoosh sound generator not available");
+      }
+    } catch (error) {
+      console.error("Error playing throw sound effect:", error);
+    }
+
+    // Tambahkan dialog peringatan untuk 'melempar' dengan nada kemarahan
     const throwText = "That's it. GET OUT OF MY SIGHT!";
     
     // Atur dialogSource ke 'main' sebelum menampilkan peringatan
@@ -495,19 +508,40 @@ class IdleTimeoutController {
         typeof this.hoverDialogController.setIdleTimeoutOccurred === "function"
       ) {
         this.hoverDialogController.setIdleTimeoutOccurred(true);
-        console.log(
-          "Notified HoverDialogController that idle timeout has occurred",
-        );
+        console.log("Notified HoverDialogController that idle timeout has occurred");
       }
     } catch (e) {
-      console.error(
-        "Could not notify HoverDialogController about idle timeout:",
-        e,
-      );
+      console.error("Could not notify HoverDialogController about idle timeout:", e);
     }
 
-    // Jalankan callback jika ada setelah delay singkat agar dialog dapat dibaca
+    // Membuat efek rumble pada layar sebelum efek throw
+    try {
+      // Add screen rumble effect
+      document.body.style.transition = "transform 0.1s ease-in-out";
+      const rumble = () => {
+        const intensity = 5;
+        const x = intensity * (Math.random() - 0.5);
+        const y = intensity * (Math.random() - 0.5);
+        document.body.style.transform = `translate(${x}px, ${y}px)`;
+      };
+      
+      // Run rumble effect several times before throw
+      const rumbleCount = 8;
+      const rumbleInterval = setInterval(rumble, 50);
+      
+      // Stop rumble after some time
+      setTimeout(() => {
+        clearInterval(rumbleInterval);
+        document.body.style.transform = '';
+        document.body.style.transition = '';
+      }, rumbleCount * 50 + 50);
+    } catch (error) {
+      console.error("Error applying rumble effect:", error);
+    }
+    
+    // Jalankan callback untuk efek melempar SEGERA - respons lebih cepat
     setTimeout(() => {
+      console.log("[IdleTimeoutController] Calling throw user callback");
       if (this.throwUserCallback) {
         this.throwUserCallback();
       }
@@ -516,7 +550,7 @@ class IdleTimeoutController {
       if (this.resetSceneCallback) {
         this.resetSceneCallback();
       }
-    }, 2000); // Delay 2 detik agar dialog dapat dibaca sebelum dilempar
+    }, 800); // Reduced wait time for quicker response from 2000ms to 800ms
   }
 
   // Method untuk 'memukul' user

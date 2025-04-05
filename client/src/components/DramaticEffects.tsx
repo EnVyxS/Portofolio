@@ -37,7 +37,7 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
     
     // Clean up effect atau panggil callback setelah efek selesai
     if (effect !== 'none') {
-      const effectDuration = effect === 'throw' ? 2000 : 3000; // throw lebih cepat dari punch
+      const effectDuration = effect === 'throw' ? 1200 : 3000; // throw lebih cepat dari punch (reduced from 2000ms to 1200ms)
       
       // Play punch sound effect if punch effect is active
       if (effect === 'punch') {
@@ -98,22 +98,206 @@ const DramaticEffects: React.FC<DramaticEffectsProps> = ({
             initial={{ opacity: 0, scale: 1 }}
             animate={{ 
               opacity: 1, 
-              scale: [1, 5, 0],
-              rotate: [0, 15, -15, 0],
-              x: [0, -100, 100, 0],
-              y: [0, -50, 200]
             }}
             transition={{ 
-              duration: 1.5,
-              times: [0, 0.3, 1],
-              ease: "easeInOut" 
+              duration: 0.2,
+              ease: "easeIn" 
             }}
             exit={{ opacity: 0 }}
           >
-            {/* Efek melempar */}
+            {/* Enhanced throwing effect with multiple layers */}
             <div className="throw-effect-inner">
-              <div className="impact-lines"></div>
-              <div className="dust-cloud"></div>
+              {/* Camera shake to simulate being grabbed and thrown */}
+              <motion.div 
+                className="camera-shake-throw"
+                animate={{
+                  x: [0, 20, -40, 30, -150, -400, -1000], 
+                  y: [0, -15, 25, -50, -150, 400, 1500],
+                  rotate: [0, 8, -15, 20, -40, 90, 360],
+                  scale: [1, 1.2, 0.85, 1.3, 0.65, 0.35, 0.05]
+                }}
+                transition={{ 
+                  duration: 1.2,
+                  times: [0, 0.05, 0.1, 0.2, 0.4, 0.6, 1],
+                  ease: [0.22, 1, 0.36, 1] // custom cubic bezier for realistic throw physics
+                }}
+              >
+                <div className="screen-content"></div>
+              </motion.div>
+              
+              {/* Dynamic spiral rotation during throw */}
+              <motion.div 
+                className="spiral-rotation-overlay"
+                initial={{ opacity: 0, scale: 1, rotate: 0 }}
+                animate={{
+                  opacity: [0, 0.8, 0.6, 0],
+                  scale: [1, 1.2, 1.5, 2],
+                  rotate: [0, 90, 180, 360]
+                }}
+                transition={{
+                  duration: 1,
+                  times: [0, 0.2, 0.6, 1],
+                  ease: "easeInOut"
+                }}
+              />
+              
+              {/* Improved impact lines */}
+              <motion.div 
+                className="impact-lines"
+                initial={{ opacity: 0, scale: 0.2 }}
+                animate={{
+                  opacity: [0, 0.9, 0],
+                  scale: [0.2, 1.5, 3]
+                }}
+                transition={{
+                  duration: 0.6,
+                  delay: 0.3,
+                  times: [0, 0.4, 1],
+                  ease: "easeOut"
+                }}
+              />
+              
+              {/* Enhanced dust cloud explosion with particles */}
+              <motion.div 
+                className="dust-cloud"
+                initial={{ opacity: 0, y: 0 }}
+                animate={{
+                  opacity: [0, 0.8, 0],
+                  y: [0, -80, -200],
+                  scale: [0.5, 1.5, 3]
+                }}
+                transition={{
+                  duration: 1,
+                  delay: 0.4,
+                  times: [0, 0.3, 1],
+                  ease: "easeOut"
+                }}
+              />
+              
+              {/* Shockwave ripple effect for impact */}
+              <motion.div
+                className="shockwave-ripple"
+                initial={{ opacity: 0, scale: 0.1 }}
+                animate={{
+                  opacity: [0, 0.7, 0],
+                  scale: [0.1, 2.5, 4]
+                }}
+                transition={{
+                  duration: 0.8,
+                  delay: 0.5,
+                  times: [0, 0.3, 1],
+                  ease: "easeOut"
+                }}
+              />
+              
+              {/* Additional debris particles with more variety */}
+              <div className="dust-particles-container">
+                {[...Array(30)].map((_, i) => (
+                  <motion.div
+                    key={`dust-particle-${i}`}
+                    className="dust-particle"
+                    style={{
+                      left: `${15 + Math.random() * 70}%`,
+                      width: `${3 + Math.random() * 18}px`,
+                      height: `${3 + Math.random() * 18}px`,
+                      opacity: 0.75 + Math.random() * 0.25,
+                      borderRadius: Math.random() > 0.6 ? '50%' : `${Math.random() * 40}%`,
+                      background: Math.random() > 0.5 ? 
+                        `rgba(${210 + Math.random() * 45}, ${180 + Math.random() * 65}, ${140 + Math.random() * 65}, ${0.8 + Math.random() * 0.2})` : 
+                        `rgba(${120 + Math.random() * 60}, ${100 + Math.random() * 60}, ${80 + Math.random() * 60}, ${0.75 + Math.random() * 0.25})`,
+                      boxShadow: `0 0 ${Math.random() * 8 + 3}px rgba(${200 + Math.random() * 55}, ${160 + Math.random() * 55}, ${100 + Math.random() * 55}, ${0.5 + Math.random() * 0.3})`
+                    }}
+                    initial={{ opacity: 0, y: 0, x: 0 }}
+                    animate={{
+                      opacity: [0, 0.95, 0],
+                      y: [0, -120 - Math.random() * 400],
+                      x: [0, (Math.random() - 0.5) * 600],
+                      rotate: [0, Math.random() * 720 * (Math.random() > 0.5 ? 1 : -1)],
+                      scale: [1, 1.2 + Math.random() * 0.8, 0.6 + Math.random()]
+                    }}
+                    transition={{
+                      duration: 0.8 + Math.random() * 0.6,
+                      delay: 0.15 + Math.random() * 0.35,
+                      ease: "easeOut"
+                    }}
+                  />
+                ))}
+              </div>
+              
+              {/* Enhanced wind streaks effect */}
+              <motion.div
+                className="wind-streaks"
+                initial={{ opacity: 0 }}
+                animate={{
+                  opacity: [0, 0.95, 0],
+                  skewX: ["-25deg", "-35deg", "-15deg"]
+                }}
+                transition={{
+                  duration: 0.9,
+                  delay: 0.15,
+                  ease: "easeOut"
+                }}
+              />
+              
+              {/* Enhanced screen rotation with more extreme angles */}
+              <motion.div
+                className="perspective-container"
+                animate={{
+                  rotateX: [0, 80, 40],
+                  rotateY: [0, -50, -20],
+                  rotateZ: [0, 30, -10],
+                  z: [0, -200, -300]
+                }}
+                transition={{
+                  duration: 1,
+                  delay: 0.1,
+                  ease: "easeOut"
+                }}
+              />
+              
+              {/* Enhanced flash effect on impact */}
+              <motion.div
+                className="impact-flash"
+                initial={{ opacity: 0 }}
+                animate={{
+                  opacity: [0, 0.95, 0]
+                }}
+                transition={{
+                  duration: 0.3,
+                  delay: 0.5,
+                  ease: "easeOut"
+                }}
+              />
+              
+              {/* Enhanced motion blur when flying through air */}
+              <motion.div
+                className="throw-blur-effect"
+                animate={{
+                  opacity: [0, 0.85, 0],
+                  filter: ["blur(0px)", "blur(20px)", "blur(5px)"]
+                }}
+                transition={{
+                  duration: 1,
+                  delay: 0.3,
+                  ease: "easeInOut"
+                }}
+              />
+              
+              {/* Additional trail effect */}
+              <motion.div
+                className="motion-trail"
+                initial={{ opacity: 0, scale: 1.2, rotate: 10 }}
+                animate={{
+                  opacity: [0, 0.85, 0],
+                  scale: [1.2, 1.6, 2],
+                  rotate: [10, 25, 15]
+                }}
+                transition={{
+                  duration: 0.9,
+                  delay: 0.25,
+                  ease: "easeInOut"
+                }}
+              />
             </div>
           </motion.div>
         );
@@ -436,36 +620,191 @@ export const dramaticEffectsStyles = `
     justify-content: center;
     align-items: center;
     pointer-events: none;
+    overflow: hidden;
   }
   
   .throw-effect-inner, .punch-effect-inner {
     position: relative;
     width: 100%;
     height: 100%;
+    overflow: hidden;
   }
   
+  /* Camera shake for throw effect */
+  .camera-shake-throw {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    perspective: 1200px;
+  }
+  
+  /* Spiral rotation overlay for disorientation */
+  .spiral-rotation-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: conic-gradient(
+      from 0deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0) 25%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0) 75%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    opacity: 0;
+    mix-blend-mode: overlay;
+  }
+  
+  /* Impact lines with enhanced styling */
   .impact-lines {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(255,140,0,0.9) 0%, rgba(255,140,0,0) 70%);
+    opacity: 0.9;
+    box-shadow: 0 0 40px rgba(255, 160, 0, 0.6);
+    filter: contrast(1.2);
+  }
+  
+  /* Dust cloud with enhanced styling */
+  .dust-cloud {
+    position: absolute;
+    bottom: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 250px;
+    background: radial-gradient(ellipse, rgba(200,160,120,0.9) 0%, rgba(200,160,120,0) 70%);
+    opacity: 0;
+    filter: blur(4px);
+  }
+  
+  /* Shockwave ripple effect */
+  .shockwave-ripple {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 300px;
     height: 300px;
-    background: radial-gradient(circle, rgba(255,140,0,0.8) 0%, rgba(255,140,0,0) 70%);
-    opacity: 0.8;
-    animation: pulseAndFade 1s ease-out forwards;
+    border-radius: 50%;
+    background: transparent;
+    border: 8px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+      0 0 60px rgba(255, 255, 255, 0.5) inset,
+      0 0 30px rgba(255, 200, 100, 0.3);
+    opacity: 0;
   }
   
-  .dust-cloud {
+  /* Individual dust particles */
+  .dust-particles-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  
+  .dust-particle {
     position: absolute;
     bottom: 30%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 500px;
-    height: 200px;
-    background: radial-gradient(ellipse, rgba(180,140,100,0.8) 0%, rgba(180,140,100,0) 70%);
+    background-color: #c9a775;
+    border-radius: 50%;
+    filter: blur(1.5px);
+    box-shadow: 0 0 8px rgba(201, 167, 117, 0.75), 
+                inset 0 0 4px rgba(255, 230, 190, 0.5);
+    mix-blend-mode: screen;
+    transform-origin: center center;
+  }
+  
+  /* Wind streak effect when flying through air */
+  .wind-streaks {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      rgba(255,255,255,0.05) 15%, 
+      rgba(255,255,255,0.15) 35%, 
+      rgba(255,255,255,0.15) 65%, 
+      rgba(255,255,255,0.05) 85%, 
+      transparent 100%
+    ), repeating-linear-gradient(90deg,
+      transparent 0%,
+      transparent 5%,
+      rgba(255,255,255,0.03) 5.1%,
+      rgba(255,255,255,0.03) 7%,
+      transparent 7.1%,
+      transparent 10%
+    );
     opacity: 0;
-    animation: dustRise 1.5s ease-out 0.2s forwards;
+    transform: skewX(-25deg);
+  }
+  
+  /* Motion trail effect */
+  .motion-trail {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: linear-gradient(45deg,
+      transparent 20%,
+      rgba(255, 200, 100, 0.05) 30%,
+      rgba(255, 200, 100, 0.1) 40%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 200, 100, 0.1) 60%,
+      rgba(255, 200, 100, 0.05) 70%,
+      transparent 80%
+    );
+    opacity: 0;
+    transform: rotate(20deg) scale(1.5);
+    mix-blend-mode: screen;
+  }
+  
+  /* 3D perspective container */
+  .perspective-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
+  
+  /* Flash on impact */
+  .impact-flash {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    opacity: 0;
+  }
+  
+  /* Blur effect when thrown */
+  .throw-blur-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.7) 100%);
+    opacity: 0;
+    filter: blur(2px);
   }
   
   .punch-impact {
@@ -747,9 +1086,11 @@ export const dramaticEffectsStyles = `
   }
   
   @keyframes dustRise {
-    0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
-    30% { opacity: 0.7; }
-    100% { opacity: 0; transform: translateX(-50%) translateY(-100px) scale(1.5); }
+    0% { opacity: 0; transform: translateX(-50%) scale(0.3); }
+    15% { opacity: 0.4; transform: translateX(-50%) translateY(-20px) scale(0.7); }
+    40% { opacity: 0.9; transform: translateX(-50%) translateY(-60px) scale(1.2); }
+    80% { opacity: 0.5; transform: translateX(-50%) translateY(-120px) scale(1.8); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-160px) scale(2.2); }
   }
   
   /* Mobile optimizations */
@@ -788,9 +1129,11 @@ export const dramaticEffectsStyles = `
     }
     
     @keyframes dustRise {
-      0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
-      30% { opacity: 0.6; }
-      100% { opacity: 0; transform: translateX(-50%) translateY(-60px) scale(1.3); }
+      0% { opacity: 0; transform: translateX(-50%) scale(0.3); }
+      20% { opacity: 0.5; transform: translateX(-50%) translateY(-15px) scale(0.6); }
+      50% { opacity: 0.8; transform: translateX(-50%) translateY(-40px) scale(1.0); }
+      80% { opacity: 0.4; transform: translateX(-50%) translateY(-60px) scale(1.3); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-80px) scale(1.5); }
     }
   }
   
@@ -819,9 +1162,11 @@ export const dramaticEffectsStyles = `
     }
     
     @keyframes dustRise {
-      0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
-      30% { opacity: 0.5; }
-      100% { opacity: 0; transform: translateX(-50%) translateY(-40px) scale(1.2); }
+      0% { opacity: 0; transform: translateX(-50%) scale(0.3); }
+      20% { opacity: 0.4; transform: translateX(-50%) translateY(-10px) scale(0.6); }
+      50% { opacity: 0.7; transform: translateX(-50%) translateY(-25px) scale(0.9); }
+      80% { opacity: 0.3; transform: translateX(-50%) translateY(-35px) scale(1.1); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-45px) scale(1.3); }
     }
   }
 `;
