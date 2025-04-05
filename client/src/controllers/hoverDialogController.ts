@@ -193,6 +193,20 @@ class HoverDialogController {
       return;
     }
     
+    // Jika first level annoyance sudah muncul, hanya perbolehkan perpindahan antar kategori
+    // yang akan memicu second level annoyance, tolak semua tipe dialog lainnya
+    if (this.hasShownFirstLevelAnnoyance && !this.hasShownSecondLevelAnnoyance) {
+      // Hanya izinkan hover jika ini adalah perpindahan kategori yang berbeda
+      if (previousCategory !== "none" && currentCategory !== previousCategory) {
+        // Biarkan proses lanjut ke handler hover untuk second level annoyance
+        console.log("First level annoyance triggered, only allowing category switch to trigger second level");
+      } else {
+        console.log("First level annoyance triggered, ignoring all other dialog types");
+        this.lastHoveredLink = linkType; // Update last hovered link tanpa trigger dialog
+        return;
+      }
+    }
+    
     // Jika perpindahan dalam kategori yang sama (LinkedIn ke GitHub atau Email ke WhatsApp)
     // Maka tidak perlu memunculkan dialog
     if (previousCategory !== "none" && currentCategory === previousCategory) {
@@ -459,6 +473,15 @@ class HoverDialogController {
       currentCategory !== previousCategory &&
       currentCategory !== "none" // Pastikan kategori saat ini valid
     ) {
+      // Jika first level annoyance sudah ditampilkan, tidak menggunakan dialog transition lagi
+      if (this.hasShownFirstLevelAnnoyance) {
+        // Tidak perlu menampilkan dialog transition karena kita hanya menunggu second level annoyance
+        console.log("First level annoyance telah ditampilkan, dialog transition diabaikan");
+        // Set kode berdasarkan logic secondLevelAnnoyance di atas
+        this.hoverCount++;
+        return;
+      }
+      
       // Cek apakah sudah mencapai batas 2 ucapan untuk kategori ini
       if (previousCategory === "social" && currentCategory === "contact") {
         if (this.categoryUtteranceCount.transition.socialToContact < 2) {
@@ -487,6 +510,15 @@ class HoverDialogController {
     // Jika tidak ada kategori sebelumnya atau kategori sebelumnya adalah none
     // Ini adalah kasus pertama kali user hover ke sebuah kategori
     else if (previousCategory === "none" || this.lastHoveredLink === "none") {
+      // Jika first level annoyance sudah ditampilkan, tidak menggunakan dialog completed/interruption lagi
+      if (this.hasShownFirstLevelAnnoyance) {
+        // Tidak perlu menampilkan dialog completed/interruption karena kita menunggu second level annoyance
+        console.log("First level annoyance telah ditampilkan, dialog completed/interruption diabaikan");
+        this.hoverCount++;
+        this.isHandlingHover = false;
+        return;
+      }
+      
       // Deteksi interupsi berdasarkan status dialog saat ini
       const isInterruption = isDialogInProgress();
 
