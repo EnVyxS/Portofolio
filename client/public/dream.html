@@ -6,6 +6,8 @@
     <title>Dream State</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&family=Quicksand:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body, html {
@@ -430,6 +432,122 @@
                 opacity: 0;
             }
         }
+        
+        /* Cinema interface styles */
+        .cinema-interface {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            border-radius: 15px;
+            overflow: hidden;
+            background-color: #000;
+            box-shadow: 
+                0 0 30px rgba(128, 0, 128, 0.7),
+                0 0 80px rgba(75, 0, 130, 0.5),
+                0 0 120px rgba(0, 0, 0, 0.3);
+        }
+        
+        .video-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .video-channel {
+            font-size: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .video-channel i {
+            color: #9147ff;
+        }
+        
+        .video-controls {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .video-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+        }
+        
+        .video-control:hover {
+            color: white;
+        }
+        
+        .header-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            letter-spacing: 3px;
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 2s ease-in-out forwards, pulse 4s ease-in-out 2s infinite;
+        }
+        
+        .play-button-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            cursor: pointer;
+            pointer-events: none;
+        }
+        
+        .play-button-overlay i {
+            font-size: 30px;
+            color: white;
+        }
+        
+        .video-container:hover .play-button-overlay {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        
+        .bloom-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                circle at center,
+                transparent 0%,
+                rgba(138, 43, 226, 0.05) 50%,
+                transparent 100%
+            );
+            pointer-events: none;
+            z-index: 3;
+            mix-blend-mode: screen;
+            animation: pulsateBloom 10s ease-in-out infinite;
+        }
+        
+        @keyframes pulsateBloom {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.2); }
+        }
 
         .lotus {
             position: absolute;
@@ -507,8 +625,27 @@
                 max-width: 90%;
             }
             
-            .video-container {
+            .cinema-interface {
                 max-width: 95%;
+            }
+            
+            .video-channel {
+                font-size: 0.8rem;
+            }
+            
+            .video-control {
+                font-size: 0.7rem;
+            }
+            
+            .header-text {
+                font-size: 0.8rem;
+                margin-bottom: 20px;
+            }
+            
+            .wake-up-btn {
+                padding: 12px 30px;
+                font-size: 1rem;
+                bottom: 30px;
             }
         }
     </style>
@@ -518,17 +655,26 @@
         <div class="aurora"></div>
         <div class="dreamveil"></div>
         
-        <h1 class="dream-title">You are in a dream...</h1>
+        <div class="header-text">YOU CANNOT LEAVE UNTIL IT'S OVER</div>
         
-        <p class="dream-quote">"The dream is the small hidden door in the deepest and most intimate sanctum of the soul."</p>
-        
-        <div class="dream-message">You cannot leave until it's over</div>
-        
-        <div class="video-container">
-            <div class="pulse-ring"></div>
-            <div class="video-overlay"></div>
-            <div class="video-border"></div>
-            <iframe id="player" src="https://www.youtube.com/embed/fRUJjOViokk?enablejsapi=1&autoplay=1&controls=0&rel=0&modestbranding=1&disablekb=1&iv_load_policy=3&fs=0&showinfo=0&loop=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <div class="cinema-interface">
+            <div class="video-header">
+                <div class="video-channel"><i class="fas fa-film"></i> 7!! - Orange (MV) Your Lie In April Live Action</div>
+                <div class="video-controls">
+                    <span class="video-control"><i class="fas fa-clock"></i> Tontonan nanti</span>
+                    <span class="video-control"><i class="fas fa-share"></i> Bagikan</span>
+                </div>
+            </div>
+            
+            <div class="video-container">
+                <div class="pulse-ring"></div>
+                <div class="video-overlay"></div>
+                <div class="video-border"></div>
+                <iframe id="player" src="https://www.youtube.com/embed/VZLVT2_Ldc8?enablejsapi=1&autoplay=1&controls=0&rel=0&modestbranding=1&disablekb=1&iv_load_policy=3&fs=0&showinfo=0&loop=1&start=18" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <div class="play-button-overlay">
+                    <i class="fas fa-play"></i>
+                </div>
+            </div>
         </div>
         
         <button id="wakeUpBtn" class="wake-up-btn">WAKE UP</button>
@@ -537,6 +683,7 @@
     <div class="moving-stars" id="starField"></div>
     <div class="particles" id="particles"></div>
     <div class="haze"></div>
+    <div class="bloom-effect"></div>
     <div class="blur-edge"></div>
 
     <script>
