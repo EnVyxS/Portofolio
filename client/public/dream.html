@@ -43,6 +43,12 @@
             transform: perspective(1000px) rotateX(2deg);
             transition: transform 2s ease-in-out;
             animation: floatVideo 10s ease-in-out infinite;
+            box-shadow: 
+                0 0 30px rgba(128, 0, 128, 0.7),
+                0 0 80px rgba(75, 0, 130, 0.5),
+                0 0 120px rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
         }
 
         @keyframes floatVideo {
@@ -57,12 +63,45 @@
             width: 100%;
             height: 100%;
             border: none;
-            box-shadow: 
-                0 0 30px rgba(128, 0, 128, 0.7),
-                0 0 80px rgba(75, 0, 130, 0.5),
-                0 0 120px rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            filter: contrast(1.1) saturate(1.2);
+            filter: contrast(1.2) saturate(1.3) brightness(1.1);
+            z-index: 1;
+            pointer-events: none; /* Prevent user from clicking on YouTube controls */
+        }
+        
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                rgba(128, 0, 128, 0.2) 0%,
+                rgba(75, 0, 130, 0.1) 50%,
+                rgba(148, 0, 211, 0.2) 100%
+            );
+            mix-blend-mode: soft-light;
+            z-index: 2;
+            pointer-events: none;
+            animation: pulseOverlay 8s ease-in-out infinite;
+        }
+        
+        @keyframes pulseOverlay {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 0.9; }
+        }
+        
+        .video-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            z-index: 3;
+            pointer-events: none;
+            box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.3);
         }
 
         .moving-stars {
@@ -322,6 +361,75 @@
             0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
             50% { transform: translateY(50px) scale(1.1); opacity: 0.7; }
         }
+        
+        .dreamveil {
+            position: fixed;
+            pointer-events: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg, 
+                rgba(0, 0, 0, 0.03) 0px, 
+                rgba(0, 0, 0, 0.03) 1px, 
+                transparent 1px, 
+                transparent 2px
+            );
+            opacity: 0.3;
+            z-index: 5;
+        }
+        
+        .dream-message {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: fadeIn 2s ease-in-out 5s forwards, pulse 4s ease-in-out 7s infinite;
+            opacity: 0;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 0.6; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+        
+        .pulse-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 103%;
+            height: 103%;
+            border-radius: 15px;
+            border: 2px solid rgba(128, 0, 128, 0.3);
+            z-index: 4;
+            opacity: 0;
+            pointer-events: none;
+            animation: pulseRing 4s cubic-bezier(0.1, 0.9, 0.2, 1) infinite;
+        }
+
+        @keyframes pulseRing {
+            0% {
+                transform: translate(-50%, -50%) scale(0.95);
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.05);
+                opacity: 0;
+            }
+        }
 
         .lotus {
             position: absolute;
@@ -408,13 +516,19 @@
 <body>
     <div class="dream-container">
         <div class="aurora"></div>
+        <div class="dreamveil"></div>
         
         <h1 class="dream-title">You are in a dream...</h1>
         
         <p class="dream-quote">"The dream is the small hidden door in the deepest and most intimate sanctum of the soul."</p>
         
+        <div class="dream-message">You cannot leave until it's over</div>
+        
         <div class="video-container">
-            <iframe id="player" src="https://www.youtube.com/embed/fRUJjOViokk?enablejsapi=1&autoplay=1&controls=0&rel=0&modestbranding=1&disablekb=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <div class="pulse-ring"></div>
+            <div class="video-overlay"></div>
+            <div class="video-border"></div>
+            <iframe id="player" src="https://www.youtube.com/embed/fRUJjOViokk?enablejsapi=1&autoplay=1&controls=0&rel=0&modestbranding=1&disablekb=1&iv_load_policy=3&fs=0&showinfo=0&loop=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
         
         <button id="wakeUpBtn" class="wake-up-btn">WAKE UP</button>
@@ -579,6 +693,17 @@
         }
 
         function onPlayerStateChange(event) {
+            // Force play if user tries to pause or stop
+            if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.BUFFERING) {
+                if (!allowExit) {
+                    // Play video after a short delay
+                    setTimeout(() => {
+                        player.playVideo();
+                        showEscapeAttemptMessage();
+                    }, 100);
+                }
+            }
+            
             // When video ends (or is near the end)
             if (event.data === YT.PlayerState.ENDED || 
                 (event.data === YT.PlayerState.PLAYING && 
@@ -586,9 +711,22 @@
                 
                 if (!videoEnded) {
                     videoEnded = true;
+                    allowExit = true;
                     showWakeUpButton();
                 }
             }
+            
+            // Prevent seeking through the video
+            document.addEventListener('keydown', function(e) {
+                // Prevent arrow keys and spacebar
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
+                    e.preventDefault();
+                    if (!allowExit) {
+                        showEscapeAttemptMessage();
+                    }
+                    return false;
+                }
+            });
         }
 
         function showWakeUpButton() {
