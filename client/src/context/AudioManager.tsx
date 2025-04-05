@@ -24,8 +24,8 @@ const AudioContextValue = createContext<AudioContextProps>({
   setHasInteracted: () => {},
   setVolume: () => {},
   setAmbientVolume: () => {},
-  currentVolume: 0.15,
-  currentAmbientVolume: 0.06
+  currentVolume: 0.4, // Meningkatkan dari 0.15 menjadi 0.4 untuk perangkat mobile
+  currentAmbientVolume: 0.2 // Meningkatkan dari 0.06 menjadi 0.2 untuk perangkat mobile
 });
 
 // Hook untuk menggunakan konteks audio
@@ -41,8 +41,8 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
   const [ambient] = useState<HTMLAudioElement>(new Audio(fireplaceAmbientPath));
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const [hasInteracted, setHasInteracted] = useState<boolean>(false);
-  const [currentVolume, setCurrentVolume] = useState<number>(0.15); // Default music volume
-  const [currentAmbientVolume, setCurrentAmbientVolume] = useState<number>(0.06); // Default ambient volume
+  const [currentVolume, setCurrentVolume] = useState<number>(0.4); // Meningkatkan default music volume untuk mobile
+  const [currentAmbientVolume, setCurrentAmbientVolume] = useState<number>(0.2); // Meningkatkan default ambient volume untuk mobile
   const interactionTimeout = useRef<NodeJS.Timeout | null>(null);
   const autoPlayAttempted = useRef<boolean>(false);
 
@@ -50,11 +50,11 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
   useEffect(() => {
     // Setup main music
     music.loop = true;
-    music.volume = 0.15; // Lebih pelan dari biasanya (15% volume)
+    music.volume = 0.4; // Meningkatkan default volume dari 0.15 menjadi 0.4 untuk mobile
     
     // Setup ambient sound
     ambient.loop = true;
-    ambient.volume = 0.06; // Sekitar 40% dari volume musik utama
+    ambient.volume = 0.2; // Meningkatkan ambient volume dari 0.06 menjadi 0.2 untuk mobile
     
     // Cleanup on unmount
     return () => {

@@ -27,11 +27,11 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     hoverSoundRef.current = new Audio('/assets/sounds/souls-menu.mp3'); // Menggunakan menu sound juga untuk hover
     footstepsSoundRef.current = new Audio('/audio/effects/footsteps.m4a'); // Menggunakan file langkah kaki yang benar
     
-    // Set volume untuk sound effects
-    if (bonfireSoundRef.current) bonfireSoundRef.current.volume = 0.3;
-    if (menuSoundRef.current) menuSoundRef.current.volume = 0.4;
-    if (itemSoundRef.current) itemSoundRef.current.volume = 0.4;
-    if (hoverSoundRef.current) hoverSoundRef.current.volume = 0.2; // Volume lebih kecil untuk hover
+    // Set volume untuk sound effects (ditingkatkan untuk perangkat mobile)
+    if (bonfireSoundRef.current) bonfireSoundRef.current.volume = 0.7; // Meningkatkan dari 0.3 menjadi 0.7
+    if (menuSoundRef.current) menuSoundRef.current.volume = 0.8; // Meningkatkan dari 0.4 menjadi 0.8
+    if (itemSoundRef.current) itemSoundRef.current.volume = 0.8; // Meningkatkan dari 0.4 menjadi 0.8
+    if (hoverSoundRef.current) hoverSoundRef.current.volume = 0.5; // Meningkatkan dari 0.2 menjadi 0.5
     
     // Konfigurasi khusus untuk footsteps sound
     if (footstepsSoundRef.current) {
@@ -91,7 +91,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
                     setTimeout(() => {
                       if (bonfireSoundRef.current) {
                         bonfireSoundRef.current.currentTime = 0;
-                        bonfireSoundRef.current.volume = 0.4;
+                        bonfireSoundRef.current.volume = 0.9; // Meningkatkan dari 0.4 menjadi 0.9 untuk mobile
                         bonfireSoundRef.current.play().catch(e => console.log("Couldn't play bonfire sound:", e));
                       }
                     }, 300);

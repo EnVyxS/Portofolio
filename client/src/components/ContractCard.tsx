@@ -81,11 +81,11 @@ const ContractCard: React.FC = () => {
   useEffect(() => {
     // Initialize swipe sound
     swipeSoundRef.current = new Audio(swipeSoundSrc);
-    swipeSoundRef.current.volume = 0.3; // Set appropriate volume
+    swipeSoundRef.current.volume = 0.7; // Meningkatkan dari 0.3 menjadi 0.7 untuk mobile
     
     // Initialize footstep sound
     footstepSoundRef.current = new Audio(footstepSoundSrc);
-    footstepSoundRef.current.volume = 0.4; // Set appropriate volume
+    footstepSoundRef.current.volume = 0.8; // Meningkatkan dari 0.4 menjadi 0.8 untuk mobile
     
     // Clean up
     return () => {
