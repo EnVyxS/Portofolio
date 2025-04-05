@@ -90,7 +90,6 @@ class HoverDialogController {
   private dialogController: DialogController;
   private lastHoveredLink: HoverLinkType = "none";
   private hoverCount: number = 0;
-  private hoverCountAfterSecondLevel: number = 0; // Penghitung baru untuk hover setelah peringatan level kedua
   private dialogCompleted: boolean = false;
   private isHandlingHover: boolean = false;
   private hasInteractedWithHover: boolean = false;
@@ -234,12 +233,8 @@ class HoverDialogController {
       this.categoryUtteranceCount.transition.contactToSocial +
       this.categoryUtteranceCount.transition.socialToContact;
 
-    // Hanya menghitung hover jika second level annoyance belum ditampilkan
-    if (!this.hasShownSecondLevelAnnoyance) {
-      this.hoverCount++;
-    } 
-    // Jika sudah menampilkan second level annoyance, gunakan penghitung terpisah
-    // tapi jangan lakukan apapun di sini, handle di handleHoverDialogActual
+    // Always increment hoverCount for tracking excessive hovering
+    this.hoverCount++;
 
     // Call the actual handler with debounce
     this.debouncedHoverHandler(linkType);
@@ -453,21 +448,29 @@ class HoverDialogController {
       previousCategory !== "none" &&
       !this.hasShownSecondLevelAnnoyance
     ) {
+      // Very annoyed - level 2, trigger idleTimeoutController (if available)
+      // This will cause the punch effect from idleTimeoutController
+      try {
+        const idleController = IdleTimeoutController.getInstance();
+
+        if (idleController && idleController.startExcessiveHoverTimers) {
+          console.log(
+            "Triggering excessive hover punishment via IdleTimeoutController",
+          );
+          idleController.startExcessiveHoverTimers();
+        }
+      } catch (e) {
+        console.error("Could not trigger IdleTimeoutController:", e);
+      }
+
       // Very annoyed response - hanya ditampilkan sekali
       this.hasShownSecondLevelAnnoyance = true;
-      // Reset penghitung hover setelah level kedua untuk memulai penghitungan baru
-      this.hoverCountAfterSecondLevel = 0;
-      
       const annoyedTexts = HOVER_DIALOGS.annoyance.secondLevel;
       const randomIndex = Math.floor(Math.random() * annoyedTexts.length);
       dialogText = annoyedTexts[randomIndex];
       console.log(
-        "Excessive hovering detected! Using second level annoyance dialog (only once)"
+        "Excessive hovering detected! Using second level annoyance dialog (only once)",
       );
-      
-      console.log(`Second level annoyance shown. Starting new hover count after warning.`);
-      // Tidak mentrigger punishment di sini, hanya setelah 5 hover tambahan
-      console.log("Waiting for 5 more hovers before punishment");
     }
     // Jika mencapai batas utterances tapi belum menampilkan annoyance level pertama
     else if (totalUtterances >= 2 && !this.hasShownFirstLevelAnnoyance) {
@@ -667,7 +670,6 @@ class HoverDialogController {
   public resetHoverState(): void {
     this.lastHoveredLink = "none";
     this.hoverCount = 0;
-    this.hoverCountAfterSecondLevel = 0; // Reset penghitung level kedua juga
     this.isHandlingHover = false;
     this.stopTyping(); // Stop typing animation jika ada
     // tidak reset processedTexts agar dialog tidak diulang
@@ -677,7 +679,6 @@ class HoverDialogController {
   public resetAllState(): void {
     this.lastHoveredLink = "none";
     this.hoverCount = 0;
-    this.hoverCountAfterSecondLevel = 0; // Reset penghitung level kedua juga
     this.isHandlingHover = false;
     this.hasInteractedWithHover = false;
     this.processedTexts.clear(); // Clear set teks yang sudah ditampilkan
