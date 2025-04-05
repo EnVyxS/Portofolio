@@ -41,8 +41,8 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
   const [ambient] = useState<HTMLAudioElement>(new Audio(fireplaceAmbientPath));
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const [hasInteracted, setHasInteracted] = useState<boolean>(false);
-  const [currentVolume, setCurrentVolume] = useState<number>(0.35); // Default music volume - ditingkatkan untuk mobile
-  const [currentAmbientVolume, setCurrentAmbientVolume] = useState<number>(0.15); // Default ambient volume - ditingkatkan untuk mobile
+  const [currentVolume, setCurrentVolume] = useState<number>(0.15); // Default music volume
+  const [currentAmbientVolume, setCurrentAmbientVolume] = useState<number>(0.06); // Default ambient volume
   const interactionTimeout = useRef<NodeJS.Timeout | null>(null);
   const autoPlayAttempted = useRef<boolean>(false);
 
@@ -50,11 +50,11 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
   useEffect(() => {
     // Setup main music
     music.loop = true;
-    music.volume = 0.35; // Ditingkatkan untuk mobile (35% volume)
+    music.volume = 0.15; // Lebih pelan dari biasanya (15% volume)
     
     // Setup ambient sound
     ambient.loop = true;
-    ambient.volume = 0.15; // Ditingkatkan untuk mobile (15% volume)
+    ambient.volume = 0.06; // Sekitar 40% dari volume musik utama
     
     // Cleanup on unmount
     return () => {

@@ -81,11 +81,11 @@ const ContractCard: React.FC = () => {
   useEffect(() => {
     // Initialize swipe sound
     swipeSoundRef.current = new Audio(swipeSoundSrc);
-    swipeSoundRef.current.volume = 0.6; // Volume ditingkatkan untuk mobile
+    swipeSoundRef.current.volume = 0.3; // Set appropriate volume
     
     // Initialize footstep sound
     footstepSoundRef.current = new Audio(footstepSoundSrc);
-    footstepSoundRef.current.volume = 0.7; // Volume ditingkatkan untuk mobile
+    footstepSoundRef.current.volume = 0.4; // Set appropriate volume
     
     // Clean up
     return () => {
@@ -488,40 +488,13 @@ const ContractCard: React.FC = () => {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 10px 15px;
+          padding: 14px 20px;
           background: rgba(35, 30, 25, 0.95);
           border-bottom: 2px solid rgba(170, 150, 120, 0.35);
           flex-wrap: wrap;
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
           position: relative;
           z-index: 5;
-          row-gap: 10px; /* Tambahkan ruang vertikal saat elemen wrap pada mobile */
-        }
-
-        /* Pada mobile, tata kontrol lebih baik */
-        @media (max-width: 600px) {
-          .contract-controls {
-            padding: 8px 10px;
-            justify-content: center;
-          }
-          
-          .close-button {
-            position: absolute;
-            top: 8px;
-            right: 10px;
-          }
-          
-          .navigation-controls {
-            order: 2;
-            width: 100%;
-            justify-content: center;
-            margin-top: 8px;
-          }
-          
-          .zoom-controls {
-            order: 1;
-            margin-right: 0;
-          }
         }
 
         .zoom-controls, .navigation-controls {
