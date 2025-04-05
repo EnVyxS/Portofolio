@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dream State</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body, html {
             margin: 0;
@@ -12,8 +15,9 @@
             width: 100%;
             overflow: hidden;
             background-color: #000;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Quicksand', sans-serif;
             color: white;
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.5'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z'%3E%3C/path%3E%3C/svg%3E") 16 16, auto;
         }
 
         .dream-container {
@@ -26,8 +30,9 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(ellipse at center, #1a1a2e 0%, #000 100%);
+            background: radial-gradient(ellipse at center, #4b0082 0%, #000 100%);
             z-index: 1;
+            overflow: hidden;
         }
 
         .video-container {
@@ -35,6 +40,14 @@
             width: 100%;
             max-width: 900px;
             padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            transform: perspective(1000px) rotateX(2deg);
+            transition: transform 2s ease-in-out;
+            animation: floatVideo 10s ease-in-out infinite;
+        }
+
+        @keyframes floatVideo {
+            0%, 100% { transform: perspective(1000px) rotateX(2deg) scale(1); }
+            50% { transform: perspective(1000px) rotateX(0deg) scale(1.02); }
         }
 
         .video-container iframe {
@@ -44,7 +57,42 @@
             width: 100%;
             height: 100%;
             border: none;
-            box-shadow: 0 0 30px rgba(0, 191, 255, 0.5);
+            box-shadow: 
+                0 0 30px rgba(128, 0, 128, 0.7),
+                0 0 80px rgba(75, 0, 130, 0.5),
+                0 0 120px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            filter: contrast(1.1) saturate(1.2);
+        }
+
+        .moving-stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: -1;
+            perspective: 500px;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: moveStar linear infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes moveStar {
+            0% {
+                transform: translateZ(0) translateX(100vw);
+            }
+            100% {
+                transform: translateZ(1000px) translateX(-100vw);
+            }
         }
 
         .particles {
@@ -55,44 +103,110 @@
             height: 100%;
             z-index: -1;
             overflow: hidden;
+            mix-blend-mode: screen;
         }
 
         .particle {
             position: absolute;
-            background: rgba(255, 255, 255, 0.5);
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
             border-radius: 50%;
             animation: float linear infinite;
+            filter: blur(1px);
+        }
+
+        .colored-particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: floatColored linear infinite;
+            filter: blur(2px);
         }
 
         @keyframes float {
             0% {
-                transform: translateY(100vh) scale(0);
+                transform: translateY(100vh) translateX(0) scale(0);
                 opacity: 0;
             }
             10% {
-                opacity: 1;
+                opacity: 0.8;
             }
             90% {
-                opacity: 1;
+                opacity: 0.6;
             }
             100% {
-                transform: translateY(-20vh) scale(1);
+                transform: translateY(-20vh) translateX(20px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        @keyframes floatColored {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-20vh) translateX(40px) scale(1) rotate(360deg);
                 opacity: 0;
             }
         }
 
         .dream-title {
-            font-size: 3rem;
+            font-size: 3.5rem;
             text-align: center;
             margin-bottom: 2rem;
-            text-shadow: 0 0 10px rgba(0, 191, 255, 0.8);
+            text-shadow: 
+                0 0 10px rgba(128, 0, 128, 0.8),
+                0 0 20px rgba(75, 0, 130, 0.6),
+                0 0 30px rgba(0, 0, 255, 0.4);
             opacity: 0;
-            animation: fadeInOut 8s ease-in-out infinite;
+            animation: pulseTitle 8s ease-in-out infinite;
+            font-weight: 300;
+            letter-spacing: 4px;
+            transform: perspective(500px) translateZ(0);
         }
 
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
+        @keyframes pulseTitle {
+            0%, 100% { 
+                opacity: 0;
+                transform: perspective(500px) translateZ(0);
+            }
+            50% { 
+                opacity: 1;
+                transform: perspective(500px) translateZ(50px);
+            }
+        }
+
+        .dream-quote {
+            font-size: 1.2rem;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 3rem auto;
+            opacity: 0.8;
+            transform: translateY(20px);
+            animation: fadeInUp 4s ease-out forwards, floatQuote 8s ease-in-out 4s infinite;
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            100% {
+                opacity: 0.8;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes floatQuote {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .wake-up-btn {
@@ -101,25 +215,54 @@
             left: 50%;
             transform: translateX(-50%);
             padding: 15px 40px;
-            background-color: transparent;
+            background-color: rgba(75, 0, 130, 0.3);
             color: white;
-            border: 2px solid white;
+            border: 2px solid rgba(255, 255, 255, 0.8);
             border-radius: 30px;
             font-size: 1.2rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: none;
             z-index: 10;
             font-weight: bold;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 0 20px rgba(128, 0, 128, 0.4),
+                0 0 40px rgba(75, 0, 130, 0.2);
+            backdrop-filter: blur(5px);
+            font-family: 'Quicksand', sans-serif;
+            overflow: hidden;
+            outline: none;
+        }
+
+        .wake-up-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent
+            );
+            transition: 0.5s;
         }
 
         .wake-up-btn:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
-            transform: translateX(-50%) scale(1.05);
+            background-color: rgba(128, 0, 128, 0.5);
+            box-shadow: 
+                0 0 30px rgba(128, 0, 128, 0.7),
+                0 0 60px rgba(75, 0, 130, 0.4);
+            transform: translateX(-50%) scale(1.1);
+            letter-spacing: 5px;
+        }
+
+        .wake-up-btn:hover::before {
+            left: 100%;
         }
 
         .haze {
@@ -130,14 +273,21 @@
             height: 100%;
             background: linear-gradient(to bottom, 
                 rgba(0,0,0,0) 0%,
-                rgba(0,0,0,0.1) 15%,
-                rgba(0,0,0,0.2) 30%,
-                rgba(0,0,0,0.4) 50%,
-                rgba(0,0,0,0.2) 70%,
-                rgba(0,0,0,0.1) 85%,
+                rgba(75,0,130,0.1) 15%,
+                rgba(128,0,128,0.2) 30%,
+                rgba(75,0,130,0.3) 50%,
+                rgba(128,0,128,0.2) 70%,
+                rgba(75,0,130,0.1) 85%,
                 rgba(0,0,0,0) 100%);
             pointer-events: none;
             z-index: 2;
+            mix-blend-mode: overlay;
+            animation: pulseHaze 15s ease-in-out infinite;
+        }
+
+        @keyframes pulseHaze {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 0.9; }
         }
 
         .blur-edge {
@@ -150,17 +300,98 @@
             pointer-events: none;
             z-index: 3;
         }
+
+        .aurora {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(to bottom, 
+                rgba(75,0,130,0) 0%,
+                rgba(128,0,128,0.2) 40%,
+                rgba(0,0,255,0.1) 60%,
+                rgba(0,255,255,0) 100%);
+            filter: blur(40px);
+            z-index: -2;
+            transform-origin: center;
+            animation: moveAurora 20s ease-in-out infinite;
+        }
+
+        @keyframes moveAurora {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
+            50% { transform: translateY(50px) scale(1.1); opacity: 0.7; }
+        }
+
+        .lotus {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none'%3E%3Cpath d='M50 10C45 25 40 45 50 50C60 45 55 25 50 10Z' fill='rgba(255,255,255,0.7)'/%3E%3Cpath d='M50 10C55 25 60 45 50 50C40 45 45 25 50 10Z' fill='rgba(255,255,255,0.7)'/%3E%3Cpath d='M70 20C55 25 40 45 50 50C60 45 65 25 70 20Z' fill='rgba(255,255,255,0.6)'/%3E%3Cpath d='M30 20C45 25 60 45 50 50C40 45 35 25 30 20Z' fill='rgba(255,255,255,0.6)'/%3E%3Cpath d='M80 35C65 35 50 45 50 50C60 55 70 45 80 35Z' fill='rgba(255,255,255,0.5)'/%3E%3Cpath d='M20 35C35 35 50 45 50 50C40 55 30 45 20 35Z' fill='rgba(255,255,255,0.5)'/%3E%3Cpath d='M70 80C55 75 40 55 50 50C60 55 65 75 70 80Z' fill='rgba(255,255,255,0.6)'/%3E%3Cpath d='M30 80C45 75 60 55 50 50C40 55 35 75 30 80Z' fill='rgba(255,255,255,0.6)'/%3E%3Cpath d='M50 90C45 75 40 55 50 50C60 55 55 75 50 90Z' fill='rgba(255,255,255,0.7)'/%3E%3Cpath d='M50 90C55 75 60 55 50 50C40 55 45 75 50 90Z' fill='rgba(255,255,255,0.7)'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.15;
+            z-index: -1;
+            filter: blur(1px);
+            animation: rotateLotus 60s linear infinite;
+        }
+
+        @keyframes rotateLotus {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ripple {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: rippleEffect 4s linear infinite;
+        }
+
+        @keyframes rippleEffect {
+            0% {
+                transform: scale(0);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dream-title {
+                font-size: 2.5rem;
+            }
+            
+            .dream-quote {
+                font-size: 1rem;
+                max-width: 90%;
+            }
+            
+            .video-container {
+                max-width: 95%;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="dream-container">
-        <h1 class="dream-title">You are dreaming...</h1>
+        <div class="aurora"></div>
+        
+        <h1 class="dream-title">You are in a dream...</h1>
+        
+        <p class="dream-quote">"The dream is the small hidden door in the deepest and most intimate sanctum of the soul."</p>
+        
         <div class="video-container">
             <iframe id="player" src="https://www.youtube.com/embed/ArmDp-zijuc?enablejsapi=1&autoplay=1&controls=0&rel=0&loop=1&playlist=ArmDp-zijuc&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
+        
         <button id="wakeUpBtn" class="wake-up-btn">WAKE UP</button>
     </div>
 
+    <div class="moving-stars" id="starField"></div>
     <div class="particles" id="particles"></div>
     <div class="haze"></div>
     <div class="blur-edge"></div>
@@ -186,6 +417,7 @@
 
         function onPlayerReady(event) {
             event.target.playVideo();
+            event.target.setVolume(85); // Set volume to 85%
         }
 
         function onPlayerStateChange(event) {
@@ -204,15 +436,75 @@
         function showWakeUpButton() {
             const wakeUpBtn = document.getElementById('wakeUpBtn');
             wakeUpBtn.style.display = 'block';
-            wakeUpBtn.style.animation = 'fadeInOut 2s ease-in-out infinite';
+            wakeUpBtn.style.animation = 'fadeInUp 1s ease-out forwards, pulseTitle 3s ease-in-out 1s infinite';
+        }
+
+        // Create lotus flowers in background
+        const dreamContainer = document.querySelector('.dream-container');
+        for (let i = 0; i < 8; i++) {
+            const lotus = document.createElement('div');
+            lotus.classList.add('lotus');
+            
+            // Random position and size
+            const size = Math.random() * 150 + 50; // 50-200px
+            const posX = Math.random() * 100;
+            const posY = Math.random() * 100;
+            const delay = Math.random() * 60;
+            
+            // Set styles
+            lotus.style.width = `${size}px`;
+            lotus.style.height = `${size}px`;
+            lotus.style.left = `${posX}%`;
+            lotus.style.top = `${posY}%`;
+            lotus.style.animationDelay = `-${delay}s`;
+            
+            dreamContainer.appendChild(lotus);
+        }
+
+        // Create moving stars in the background
+        const starField = document.getElementById('starField');
+        const starCount = 200;
+
+        for (let i = 0; i < starCount; i++) {
+            createStar();
+        }
+
+        function createStar() {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            
+            // Random position and speed
+            const size = Math.random() * 3 + 1;
+            const posY = Math.random() * 100;
+            const posZ = Math.random() * 1000;
+            const speed = Math.random() * 25 + 5; // 5-30 seconds
+            
+            // Set styles
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.top = `${posY}%`;
+            star.style.opacity = Math.random() * 0.8 + 0.2;
+            star.style.animationDuration = `${speed}s`;
+            
+            // Randomize starting position
+            star.style.transform = `translateZ(${posZ}px) translateX(${Math.random() * 200 - 100}vw)`;
+            
+            starField.appendChild(star);
         }
 
         // Create floating particles
         const particlesContainer = document.getElementById('particles');
-        const particleCount = 50;
+        const particleCount = 40;
+        const coloredParticleCount = 20;
 
+        // Regular particles
         for (let i = 0; i < particleCount; i++) {
             createParticle();
+        }
+
+        // Colored particles
+        for (let i = 0; i < coloredParticleCount; i++) {
+            createColoredParticle();
         }
 
         function createParticle() {
@@ -220,9 +512,9 @@
             particle.classList.add('particle');
             
             // Random properties
-            const size = Math.random() * 5 + 2;
+            const size = Math.random() * 8 + 2;
             const posX = Math.random() * 100;
-            const duration = Math.random() * 15 + 10;
+            const duration = Math.random() * 20 + 15;
             const delay = Math.random() * 10;
             
             // Set styles
@@ -235,15 +527,92 @@
             particlesContainer.appendChild(particle);
         }
 
+        function createColoredParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('colored-particle');
+            
+            // Random properties
+            const size = Math.random() * 12 + 5;
+            const posX = Math.random() * 100;
+            const duration = Math.random() * 25 + 20;
+            const delay = Math.random() * 15;
+            
+            // Random color - purples, blues, and pinks
+            const hue = Math.floor(Math.random() * 60) + 240; // 240-300 (blue to purple)
+            if (Math.random() > 0.5) {
+                hue = Math.floor(Math.random() * 60) + 270; // 270-330 (purple to pink)
+            }
+            const sat = Math.floor(Math.random() * 40) + 60; // 60-100%
+            const light = Math.floor(Math.random() * 20) + 70; // 70-90%
+            const alpha = Math.random() * 0.3 + 0.1;
+            
+            // Set styles
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${posX}%`;
+            particle.style.background = `radial-gradient(circle, hsla(${hue}, ${sat}%, ${light}%, ${alpha}) 0%, hsla(${hue}, ${sat}%, ${light}%, 0) 70%)`;
+            particle.style.animationDuration = `${duration}s`;
+            particle.style.animationDelay = `${delay}s`;
+            
+            particlesContainer.appendChild(particle);
+        }
+
+        // Create ripple effect on click
+        document.addEventListener('click', function(e) {
+            createRipple(e.clientX, e.clientY);
+        });
+
+        function createRipple(x, y) {
+            const ripple = document.createElement('div');
+            ripple.classList.add('ripple');
+            
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            ripple.style.width = '50px';
+            ripple.style.height = '50px';
+            
+            document.body.appendChild(ripple);
+            
+            // Remove after animation
+            setTimeout(() => {
+                ripple.remove();
+            }, 4000);
+        }
+
         // Wake up button functionality
         document.getElementById('wakeUpBtn').addEventListener('click', function() {
-            window.location.href = '/';
+            // Fade out effect before redirect
+            const dreamContainer = document.querySelector('.dream-container');
+            dreamContainer.style.transition = 'opacity 1.5s ease-out';
+            dreamContainer.style.opacity = '0';
+            
+            setTimeout(function() {
+                window.location.href = '/';
+            }, 1500);
         });
 
         // Automatically show wake up button after the video duration plus a small margin
         setTimeout(function() {
             showWakeUpButton();
         }, 230000); // Show button after 3 minutes and 50 seconds (video length is about 3:47)
+        
+        // Make dream environment more responsive to mouse movement
+        document.addEventListener('mousemove', function(e) {
+            const videoContainer = document.querySelector('.video-container');
+            const dreamTitle = document.querySelector('.dream-title');
+            const dreamQuote = document.querySelector('.dream-quote');
+            
+            // Get mouse position relative to center of screen
+            const mouseX = (e.clientX / window.innerWidth) - 0.5;
+            const mouseY = (e.clientY / window.innerHeight) - 0.5;
+            
+            // Apply subtle movement to elements
+            videoContainer.style.transform = `perspective(1000px) rotateX(${2 - mouseY * 2}deg) rotateY(${mouseX * 2}deg) scale(1.01)`;
+            dreamTitle.style.transform = `perspective(500px) translateX(${mouseX * 10}px) translateY(${mouseY * 10}px) translateZ(${50 - Math.abs(mouseX * mouseY) * 20}px)`;
+            if (dreamQuote) {
+                dreamQuote.style.transform = `translateX(${mouseX * -15}px) translateY(${mouseY * -10}px)`;
+            }
+        });
     </script>
 </body>
 </html>
