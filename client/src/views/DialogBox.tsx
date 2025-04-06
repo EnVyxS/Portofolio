@@ -1,19 +1,27 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import DialogController from '../controllers/dialogController';
-import HoverDialogController from '../controllers/hoverDialogController';
-import { FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
-import ElevenLabsService from '../services/elevenlabsService';
+import React, { useEffect, useState, useCallback } from "react";
+import { motion } from "framer-motion";
+import DialogController from "../controllers/dialogController";
+import HoverDialogController from "../controllers/hoverDialogController";
+import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
+import ElevenLabsService from "../services/elevenlabsService";
 
+// Export responses for contract interactions
+export const CONTRACT_RESPONSES = [
+  "Didn't lie. Never have, never will. Maybe next time, use your damn brain before throwing accusations.",
+  "Not a liar. Never was. Maybe next time, don't waste my time with your doubts.",
+  "Told you the truth. Always do. Maybe next time, keep your mouth shut until you know better.",
+  "Didn't lie. Don't need to. Maybe next time, think twice before making a fool of yourself.",
+  "Believe me now? Thought so. Next time, don't question what you don't understand.",
+];
 
 // Import fungsi hash untuk debugging
 function generateSimpleHash(text: string): string {
   // Remove emotion tags for consistent hashing
-  const cleanText = text.replace(/\[(.*?)\]/g, '').trim();
-  
+  const cleanText = text.replace(/\[(.*?)\]/g, "").trim();
+
   let hash = 0;
   for (let i = 0; i < cleanText.length; i++) {
-    hash = ((hash << 5) - hash) + cleanText.charCodeAt(i);
+    hash = (hash << 5) - hash + cleanText.charCodeAt(i);
     hash = hash & hash;
   }
   return Math.abs(hash).toString();
@@ -24,17 +32,19 @@ function generateSimpleHash(text: string): string {
 function isDialogPersistent(text: string): boolean {
   // Dialog dari dialogModel.ts hampir semua non-persistent
   // kita menggunakan pola false secara default
-  
+
   // Dialog khusus (dari hover) yang perlu persistent
-  if (text.includes('?') && 
-      (text.includes('credentials') || 
-       text.includes('check') || 
-       text.includes('want to know') || 
-       text.includes('need to') || 
-       text.includes('convinced'))) {
+  if (
+    text.includes("?") &&
+    (text.includes("credentials") ||
+      text.includes("check") ||
+      text.includes("want to know") ||
+      text.includes("need to") ||
+      text.includes("convinced"))
+  ) {
     return true;
   }
-  
+
   // Default: semua dialog regular autoplay (non-persistent)
   return false;
 }
@@ -44,30 +54,32 @@ interface DialogBoxProps {
 }
 
 const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
-  const [text, setText] = useState<string>('');
-  const [characterName, setCharacterName] = useState<string>('');
+  const [text, setText] = useState<string>("");
+  const [characterName, setCharacterName] = useState<string>("");
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [isDialogFinished, setIsDialogFinished] = useState<boolean>(false);
-  const [dialogSource, setDialogSource] = useState<'main' | 'hover'>('main');
+  const [dialogSource, setDialogSource] = useState<"main" | "hover">("main");
   const [isMuted, setIsMuted] = useState<boolean>(false);
-  
+
   const dialogController = DialogController.getInstance();
   const hoverDialogController = HoverDialogController.getInstance();
   const elevenLabsService = ElevenLabsService.getInstance();
 
   // Timer reference untuk auto-continue
   const autoPlayTimerRef = React.useRef<NodeJS.Timeout | null>(null);
-  
+
   // Fungsi untuk toggle mute
   const toggleMute = useCallback(() => {
     if (isMuted) {
       // Unmute
-      elevenLabsService.setApiKey(import.meta.env.VITE_ELEVENLABS_API_KEY || '');
+      elevenLabsService.setApiKey(
+        import.meta.env.VITE_ELEVENLABS_API_KEY || "",
+      );
       setIsMuted(false);
     } else {
       // Mute
       elevenLabsService.stopSpeaking(); // Hentikan audio yang sedang berjalan
-      elevenLabsService.setApiKey(''); // Set API key kosong untuk mencegah request audio baru
+      elevenLabsService.setApiKey(""); // Set API key kosong untuk mencegah request audio baru
       setIsMuted(true);
     }
   }, [isMuted, elevenLabsService]);
@@ -78,13 +90,13 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     if (dialogController.isShowingPostResetDialog()) {
       dialogController.resetPostResetDialogStatus();
     }
-    
-    if (dialogSource === 'main') {
+
+    if (dialogSource === "main") {
       // Jika dialog masih dalam proses typing tetapi user menekan tombol SKIP/NEXT
       if (!isComplete) {
         // Hentikan dialog dan audio yang sedang berjalan
         dialogController.skipToFullText();
-        
+
         // Langsung lanjut ke dialog berikutnya tanpa menunggu user klik lagi
         // Gunakan setTimeout dengan delay singkat untuk memastikan UI diupdate
         setTimeout(() => {
@@ -94,12 +106,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             if (onDialogComplete) onDialogComplete();
             return;
           }
-          
+
           // Move to the next dialog
           dialogController.nextDialog((text, complete) => {
             setText(text);
             setIsComplete(complete);
-            
+
             // Get current dialog to display character name
             const currentDialog = dialogController.getCurrentDialog();
             if (currentDialog) {
@@ -109,7 +121,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             } else {
               // Tandai dialog sudah selesai untuk interaksi hover
               hoverDialogController.setDialogCompleted(true);
-              
+
               // Tetap menjalankan onDialogComplete jika ada
               if (onDialogComplete) {
                 onDialogComplete();
@@ -123,17 +135,17 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         if (hoverDialogController.hasUserInteractedWithHover()) {
           // Jika user sudah berinteraksi dengan hover dialog
           // Jangan hilangkan dialog box, tetapi tampilkan dialog hover yang sedang berlangsung
-          
+
           // Hanya panggil onDialogComplete jika dibutuhkan
           if (onDialogComplete) onDialogComplete();
           return;
         }
-        
+
         // Move to the next dialog
         dialogController.nextDialog((text, complete) => {
           setText(text);
           setIsComplete(complete);
-          
+
           // Get current dialog to display character name
           const currentDialog = dialogController.getCurrentDialog();
           if (currentDialog) {
@@ -143,7 +155,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           } else {
             // Tetap tandai dialog sebagai selesai untuk interaksi hover
             hoverDialogController.setDialogCompleted(true);
-            
+
             // Jangan set isDialogFinished ke true agar tetap menampilkan dialog box
             if (onDialogComplete) {
               onDialogComplete();
@@ -151,7 +163,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           }
         });
       }
-    } else if (dialogSource === 'hover') {
+    } else if (dialogSource === "hover") {
       // For hover dialogs
       if (!isComplete) {
         // Jika dialog masih dalam proses typing, langsung tampilkan full text
@@ -162,49 +174,64 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         // Reset hover state dan hilangkan dialog box
         hoverDialogController.resetHoverState();
         setIsDialogFinished(true);
-        
+
         // Jangan kembali ke dialog utama
         // Ini perbaikan utama yang dilakukan
       }
     }
-  }, [dialogSource, isComplete, dialogController, hoverDialogController, onDialogComplete, setText, setIsComplete, setIsDialogFinished, setCharacterName]);
+  }, [
+    dialogSource,
+    isComplete,
+    dialogController,
+    hoverDialogController,
+    onDialogComplete,
+    setText,
+    setIsComplete,
+    setIsDialogFinished,
+    setCharacterName,
+  ]);
 
   // Effect untuk auto-continue ketika dialog selesai - dimodifikasi untuk berjalan untuk semua dialog
   useEffect(() => {
-    if (isComplete && dialogSource === 'main') {
+    if (isComplete && dialogSource === "main") {
       // Clear any existing timer
       if (autoPlayTimerRef.current) {
         clearTimeout(autoPlayTimerRef.current);
       }
-      
+
       // Cek jika user sudah berinteraksi dengan hover dialog
       if (hoverDialogController.hasUserInteractedWithHover()) {
         return; // Jangan autoplay jika sudah ada interaksi hover
       }
-      
+
       // Cek apakah ini adalah dialog khusus setelah reset - jangan auto-continue dialog ini
       if (dialogController.isShowingPostResetDialog()) {
         return;
       }
-      
+
       // Set new timer untuk auto-continue semua dialog
       const currentDialog = dialogController.getCurrentDialog();
       if (currentDialog) {
         // Periksa apakah dialog ini adalah dialog yang membutuhkan respons (persistent)
         const shouldPersist = isDialogPersistent(currentDialog.text);
-        
+
         if (!shouldPersist) {
           // Untuk dialog yang tidak perlu persistent, auto-dismiss lebih cepat
           const textLength = currentDialog.text.length;
           const baseDelay = 2000; // 2 detik base delay
           const charDelay = 50; // 50ms per karakter
-          const autoplayDelay = Math.min(baseDelay + (textLength * charDelay), 8000); // maksimal 8 detik
-          
+          const autoplayDelay = Math.min(
+            baseDelay + textLength * charDelay,
+            8000,
+          ); // maksimal 8 detik
+
           // Cek apakah ini adalah dialog terakhir dari dialogModel
           const allDialogs = dialogController.getDialogModel().getAllDialogs();
-          const currentIndex = dialogController.getDialogModel().getCurrentIndex();
+          const currentIndex = dialogController
+            .getDialogModel()
+            .getCurrentIndex();
           const isLastDialog = currentIndex >= allDialogs.length - 1;
-          
+
           if (isLastDialog) {
             // Jika ini dialog terakhir, hilangkan dialog box setelah 3 detik
             autoPlayTimerRef.current = setTimeout(() => {
@@ -218,69 +245,80 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           }
         }
       }
-    } else if (isComplete && dialogSource === 'hover') {
+    } else if (isComplete && dialogSource === "hover") {
       // Untuk hover dialog, periksa juga persistensi
       if (!isDialogPersistent(text)) {
         // Hover dialog yang tidak memerlukan respons
         const dismissDelay = 3000; // 3 detik untuk membaca pesan
-        
+
         autoPlayTimerRef.current = setTimeout(() => {
           // Reset dialog hover state
           hoverDialogController.resetHoverState();
-          
+
           // Hilangkan dialog box
           setIsDialogFinished(true);
         }, dismissDelay);
       }
     }
-    
+
     // Cleanup timer when unmounting or when dependencies change
     return () => {
       if (autoPlayTimerRef.current) {
         clearTimeout(autoPlayTimerRef.current);
       }
     };
-  }, [isComplete, dialogSource, text, handleContinue, dialogController, hoverDialogController, setIsDialogFinished]);
+  }, [
+    isComplete,
+    dialogSource,
+    text,
+    handleContinue,
+    dialogController,
+    hoverDialogController,
+    setIsDialogFinished,
+  ]);
 
   useEffect(() => {
     // Set hover dialog callback terlebih dahulu untuk menangkap hover dialog yang sudah aktif
     hoverDialogController.setHoverTextCallback((text, complete) => {
       setText(text);
       setIsComplete(complete);
-      setDialogSource('hover');
-      setCharacterName('DIVA JUAN NUR TAQARRUB'); // Dialog hover dari DIVA JUAN (idle warnings juga)
+      setDialogSource("hover");
+      setCharacterName("DIVA JUAN NUR TAQARRUB"); // Dialog hover dari DIVA JUAN (idle warnings juga)
     });
-    
+
     // Buat function untuk set dialogSource dari luar komponen
-    hoverDialogController.setDialogSource = (source: 'main' | 'hover') => {
+    hoverDialogController.setDialogSource = (source: "main" | "hover") => {
       setDialogSource(source);
-      if (source === 'main') {
-        setCharacterName('DIVA JUAN NUR TAQARRUB');
+      if (source === "main") {
+        setCharacterName("DIVA JUAN NUR TAQARRUB");
       }
     };
-    
+
     // Periksa apakah hover dialog sedang aktif (typing)
     const isHoverDialogActive = hoverDialogController.isTypingHoverDialog();
-    
+
     // Start the dialog sequence hanya jika user belum berinteraksi dengan hover dialog
     // dan tidak ada hover dialog yang sedang aktif
-    if (!hoverDialogController.hasUserInteractedWithHover() && !isHoverDialogActive) {
+    if (
+      !hoverDialogController.hasUserInteractedWithHover() &&
+      !isHoverDialogActive
+    ) {
       dialogController.startDialog((text, complete) => {
         setText(text);
         setIsComplete(complete);
-        setDialogSource('main');
-        
+        setDialogSource("main");
+
         // Get current dialog to display character name
         const currentDialog = dialogController.getCurrentDialog();
         if (currentDialog) {
           setCharacterName(currentDialog.character);
         }
-        
+
         // Notify HoverDialogController about dialog completion status
         hoverDialogController.setDialogCompleted(complete);
       });
     }
-    
+
     // Cleanup on unmount
     return () => {
       dialogController.stopTyping();
@@ -294,78 +332,89 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
   // Dialog box akan tetap muncul meskipun dialog selesai
   // JANGAN return null di sini agar dialog box tetap ditampilkan
-  if (isDialogFinished && text === '') {
+  if (isDialogFinished && text === "") {
     return null; // Hanya return null jika tidak ada teks sama sekali
   }
 
   return (
-    <motion.div 
+    <motion.div
       className="dialog-box-container"
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      <div className={`dialog-box ${dialogSource === 'hover' ? 'hover-dialog' : ''}`}>
-        <div className={`character-name ${dialogSource === 'hover' ? 'hover-character' : ''}`}>
+      <div
+        className={`dialog-box ${dialogSource === "hover" ? "hover-dialog" : ""}`}
+      >
+        <div
+          className={`character-name ${dialogSource === "hover" ? "hover-character" : ""}`}
+        >
           {characterName}
-          {dialogSource === 'hover' && <span className="hover-indicator">⟳</span>}
+          {dialogSource === "hover" && (
+            <span className="hover-indicator">⟳</span>
+          )}
         </div>
         <div className="dialog-text">{text}</div>
         <div className="dialog-actions">
           <div className="dialog-hints">
-            {isComplete && (
-              isDialogPersistent(text) ? (
-                <div className="waiting-interaction-hint">Waiting for your action...</div>
-              ) : (
-                // Only show auto-continue hint for main dialog and not for other types
-                // Check if it's not a hover dialog, idle warning, or contract response
-                dialogSource === 'main' && 
+            {isComplete &&
+              (isDialogPersistent(text) ? (
+                <div className="waiting-interaction-hint">
+                  Waiting for your action...
+                </div>
+              ) : // Only show auto-continue hint for main dialog and not for other types
+              // Check if it's not a hover dialog, idle warning, or contract response
+              dialogSource === "main" &&
                 !text.includes("fuck you") && // Idle timeout specific phrases
-                !text.includes("Staring at me") && 
-                !text.includes("throw") && 
-                !text.includes("punch") && 
+                !text.includes("Staring at me") &&
+                !text.includes("throw") &&
+                !text.includes("punch") &&
                 !text.includes("next time, use your") && // Contract responses specific phrases
-                !text.includes("next time, don't waste") && 
-                !text.includes("next time, keep your") && 
-                !text.includes("next time, think twice") && 
+                !text.includes("next time, don't waste") &&
+                !text.includes("next time, keep your") &&
+                !text.includes("next time, think twice") &&
                 !text.includes("Believe me now") ? (
-                  <div className="auto-continue-hint">Auto-continues in a moment...</div>
-                ) : null
-              )
-            )}
+                <div className="auto-continue-hint">
+                  Auto-continues in a moment...
+                </div>
+              ) : null)}
           </div>
-          
+
           <div className="dialog-controls">
             {/* Tombol mute untuk karakter */}
-            <button 
+            <button
               className="voice-mute-button"
               onClick={toggleMute}
               title={isMuted ? "Unmute character" : "Mute character"}
             >
               {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
             </button>
-            
+
             {/* Tentukan apakah tombol NEXT/SKIP harus ditampilkan */}
             {(() => {
               // Untuk dialog hover, tidak perlu menampilkan tombol NEXT/SKIP
-              if (dialogSource === 'hover') {
+              if (dialogSource === "hover") {
                 return null;
               }
-              
+
               // Untuk dialog terakhir dari dialogModel, tidak perlu menampilkan tombol NEXT/SKIP
-              if (dialogSource === 'main') {
-                const allDialogs = dialogController.getDialogModel().getAllDialogs();
-                const currentIndex = dialogController.getDialogModel().getCurrentIndex();
+              if (dialogSource === "main") {
+                const allDialogs = dialogController
+                  .getDialogModel()
+                  .getAllDialogs();
+                const currentIndex = dialogController
+                  .getDialogModel()
+                  .getCurrentIndex();
                 const isLastDialog = currentIndex >= allDialogs.length - 1;
-                
+
                 if (isLastDialog) {
                   return null;
                 }
               }
-              
+
               // Untuk dialog lainnya, tampilkan tombol NEXT/SKIP seperti biasa
               return isComplete ? (
-                <button 
+                <button
                   className="just-text-button next-button"
                   onClick={handleContinue}
                 >
@@ -373,7 +422,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
                   <span className="button-text">NEXT</span>
                 </button>
               ) : (
-                <button 
+                <button
                   className="just-text-button skip-button"
                   onClick={handleContinue}
                 >
@@ -385,7 +434,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           </div>
         </div>
       </div>
-      
+
       <style>{`
         .dialog-box-container {
           position: fixed;

@@ -1,25 +1,32 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaScroll, FaSearchPlus, FaSearchMinus, FaArrowLeft, FaArrowRight, FaFilePdf } from 'react-icons/fa';
-import DialogController from '../controllers/dialogController';
-import HoverDialogController from '../controllers/hoverDialogController';
-import { useAudio } from '../context/AudioManager';
-import { CONTRACT_RESPONSES } from '../views/DialogBox';
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  FaScroll,
+  FaSearchPlus,
+  FaSearchMinus,
+  FaArrowLeft,
+  FaArrowRight,
+  FaFilePdf,
+} from "react-icons/fa";
+import DialogController from "../controllers/dialogController";
+import HoverDialogController from "../controllers/hoverDialogController";
+import { useAudio } from "../context/AudioManager";
+import { CONTRACT_RESPONSES } from "../views/DialogBox";
 
 // Import sounds
-import swipeSoundSrc from '@assets/Screen swipe sound effect (mp3cut.net).m4a';
-import footstepSoundSrc from '@assets/footsteps sound effect - walking sound effect - copyright free sound effects (mp3cut.net) (1).m4a';
+import swipeSoundSrc from "@assets/Screen swipe sound effect (mp3cut.net).m4a";
+import footstepSoundSrc from "@assets/footsteps sound effect - walking sound effect - copyright free sound effects (mp3cut.net) (1).m4a";
 
 // Import gambar sertifikat
-import ijazah from '@assets/Ijazah.jpg';
-import transkrip1 from '@assets/Transkrip Nilai_page-0001.jpg';
-import transkrip2 from '@assets/Transkrip Nilai_page-0002.jpg';
-import universitas from '@assets/111202012560mhs.dinus.ac.id_page-0001.jpg';
-import bnsp1 from '@assets/BNSP_page-0001.jpg';
-import bnsp2 from '@assets/BNSP_page-0002.jpg';
-import kampusMerdeka from '@assets/Backend Java MSIB_page-0001.jpg';
-import studentReport1 from '@assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0001.jpg';
-import studentReport2 from '@assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0002.jpg';
+import ijazah from "@assets/Ijazah.jpg";
+import transkrip1 from "@assets/Transkrip Nilai_page-0001.jpg";
+import transkrip2 from "@assets/Transkrip Nilai_page-0002.jpg";
+import universitas from "@assets/111202012560mhs.dinus.ac.id_page-0001.jpg";
+import bnsp1 from "@assets/BNSP_page-0001.jpg";
+import bnsp2 from "@assets/BNSP_page-0002.jpg";
+import kampusMerdeka from "@assets/Backend Java MSIB_page-0001.jpg";
+import studentReport1 from "@assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0001.jpg";
+import studentReport2 from "@assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0002.jpg";
 
 // Path ke file dokumen
 const CONTRACT_IMAGES = [
@@ -36,22 +43,22 @@ const CONTRACT_IMAGES = [
 
 // Untuk menampilkan nama file yang lebih pendek
 const IMAGE_TITLES = [
-  'Ijazah',
-  'Transkrip Nilai - Page 1',
-  'Transkrip Nilai - Page 2',
-  'Universitas Dian Nuswantoro',
-  'Sertifikat Kompetensi BNSP',
-  'Daftar Unit Kompetensi BNSP',
-  'Sertifikat Kampus Merdeka',
-  'Student Report - Page 1',
-  'Student Report - Page 2',
+  "Ijazah",
+  "Transkrip Nilai - Page 1",
+  "Transkrip Nilai - Page 2",
+  "Universitas Dian Nuswantoro",
+  "Sertifikat Kompetensi BNSP",
+  "Daftar Unit Kompetensi BNSP",
+  "Sertifikat Kampus Merdeka",
+  "Student Report - Page 1",
+  "Student Report - Page 2",
 ];
 
 // Mendapatkan nama file yang lebih pendek untuk ditampilkan
 const getDocumentName = (path: string) => {
-  const fileName = path.split('/').pop() || '';
+  const fileName = path.split("/").pop() || "";
   // Jika filename terlalu panjang, potong
-  return fileName.length > 20 ? fileName.substring(0, 17) + '...' : fileName;
+  return fileName.length > 20 ? fileName.substring(0, 17) + "..." : fileName;
 };
 
 const ContractCard: React.FC = () => {
@@ -64,21 +71,21 @@ const ContractCard: React.FC = () => {
   const [hasDragged, setHasDragged] = useState(false); // Track if user has already dragged
   const dialogController = DialogController.getInstance();
   const { setVolume, currentVolume } = useAudio();
-  
+
   // Audio references for sounds
   const swipeSoundRef = useRef<HTMLAudioElement | null>(null);
   const footstepSoundRef = useRef<HTMLAudioElement | null>(null);
-  
+
   // Initialize audio elements on component mount
   useEffect(() => {
     // Initialize swipe sound
     swipeSoundRef.current = new Audio(swipeSoundSrc);
     swipeSoundRef.current.volume = 0.7; // Meningkatkan dari 0.3 menjadi 0.7 untuk mobile
-    
+
     // Initialize footstep sound
     footstepSoundRef.current = new Audio(footstepSoundSrc);
     footstepSoundRef.current.volume = 0.8; // Meningkatkan dari 0.4 menjadi 0.8 untuk mobile
-    
+
     // Clean up
     return () => {
       if (swipeSoundRef.current) {
@@ -91,23 +98,27 @@ const ContractCard: React.FC = () => {
       }
     };
   }, []);
-  
+
   // Play swipe sound function
   const playSwipeSound = () => {
     try {
       if (swipeSoundRef.current) {
         swipeSoundRef.current.currentTime = 0; // Reset to start
-        swipeSoundRef.current.play().catch(e => console.error("Error playing swipe sound:", e));
+        swipeSoundRef.current
+          .play()
+          .catch((e) => console.error("Error playing swipe sound:", e));
       }
     } catch (err) {
       console.error("Error playing swipe sound:", err);
     }
   };
-  
+
   // Animasi transisi seperti buku untuk swipe next
-  const [pageDirection, setPageDirection] = useState<'next' | 'prev' | null>(null);
+  const [pageDirection, setPageDirection] = useState<"next" | "prev" | null>(
+    null,
+  );
   const [isAnimating, setIsAnimating] = useState(false);
-  
+
   // Track original volume to restore later
   const [originalVolume, setOriginalVolume] = useState<number | null>(null);
 
@@ -116,21 +127,21 @@ const ContractCard: React.FC = () => {
       // Saat kontrak dibuka, tidak perlu dialog yang menggangu
       // Setiap dialog yang saat ini berjalan harus dihentikan
       dialogController.stopTyping();
-      
+
       // Mencegah dialog ditampilkan saat kontrak terbuka dengan cara
       // memindahkan indeks dialog ke dialog terakhir
       const dialogs = dialogController.getDialogModel().getAllDialogs();
       const lastDialogIndex = dialogs.length - 1;
       dialogController.getDialogModel().setCurrentDialogIndex(lastDialogIndex);
-      
+
       // Simpan volume asli sebelum dikurangi
       setOriginalVolume(currentVolume);
-      
+
       // Kurangi volume musik ambient
       if (currentVolume) {
         setVolume(currentVolume * 0.5); // Kurangi volume menjadi 50% dari volume saat ini
       }
-      
+
       setIsOpen(true);
     }
   };
@@ -139,7 +150,7 @@ const ContractCard: React.FC = () => {
     e.stopPropagation();
     const newScale = Math.min(scale + 0.2, 3); // Maksimal zoom 3x
     setScale(newScale);
-    
+
     // Reset posisi jika skalanya berubah dari 1 ke lebih besar (pertama kali zoom in)
     if (scale <= 1 && newScale > 1) {
       setPosition({ x: 0, y: 0 }); // Reset posisi
@@ -150,7 +161,7 @@ const ContractCard: React.FC = () => {
     e.stopPropagation();
     const newScale = Math.max(scale - 0.2, 0.5); // Minimal zoom 0.5x
     setScale(newScale);
-    
+
     // Reset posisi jika skala ≤ 1 (saat tidak bisa drag lagi)
     if (newScale <= 1) {
       setPosition({ x: 0, y: 0 }); // Reset posisi
@@ -162,16 +173,16 @@ const ContractCard: React.FC = () => {
     if (currentIndex < CONTRACT_IMAGES.length - 1 && !isAnimating) {
       // Mulai animasi dan putar suara
       setIsAnimating(true);
-      setPageDirection('next');
+      setPageDirection("next");
       playSwipeSound();
-      
+
       // Tunggu animasi selesai sebelum update index
       setTimeout(() => {
-        setCurrentIndex(prev => prev + 1);
+        setCurrentIndex((prev) => prev + 1);
         setScale(0.8); // Reset zoom ke 80%
         setPosition({ x: 0, y: 0 }); // Reset posisi saat ganti halaman
         // Tidak mereset hasDragged sehingga tooltip tetap tersembunyi jika pernah digunakan
-        
+
         // Beri jeda sedikit sebelum mengizinkan animasi lagi
         setTimeout(() => {
           setIsAnimating(false);
@@ -186,16 +197,16 @@ const ContractCard: React.FC = () => {
     if (currentIndex > 0 && !isAnimating) {
       // Mulai animasi dan putar suara
       setIsAnimating(true);
-      setPageDirection('prev');
+      setPageDirection("prev");
       playSwipeSound();
-      
+
       // Tunggu animasi selesai sebelum update index
       setTimeout(() => {
-        setCurrentIndex(prev => prev - 1);
+        setCurrentIndex((prev) => prev - 1);
         setScale(0.8); // Reset zoom ke 80%
         setPosition({ x: 0, y: 0 }); // Reset posisi saat ganti halaman
         // Tidak mereset hasDragged sehingga tooltip tetap tersembunyi jika pernah digunakan
-        
+
         // Beri jeda sedikit sebelum mengizinkan animasi lagi
         setTimeout(() => {
           setIsAnimating(false);
@@ -210,61 +221,58 @@ const ContractCard: React.FC = () => {
     try {
       if (footstepSoundRef.current) {
         footstepSoundRef.current.currentTime = 0; // Reset to start
-        footstepSoundRef.current.play().catch(e => console.error("Error playing footstep sound:", e));
+        footstepSoundRef.current
+          .play()
+          .catch((e) => console.error("Error playing footstep sound:", e));
       }
     } catch (err) {
       console.error("Error playing footstep sound:", err);
     }
   };
-  
+
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     // Kembalikan volume saat kontrak ditutup
     if (originalVolume !== null) {
       setVolume(originalVolume);
     }
-    export const CONTRACT_RESPONSES = [
-      "Didn't lie. Never have, never will. Maybe next time, use your damn brain before throwing accusations.",
-      "Not a liar. Never was. Maybe next time, don't waste my time with your doubts.",
-      "Told you the truth. Always do. Maybe next time, keep your mouth shut until you know better.",
-      "Didn't lie. Don't need to. Maybe next time, think twice before making a fool of yourself.",
-      "Believe me now? Thought so. Next time, don't question what you don't understand."
-    ];
-    
+
     // Display a random CONTRACT_RESPONSE dialog
     const randomIndex = Math.floor(Math.random() * CONTRACT_RESPONSES.length);
     const randomResponse = CONTRACT_RESPONSES[randomIndex];
-    
+
     // Jangan putar suara footstep saat menutup kontrak
-    
+
     // Hentikan dialog yang sedang berjalan
     dialogController.stopTyping();
-    
+
     // Pastikan dialog model tidak menampilkan dialog lagi setelah dialog custom
     // dengan cara memindahkan indeks ke dialog terakhir
     const dialogs = dialogController.getDialogModel().getAllDialogs();
     const lastDialogIndex = dialogs.length - 1;
     dialogController.getDialogModel().setCurrentDialogIndex(lastDialogIndex);
-    
+
     // Show custom dialog with the selected response setelah semua preset
     setTimeout(() => {
       // Dapatkan instance HoverDialogController untuk set source
       const hoverDialogController = HoverDialogController.getInstance();
-      
+
       // Set dialog source ke 'main' SEBELUM memanggil showCustomDialog
       // Ini penting karena showCustomDialog akan mengubahnya ke 'hover' di dalamnya
       if (hoverDialogController.setDialogSource) {
-        console.log("[ContractCard] Setting dialog source to 'main' before showing custom dialog");
-        hoverDialogController.setDialogSource('main');
+        console.log(
+          "[ContractCard] Setting dialog source to 'main' before showing custom dialog",
+        );
+        hoverDialogController.setDialogSource("main");
       }
-      
+
       dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
         // Callback ini dipanggil setiap karakter (saat dialog sedang berjalan dan setelah selesai)
         // Tidak perlu mengatur ulang dialogSource di sini karena dialogController sudah mengaturnya
       });
     }, 300);
-    
+
     setIsOpen(false);
     setCurrentIndex(0);
     setScale(0.8); // Kembalikan ke default zoom 80%
@@ -274,13 +282,13 @@ const ContractCard: React.FC = () => {
 
   const openImageInNewTab = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.open(CONTRACT_IMAGES[currentIndex], '_blank');
+    window.open(CONTRACT_IMAGES[currentIndex], "_blank");
   };
 
   return (
     <>
       {/* Kontrak Card tersembunyi di sisi kiri layar */}
-      <motion.div 
+      <motion.div
         className="contract-card"
         initial={{ x: -10 }}
         animate={{ x: isOpen ? -120 : -10 }}
@@ -293,53 +301,69 @@ const ContractCard: React.FC = () => {
       {/* Overlay Modal untuk menampilkan dokumen */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
+          <motion.div
             className="contract-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
           >
-            <motion.div 
+            <motion.div
               className="contract-modal"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
-              onClick={e => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="contract-controls">
-                <button onClick={handleClose} className="control-button close-button">×</button>
+                <button
+                  onClick={handleClose}
+                  className="control-button close-button"
+                >
+                  ×
+                </button>
                 <div className="zoom-controls">
-                  <button onClick={handleZoomIn} className="control-button"><FaSearchPlus /></button>
-                  <button onClick={handleZoomOut} className="control-button"><FaSearchMinus /></button>
+                  <button onClick={handleZoomIn} className="control-button">
+                    <FaSearchPlus />
+                  </button>
+                  <button onClick={handleZoomOut} className="control-button">
+                    <FaSearchMinus />
+                  </button>
                 </div>
                 <div className="navigation-controls">
-                  <button 
-                    onClick={handlePrevDoc} 
-                    className={`control-button ${currentIndex === 0 ? 'disabled' : ''}`}
+                  <button
+                    onClick={handlePrevDoc}
+                    className={`control-button ${currentIndex === 0 ? "disabled" : ""}`}
                     disabled={currentIndex === 0}
                   >
                     <FaArrowLeft />
                   </button>
-                  <span className="page-indicator">{currentIndex + 1}/{CONTRACT_IMAGES.length}</span>
-                  <button 
-                    onClick={handleNextDoc} 
-                    className={`control-button ${currentIndex === CONTRACT_IMAGES.length - 1 ? 'disabled' : ''}`}
+                  <span className="page-indicator">
+                    {currentIndex + 1}/{CONTRACT_IMAGES.length}
+                  </span>
+                  <button
+                    onClick={handleNextDoc}
+                    className={`control-button ${currentIndex === CONTRACT_IMAGES.length - 1 ? "disabled" : ""}`}
                     disabled={currentIndex === CONTRACT_IMAGES.length - 1}
                   >
                     <FaArrowRight />
                   </button>
                 </div>
               </div>
-              
+
               <div className="contract-document-container">
-                <div 
-                  className={`document-content ${pageDirection ? `page-flip-${pageDirection}` : ''} ${isDragging ? 'dragging' : ''} ${hasDragged ? 'has-dragged' : ''}`} 
-                  style={{ 
+                <div
+                  className={`document-content ${pageDirection ? `page-flip-${pageDirection}` : ""} ${isDragging ? "dragging" : ""} ${hasDragged ? "has-dragged" : ""}`}
+                  style={{
                     transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
-                    cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
-                    userSelect: 'none', // Prevent text selection during drag
-                    touchAction: 'none' // Improve touch interactions
+                    cursor:
+                      scale > 1
+                        ? isDragging
+                          ? "grabbing"
+                          : "grab"
+                        : "default",
+                    userSelect: "none", // Prevent text selection during drag
+                    touchAction: "none", // Improve touch interactions
                   }}
                   onMouseDown={(e) => {
                     // Hanya aktifkan dragging jika zoom lebih dari 1x
@@ -347,7 +371,7 @@ const ContractCard: React.FC = () => {
                       setIsDragging(true);
                       setDragStart({
                         x: e.clientX - position.x,
-                        y: e.clientY - position.y
+                        y: e.clientY - position.y,
                       });
                     }
                   }}
@@ -355,19 +379,28 @@ const ContractCard: React.FC = () => {
                     if (isDragging && scale > 1) {
                       // Batas pergerakan - semakin tinggi zoom, semakin luas area gerak
                       const maxMove = (scale - 1) * 300;
-                      
+
                       const newX = e.clientX - dragStart.x;
                       const newY = e.clientY - dragStart.y;
-                      
+
                       // Batasi pergerakan dalam batas tertentu
-                      const clampedX = Math.max(Math.min(newX, maxMove), -maxMove);
-                      const clampedY = Math.max(Math.min(newY, maxMove), -maxMove);
-                      
+                      const clampedX = Math.max(
+                        Math.min(newX, maxMove),
+                        -maxMove,
+                      );
+                      const clampedY = Math.max(
+                        Math.min(newY, maxMove),
+                        -maxMove,
+                      );
+
                       // Set hasDragged saat pengguna benar-benar melakukan drag (sudah bergerak)
-                      if (!hasDragged && (Math.abs(clampedX) > 5 || Math.abs(clampedY) > 5)) {
+                      if (
+                        !hasDragged &&
+                        (Math.abs(clampedX) > 5 || Math.abs(clampedY) > 5)
+                      ) {
                         setHasDragged(true);
                       }
-                      
+
                       setPosition({ x: clampedX, y: clampedY });
                     }
                   }}
@@ -379,19 +412,25 @@ const ContractCard: React.FC = () => {
                   }}
                 >
                   <div className="document-header">
-                    <h3 className="document-title">{IMAGE_TITLES[currentIndex]}</h3>
+                    <h3 className="document-title">
+                      {IMAGE_TITLES[currentIndex]}
+                    </h3>
                   </div>
                   <div className="book-container">
-                    <div className={`page-shadow ${pageDirection ? 'active' : ''}`}></div>
-                    <img 
-                      src={CONTRACT_IMAGES[currentIndex]} 
-                      alt={IMAGE_TITLES[currentIndex]} 
+                    <div
+                      className={`page-shadow ${pageDirection ? "active" : ""}`}
+                    ></div>
+                    <img
+                      src={CONTRACT_IMAGES[currentIndex]}
+                      alt={IMAGE_TITLES[currentIndex]}
                       className="document-image"
                       onDoubleClick={openImageInNewTab}
                       title="Double-click to open in new tab"
                       draggable="false" // Cegah drag default image
                     />
-                    <div className={`page-fold ${pageDirection ? 'active' : ''} ${pageDirection || ''}`}></div>
+                    <div
+                      className={`page-fold ${pageDirection ? "active" : ""} ${pageDirection || ""}`}
+                    ></div>
                   </div>
                 </div>
               </div>
