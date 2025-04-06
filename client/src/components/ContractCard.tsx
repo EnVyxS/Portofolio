@@ -10,7 +10,6 @@ import {
 } from "react-icons/fa";
 import DialogController from "../controllers/dialogController";
 import HoverDialogController from "../controllers/hoverDialogController";
-import ElevenLabsService from "../services/elevenlabsService";
 import { useAudio } from "../context/AudioManager";
 
 // Responses for contract interactions - moved from DialogBox.tsx and made more natural
@@ -133,55 +132,25 @@ const ContractCard: React.FC = () => {
 
   const handleContractClick = () => {
     if (!isOpen) {
-      console.log("Opening contract, stopping all audio and dialogs");
-      
-      try {
-        // Hentikan SEMUA audio dan dialog yang sedang berjalan
-        // 1. Hentikan typing dialog utama
-        dialogController.stopTyping();
-        
-        // 2. Hentikan juga typing dialog hover jika ada
-        const hoverDialogController = HoverDialogController.getInstance();
-        hoverDialogController.stopTyping();
-        
-        // 3. Hentikan semua audio yang sedang berbunyi
-        // Kita akses ElevenLabsService langsung
-        const elevenlabsService = ElevenLabsService.getInstance();
-        elevenlabsService.stopSpeaking();
-      } catch (e) {
-        console.error("Error stopping dialogs/audio:", e);
+      // Saat kontrak dibuka, tidak perlu dialog yang menggangu
+      // Setiap dialog yang saat ini berjalan harus dihentikan
+      dialogController.stopTyping();
+
+      // Mencegah dialog ditampilkan saat kontrak terbuka dengan cara
+      // memindahkan indeks dialog ke dialog terakhir
+      const dialogs = dialogController.getDialogModel().getAllDialogs();
+      const lastDialogIndex = dialogs.length - 1;
+      dialogController.getDialogModel().setCurrentDialogIndex(lastDialogIndex);
+
+      // Simpan volume asli sebelum dikurangi
+      setOriginalVolume(currentVolume);
+
+      // Kurangi volume musik ambient
+      if (currentVolume) {
+        setVolume(currentVolume * 0.5); // Kurangi volume menjadi 50% dari volume saat ini
       }
-      
-      // Tunggu audio berhenti dengan memberikan delay kecil
-      setTimeout(() => {
-        try {
-          // Mencegah dialog ditampilkan saat kontrak terbuka dengan cara
-          // memindahkan indeks dialog ke dialog terakhir
-          const dialogs = dialogController.getDialogModel().getAllDialogs();
-          const lastDialogIndex = dialogs.length - 1;
-          dialogController.getDialogModel().setCurrentDialogIndex(lastDialogIndex);
-    
-          // Simpan volume asli sebelum dikurangi
-          setOriginalVolume(currentVolume);
-    
-          // Kurangi volume musik ambient
-          if (currentVolume) {
-            setVolume(currentVolume * 0.5); // Kurangi volume menjadi 50% dari volume saat ini
-          }
-          
-          // Putar suara footstep
-          if (footstepSoundRef.current) {
-            footstepSoundRef.current.currentTime = 0;
-            footstepSoundRef.current.play()
-              .catch(e => console.error("Error playing footstep sound:", e));
-          }
-    
-          setIsOpen(true);
-        } catch (err) {
-          console.error("Error in contract opening process:", err);
-          setIsOpen(true); // Tetap buka kontrak meskipun ada error
-        }
-      }, 100); // Delay 100ms untuk memastikan audio berhenti sebelum contract membuka
+
+      setIsOpen(true);
     }
   };
 
@@ -271,8 +240,6 @@ const ContractCard: React.FC = () => {
 
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
-    
-    console.log("[ContractCard] Closing contract, preparing contract response dialog");
 
     // Kembalikan volume saat kontrak ditutup
     if (originalVolume !== null) {
@@ -284,23 +251,9 @@ const ContractCard: React.FC = () => {
     const randomResponse = CONTRACT_RESPONSES[randomIndex];
 
     // Jangan putar suara footstep saat menutup kontrak
-    
-    try {
-      // Hentikan SEMUA audio dan dialog yang sedang berjalan
-      // 1. Hentikan typing dialog utama 
-      dialogController.stopTyping();
-      
-      // 2. Hentikan juga typing dialog hover jika ada
-      const hoverDialogController = HoverDialogController.getInstance();
-      hoverDialogController.stopTyping();
-      
-      // 3. Hentikan semua audio yang sedang berbunyi
-      // Kita akses ElevenLabsService langsung
-      const elevenlabsService = ElevenLabsService.getInstance();
-      elevenlabsService.stopSpeaking();
-    } catch (e) {
-      console.error("[ContractCard] Error stopping dialogs/audio when closing:", e);
-    }
+
+    // Hentikan dialog yang sedang berjalan
+    dialogController.stopTyping();
 
     // Pastikan dialog model tidak menampilkan dialog lagi setelah dialog custom
     // dengan cara memindahkan indeks ke dialog terakhir
@@ -308,8 +261,7 @@ const ContractCard: React.FC = () => {
     const lastDialogIndex = dialogs.length - 1;
     dialogController.getDialogModel().setCurrentDialogIndex(lastDialogIndex);
 
-    // Show custom dialog dengan response yang dipilih
-    // Kita menggunakan setTimeout yang lebih pendek (50ms) agar tidak terlalu menunda
+    // Show custom dialog with the selected response setelah semua preset
     setTimeout(() => {
       // Dapatkan instance HoverDialogController untuk set source
       const hoverDialogController = HoverDialogController.getInstance();
@@ -323,41 +275,25 @@ const ContractCard: React.FC = () => {
         hoverDialogController.setDialogSource("main");
       }
 
-      // Tandai bahwa dialog kontrak aktif SEBELUM mencoba menampilkan dialog baru
-      // dan SEBELUM memanggil dialog controller
-      // ini memastikan bahwa dialog box tetap terlihat selama transisi
+      // Pastikan isDialogFinished di DialogBox diatur ke false terlebih dahulu
+      // Gunakan objek window untuk menyimpan state terkait kontrak
       // @ts-ignore - tambahkan properti global untuk komunikasi antar komponen
       window.__contractDialogActive = true;
       
-      // Simpan teks kontrak untuk referensi global (digunakan di DialogBox.tsx)
-      // @ts-ignore - simpan teks respons kontrak
-      window.__contractResponseText = randomResponse;
-      
       // Sebelum menampilkan dialog custom, reset dialogController dulu
       dialogController.stopTyping();
+      
+      // Dapatkan handler dari DialogBox untuk setText dan setIsComplete
+      // Kita TIDAK menggunakan __contractResponseText disini karena itu membuat teks muncul penuh
+      // sebelum efek typewriter. Sebagai gantinya, kita hanya menandai bahwa dialog kontrak sedang aktif
+      // tanpa menyimpan teks lengkapnya.
       
       // @ts-ignore - untuk mendapatkan akses ke textSetter di DialogBox jika tersedia
       const textSetter = window.__dialogBoxTextSetter;
       // @ts-ignore - untuk mendapatkan akses ke isCompleteSetter di DialogBox jika tersedia
       const isCompleteSetter = window.__dialogBoxIsCompleteSetter;
       
-      // Jika setter tersedia, kosongkan teks terlebih dahulu untuk mencegah
-      // teks lama terlihat saat transisi ke dialog kontrak
-      if (typeof textSetter === 'function') {
-        textSetter("");
-      }
-      
-      // Pastikan bahwa dialog box mengetahui ini bukan dialog yang selesai
-      if (typeof isCompleteSetter === 'function') {
-        isCompleteSetter(false);
-      }
-      
-      // Pre-load audio untuk dialog kontrak untuk mengurangi delay
-      // Gunakan immediate callback untuk meningkatkan kecepatan respons
-      console.log("[ContractCard] Menampilkan dialog kontrak segera:", randomResponse);
-      
       // PENTING: Dialog custom harus selalu menjadi dialog aktif dan utama
-      // Kecepatan ketik akan otomatis disesuaikan dengan durasi audio sebenarnya oleh DialogController
       dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
         // Callback ini dipanggil setiap karakter (saat dialog sedang berjalan dan setelah selesai)
         // Pastikan dialog source tetap 'main' dan dialog box ditampilkan
@@ -370,6 +306,7 @@ const ContractCard: React.FC = () => {
         
         // Langsung update text di DialogBox jika setter tersedia
         if (typeof textSetter === 'function') {
+          console.log(`[ContractCard] Updating DialogBox text directly`);
           textSetter(text);
         }
         
@@ -386,10 +323,10 @@ const ContractCard: React.FC = () => {
             window.__contractDialogActive = false;
             // @ts-ignore
             window.__contractResponseText = null;
-          }, 4000); // Kurangi waktu dari 5 detik menjadi 4 detik
+          }, 5000); // Beri waktu 5 detik untuk dialog tetap terlihat
         }
       });
-    }, 50); // Kurangi timeout dari 300ms menjadi 50ms
+    }, 300);
 
     setIsOpen(false);
     setCurrentIndex(0);
