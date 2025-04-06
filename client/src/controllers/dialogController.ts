@@ -247,29 +247,12 @@ class DialogController {
                                text.includes("Staring at me") || 
                                text.includes("fuck you") ||
                                text.includes("throw") ||
-                               text.includes("punch") ||
-                               // Menambahkan frasa khusus dari IDLE_DIALOGS
-                               text.includes("What the hell are you staring at") || 
-                               text.includes("You really gonna keep ignoring me") ||
-                               text.includes("You think this is funny") || 
-                               text.includes("Now what, you little filth") ||
-                               text.includes("Finally, you decide to move") ||
-                               text.includes("KEEP PUSHING") ||
-                               text.includes("I'VE HAD ENOUGH") ||
-                               text.includes("GET OUT OF MY SIGHT") ||
-                               text.includes("YOU ASKED FOR THIS");
+                               text.includes("punch");
           
           // Khusus untuk CONTRACT_RESPONSES, log tambahan
           if (isFromContract) {
             console.log("[DialogController] Showing CONTRACT_RESPONSE dialog:", text);
             // Tandai ini sebagai dialog kontrak dengan persistent false
-            customDialog.persistent = false;
-          }
-          
-          // Khusus untuk IDLE_DIALOGS, log tambahan
-          if (isIdleWarning) {
-            console.log("[DialogController] Showing IDLE_WARNING dialog:", text);
-            // Tandai ini sebagai dialog idle dengan persistent false
             customDialog.persistent = false;
           }
           
