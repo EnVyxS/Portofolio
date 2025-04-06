@@ -1,467 +1,513 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nightmare</title>
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Nightmare</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
 
-        body, html {
-            margin: 0;
-            padding: 0;
-            font-family: 'EB Garamond', serif;
-            color: #8f8f8f;
-            background-color: #000;
-            height: 100%;
-            overflow: hidden;
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="%23000000" stroke="%23ffffff" stroke-width="1"/></svg>') 8 8, auto;
-        }
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                font-family: "EB Garamond", serif;
+                color: #8f8f8f;
+                background-color: #000;
+                height: 100%;
+                overflow: hidden;
+                cursor:
+                    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="%23000000" stroke="%23ffffff" stroke-width="1"/></svg>')
+                        8 8,
+                    auto;
+            }
 
-        .nightmare-container {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            overflow: hidden;
-            background-color: #000;
-        }
+            .nightmare-container {
+                position: relative;
+                width: 100%;
+                height: 100vh;
+                overflow: hidden;
+                background-color: #000;
+            }
 
-        /* Text that occasionally appears */
-        .flash-text {
-            position: absolute;
-            text-align: center;
-            width: 100%;
-            top: 50%;
-            left: 0;
-            transform: translateY(-50%);
-            color: #ffffff;
-            font-size: 3rem;
-            opacity: 0;
-            text-transform: uppercase;
-            letter-spacing: 0.3em;
-            font-weight: 400;
-            text-shadow: 0 0 10px #fff, 0 0 20px #fff;
-            pointer-events: none;
-            z-index: 10;
-            transition: opacity 0.1s ease;
-        }
-
-        /* White flash effect */
-        .flash {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: white;
-            opacity: 0;
-            z-index: 5;
-            pointer-events: none;
-        }
-
-        /* Static noise overlay */
-        .static-noise {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.05;
-            z-index: 3;
-            pointer-events: none;
-            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c4zIypAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgvJEaAAAAVklEQVRIx+3RSRaAIAxE0b5EEESUGcf7X9eo4GqXsR8B10+W2jLEwM0DmE0PQgFnmO1MWXMTyF1K3LFHD8AXByGVLtghjWmB3YE1oHB4MVaVwJSKZYuB2bw7APsPy4I/JCIYAAAAAElFTkSuQmCC');
-        }
-
-        /* Subtle vignette effect */
-        .vignette {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            background: radial-gradient(
-                circle at center,
-                rgba(0, 0, 0, 0) 10%,
-                rgba(0, 0, 0, 0.8) 80%,
-                rgba(0, 0, 0, 1) 100%
-            );
-            z-index: 2;
-        }
-
-        /* Wake up button (always visible but subtle) */
-        .wake-up-btn {
-            position: fixed;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: none;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: rgba(255, 255, 255, 0.3);
-            font-family: 'EB Garamond', serif;
-            font-size: 1.2rem;
-            padding: 12px 30px;
-            cursor: pointer;
-            transition: all 0.5s ease;
-            letter-spacing: 0.5em;
-            text-transform: uppercase;
-            z-index: 20;
-        }
-
-        .wake-up-btn:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.6);
-            border-color: rgba(255, 255, 255, 0.4);
-        }
-
-        /* Breathing animation */
-        @keyframes breathe {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        /* Distortion effect for text */
-        @keyframes textDistort {
-            0%, 100% { transform: skew(0deg); opacity: 1; }
-            25% { transform: skew(-5deg); opacity: 0.9; }
-            75% { transform: skew(5deg); opacity: 0.8; }
-        }
-
-        /* Hidden whispers */
-        .whisper {
-            position: absolute;
-            color: rgba(255, 255, 255, 0.1);
-            font-size: 0.8rem;
-            pointer-events: none;
-            opacity: 0;
-            z-index: 4;
-            transition: opacity 0.5s ease;
-        }
-
-        @media (max-width: 768px) {
+            /* Text that occasionally appears */
             .flash-text {
-                font-size: 1.8rem;
-                letter-spacing: 0.2em;
+                position: absolute;
+                text-align: center;
+                width: 100%;
+                top: 50%;
+                left: 0;
+                transform: translateY(-50%);
+                color: #ffffff;
+                font-size: 3rem;
+                opacity: 0;
+                text-transform: uppercase;
+                letter-spacing: 0.3em;
+                font-weight: 400;
+                text-shadow:
+                    0 0 10px #fff,
+                    0 0 20px #fff;
+                pointer-events: none;
+                z-index: 10;
+                transition: opacity 0.1s ease;
             }
-            
-            .wake-up-btn {
-                bottom: 30px;
-                font-size: 1rem;
-                padding: 10px 25px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="nightmare-container">
-        <!-- Flash overlay -->
-        <div class="flash" id="flash"></div>
-        
-        <!-- Text that appears during flashes -->
-        <div class="flash-text" id="flashText"></div>
-        
-        <!-- Random whispers -->
-        <div id="whispers"></div>
-        
-        <!-- Static noise overlay -->
-        <div class="static-noise"></div>
-        
-        <!-- Vignette effect -->
-        <div class="vignette"></div>
-        
-        <!-- Wake up button -->
-        <button id="wakeUpBtn" class="wake-up-btn">Escape</button>
-    </div>
-    
-    <script>
-        // Messages that can appear during flashes
-        const flashMessages = [
-            "WAKE UP",
-            "IT'S JUST A DREAM",
-            "YOU'RE NOT REAL",
-            "THERE IS NO ESCAPE",
-            "YOU'RE TRAPPED",
-            "DON'T TRUST THEM",
-            "THEY'RE WATCHING",
-            "REMEMBER WHO YOU ARE",
-            "THE DARKNESS CONSUMES",
-            "YOU'VE BEEN HERE BEFORE",
-            "YOU CANNOT LEAVE"
-        ];
-        
-        // Whispers content
-        const whisperTexts = [
-            "help me",
-            "it's cold here",
-            "have you forgotten?",
-            "we're still waiting",
-            "come back to us",
-            "remember the promise",
-            "don't leave us again",
-            "you abandoned us",
-            "the fire is dying",
-            "it's your fault",
-            "we can see you",
-            "behind you",
-            "listen carefully",
-            "you never escaped"
-        ];
-        
-        // Maximum number of whispers at once
-        const MAX_WHISPERS = 30;
-        
-        // Create random whispers
-        function createWhispers() {
-            const container = document.getElementById('whispers');
-            
-            for (let i = 0; i < MAX_WHISPERS; i++) {
-                const whisper = document.createElement('div');
-                whisper.className = 'whisper';
-                
-                // Random text
-                const randomIndex = Math.floor(Math.random() * whisperTexts.length);
-                whisper.textContent = whisperTexts[randomIndex];
-                
-                // Random position
-                const randomX = Math.random() * 100;
-                const randomY = Math.random() * 100;
-                
-                whisper.style.left = `${randomX}%`;
-                whisper.style.top = `${randomY}%`;
-                whisper.style.transform = `rotate(${Math.random() * 40 - 20}deg)`;
-                
-                container.appendChild(whisper);
-            }
-        }
-        
-        // Play audio for whisper text
-        async function playWhisperAudio(text) {
-            try {
-                // Use the specific voice ID for whispers in dream.html
-                const response = await fetch('/api/elevenlabs/text-to-speech', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        text: text,
-                        voice_id: 'Q5lUbL40rnWTcPncLVzc', // Menggunakan ID voice yang diminta
-                        model_id: 'eleven_monolingual_v1'
-                    }),
-                });
-                
-                const data = await response.json();
-                
-                if (data.success && data.audioPath) {
-                    const audio = new Audio(data.audioPath);
-                    audio.volume = 0.15; // Volume rendah untuk efek bisikan
-                    audio.play();
-                }
-            } catch (error) {
-                console.error('Error playing whisper audio:', error);
-            }
-        }
 
-        // Show random whispers occasionally
-        function animateWhispers() {
-            const whispers = document.querySelectorAll('.whisper');
-            
-            setInterval(() => {
-                // Randomly show a whisper
-                if (Math.random() < 0.2) {
-                    const randomIndex = Math.floor(Math.random() * whispers.length);
-                    const whisper = whispers[randomIndex];
-                    const whisperText = whisperTexts[Math.floor(Math.random() * whisperTexts.length)];
-                    
-                    whisper.textContent = whisperText;
-                    whisper.style.opacity = Math.random() * 0.1 + 0.05;
-                    
-                    // New random position
+            /* White flash effect */
+            .flash {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: white;
+                opacity: 0;
+                z-index: 5;
+                pointer-events: none;
+            }
+
+            /* Static noise overlay */
+            .static-noise {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                opacity: 0.05;
+                z-index: 3;
+                pointer-events: none;
+                background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c4zIypAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgvJEaAAAAVklEQVRIx+3RSRaAIAxE0b5EEESUGcf7X9eo4GqXsR8B10+W2jLEwM0DmE0PQgFnmO1MWXMTyF1K3LFHD8AXByGVLtghjWmB3YE1oHB4MVaVwJSKZYuB2bw7APsPy4I/JCIYAAAAAElFTkSuQmCC");
+            }
+
+            /* Subtle vignette effect */
+            .vignette {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                background: radial-gradient(
+                    circle at center,
+                    rgba(0, 0, 0, 0) 10%,
+                    rgba(0, 0, 0, 0.8) 80%,
+                    rgba(0, 0, 0, 1) 100%
+                );
+                z-index: 2;
+            }
+
+            /* Wake up button (always visible but subtle) */
+            .wake-up-btn {
+                position: fixed;
+                bottom: 40px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: none;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: rgba(255, 255, 255, 0.3);
+                font-family: "EB Garamond", serif;
+                font-size: 1.2rem;
+                padding: 12px 30px;
+                cursor: pointer;
+                transition: all 0.5s ease;
+                letter-spacing: 0.5em;
+                text-transform: uppercase;
+                z-index: 20;
+            }
+
+            .wake-up-btn:hover {
+                background: rgba(255, 255, 255, 0.05);
+                color: rgba(255, 255, 255, 0.6);
+                border-color: rgba(255, 255, 255, 0.4);
+            }
+
+            /* Breathing animation */
+            @keyframes breathe {
+                0%,
+                100% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.05);
+                }
+            }
+
+            /* Distortion effect for text */
+            @keyframes textDistort {
+                0%,
+                100% {
+                    transform: skew(0deg);
+                    opacity: 1;
+                }
+                25% {
+                    transform: skew(-5deg);
+                    opacity: 0.9;
+                }
+                75% {
+                    transform: skew(5deg);
+                    opacity: 0.8;
+                }
+            }
+
+            /* Hidden whispers */
+            .whisper {
+                position: absolute;
+                color: rgba(255, 255, 255, 0.1);
+                font-size: 0.8rem;
+                pointer-events: none;
+                opacity: 0;
+                z-index: 4;
+                transition: opacity 0.5s ease;
+            }
+
+            @media (max-width: 768px) {
+                .flash-text {
+                    font-size: 1.8rem;
+                    letter-spacing: 0.2em;
+                }
+
+                .wake-up-btn {
+                    bottom: 30px;
+                    font-size: 1rem;
+                    padding: 10px 25px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="nightmare-container">
+            <!-- Flash overlay -->
+            <div class="flash" id="flash"></div>
+
+            <!-- Text that appears during flashes -->
+            <div class="flash-text" id="flashText"></div>
+
+            <!-- Random whispers -->
+            <div id="whispers"></div>
+
+            <!-- Static noise overlay -->
+            <div class="static-noise"></div>
+
+            <!-- Vignette effect -->
+            <div class="vignette"></div>
+
+            <!-- Wake up button -->
+            <button id="wakeUpBtn" class="wake-up-btn">Escape</button>
+        </div>
+
+        <script>
+            // Messages that can appear during flashes
+            const flashMessages = [
+                "WAKE UP",
+                "IT'S JUST A DREAM",
+                "YOU'RE NOT REAL",
+                "THERE IS NO ESCAPE",
+                "YOU'RE TRAPPED",
+                "DON'T TRUST THEM",
+                "THEY'RE WATCHING",
+                "REMEMBER WHO YOU ARE",
+                "THE DARKNESS CONSUMES",
+                "YOU'VE BEEN HERE BEFORE",
+                "YOU CANNOT LEAVE",
+            ];
+
+            // Whispers content
+            const whisperTexts = [
+                "help me",
+                "it's cold here",
+                "have you forgotten?",
+                "we're still waiting",
+                "come back to us",
+                "remember the promise",
+                "don't leave us again",
+                "you abandoned us",
+                "the fire is dying",
+                "it's your fault",
+                "we can see you",
+                "behind you",
+                "listen carefully",
+                "you never escaped",
+            ];
+
+            // Maximum number of whispers at once
+            const MAX_WHISPERS = 9999;
+
+            // Create random whispers
+            function createWhispers() {
+                const container = document.getElementById("whispers");
+
+                for (let i = 0; i < MAX_WHISPERS; i++) {
+                    const whisper = document.createElement("div");
+                    whisper.className = "whisper";
+
+                    // Random text
+                    const randomIndex = Math.floor(
+                        Math.random() * whisperTexts.length,
+                    );
+                    whisper.textContent = whisperTexts[randomIndex];
+
+                    // Random position
                     const randomX = Math.random() * 100;
                     const randomY = Math.random() * 100;
+
                     whisper.style.left = `${randomX}%`;
                     whisper.style.top = `${randomY}%`;
                     whisper.style.transform = `rotate(${Math.random() * 40 - 20}deg)`;
-                    
-                    // Play audio for the whisper occasionally (not every time to avoid too many sounds)
-                    if (Math.random() < 0.4) {
-                        playWhisperAudio(whisperText);
-                    }
-                    
-                    // Hide after a short time
-                    setTimeout(() => {
-                        whisper.style.opacity = 0;
-                    }, Math.random() * 3000 + 2000);
-                }
-            }, 500);
-        }
-        
-        // Play audio for flash messages with more volume and intensity than whispers
-        async function playFlashAudio(text) {
-            try {
-                // Use the same specific voice ID but with higher volume for flash messages
-                const response = await fetch('/api/elevenlabs/text-to-speech', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        text: text,
-                        voice_id: 'Q5lUbL40rnWTcPncLVzc', // Menggunakan ID voice yang diminta
-                        model_id: 'eleven_monolingual_v1',
-                        voice_settings: {
-                            stability: 0.3, // Less stable for more erratic sound
-                            similarity_boost: 0.75,
-                            style: 0.5, // More intense style
-                            speaking_rate: 1.15 // Slightly faster for urgency
-                        }
-                    }),
-                });
-                
-                const data = await response.json();
-                
-                if (data.success && data.audioPath) {
-                    const audio = new Audio(data.audioPath);
-                    audio.volume = 0.4; // Lebih keras dari bisikan
-                    audio.play();
-                }
-            } catch (error) {
-                console.error('Error playing flash audio:', error);
-            }
-        }
 
-        // Create white flashes
-        function createFlashes() {
-            const flash = document.getElementById('flash');
-            const flashText = document.getElementById('flashText');
-            
-            // Create short flashes
-            function createShortFlash() {
-                // Randomize flash timing
-                const flashDelay = Math.random() * 15000 + 5000; // 5-20 seconds between flashes
-                
-                setTimeout(() => {
-                    // Random flash duration
-                    const duration = Math.random() * 200 + 50; // 50-250ms
-                    
-                    // Flash settings
-                    flash.style.opacity = Math.random() * 0.5 + 0.2; // Vary opacity for different intensities
-                    
-                    // Sometimes show text with the flash
-                    if (Math.random() < 0.4) {
-                        // Random message
-                        const messageIndex = Math.floor(Math.random() * flashMessages.length);
+                    container.appendChild(whisper);
+                }
+            }
+
+            // Play audio for whisper text
+            async function playWhisperAudio(text) {
+                try {
+                    // Use the specific voice ID for whispers in dream.html
+                    const response = await fetch(
+                        "/api/elevenlabs/text-to-speech",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                text: text,
+                                voice_id: "Q5lUbL40rnWTcPncLVzc", // Menggunakan ID voice yang diminta
+                                model_id: "eleven_monolingual_v1",
+                            }),
+                        },
+                    );
+
+                    const data = await response.json();
+
+                    if (data.success && data.audioPath) {
+                        const audio = new Audio(data.audioPath);
+                        audio.volume = 0.15; // Volume rendah untuk efek bisikan
+                        audio.play();
+                    }
+                } catch (error) {
+                    console.error("Error playing whisper audio:", error);
+                }
+            }
+
+            // Show random whispers occasionally
+            function animateWhispers() {
+                const whispers = document.querySelectorAll(".whisper");
+
+                setInterval(() => {
+                    // Randomly show a whisper
+                    if (Math.random() < 0.2) {
+                        const randomIndex = Math.floor(
+                            Math.random() * whispers.length,
+                        );
+                        const whisper = whispers[randomIndex];
+                        const whisperText =
+                            whisperTexts[
+                                Math.floor(Math.random() * whisperTexts.length)
+                            ];
+
+                        whisper.textContent = whisperText;
+                        whisper.style.opacity = Math.random() * 0.1 + 0.05;
+
+                        // New random position
+                        const randomX = Math.random() * 100;
+                        const randomY = Math.random() * 100;
+                        whisper.style.left = `${randomX}%`;
+                        whisper.style.top = `${randomY}%`;
+                        whisper.style.transform = `rotate(${Math.random() * 40 - 20}deg)`;
+
+                        // Play audio for the whisper occasionally (not every time to avoid too many sounds)
+                        if (Math.random() < 0.4) {
+                            playWhisperAudio(whisperText);
+                        }
+
+                        // Hide after a short time
+                        setTimeout(
+                            () => {
+                                whisper.style.opacity = 0;
+                            },
+                            Math.random() * 3000 + 2000,
+                        );
+                    }
+                }, 500);
+            }
+
+            // Play audio for flash messages with more volume and intensity than whispers
+            async function playFlashAudio(text) {
+                try {
+                    // Use the same specific voice ID but with higher volume for flash messages
+                    const response = await fetch(
+                        "/api/elevenlabs/text-to-speech",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                text: text,
+                                voice_id: "Q5lUbL40rnWTcPncLVzc", // Menggunakan ID voice yang diminta
+                                model_id: "eleven_monolingual_v1",
+                                voice_settings: {
+                                    stability: 0.3, // Less stable for more erratic sound
+                                    similarity_boost: 0.75,
+                                    style: 0.5, // More intense style
+                                    speaking_rate: 1.15, // Slightly faster for urgency
+                                },
+                            }),
+                        },
+                    );
+
+                    const data = await response.json();
+
+                    if (data.success && data.audioPath) {
+                        const audio = new Audio(data.audioPath);
+                        audio.volume = 0.4; // Lebih keras dari bisikan
+                        audio.play();
+                    }
+                } catch (error) {
+                    console.error("Error playing flash audio:", error);
+                }
+            }
+
+            // Create white flashes
+            function createFlashes() {
+                const flash = document.getElementById("flash");
+                const flashText = document.getElementById("flashText");
+
+                // Create short flashes
+                function createShortFlash() {
+                    // Randomize flash timing
+                    const flashDelay = Math.random() * 15000 + 5000; // 5-20 seconds between flashes
+
+                    setTimeout(() => {
+                        // Random flash duration
+                        const duration = Math.random() * 200 + 50; // 50-250ms
+
+                        // Flash settings
+                        flash.style.opacity = Math.random() * 0.5 + 0.2; // Vary opacity for different intensities
+
+                        // Sometimes show text with the flash
+                        if (Math.random() < 0.4) {
+                            // Random message
+                            const messageIndex = Math.floor(
+                                Math.random() * flashMessages.length,
+                            );
+                            const message = flashMessages[messageIndex];
+                            flashText.textContent = message;
+                            flashText.style.opacity = 1;
+                            flashText.style.animation = `textDistort ${Math.random() * 0.5 + 0.2}s ease-in-out`;
+
+                            // Tidak memainkan audio untuk pesan flash sesuai permintaan
+
+                            // Hide text after flash
+                            setTimeout(() => {
+                                flashText.style.opacity = 0;
+                            }, duration + 50);
+                        }
+
+                        // Hide flash after duration
+                        setTimeout(() => {
+                            flash.style.opacity = 0;
+                            // Schedule next flash
+                            createShortFlash();
+                        }, duration);
+                    }, flashDelay);
+                }
+
+                // Create dramatic sequence of multiple flashes
+                function createFlashSequence() {
+                    // Longer delay between sequences
+                    const sequenceDelay = Math.random() * 30000 + 20000; // 20-50 seconds between sequences
+
+                    setTimeout(() => {
+                        const flashCount = Math.floor(Math.random() * 3) + 2; // 2-4 flashes in sequence
+
+                        // Show flash message with sequence
+                        const messageIndex = Math.floor(
+                            Math.random() * flashMessages.length,
+                        );
                         const message = flashMessages[messageIndex];
                         flashText.textContent = message;
-                        flashText.style.opacity = 1;
-                        flashText.style.animation = `textDistort ${Math.random() * 0.5 + 0.2}s ease-in-out`;
-                        
-                        // Play audio for some flash messages
-                        if (Math.random() < 0.5) {
-                            playFlashAudio(message);
+
+                        // Tidak memainkan audio untuk pesan flash sesuai permintaan
+
+                        // Create multiple flashes in sequence
+                        for (let i = 0; i < flashCount; i++) {
+                            setTimeout(
+                                () => {
+                                    // Higher intensity for sequences
+                                    flash.style.opacity =
+                                        Math.random() * 0.7 + 0.3;
+                                    flashText.style.opacity =
+                                        0.8 + Math.random() * 0.2;
+
+                                    // Flicker effect
+                                    setTimeout(
+                                        () => {
+                                            flash.style.opacity = 0;
+                                            if (i === flashCount - 1) {
+                                                // Last flash in sequence, hide text
+                                                setTimeout(() => {
+                                                    flashText.style.opacity = 0;
+                                                }, 200);
+                                            }
+                                        },
+                                        100 + Math.random() * 150,
+                                    );
+                                },
+                                i * (Math.random() * 200 + 200),
+                            ); // 200-400ms between flashes in a sequence
                         }
-                        
-                        // Hide text after flash
-                        setTimeout(() => {
-                            flashText.style.opacity = 0;
-                        }, duration + 50);
-                    }
-                    
-                    // Hide flash after duration
-                    setTimeout(() => {
-                        flash.style.opacity = 0;
-                        // Schedule next flash
-                        createShortFlash();
-                    }, duration);
-                    
-                }, flashDelay);
+
+                        // Schedule next sequence
+                        createFlashSequence();
+                    }, sequenceDelay);
+                }
+
+                // Start both types of flashes
+                createShortFlash();
+                createFlashSequence();
             }
-            
-            // Create dramatic sequence of multiple flashes
-            function createFlashSequence() {
-                // Longer delay between sequences
-                const sequenceDelay = Math.random() * 30000 + 20000; // 20-50 seconds between sequences
-                
-                setTimeout(() => {
-                    const flashCount = Math.floor(Math.random() * 3) + 2; // 2-4 flashes in sequence
-                    
-                    // Show flash message with sequence
-                    const messageIndex = Math.floor(Math.random() * flashMessages.length);
-                    const message = flashMessages[messageIndex];
-                    flashText.textContent = message;
-                    
-                    // Almost always play audio for sequence messages (more dramatic)
-                    if (Math.random() < 0.8) {
-                        playFlashAudio(message);
-                    }
-                    
-                    // Create multiple flashes in sequence
-                    for (let i = 0; i < flashCount; i++) {
-                        setTimeout(() => {
-                            // Higher intensity for sequences
-                            flash.style.opacity = Math.random() * 0.7 + 0.3;
-                            flashText.style.opacity = 0.8 + (Math.random() * 0.2);
-                            
-                            // Flicker effect
-                            setTimeout(() => {
-                                flash.style.opacity = 0;
-                                if (i === flashCount - 1) {
-                                    // Last flash in sequence, hide text
-                                    setTimeout(() => {
-                                        flashText.style.opacity = 0;
-                                    }, 200);
-                                }
-                            }, 100 + (Math.random() * 150));
-                        }, i * (Math.random() * 200 + 200)); // 200-400ms between flashes in a sequence
-                    }
-                    
-                    // Schedule next sequence
-                    createFlashSequence();
-                }, sequenceDelay);
+
+            // Wake up button functionality
+            function setupWakeUpButton() {
+                const wakeUpBtn = document.getElementById("wakeUpBtn");
+
+                wakeUpBtn.addEventListener("click", function () {
+                    // Flash before exiting
+                    const flash = document.getElementById("flash");
+                    flash.style.opacity = 1;
+
+                    // Fade out after a delay
+                    setTimeout(function () {
+                        document.body.style.transition = "opacity 2s ease-out";
+                        document.body.style.opacity = "0";
+
+                        // Redirect back to main page
+                        setTimeout(function () {
+                            window.location.href = "/";
+                        }, 2000);
+                    }, 300);
+                });
             }
-            
-            // Start both types of flashes
-            createShortFlash();
-            createFlashSequence();
-        }
-        
-        // Wake up button functionality
-        function setupWakeUpButton() {
-            const wakeUpBtn = document.getElementById('wakeUpBtn');
-            
-            wakeUpBtn.addEventListener('click', function() {
-                // Flash before exiting
-                const flash = document.getElementById('flash');
-                flash.style.opacity = 1;
-                
-                // Fade out after a delay
-                setTimeout(function() {
-                    document.body.style.transition = 'opacity 2s ease-out';
-                    document.body.style.opacity = '0';
-                    
-                    // Redirect back to main page
-                    setTimeout(function() {
-                        window.location.href = '/';
-                    }, 2000);
-                }, 300);
-            });
-        }
-        
-        // Initialize everything
-        window.onload = function() {
-            createWhispers();
-            animateWhispers();
-            createFlashes();
-            setupWakeUpButton();
-            
-            // Subtle breathing animation for the entire page
-            document.body.style.animation = 'breathe 10s infinite ease-in-out';
-        };
-    </script>
-</body>
+
+            // Initialize everything
+            window.onload = function () {
+                createWhispers();
+                animateWhispers();
+                createFlashes();
+                setupWakeUpButton();
+
+                // Subtle breathing animation for the entire page
+                document.body.style.animation =
+                    "breathe 10s infinite ease-in-out";
+            };
+        </script>
+    </body>
 </html>
