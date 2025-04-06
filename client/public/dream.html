@@ -239,6 +239,34 @@
             }
         }
         
+        // Play audio for whisper text
+        async function playWhisperAudio(text) {
+            try {
+                // Use the specific voice ID for whispers in dream.html
+                const response = await fetch('/api/elevenlabs/text-to-speech', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        voice_id: 'Q5lUbL40rnWTcPncLVzc', // Menggunakan ID voice yang diminta
+                        model_id: 'eleven_monolingual_v1'
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.audioPath) {
+                    const audio = new Audio(data.audioPath);
+                    audio.volume = 0.15; // Volume rendah untuk efek bisikan
+                    audio.play();
+                }
+            } catch (error) {
+                console.error('Error playing whisper audio:', error);
+            }
+        }
+
         // Show random whispers occasionally
         function animateWhispers() {
             const whispers = document.querySelectorAll('.whisper');
@@ -248,7 +276,9 @@
                 if (Math.random() < 0.2) {
                     const randomIndex = Math.floor(Math.random() * whispers.length);
                     const whisper = whispers[randomIndex];
+                    const whisperText = whisperTexts[Math.floor(Math.random() * whisperTexts.length)];
                     
+                    whisper.textContent = whisperText;
                     whisper.style.opacity = Math.random() * 0.1 + 0.05;
                     
                     // New random position
@@ -258,6 +288,11 @@
                     whisper.style.top = `${randomY}%`;
                     whisper.style.transform = `rotate(${Math.random() * 40 - 20}deg)`;
                     
+                    // Play audio for the whisper occasionally (not every time to avoid too many sounds)
+                    if (Math.random() < 0.4) {
+                        playWhisperAudio(whisperText);
+                    }
+                    
                     // Hide after a short time
                     setTimeout(() => {
                         whisper.style.opacity = 0;
@@ -266,6 +301,40 @@
             }, 500);
         }
         
+        // Play audio for flash messages with more volume and intensity than whispers
+        async function playFlashAudio(text) {
+            try {
+                // Use the same specific voice ID but with higher volume for flash messages
+                const response = await fetch('/api/elevenlabs/text-to-speech', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        voice_id: 'Q5lUbL40rnWTcPncLVzc', // Menggunakan ID voice yang diminta
+                        model_id: 'eleven_monolingual_v1',
+                        voice_settings: {
+                            stability: 0.3, // Less stable for more erratic sound
+                            similarity_boost: 0.75,
+                            style: 0.5, // More intense style
+                            speaking_rate: 1.15 // Slightly faster for urgency
+                        }
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.audioPath) {
+                    const audio = new Audio(data.audioPath);
+                    audio.volume = 0.4; // Lebih keras dari bisikan
+                    audio.play();
+                }
+            } catch (error) {
+                console.error('Error playing flash audio:', error);
+            }
+        }
+
         // Create white flashes
         function createFlashes() {
             const flash = document.getElementById('flash');
@@ -287,9 +356,15 @@
                     if (Math.random() < 0.4) {
                         // Random message
                         const messageIndex = Math.floor(Math.random() * flashMessages.length);
-                        flashText.textContent = flashMessages[messageIndex];
+                        const message = flashMessages[messageIndex];
+                        flashText.textContent = message;
                         flashText.style.opacity = 1;
                         flashText.style.animation = `textDistort ${Math.random() * 0.5 + 0.2}s ease-in-out`;
+                        
+                        // Play audio for some flash messages
+                        if (Math.random() < 0.5) {
+                            playFlashAudio(message);
+                        }
                         
                         // Hide text after flash
                         setTimeout(() => {
@@ -317,7 +392,13 @@
                     
                     // Show flash message with sequence
                     const messageIndex = Math.floor(Math.random() * flashMessages.length);
-                    flashText.textContent = flashMessages[messageIndex];
+                    const message = flashMessages[messageIndex];
+                    flashText.textContent = message;
+                    
+                    // Almost always play audio for sequence messages (more dramatic)
+                    if (Math.random() < 0.8) {
+                        playFlashAudio(message);
+                    }
                     
                     // Create multiple flashes in sequence
                     for (let i = 0; i < flashCount; i++) {
