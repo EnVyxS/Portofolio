@@ -171,6 +171,29 @@
                 z-index: 4;
                 transition: opacity 0.5s ease;
             }
+            
+            /* Tombol kontrol musik */
+            .music-control {
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+                padding: 5px;
+                font-size: 0.6rem;
+                background: transparent;
+                color: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                border-radius: 3px;
+                cursor: pointer;
+                opacity: 0.07;
+                transition: all 0.3s ease;
+                z-index: 100;
+            }
+            
+            .music-control:hover {
+                opacity: 0.2;
+                color: rgba(255, 255, 255, 0.3);
+                border-color: rgba(255, 255, 255, 0.1);
+            }
 
             @media (max-width: 768px) {
                 .flash-text {
@@ -212,6 +235,14 @@
 
             <!-- Wake up button -->
             <button id="wakeUpBtn" class="wake-up-btn">Escape</button>
+            
+            <!-- Music control button -->
+            <button id="musicControlBtn" class="music-control">Music: On</button>
+            
+            <!-- Background music (hidden) -->
+            <audio id="backgroundMusic" loop preload="auto" style="display: none;">
+                <source src="/audio/creepy-music-box.mp3" type="audio/mpeg">
+            </audio>
         </div>
 
         <script>
@@ -879,12 +910,49 @@
                 });
             }
 
+            // Fungsi untuk menginisialisasi dan mengontrol musik latar belakang
+            function setupBackgroundMusic() {
+                const backgroundMusic = document.getElementById("backgroundMusic");
+                const musicControlBtn = document.getElementById("musicControlBtn");
+                let isMusicPlaying = false;
+                
+                // Set volume musik sangat rendah - lebih rendah dari whisperTexts
+                backgroundMusic.volume = 0.08; // Jauh lebih rendah dari volume bisikan (0.15-0.4)
+                
+                // Tambahkan event listener untuk mengontrol musik
+                musicControlBtn.addEventListener("click", function() {
+                    if (isMusicPlaying) {
+                        backgroundMusic.pause();
+                        musicControlBtn.textContent = "Music: Off";
+                        isMusicPlaying = false;
+                    } else {
+                        backgroundMusic.play();
+                        musicControlBtn.textContent = "Music: On";
+                        isMusicPlaying = true;
+                    }
+                });
+                
+                // Auto-play musik setelah beberapa detik
+                setTimeout(() => {
+                    backgroundMusic.play()
+                        .then(() => {
+                            isMusicPlaying = true;
+                        })
+                        .catch(error => {
+                            console.error("Musik tidak dapat diputar otomatis:", error);
+                            // Kebijakan browser mungkin menghalangi autoplay
+                            musicControlBtn.style.opacity = 0.2; // Buat tombol lebih terlihat jika autoplay gagal
+                        });
+                }, 1500);
+            }
+
             // Initialize everything
             window.onload = function () {
                 createWhispers();
                 animateWhispers();
                 createFlashes();
                 setupWakeUpButton();
+                setupBackgroundMusic();
 
                 // Subtle breathing animation for the entire page
                 document.body.style.animation =
