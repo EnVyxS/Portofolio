@@ -284,8 +284,9 @@ const ContractCard: React.FC = () => {
       dialogController.stopTyping();
       
       // Dapatkan handler dari DialogBox untuk setText dan setIsComplete
-      // @ts-ignore - tambah properti baru untuk digunakan di DialogBox
-      window.__contractResponseText = randomResponse;
+      // Kita TIDAK menggunakan __contractResponseText disini karena itu membuat teks muncul penuh
+      // sebelum efek typewriter. Sebagai gantinya, kita hanya menandai bahwa dialog kontrak sedang aktif
+      // tanpa menyimpan teks lengkapnya.
       
       // @ts-ignore - untuk mendapatkan akses ke textSetter di DialogBox jika tersedia
       const textSetter = window.__dialogBoxTextSetter;

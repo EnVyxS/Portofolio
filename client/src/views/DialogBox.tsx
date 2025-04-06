@@ -340,21 +340,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // @ts-ignore - akses properti global dari window yang disimpan di ContractCard
   const contractResponseText = window.__contractResponseText;
   
-  // Jika ada teks kontrak yang perlu ditampilkan, override text
-  // Tapi hanya jika dialog source adalah 'main' (bukan 'hover')
-  if (isContractDialogActive && contractResponseText && dialogSource === 'main') {
-    // Jika contractDialogActive, tampilkan teks dari contractResponseText
-    // jika typewriter effect sedang berjalan
-    if (!isComplete) {
-      // Biarkan typewriter effect berjalan
-    } else {
-      // Typewriter effect sudah selesai, tampilkan teks lengkap
-      if (text !== contractResponseText) {
-        console.log("[DialogBox] Overriding dialog text with contract response");
-        setText(contractResponseText);
-      }
-    }
-  }
+  // Kita menghilangkan bagian yang membuat dialog kontrak muncul penuh
+  // Sekarang, saat contractDialogActive, kita biarkan efek typewriter berjalan
+  // tanpa mengubah teks secara manual
+  // Kita tetapkan bahwa ini adalah kontrak dialog berdasarkan flag __contractDialogActive
+  // dan bukan berdasarkan teks lengkap (tidak menggunakan contractResponseText)
   
   if (isDialogFinished && text === "" && !isContractDialogActive) {
     // Debug untuk membantu melihat status dialog
