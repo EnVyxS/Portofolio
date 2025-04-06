@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abandoned Dream</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Nightmare</title>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -16,241 +16,68 @@
             margin: 0;
             padding: 0;
             font-family: 'EB Garamond', serif;
-            color: #a49682;
-            background-color: #060607;
+            color: #8f8f8f;
+            background-color: #000;
             height: 100%;
-            overflow: auto;
-            line-height: 1.6;
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="%23301b0b" stroke="%23b08f68" stroke-width="1"/></svg>') 8 8, auto;
-            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c4zIypAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgvJEaAAAAVklEQVRIx+3RSRaAIAxE0b5EEESUGcf7X9eo4GqXsR8B10+W2jLEwM0DmE0PQgFnmO1MWXMTyF1K3LFHD8AXByGVLtghjWmB3YE1oHB4MVaVwJSKZYuB2bw7APsPy4I/JCIYAAAAAElFTkSuQmCC');
-            background-repeat: repeat;
-        }
-
-        .dream-container {
-            position: relative;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 5vh 20px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-        }
-
-        .dream-title {
-            font-family: 'Cinzel', serif;
-            font-size: 3rem;
-            text-align: center;
-            color: #9c8872;
-            margin: 5vh 0 8vh;
-            letter-spacing: 2px;
-            font-weight: 400;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
-            animation: flicker 6s infinite;
-            position: relative;
-        }
-
-        .dream-title::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 110%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(156, 136, 114, 0.3), transparent);
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .grid-item {
-            background-color: rgba(14, 12, 10, 0.8);
-            border: 1px solid rgba(100, 80, 60, 0.2);
-            padding: 30px;
-            border-radius: 0px;
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
-            position: relative;
             overflow: hidden;
-            transition: all 0.5s ease;
-            min-height: 220px;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="%23000000" stroke="%23ffffff" stroke-width="1"/></svg>') 8 8, auto;
         }
 
-        .grid-item::before {
-            content: "";
+        .nightmare-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        /* Text that occasionally appears */
+        .flash-text {
             position: absolute;
+            text-align: center;
+            width: 100%;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            color: #ffffff;
+            font-size: 3rem;
+            opacity: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            font-weight: 400;
+            text-shadow: 0 0 10px #fff, 0 0 20px #fff;
+            pointer-events: none;
+            z-index: 10;
+            transition: opacity 0.1s ease;
+        }
+
+        /* White flash effect */
+        .flash {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c4zIypAAAAIgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACTINFEAAAAC3RSTlOIiIiIiIiIiIiIiIgSfFAWAAAATUlEQVRIx+3WsQ0AIAwDwYRByvDv2YIFkPhY+Pe2TwAApu/5kt5p22p12ytue9k+lR199szcphyYmZlZ1TPztZZZZlJkZjRm9q91AGyYL2TI3yhTAAAAAElFTkSuQmCC');
-            opacity: 0.03;
+            background-color: white;
+            opacity: 0;
+            z-index: 5;
             pointer-events: none;
         }
 
-        .grid-item:hover {
-            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.7), 0 0 10px rgba(156, 136, 114, 0.2);
-            border-color: rgba(156, 136, 114, 0.3);
-        }
-
-        .grid-full {
-            grid-column: 1 / -1;
-        }
-
-        .section-title {
-            font-family: 'Cinzel', serif;
-            font-size: 1.6rem;
-            margin-bottom: 25px;
-            color: #a49682;
-            font-weight: 500;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-            position: relative;
-            display: inline-block;
-        }
-
-        .section-title::after {
-            content: "";
-            position: absolute;
-            bottom: -8px;
+        /* Static noise overlay */
+        .static-noise {
+            position: fixed;
+            top: 0;
             left: 0;
             width: 100%;
-            height: 1px;
-            background: linear-gradient(90deg, rgba(156, 136, 114, 0.5), transparent);
-        }
-
-        .memory-quote {
-            font-style: italic;
-            margin-bottom: 20px;
-            font-size: 1.3rem;
-            line-height: 1.8;
-            color: #7d6a58;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
-        }
-
-        .link-item {
-            display: block;
-            margin-bottom: 20px;
-            color: #7d6a58;
-            text-decoration: none;
-            font-size: 1.3rem;
-            transition: all 0.3s ease;
-            position: relative;
-            padding-left: 15px;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-        }
-
-        .link-item:before {
-            content: "➤";
-            position: absolute;
-            left: -5px;
-            opacity: 0.5;
-            font-size: 0.7em;
-            transition: all 0.3s ease;
-        }
-
-        .link-item:hover {
-            color: #b39e7e;
-            transform: translateX(5px);
-        }
-
-        .link-item:hover::before {
-            opacity: 1;
-            color: #8e735c;
-        }
-
-        .music-player {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            position: relative;
-            padding: 10px 0;
-        }
-
-        .music-player::before, .music-player::after {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(156, 136, 114, 0.2), transparent);
-        }
-
-        .music-player::before {
-            top: 0;
-        }
-
-        .music-player::after {
-            bottom: 0;
-        }
-
-        .play-button {
-            width: 40px;
-            height: 40px;
-            background: none;
-            border: 1px solid #7d6a58;
-            color: #7d6a58;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border-radius: 0;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .play-button::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(156, 136, 114, 0.2), transparent);
-            transition: all 0.6s ease;
+            opacity: 0.05;
+            z-index: 3;
+            pointer-events: none;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c4zIypAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgvJEaAAAAVklEQVRIx+3RSRaAIAxE0b5EEESUGcf7X9eo4GqXsR8B10+W2jLEwM0DmE0PQgFnmO1MWXMTyF1K3LFHD8AXByGVLtghjWmB3YE1oHB4MVaVwJSKZYuB2bw7APsPy4I/JCIYAAAAAElFTkSuQmCC');
         }
 
-        .play-button:hover::before {
-            left: 100%;
-        }
-
-        .play-button:hover {
-            background: rgba(63, 52, 41, 0.4);
-            border-color: #9c8872;
-            color: #9c8872;
-        }
-
-        .player-text {
-            font-size: 1.2rem;
-            color: #7d6a58;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-        }
-
-        .dream-image {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-            border: 1px solid rgba(100, 80, 60, 0.3);
-            display: block;
-            margin-bottom: 15px;
-            filter: brightness(0.6) contrast(1.2) saturate(0.6) sepia(0.2);
-            transition: all 1s ease;
-        }
-
-        .dream-image:hover {
-            filter: brightness(0.7) contrast(1.3) saturate(0.7) sepia(0.1);
-        }
-
-        .whisper-text {
-            font-size: 1.3rem;
-            color: #7d6a58;
-            line-height: 1.7;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-        }
-
+        /* Subtle vignette effect */
         .vignette {
             position: fixed;
             top: 0;
@@ -259,442 +86,267 @@
             height: 100%;
             pointer-events: none;
             background: radial-gradient(
-                ellipse at center,
-                rgba(6, 6, 7, 0) 20%,
-                rgba(6, 6, 7, 0.8) 90%,
-                rgba(6, 6, 7, 1) 100%
+                circle at center,
+                rgba(0, 0, 0, 0) 10%,
+                rgba(0, 0, 0, 0.8) 80%,
+                rgba(0, 0, 0, 1) 100%
             );
             z-index: 2;
-            opacity: 0.9;
         }
 
+        /* Wake up button (always visible but subtle) */
         .wake-up-btn {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
             background: none;
-            border: 1px solid #7d6a58;
-            color: #7d6a58;
-            font-family: 'Cinzel', serif;
-            font-size: 1.1rem;
-            padding: 15px 30px;
-            margin: 40px auto 20px;
-            display: block;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.3);
+            font-family: 'EB Garamond', serif;
+            font-size: 1.2rem;
+            padding: 12px 30px;
             cursor: pointer;
             transition: all 0.5s ease;
-            letter-spacing: 2px;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .wake-up-btn::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(156, 136, 114, 0.2), transparent);
-            transition: all 0.6s ease;
-        }
-
-        .wake-up-btn:hover::before {
-            left: 100%;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            z-index: 20;
         }
 
         .wake-up-btn:hover {
-            background: rgba(63, 52, 41, 0.4);
-            color: #b39e7e;
-            border-color: #9c8872;
-            letter-spacing: 3px;
-            box-shadow: 0 0 15px rgba(156, 136, 114, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.6);
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
-        .fog-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJub2lzZSIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNiIgbnVtT2N0YXZlcz0iMyIgc3RpdGNoVGlsZXM9InN0aXRjaCIgcmVzdWx0PSJub2lzZSIvPjxmZUNvbG9yTWF0cml4IHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAyMCAwIiBpbj0ibm9pc2UiIHJlc3VsdD0iY29udHJhc3ROb2lzZSIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjMzAxYjBiIiBvcGFjaXR5PSIwLjA1IiBmaWx0ZXI9InVybCgjbm9pc2UpIi8+PC9zdmc+');
-            opacity: 0.8;
+        /* Breathing animation */
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Distortion effect for text */
+        @keyframes textDistort {
+            0%, 100% { transform: skew(0deg); opacity: 1; }
+            25% { transform: skew(-5deg); opacity: 0.9; }
+            75% { transform: skew(5deg); opacity: 0.8; }
+        }
+
+        /* Hidden whispers */
+        .whisper {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 0.8rem;
             pointer-events: none;
-            z-index: 3;
-            mix-blend-mode: soft-light;
-            animation: fogMove 60s infinite alternate;
-        }
-
-        @keyframes fogMove {
-            0% { background-position: 0 0; }
-            100% { background-position: 100% 100%; }
-        }
-
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .particle {
-            position: absolute;
-            background-color: rgba(115, 96, 79, 0.15);
-            width: 3px;
-            height: 3px;
-            border-radius: 50%;
-            animation: float linear infinite;
-            box-shadow: 0 0 5px rgba(115, 96, 79, 0.3);
-        }
-
-        @keyframes float {
-            0% {
-                transform: translateY(100vh) translateX(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.2;
-            }
-            90% {
-                opacity: 0.2;
-            }
-            100% {
-                transform: translateY(-10px) translateX(10px);
-                opacity: 0;
-            }
-        }
-
-        /* Dark Souls text flicker effect */
-        @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            5% { opacity: 0.9; }
-            10% { opacity: 1; }
-            15% { opacity: 0.9; }
-            20% { opacity: 1; }
-            25% { opacity: 0.9; }
-            30% { opacity: 1; }
-            35% { opacity: 0.9; }
-            40% { opacity: 1; }
-            45% { opacity: 0.9; }
-            50% { opacity: 1; }
-            55% { opacity: 0.9; }
-            60% { opacity: 1; }
-            92% { opacity: 1; }
-            93% { opacity: 0.6; }
-            94% { opacity: 0.9; }
-            95% { opacity: 1; }
-            96% { opacity: 0.6; }
-            97% { opacity: 0.9; }
-            98% { opacity: 1; }
-            99% { opacity: 0.9; }
-        }
-
-        /* Bonfire flames */
-        .bonfire {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 60px;
-            height: 80px;
-            z-index: 10;
-            opacity: 0.8;
-            cursor: pointer;
-            transform: translateY(0);
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        .bonfire:hover {
-            opacity: 1;
-            transform: translateY(-3px);
-        }
-
-        .logs {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 25px;
-            height: 8px;
-            background: #49392a;
-            border-radius: 4px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
-        }
-
-        .logs::before, .logs::after {
-            content: "";
-            position: absolute;
-            width: 20px;
-            height: 8px;
-            background: #49392a;
-            border-radius: 4px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
-        }
-
-        .logs::before {
-            transform: rotate(30deg);
-            right: 5px;
-            bottom: 0;
-        }
-
-        .logs::after {
-            transform: rotate(-30deg);
-            left: 5px;
-            bottom: 0;
-        }
-
-        .flames {
-            position: absolute;
-            bottom: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 60px;
-        }
-
-        .flame {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            border-radius: 50% 50% 20% 20%;
-            filter: blur(5px);
-            animation: flameAnimation 2s infinite;
-        }
-
-        .flame1 {
-            width: 20px;
-            height: 40px;
-            background: linear-gradient(to top, #FF5722, #FFC107);
-            opacity: 0.8;
-        }
-
-        .flame2 {
-            width: 15px;
-            height: 30px;
-            background: linear-gradient(to top, #FFC107, #FFEB3B);
-            animation-delay: 0.3s;
-        }
-
-        .flame3 {
-            width: 10px;
-            height: 20px;
-            background: linear-gradient(to top, #FFEB3B, #FFF);
-            animation-delay: 0.6s;
-        }
-
-        @keyframes flameAnimation {
-            0%, 100% {
-                height: 40px;
-                opacity: 0.8;
-            }
-            50% {
-                height: 45px;
-                opacity: 0.9;
-            }
-        }
-
-        /* Embers */
-        .ember {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: #FFC107;
-            border-radius: 50%;
-            filter: blur(1px);
-            box-shadow: 0 0 3px #FF5722;
-            animation: emberRise linear infinite;
-        }
-
-        @keyframes emberRise {
-            0% {
-                opacity: 1;
-                transform: translate(0, 0) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(var(--tx), -40px) scale(0.2);
-            }
+            opacity: 0;
+            z-index: 4;
+            transition: opacity 0.5s ease;
         }
 
         @media (max-width: 768px) {
-            .grid-container {
-                grid-template-columns: 1fr;
-            }
-
-            .dream-title {
-                font-size: 2rem;
-                margin: 3vh 0 5vh;
-            }
-
-            .section-title {
-                font-size: 1.4rem;
-            }
-
-            .memory-quote,
-            .link-item,
-            .player-text,
-            .whisper-text {
-                font-size: 1.1rem;
-            }
-
-            .dream-image {
-                height: 180px;
+            .flash-text {
+                font-size: 1.8rem;
+                letter-spacing: 0.2em;
             }
             
-            .bonfire {
-                display: none;
+            .wake-up-btn {
+                bottom: 30px;
+                font-size: 1rem;
+                padding: 10px 25px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="dream-container">
-        <h1 class="dream-title">You have entered a forgotten dream...</h1>
+    <div class="nightmare-container">
+        <!-- Flash overlay -->
+        <div class="flash" id="flash"></div>
         
-        <div class="grid-container">
-            <!-- Dream Shrine -->
-            <div class="grid-item" data-depth="0.08">
-                <h2 class="section-title">Dream Shrine</h2>
-                <a href="#" class="link-item">The Fog</a>
-                <a href="#" class="link-item">The Echoes</a>
-                <a href="#" class="link-item">The End?</a>
-            </div>
-            
-            <!-- Memory Fragments -->
-            <div class="grid-item" data-depth="0.05">
-                <h2 class="section-title">Memory Fragments</h2>
-                <p class="memory-quote">"Seek the flame, lest your soul fade into nothingness."</p>
-            </div>
-            
-            <!-- Background Music -->
-            <div class="grid-item grid-full" data-depth="0.03">
-                <div class="music-player">
-                    <button class="play-button" id="playButton">▶</button>
-                    <span class="player-text">Background Music</span>
-                    <span class="player-text" style="margin-left: auto;">Orange</span>
-                </div>
-            </div>
-            
-            <!-- Dream Path -->
-            <div class="grid-item" data-depth="0.06">
-                <h2 class="section-title">Dream Path</h2>
-                <img src="https://images.unsplash.com/photo-1519331379826-f10be5486c6f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Dark souls path" class="dream-image">
-            </div>
-            
-            <!-- Whispers -->
-            <div class="grid-item" data-depth="0.07">
-                <h2 class="section-title">Whispers</h2>
-                <p class="whisper-text">The darkness is nigh... Those who remain shall inherit the darkness...</p>
-            </div>
-        </div>
+        <!-- Text that appears during flashes -->
+        <div class="flash-text" id="flashText"></div>
         
-        <button id="wakeUpBtn" class="wake-up-btn">AWAKEN</button>
+        <!-- Random whispers -->
+        <div id="whispers"></div>
+        
+        <!-- Static noise overlay -->
+        <div class="static-noise"></div>
+        
+        <!-- Vignette effect -->
+        <div class="vignette"></div>
+        
+        <!-- Wake up button -->
+        <button id="wakeUpBtn" class="wake-up-btn">Escape</button>
     </div>
-    
-    <div class="bonfire" id="bonfire">
-        <div class="logs"></div>
-        <div class="flames">
-            <div class="flame flame1"></div>
-            <div class="flame flame2"></div>
-            <div class="flame flame3"></div>
-        </div>
-    </div>
-    
-    <div class="vignette"></div>
-    <div class="fog-overlay"></div>
-    <div class="particles" id="particles"></div>
     
     <script>
-        // Create particles (dust/ash particles)
-        function createParticles() {
-            const particlesContainer = document.getElementById('particles');
-            const numParticles = 70;
+        // Messages that can appear during flashes
+        const flashMessages = [
+            "WAKE UP",
+            "IT'S JUST A DREAM",
+            "YOU'RE NOT REAL",
+            "THERE IS NO ESCAPE",
+            "YOU'RE TRAPPED",
+            "DON'T TRUST THEM",
+            "THEY'RE WATCHING",
+            "REMEMBER WHO YOU ARE",
+            "THE DARKNESS CONSUMES",
+            "YOU'VE BEEN HERE BEFORE",
+            "YOU CANNOT LEAVE"
+        ];
+        
+        // Whispers content
+        const whisperTexts = [
+            "help me",
+            "it's cold here",
+            "have you forgotten?",
+            "we're still waiting",
+            "come back to us",
+            "remember the promise",
+            "don't leave us again",
+            "you abandoned us",
+            "the fire is dying",
+            "it's your fault",
+            "we can see you",
+            "behind you",
+            "listen carefully",
+            "you never escaped"
+        ];
+        
+        // Maximum number of whispers at once
+        const MAX_WHISPERS = 30;
+        
+        // Create random whispers
+        function createWhispers() {
+            const container = document.getElementById('whispers');
             
-            for (let i = 0; i < numParticles; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
+            for (let i = 0; i < MAX_WHISPERS; i++) {
+                const whisper = document.createElement('div');
+                whisper.className = 'whisper';
+                
+                // Random text
+                const randomIndex = Math.floor(Math.random() * whisperTexts.length);
+                whisper.textContent = whisperTexts[randomIndex];
                 
                 // Random position
-                const posX = Math.random() * 100;
-                particle.style.left = `${posX}%`;
+                const randomX = Math.random() * 100;
+                const randomY = Math.random() * 100;
                 
-                // Random start position off screen bottom
-                const startY = Math.random() * 20 + 100;
-                particle.style.top = `${startY}vh`;
+                whisper.style.left = `${randomX}%`;
+                whisper.style.top = `${randomY}%`;
+                whisper.style.transform = `rotate(${Math.random() * 40 - 20}deg)`;
                 
-                // Random duration
-                const duration = Math.random() * 80 + 50;
-                particle.style.animationDuration = `${duration}s`;
-                
-                // Random delay
-                const delay = Math.random() * 40;
-                particle.style.animationDelay = `${delay}s`;
-                
-                particlesContainer.appendChild(particle);
+                container.appendChild(whisper);
             }
         }
         
-        // Create bonfire embers
-        function createEmbers() {
-            const bonfire = document.getElementById('bonfire');
-            const numEmbers = 15;
+        // Show random whispers occasionally
+        function animateWhispers() {
+            const whispers = document.querySelectorAll('.whisper');
             
             setInterval(() => {
-                const ember = document.createElement('div');
-                ember.className = 'ember';
-                
-                // Random position around the center of the flames
-                const offsetX = (Math.random() - 0.5) * 20;
-                ember.style.left = `50%`;
-                ember.style.bottom = `30px`;
-                ember.style.transform = `translateX(${offsetX}px)`;
-                
-                // Random trajectory
-                const tx = (Math.random() - 0.5) * 40;
-                ember.style.setProperty('--tx', `${tx}px`);
-                
-                // Random duration
-                const duration = Math.random() * 2 + 1;
-                ember.style.animationDuration = `${duration}s`;
-                
-                bonfire.appendChild(ember);
-                
-                // Remove ember after animation completes
-                setTimeout(() => {
-                    if (bonfire.contains(ember)) {
-                        bonfire.removeChild(ember);
-                    }
-                }, duration * 1000);
-            }, 200);
+                // Randomly show a whisper
+                if (Math.random() < 0.2) {
+                    const randomIndex = Math.floor(Math.random() * whispers.length);
+                    const whisper = whispers[randomIndex];
+                    
+                    whisper.style.opacity = Math.random() * 0.1 + 0.05;
+                    
+                    // New random position
+                    const randomX = Math.random() * 100;
+                    const randomY = Math.random() * 100;
+                    whisper.style.left = `${randomX}%`;
+                    whisper.style.top = `${randomY}%`;
+                    whisper.style.transform = `rotate(${Math.random() * 40 - 20}deg)`;
+                    
+                    // Hide after a short time
+                    setTimeout(() => {
+                        whisper.style.opacity = 0;
+                    }, Math.random() * 3000 + 2000);
+                }
+            }, 500);
         }
         
-        // Dark Souls-like music (slow, atmospheric)
-        function setupAudio() {
-            const playButton = document.getElementById('playButton');
-            const audio = new Audio('https://soundimage.org/wp-content/uploads/2016/11/Dark-Intro.mp3');
-            audio.loop = true;
-            audio.volume = 0.4;
+        // Create white flashes
+        function createFlashes() {
+            const flash = document.getElementById('flash');
+            const flashText = document.getElementById('flashText');
             
-            let isPlaying = false;
+            // Create short flashes
+            function createShortFlash() {
+                // Randomize flash timing
+                const flashDelay = Math.random() * 15000 + 5000; // 5-20 seconds between flashes
+                
+                setTimeout(() => {
+                    // Random flash duration
+                    const duration = Math.random() * 200 + 50; // 50-250ms
+                    
+                    // Flash settings
+                    flash.style.opacity = Math.random() * 0.5 + 0.2; // Vary opacity for different intensities
+                    
+                    // Sometimes show text with the flash
+                    if (Math.random() < 0.4) {
+                        // Random message
+                        const messageIndex = Math.floor(Math.random() * flashMessages.length);
+                        flashText.textContent = flashMessages[messageIndex];
+                        flashText.style.opacity = 1;
+                        flashText.style.animation = `textDistort ${Math.random() * 0.5 + 0.2}s ease-in-out`;
+                        
+                        // Hide text after flash
+                        setTimeout(() => {
+                            flashText.style.opacity = 0;
+                        }, duration + 50);
+                    }
+                    
+                    // Hide flash after duration
+                    setTimeout(() => {
+                        flash.style.opacity = 0;
+                        // Schedule next flash
+                        createShortFlash();
+                    }, duration);
+                    
+                }, flashDelay);
+            }
             
-            playButton.addEventListener('click', function() {
-                if (isPlaying) {
-                    audio.pause();
-                    playButton.textContent = '▶';
-                } else {
-                    audio.play().catch(e => console.log("Audio play failed:", e));
-                    playButton.textContent = '❚❚';
-                }
-                isPlaying = !isPlaying;
-            });
+            // Create dramatic sequence of multiple flashes
+            function createFlashSequence() {
+                // Longer delay between sequences
+                const sequenceDelay = Math.random() * 30000 + 20000; // 20-50 seconds between sequences
+                
+                setTimeout(() => {
+                    const flashCount = Math.floor(Math.random() * 3) + 2; // 2-4 flashes in sequence
+                    
+                    // Show flash message with sequence
+                    const messageIndex = Math.floor(Math.random() * flashMessages.length);
+                    flashText.textContent = flashMessages[messageIndex];
+                    
+                    // Create multiple flashes in sequence
+                    for (let i = 0; i < flashCount; i++) {
+                        setTimeout(() => {
+                            // Higher intensity for sequences
+                            flash.style.opacity = Math.random() * 0.7 + 0.3;
+                            flashText.style.opacity = 0.8 + (Math.random() * 0.2);
+                            
+                            // Flicker effect
+                            setTimeout(() => {
+                                flash.style.opacity = 0;
+                                if (i === flashCount - 1) {
+                                    // Last flash in sequence, hide text
+                                    setTimeout(() => {
+                                        flashText.style.opacity = 0;
+                                    }, 200);
+                                }
+                            }, 100 + (Math.random() * 150));
+                        }, i * (Math.random() * 200 + 200)); // 200-400ms between flashes in a sequence
+                    }
+                    
+                    // Schedule next sequence
+                    createFlashSequence();
+                }, sequenceDelay);
+            }
             
-            document.getElementById('bonfire').addEventListener('click', function() {
-                if (!isPlaying) {
-                    audio.play().catch(e => console.log("Audio play failed:", e));
-                    playButton.textContent = '❚❚';
-                    isPlaying = true;
-                }
-            });
+            // Start both types of flashes
+            createShortFlash();
+            createFlashSequence();
         }
         
         // Wake up button functionality
@@ -702,39 +354,32 @@
             const wakeUpBtn = document.getElementById('wakeUpBtn');
             
             wakeUpBtn.addEventListener('click', function() {
-                document.body.style.transition = 'opacity 1.5s ease-out';
-                document.body.style.opacity = '0';
+                // Flash before exiting
+                const flash = document.getElementById('flash');
+                flash.style.opacity = 1;
                 
+                // Fade out after a delay
                 setTimeout(function() {
-                    window.location.href = '/';
-                }, 1500);
+                    document.body.style.transition = 'opacity 2s ease-out';
+                    document.body.style.opacity = '0';
+                    
+                    // Redirect back to main page
+                    setTimeout(function() {
+                        window.location.href = '/';
+                    }, 2000);
+                }, 300);
             });
         }
         
         // Initialize everything
         window.onload = function() {
-            createParticles();
-            createEmbers();
-            setupAudio();
+            createWhispers();
+            animateWhispers();
+            createFlashes();
             setupWakeUpButton();
             
-            // Add subtle parallax effect
-            document.addEventListener('mousemove', function(e) {
-                const moveX = (e.clientX / window.innerWidth) - 0.5;
-                const moveY = (e.clientY / window.innerHeight) - 0.5;
-                
-                const items = document.querySelectorAll('.grid-item');
-                items.forEach(item => {
-                    const depth = parseFloat(item.getAttribute('data-depth') || 0.05);
-                    const translateX = moveX * 100 * depth;
-                    const translateY = moveY * 100 * depth;
-                    item.style.transform = `translate(${translateX}px, ${translateY}px)`;
-                });
-                
-                // Move title with slower, subtler effect
-                const title = document.querySelector('.dream-title');
-                title.style.transform = `translate(${moveX * 10}px, ${moveY * 10}px)`;
-            });
+            // Subtle breathing animation for the entire page
+            document.body.style.animation = 'breathe 10s infinite ease-in-out';
         };
     </script>
 </body>
