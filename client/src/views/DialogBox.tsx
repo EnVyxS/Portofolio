@@ -387,32 +387,48 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // Flag ini diatur oleh IdleTimeoutController
   const isIdleTimeoutActive = typeof window.__idleTimeoutWarningActive !== 'undefined' && window.__idleTimeoutWarningActive === true;
   
-  // SOLUSI HARD OVERRIDE: Jika idle timeout aktif, kita ubah dialogSource ke 'main'
-  // dan paksa akomodasi visual untuk dialog idle timeout
+  // NUKLIR HARD OVERRIDE: Jika idle timeout aktif, kita ubah dialogSource ke 'main' dan force semua komponen lain untuk menghormati ini
   
-  // Logic override baru yang lebih agresif:
-  // 1. Cek jika idle timeout dialog aktif atau text-nya menunjukkan idle timeout warning
-  // 2. Paksa dialogSource ke main
-  // 3. Tampilkan lapisan visual khusus untuk memberi tahu bahwa ini idle timeout dialog
+  // Logic override paling agresif:
+  // 1. Saat idle timeout warning terdeteksi, hentikan SEMUA dialog lain
+  // 2. Force 'main' dialog source
+  // 3. Set semua flag global yang relevan
+  // 4. Forcefully render dengan tampilan khusus untuk idle warning
   
+  // Paksa UI update dengan timer, untuk mengatasi semua kondisi race
   useEffect(() => {
     // Ketika component mount atau text berubah
     // Periksa apakah ini idle timeout warning, dan jika ya, paksa dialogSource ke 'main'
     if (isIdleTimeoutWarning || isIdleTimeoutActive) {
-      console.log(`[DialogBox] 🔄 CRITICAL OVERRIDE: Force setting dialogSource to 'main' for idle warning`);
+      console.log(`[DialogBox] 🔴 TOTAL OVERRIDE: NUKLIR MODE ACTIVE`);
       
-      // Paksa perubahan state melalui callback agar tidak terjadi race condition
-      setDialogSource('main');
+      // Paksa perubahan state melalui callback, dengan interval untuk memastikan konsistensi
+      const forceMainInterval = setInterval(() => {
+        if (dialogSource !== 'main') {
+          console.log(`[DialogBox] Memaksa dialogSource = 'main' (interval)`);
+          setDialogSource('main');
+        }
+        
+        // Set flag global untuk memberi tahu semua komponen bahwa kita dalam mode idle warning
+        try {
+          window.__idleTimeoutWarningActive = true;
+          window.__hoverDialogDisabled = true;
+          // Tambahkan flag tambahan untuk "nuklir override"
+          window.__forceIdleTimeout = true;
+        } catch (e) {
+          console.error("Error setting global flags:", e);
+        }
+      }, 100); // Cek setiap 100ms
       
-      // Tambahkan flag untuk mencegah hover dialog muncul
-      try {
-        window.__idleTimeoutWarningActive = true;
-        window.__hoverDialogDisabled = true;
-      } catch (e) {
-        console.error("Error setting global flags:", e);
-      }
+      // Hentikan interval setelah 2 detik untuk menghindari overhead
+      setTimeout(() => {
+        clearInterval(forceMainInterval);
+      }, 2000);
+      
+      // Cleanup interval jika komponen di-unmount sebelum 2 detik
+      return () => clearInterval(forceMainInterval);
     }
-  }, [text, isIdleTimeoutWarning, isIdleTimeoutActive]); // Dependency array
+  }, [text, isIdleTimeoutWarning, isIdleTimeoutActive, dialogSource]); // Dependency array with dialogSource
 
   // Log khusus untuk idle warning detection
   if (isIdleTimeoutWarning) {
@@ -458,6 +474,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     console.log(`[DialogBox] Showing dialog - Text: "${text.substring(0, 30)}..." Source: ${dialogSource}`);
   }
 
+  // ========= CRITICAL OVERRIDE =========
+  // Jika idle timeout warning aktif, selalu tampilkan dialog dengan sumber 'main'
+  // dan text dari idle timeout warning
+  // Ini solusi yang lebih radikal untuk memastikan idle timeout warning selalu muncul
+  
+  const forcedDialogSource = (isIdleTimeoutWarning || isIdleTimeoutActive) ? 'main' : dialogSource;
+  const finalCharacterName = (isIdleTimeoutWarning || isIdleTimeoutActive) ? "DIVA JUAN NUR TAQARRUB" : characterName;
+  
   return (
     <motion.div
       className="dialog-box-container"
@@ -466,13 +490,17 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
       <div
-        className={`dialog-box ${dialogSource === "hover" ? "hover-dialog" : ""}`}
+        className={`dialog-box ${forcedDialogSource === "hover" ? "hover-dialog" : ""} ${
+          (isIdleTimeoutWarning || isIdleTimeoutActive) ? "idle-warning-dialog" : ""
+        }`}
       >
         <div
-          className={`character-name ${dialogSource === "hover" ? "hover-character" : ""}`}
+          className={`character-name ${forcedDialogSource === "hover" ? "hover-character" : ""} ${
+            (isIdleTimeoutWarning || isIdleTimeoutActive) ? "idle-warning-character" : ""
+          }`}
         >
-          {characterName}
-          {dialogSource === "hover" && (
+          {finalCharacterName}
+          {forcedDialogSource === "hover" && !isIdleTimeoutWarning && !isIdleTimeoutActive && (
             <span className="hover-indicator">⟳</span>
           )}
         </div>
@@ -508,8 +536,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
             {/* Tentukan apakah tombol NEXT/SKIP harus ditampilkan */}
             {(() => {
-              // Untuk dialog hover, tidak perlu menampilkan tombol NEXT/SKIP
-              if (dialogSource === "hover") {
+              // Untuk idle timeout warning atau hover dialog, tidak perlu menampilkan tombol NEXT/SKIP
+              if (dialogSource === "hover" || isIdleTimeoutWarning || isIdleTimeoutActive) {
                 return null;
               }
 

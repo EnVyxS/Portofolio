@@ -194,9 +194,12 @@ class HoverDialogController {
     const previousCategory = this.getLinkCategory(this.lastHoveredLink);
 
     // Periksa flag global __hoverDialogDisabled dan idle timeout
+    // TRIPLE CHECK ALL FLAGS untuk idle timeout warning
+    // Pengecekan yang sangat agresif untuk memastikan hover dialog tidak mengganggu idle timeout warning
     if (this.hasIdleTimeoutOccurred || 
         (typeof window !== 'undefined' && window.__hoverDialogDisabled === true) ||
-        (typeof window !== 'undefined' && window.__idleTimeoutWarningActive === true)) {
+        (typeof window !== 'undefined' && window.__idleTimeoutWarningActive === true) ||
+        (typeof window !== 'undefined' && window.__forceIdleTimeout === true)) {
       console.log("Hover dialog dinonaktifkan: idle timeout atau warning sedang aktif");
       this.lastHoveredLink = linkType; // Update last hovered link tanpa trigger dialog
       return;
