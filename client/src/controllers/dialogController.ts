@@ -31,6 +31,10 @@ class DialogController {
   public setElevenLabsApiKey(key: string): void {
     this.elevenlabsService.setApiKey(key);
   }
+  
+  public getElevenLabsService(): ElevenLabsService {
+    return this.elevenlabsService;
+  }
 
   public getCurrentDialog(): Dialog | undefined {
     return this.dialogModel.getCurrentDialog();

@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import DialogController from "../controllers/dialogController";
 import HoverDialogController from "../controllers/hoverDialogController";
+import ElevenLabsService from "../services/elevenlabsService";
 import { useAudio } from "../context/AudioManager";
 
 // Responses for contract interactions - moved from DialogBox.tsx and made more natural
@@ -132,25 +133,55 @@ const ContractCard: React.FC = () => {
 
   const handleContractClick = () => {
     if (!isOpen) {
-      // Saat kontrak dibuka, tidak perlu dialog yang menggangu
-      // Setiap dialog yang saat ini berjalan harus dihentikan
-      dialogController.stopTyping();
-
-      // Mencegah dialog ditampilkan saat kontrak terbuka dengan cara
-      // memindahkan indeks dialog ke dialog terakhir
-      const dialogs = dialogController.getDialogModel().getAllDialogs();
-      const lastDialogIndex = dialogs.length - 1;
-      dialogController.getDialogModel().setCurrentDialogIndex(lastDialogIndex);
-
-      // Simpan volume asli sebelum dikurangi
-      setOriginalVolume(currentVolume);
-
-      // Kurangi volume musik ambient
-      if (currentVolume) {
-        setVolume(currentVolume * 0.5); // Kurangi volume menjadi 50% dari volume saat ini
+      console.log("Opening contract, stopping all audio and dialogs");
+      
+      try {
+        // Hentikan SEMUA audio dan dialog yang sedang berjalan
+        // 1. Hentikan typing dialog utama
+        dialogController.stopTyping();
+        
+        // 2. Hentikan juga typing dialog hover jika ada
+        const hoverDialogController = HoverDialogController.getInstance();
+        hoverDialogController.stopTyping();
+        
+        // 3. Hentikan semua audio yang sedang berbunyi
+        // Kita akses ElevenLabsService langsung
+        const elevenlabsService = ElevenLabsService.getInstance();
+        elevenlabsService.stopSpeaking();
+      } catch (e) {
+        console.error("Error stopping dialogs/audio:", e);
       }
-
-      setIsOpen(true);
+      
+      // Tunggu audio berhenti dengan memberikan delay kecil
+      setTimeout(() => {
+        try {
+          // Mencegah dialog ditampilkan saat kontrak terbuka dengan cara
+          // memindahkan indeks dialog ke dialog terakhir
+          const dialogs = dialogController.getDialogModel().getAllDialogs();
+          const lastDialogIndex = dialogs.length - 1;
+          dialogController.getDialogModel().setCurrentDialogIndex(lastDialogIndex);
+    
+          // Simpan volume asli sebelum dikurangi
+          setOriginalVolume(currentVolume);
+    
+          // Kurangi volume musik ambient
+          if (currentVolume) {
+            setVolume(currentVolume * 0.5); // Kurangi volume menjadi 50% dari volume saat ini
+          }
+          
+          // Putar suara footstep
+          if (footstepSoundRef.current) {
+            footstepSoundRef.current.currentTime = 0;
+            footstepSoundRef.current.play()
+              .catch(e => console.error("Error playing footstep sound:", e));
+          }
+    
+          setIsOpen(true);
+        } catch (err) {
+          console.error("Error in contract opening process:", err);
+          setIsOpen(true); // Tetap buka kontrak meskipun ada error
+        }
+      }, 100); // Delay 100ms untuk memastikan audio berhenti sebelum contract membuka
     }
   };
 
@@ -240,6 +271,8 @@ const ContractCard: React.FC = () => {
 
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    console.log("[ContractCard] Closing contract, preparing contract response dialog");
 
     // Kembalikan volume saat kontrak ditutup
     if (originalVolume !== null) {
@@ -251,9 +284,23 @@ const ContractCard: React.FC = () => {
     const randomResponse = CONTRACT_RESPONSES[randomIndex];
 
     // Jangan putar suara footstep saat menutup kontrak
-
-    // Hentikan dialog yang sedang berjalan
-    dialogController.stopTyping();
+    
+    try {
+      // Hentikan SEMUA audio dan dialog yang sedang berjalan
+      // 1. Hentikan typing dialog utama 
+      dialogController.stopTyping();
+      
+      // 2. Hentikan juga typing dialog hover jika ada
+      const hoverDialogController = HoverDialogController.getInstance();
+      hoverDialogController.stopTyping();
+      
+      // 3. Hentikan semua audio yang sedang berbunyi
+      // Kita akses ElevenLabsService langsung
+      const elevenlabsService = ElevenLabsService.getInstance();
+      elevenlabsService.stopSpeaking();
+    } catch (e) {
+      console.error("[ContractCard] Error stopping dialogs/audio when closing:", e);
+    }
 
     // Pastikan dialog model tidak menampilkan dialog lagi setelah dialog custom
     // dengan cara memindahkan indeks ke dialog terakhir
