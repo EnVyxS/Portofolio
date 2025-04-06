@@ -453,16 +453,6 @@ class IdleTimeoutController {
     this.dialogController.stopTyping();
     this.hoverDialogController.stopTyping();
     
-    // Aktifkan window flag untuk memberi tahu semua komponen bahwa dialog idle timeout sedang aktif
-    // Flag ini dapat dibaca oleh DialogBox untuk memaksa visibility
-    try {
-      window.__idleTimeoutWarningActive = true;
-      window.__hoverDialogDisabled = true; // Disable hover dialog saat idle timeout aktif
-      console.log("[IdleTimeoutController] Set global flags: __idleTimeoutWarningActive = true, __hoverDialogDisabled = true");
-    } catch (e) {
-      console.error("Error setting global flags:", e);
-    }
-    
     // Pastikan tidak ada audio yang sedang diputar dengan delay untuk memastikan
     // semua audio benar-benar berhenti
     setTimeout(() => {
@@ -479,27 +469,9 @@ class IdleTimeoutController {
       
       // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
       setTimeout(() => {
-        // Set dialog source ke 'main' lagi untuk pastikan, tepat sebelum menampilkan dialog
-        // Ini diperlukan karena callback dari hover bisa mengubahnya kembali ke 'hover' tergantung teksnya
-        if (this.hoverDialogController.setDialogSource) {
-          console.log("[IdleTimeoutController] FORCE Setting dialog source to 'main' just before showing dialog");
-          this.hoverDialogController.setDialogSource('main');
-        }
-        
-        // Perubahan penting - set window flag untuk memudahkan DialogBox mendeteksi dialog idle timeout
-        try {
-          window.__currentDialogText = text;
-          console.log("[IdleTimeoutController] Set global dialog text:", text);
-        } catch (e) {
-          console.error("Error setting global dialog text:", e);
-        }
-        
         // Tampilkan dialog peringatan dengan text custom
         // Dialog Controller akan mengelola audio secara otomatis
         this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
-          // Log untuk debugging dialog idle
-          console.log(`[IdleTimeoutController] Showing IDLE_WARNING dialog:`, text);
-          
           if (isComplete) {
             // Tandai bahwa user sudah berinteraksi dengan dialog
             this.hoverDialogController.setHasInteractedWithHover(true);

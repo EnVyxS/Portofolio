@@ -242,16 +242,12 @@ class DialogController {
                                text.includes("Told you the truth") || 
                                text.includes("Believe me now");
                                
-          // Sesuaikan dengan teks idle warnings yang sebenarnya dari IDLE_DIALOGS
-          const isIdleWarning = text.includes("What the hell are you staring at") || 
-                               text.includes("You really gonna keep ignoring me") ||
-                               text.includes("You think this is funny") ||
-                               text.includes("Now what, you little filth") ||
-                               text.includes("Hmph... Finally, you decide to move") ||
-                               text.includes("KEEP PUSHING, AND YOU'LL REGRET IT") ||
-                               text.includes("I'VE HAD ENOUGH OF YOUR GAMES") ||
-                               text.includes("That's it. GET OUT OF MY SIGHT") ||
-                               text.includes("YOU ASKED FOR THIS");
+          const isIdleWarning = text.includes("distracted") || 
+                               text.includes("paying attention") || 
+                               text.includes("Staring at me") || 
+                               text.includes("fuck you") ||
+                               text.includes("throw") ||
+                               text.includes("punch");
           
           // Khusus untuk CONTRACT_RESPONSES, log tambahan
           if (isFromContract) {

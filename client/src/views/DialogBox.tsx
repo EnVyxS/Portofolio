@@ -280,29 +280,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     hoverDialogController.setHoverTextCallback((text, complete) => {
       setText(text);
       setIsComplete(complete);
-      
-      // Jangan mengatur ulang dialogSource ke "hover" di sini
-      // karena dialogSource mungkin sudah diatur ke "main" oleh IdleTimeoutController
-      // Ini akan mengganggu tampilan idle warnings dan pesan lainnya
-      
-      // Hanya atur dialogSource ke "hover" jika sumber belum secara eksplisit diatur ke "main"
-      // Ini memungkinkan IdleTimeoutController mengatur sumber ke "main" dan tetap
-      // menggunakan mekanisme yang sama untuk menampilkan teks
-      
-      // Gunakan dialogSource yang ada, atau atur ke "hover" jika belum diatur dari luar
-      if (!(text.includes("What the hell are you staring at") || 
-           text.includes("You really gonna keep ignoring me") ||
-           text.includes("You think this is funny") ||
-           text.includes("Now what, you little filth") ||
-           text.includes("Hmph... Finally, you decide to move") ||
-           text.includes("KEEP PUSHING, AND YOU'LL REGRET IT") ||
-           text.includes("I'VE HAD ENOUGH OF YOUR GAMES") ||
-           text.includes("That's it. GET OUT OF MY SIGHT") ||
-           text.includes("YOU ASKED FOR THIS"))) {
-        setDialogSource("hover");
-      }
-      
-      setCharacterName("DIVA JUAN NUR TAQARRUB"); // Semua dialog dari DIVA JUAN
+      setDialogSource("hover");
+      setCharacterName("DIVA JUAN NUR TAQARRUB"); // Dialog hover dari DIVA JUAN (idle warnings juga)
     });
 
     // Buat function untuk set dialogSource dari luar komponen
@@ -361,112 +340,28 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // @ts-ignore - akses properti global dari window yang disimpan di ContractCard
   const contractResponseText = window.__contractResponseText;
   
-  // Periksa apakah ini adalah dialog kontrak (CONTRACT_RESPONSES) berdasarkan teks
-  const isContractResponse = text.includes("I've never lied to you") || 
-                          text.includes("seen the proof") ||
-                          text.includes("real qualifications") ||
-                          text.includes("answer your questions about my background") ||
-                          text.includes("I'm the real deal");
-                          
-  // Periksa apakah ini adalah dialog idle timeout/hover berlebihan berdasarkan teks
-  // PENTING: Ini didefinisikan sebelum kondisi shouldNotHideDialog agar nilai dapat digunakan
-  const isIdleTimeoutWarning = 
-    text.includes("What the hell are you staring at") || 
-    text.includes("You really gonna keep ignoring me") ||
-    text.includes("You think this is funny") ||
-    text.includes("Now what, you little filth") ||
-    text.includes("Hmph... Finally, you decide to move") ||
-    text.includes("KEEP PUSHING, AND YOU'LL REGRET IT") ||
-    text.includes("I'VE HAD ENOUGH OF YOUR GAMES") ||
-    text.includes("I SAID STOP") ||
-    text.includes("FINAL warning") ||
-    text.includes("That's it. GET OUT OF MY SIGHT") ||
-    text.includes("YOU ASKED FOR THIS");
-
-  // Cek apakah flag global untuk idle timeout warning aktif
-  // Flag ini diatur oleh IdleTimeoutController
-  const isIdleTimeoutActive = typeof window.__idleTimeoutWarningActive !== 'undefined' && window.__idleTimeoutWarningActive === true;
-  
-  // NUKLIR HARD OVERRIDE: Jika idle timeout aktif, kita ubah dialogSource ke 'main' dan force semua komponen lain untuk menghormati ini
-  
-  // Logic override paling agresif:
-  // 1. Saat idle timeout warning terdeteksi, hentikan SEMUA dialog lain
-  // 2. Force 'main' dialog source
-  // 3. Set semua flag global yang relevan
-  // 4. Forcefully render dengan tampilan khusus untuk idle warning
-  
-  // Paksa UI update dengan timer, untuk mengatasi semua kondisi race
-  useEffect(() => {
-    // Ketika component mount atau text berubah
-    // Periksa apakah ini idle timeout warning, dan jika ya, paksa dialogSource ke 'main'
-    if (isIdleTimeoutWarning || isIdleTimeoutActive) {
-      console.log(`[DialogBox] 🔴 TOTAL OVERRIDE: NUKLIR MODE ACTIVE`);
-      
-      // Paksa perubahan state melalui callback, dengan interval untuk memastikan konsistensi
-      const forceMainInterval = setInterval(() => {
-        if (dialogSource !== 'main') {
-          console.log(`[DialogBox] Memaksa dialogSource = 'main' (interval)`);
-          setDialogSource('main');
-        }
-        
-        // Set flag global untuk memberi tahu semua komponen bahwa kita dalam mode idle warning
-        try {
-          window.__idleTimeoutWarningActive = true;
-          window.__hoverDialogDisabled = true;
-          // Tambahkan flag tambahan untuk "nuklir override"
-          window.__forceIdleTimeout = true;
-        } catch (e) {
-          console.error("Error setting global flags:", e);
-        }
-      }, 100); // Cek setiap 100ms
-      
-      // Hentikan interval setelah 2 detik untuk menghindari overhead
-      setTimeout(() => {
-        clearInterval(forceMainInterval);
-      }, 2000);
-      
-      // Cleanup interval jika komponen di-unmount sebelum 2 detik
-      return () => clearInterval(forceMainInterval);
-    }
-  }, [text, isIdleTimeoutWarning, isIdleTimeoutActive, dialogSource]); // Dependency array with dialogSource
-
-  // Log khusus untuk idle warning detection
-  if (isIdleTimeoutWarning) {
-    console.log(`[DialogBox] ⚠️ IDLE TIMEOUT text detected: "${text.substring(0, 30)}..."`);
-  }
-  
   // Kita menghilangkan bagian yang membuat dialog kontrak muncul penuh
   // Sekarang, saat contractDialogActive, kita biarkan efek typewriter berjalan
   // tanpa mengubah teks secara manual
   // Kita tetapkan bahwa ini adalah kontrak dialog berdasarkan flag __contractDialogActive
   // dan bukan berdasarkan teks lengkap (tidak menggunakan contractResponseText)
   
-  // Jangan pernah menghilangkan dialog box jika ada idle warning/timeout dialog
-  const shouldNotHideDialog = isContractDialogActive || dialogSource === 'main' || isIdleTimeoutWarning || isIdleTimeoutActive;
-
-  // FORCE SHOW dialog for idle timeout responses
-  if (isIdleTimeoutWarning || isIdleTimeoutActive) {
-    console.log(`[DialogBox] 🔴 FORCE SHOWING dialog box for IDLE WARNING: "${text.substring(0, 30)}..."`);
-    // Jangan lakukan return disini, biarkan dialog box rendering berjalan normal
-  }
-  // Regular hide dialog logic
-  else if (isDialogFinished && text === "" && !shouldNotHideDialog && !isIdleTimeoutWarning && !isIdleTimeoutActive) {
+  if (isDialogFinished && text === "" && !isContractDialogActive) {
     // Debug untuk membantu melihat status dialog
     console.log("[DialogBox] Dialog finished with empty text, hiding dialog box");
-    return null; // Hanya return null jika tidak ada teks sama sekali dan bukan dialog penting
+    return null; // Hanya return null jika tidak ada teks sama sekali dan bukan dialog kontrak
   }
   
-  // Log tambahan untuk membantu debug
-  console.log(`[DialogBox] Dialog visibility check - text: "${text.substr(0, 20)}..." | isDialogFinished: ${isDialogFinished} | shouldNotHideDialog: ${shouldNotHideDialog} | dialogSource: ${dialogSource} | isIdleTimeoutWarning: ${isIdleTimeoutWarning}`);
+  // Periksa apakah ini adalah dialog kontrak (CONTRACT_RESPONSES) berdasarkan teks
+  const isContractResponse = text.includes("I've never lied to you") || 
+                          text.includes("seen the proof") ||
+                          text.includes("real qualifications") ||
+                          text.includes("answer your questions about my background") ||
+                          text.includes("I'm the real deal");
   
   // Log khusus untuk dialog kontrak
   if (isContractResponse) {
     console.log(`[DialogBox] CONTRACT RESPONSE dialog active: "${text.substring(0, 30)}..."`);
-  }
-  
-  // Log khusus untuk dialog idle timeout
-  if (isIdleTimeoutWarning) {
-    console.log(`[DialogBox] IDLE TIMEOUT RESPONSE dialog active: "${text.substring(0, 30)}..."`);
   }
   
   // Tambahkan log untuk membantu debug tampilan dialog
@@ -474,14 +369,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     console.log(`[DialogBox] Showing dialog - Text: "${text.substring(0, 30)}..." Source: ${dialogSource}`);
   }
 
-  // ========= CRITICAL OVERRIDE =========
-  // Jika idle timeout warning aktif, selalu tampilkan dialog dengan sumber 'main'
-  // dan text dari idle timeout warning
-  // Ini solusi yang lebih radikal untuk memastikan idle timeout warning selalu muncul
-  
-  const forcedDialogSource = (isIdleTimeoutWarning || isIdleTimeoutActive) ? 'main' : dialogSource;
-  const finalCharacterName = (isIdleTimeoutWarning || isIdleTimeoutActive) ? "DIVA JUAN NUR TAQARRUB" : characterName;
-  
   return (
     <motion.div
       className="dialog-box-container"
@@ -490,17 +377,13 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
       <div
-        className={`dialog-box ${forcedDialogSource === "hover" ? "hover-dialog" : ""} ${
-          (isIdleTimeoutWarning || isIdleTimeoutActive) ? "idle-warning-dialog" : ""
-        }`}
+        className={`dialog-box ${dialogSource === "hover" ? "hover-dialog" : ""}`}
       >
         <div
-          className={`character-name ${forcedDialogSource === "hover" ? "hover-character" : ""} ${
-            (isIdleTimeoutWarning || isIdleTimeoutActive) ? "idle-warning-character" : ""
-          }`}
+          className={`character-name ${dialogSource === "hover" ? "hover-character" : ""}`}
         >
-          {finalCharacterName}
-          {forcedDialogSource === "hover" && !isIdleTimeoutWarning && !isIdleTimeoutActive && (
+          {characterName}
+          {dialogSource === "hover" && (
             <span className="hover-indicator">⟳</span>
           )}
         </div>
@@ -514,10 +397,16 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
                 </div>
               ) : // Only show auto-continue hint for main dialog and not for other types
               // Check if it's not a hover dialog, idle warning, or contract response
-              (dialogSource === "main" &&
-               !isContractResponse && // Tidak tampilkan auto-continue untuk dialog kontrak
-               !isIdleTimeoutWarning && // Tidak tampilkan auto-continue untuk dialog idle timeout/hover punishment
-               !isIdleTimeoutActive) ? ( // Tidak tampilkan auto-continue jika timeout warning aktif
+              dialogSource === "main" &&
+                !text.includes("fuck you") && // Idle timeout specific phrases
+                !text.includes("Staring at me") &&
+                !text.includes("throw") &&
+                !text.includes("punch") &&
+                !text.includes("I've never lied to you") && // Contract responses specific phrases
+                !text.includes("seen the proof") &&
+                !text.includes("real qualifications") &&
+                !text.includes("answer your questions about my background") &&
+                !text.includes("I'm the real deal") ? (
                 <div className="auto-continue-hint">
                   Auto-continues in a moment...
                 </div>
@@ -536,8 +425,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
             {/* Tentukan apakah tombol NEXT/SKIP harus ditampilkan */}
             {(() => {
-              // Untuk idle timeout warning atau hover dialog, tidak perlu menampilkan tombol NEXT/SKIP
-              if (dialogSource === "hover" || isIdleTimeoutWarning || isIdleTimeoutActive) {
+              // Untuk dialog hover, tidak perlu menampilkan tombol NEXT/SKIP
+              if (dialogSource === "hover") {
                 return null;
               }
 
