@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import HoverDialogController, { HoverLinkType } from "../controllers/hoverDialogController";
+import HoverDialogController, {
+  HoverLinkType,
+} from "../controllers/hoverDialogController";
 import DialogController from "../controllers/dialogController";
 
 interface SocialLinkProps {
@@ -12,7 +14,14 @@ interface SocialLinkProps {
   id: string; // ID yang bisa dipetakan ke HoverLinkType
 }
 
-const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverColor, id }) => {
+const SocialLink: React.FC<SocialLinkProps> = ({
+  name,
+  url,
+  icon,
+  color,
+  hoverColor,
+  id,
+}) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isGlitching, setIsGlitching] = useState(false);
   const hoverController = HoverDialogController.getInstance();
@@ -20,20 +29,20 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
   // Pemetaan id ke HoverLinkType
   const mapIdToLinkType = (id: string): HoverLinkType => {
     switch (id) {
-      case 'whatsapp':
-        return 'whatsapp';
-      case 'email':
-        return 'email';
-      case 'linkedin':
-        return 'linkedin';
-      case 'github':
-        return 'github';
-      case 'youtube':
-        return 'youtube';
-      case 'tiktok':
-        return 'tiktok';
+      case "whatsapp":
+        return "whatsapp";
+      case "email":
+        return "email";
+      case "linkedin":
+        return "linkedin";
+      case "github":
+        return "github";
+      case "youtube":
+        return "youtube";
+      case "tiktok":
+        return "tiktok";
       default:
-        return 'none';
+        return "none";
     }
   };
 
@@ -43,29 +52,59 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
     const glitchDuration = 300 + Math.random() * 300; // Between 300-600ms
     setTimeout(() => setIsGlitching(false), glitchDuration);
   };
-  
+
   // Pesan Geralt-style untuk link yang kosong
   const emptyLinkMessages = {
     youtube: [
-      "Hmm... tidak suka dipublikasikan. Mungkin lain waktu.",
-      "Tsk... Videos? Membuang waktuku saja.",
-      "Tidak tertarik membuat video. Lebih baik bekerja dalam diam.",
-      "Hmph. YouTube? Bukan gayaku untuk pamer.",
-      "Belum perlu terlalu dikenal... Lebih aman begitu."
+      "YouTube? Heh... Let others chase fame.",
+      "I hunt monsters, not subscribers.",
+      "Talking to a camera? I'd rather talk to a drowners' nest.",
+      "Videos won't slay a Leshen. Waste of time.",
+      "Visibility attracts problems. I prefer the shadows.",
     ],
     tiktok: [
-      "Menari di TikTok? Heh... Aku pembunuh monster, bukan penari.",
-      "Jangan konyol. TikTok bukan urusanku.",
-      "Hmm. Terlalu sibuk untuk hal-hal semacam itu.",
-      "Tarian pendek? Lebih baik berlatih pedang.",
-      "Hmph. TikTok hanya akan membuatku kehilangan reputasi."
-    ]
+      "Dance for views? Not my kind of contract.",
+      "Keep your filters. I’ve got real scars.",
+      "Short clips won’t kill a kikimore.",
+      "I fight, I don’t perform.",
+      "Already got enough monsters stalking me—don’t need followers too.",
+    ],
   };
 
+  // Pesan Geralt-style untuk link yang sudah diisi
+  const filledLinkMessages = {
+    youtube: [
+      "Hmm... See here. Evidence of my work. Not fancy, but effective.",
+      "These videos... Hunts recorded. Might be useful.",
+      "My YouTube channel. Not for entertainment, but information.",
+      "Recorded by client's request. Proof of work done.",
+      "If you're looking for entertainment... This isn't the place. But if you want to learn? Maybe useful."
+    ],
+    tiktok: [
+      "TikTok... Hmph. Never thought I'd use it. But effective for reaching new contracts.",
+      "Short clips. Fighting techniques. Little of your time, much benefit.",
+      "Brief content about monsters. Might save your life someday.",
+      "Had to use this platform. Hunting tips, if you're interested.",
+      "Short, direct, and useful. Like my sword."
+    ]
+  };
+  
   // Fungsi untuk mendapatkan pesan acak untuk link kosong
   const getRandomEmptyLinkMessage = (linkType: string): string => {
-    if (linkType === 'youtube' || linkType === 'tiktok') {
-      const messages = emptyLinkMessages[linkType as keyof typeof emptyLinkMessages];
+    if (linkType === "youtube" || linkType === "tiktok") {
+      const messages =
+        emptyLinkMessages[linkType as keyof typeof emptyLinkMessages];
+      const randomIndex = Math.floor(Math.random() * messages.length);
+      return messages[randomIndex];
+    }
+    return "";
+  };
+  
+  // Fungsi untuk mendapatkan pesan acak untuk link yang sudah diisi
+  const getRandomFilledLinkMessage = (linkType: string): string => {
+    if (linkType === "youtube" || linkType === "tiktok") {
+      const messages =
+        filledLinkMessages[linkType as keyof typeof filledLinkMessages];
       const randomIndex = Math.floor(Math.random() * messages.length);
       return messages[randomIndex];
     }
@@ -75,60 +114,84 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     // Prevent default behavior for all links to handle redirection manually
     e.preventDefault();
-    
+
     // Get the ElevenLabs service to check audio status
-    const elevenlabsService = HoverDialogController.getInstance().getElevenLabsService();
-    
+    const elevenlabsService =
+      HoverDialogController.getInstance().getElevenLabsService();
+
     // Trigger the glitch effect immediately
     triggerGlitch();
-    
+
     // Show a message that we're waiting for character to finish talking
     const hoverType = mapIdToLinkType(id);
     hoverController.handleHoverDialog(hoverType);
-    
-    // Jika URL kosong untuk YouTube atau TikTok, tampilkan pesan khusus
-    if (url === "" && (id === "youtube" || id === "tiktok")) {
-      const message = getRandomEmptyLinkMessage(id);
-      if (message) {
+
+    // Memilih pesan berdasarkan status URL untuk YouTube atau TikTok
+    if (id === "youtube" || id === "tiktok") {
+      let message = "";
+      
+      if (url === "") {
+        // URL kosong, tampilkan pesan khusus untuk link kosong
+        message = getRandomEmptyLinkMessage(id);
         console.log(`Empty ${id} link clicked, showing message: ${message}`);
+      } else {
+        // URL terisi, tampilkan pesan khusus untuk link yang sudah diisi
+        message = getRandomFilledLinkMessage(id);
+        console.log(`Filled ${id} link clicked, showing message: ${message}`);
+      }
+      
+      if (message) {
         // Menggunakan dialog controller untuk menampilkan pesan
         const dialogController = DialogController.getInstance();
         if (dialogController) {
-          dialogController.showCustomDialog(message, (text, isComplete) => {
-            console.log("Empty link dialog: ", text, isComplete);
+          dialogController.showCustomDialog(message, (text: string, isComplete: boolean) => {
+            console.log(`${url ? 'Filled' : 'Empty'} link dialog: `, text, isComplete);
           });
         } else {
           alert(message); // Fallback jika dialog controller tidak tersedia
         }
+        
+        // Jika URL terisi, tunggu beberapa saat sebelum melanjutkan ke redirect
+        if (url) {
+          setTimeout(() => {
+            window.open(url, "_blank", "noopener,noreferrer");
+          }, 3000); // Menunggu 3 detik agar pengguna bisa membaca dialog
+        }
+        
         return;
       }
     }
-    
+
     // Check if audio is currently playing
     if (elevenlabsService.isCurrentlyPlaying()) {
-      console.log("Audio is playing - waiting for completion before redirecting to:", url);
-      
+      console.log(
+        "Audio is playing - waiting for completion before redirecting to:",
+        url,
+      );
+
       // Display a message to user that we're waiting for audio to finish
-      const redirectDelay = 2500; // 2.5 seconds 
-      
+      const redirectDelay = 2500; // 2.5 seconds
+
       setTimeout(() => {
         console.log("Redirect delay completed, opening URL:", url);
-        
+
         // Use window.open for external links, window.location for mailto
-        if (url.startsWith('mailto:')) {
+        if (url.startsWith("mailto:")) {
           window.location.href = url;
-        } else if (url) { // Tambahkan pengecekan URL tidak kosong
-          window.open(url, '_blank', 'noopener,noreferrer');
+        } else if (url) {
+          // Tambahkan pengecekan URL tidak kosong
+          window.open(url, "_blank", "noopener,noreferrer");
         }
       }, redirectDelay);
     } else {
       // If no audio is playing, redirect immediately
       console.log("No audio playing, redirecting immediately to:", url);
-      
-      if (url.startsWith('mailto:')) {
+
+      if (url.startsWith("mailto:")) {
         window.location.href = url;
-      } else if (url) { // Tambahkan pengecekan URL tidak kosong
-        window.open(url, '_blank', 'noopener,noreferrer');
+      } else if (url) {
+        // Tambahkan pengecekan URL tidak kosong
+        window.open(url, "_blank", "noopener,noreferrer");
       }
     }
   };
@@ -144,13 +207,13 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
     triggerGlitch();
     setIsHovered(false);
     // Reset hover state to none when mouse leaves
-    hoverController.handleHoverDialog('none');
+    hoverController.handleHoverDialog("none");
   };
-  
+
   return (
     <motion.a
       href={url}
-      target={url.startsWith('mailto:') ? '_self' : '_blank'}
+      target={url.startsWith("mailto:") ? "_self" : "_blank"}
       rel="noopener noreferrer"
       className="social-link"
       onClick={handleClick}

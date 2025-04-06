@@ -52,7 +52,7 @@ const GameContactCard: React.FC = () => {
     {
       id: "youtube",
       name: "YouTube",
-      url: "", // Link sengaja dikosongkan sesuai permintaan
+      url: "https://www.youtube.com/c/DivaJuanNurTaqarrub", // URL diisi dengan channel YouTube
       icon: <FaYoutube size={24} />,
       color: "#FF0000", 
       hoverColor: "#FF0000", // Warna merah YouTube
@@ -60,7 +60,7 @@ const GameContactCard: React.FC = () => {
     {
       id: "tiktok",
       name: "TikTok",
-      url: "", // Link sengaja dikosongkan sesuai permintaan
+      url: "https://www.tiktok.com/@divajuanvx", // URL diisi dengan akun TikTok
       icon: <FaTiktok size={24} />,
       color: "#000000",
       hoverColor: "#25F4EE", // Warna aksen TikTok
