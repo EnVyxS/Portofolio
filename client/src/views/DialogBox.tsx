@@ -278,6 +278,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   ]);
 
   useEffect(() => {
+    // Expose setText and setIsComplete via window for ContractCard to use
+    // @ts-ignore - membuat setter functions global untuk penggunaan di ContractCard
+    window.__dialogBoxTextSetter = setText;
+    // @ts-ignore - membuat setter functions global untuk penggunaan di ContractCard
+    window.__dialogBoxIsCompleteSetter = setIsComplete;
+    
     // Set hover dialog callback terlebih dahulu untuk menangkap hover dialog yang sudah aktif
     hoverDialogController.setHoverTextCallback((text, complete) => {
       setText(text);
