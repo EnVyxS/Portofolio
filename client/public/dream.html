@@ -9,18 +9,19 @@
             // Cookie functions
             function setCookie(name, value, days) {
                 const d = new Date();
-                d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+                d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
                 const expires = "expires=" + d.toUTCString();
-                document.cookie = name + "=" + value + ";" + expires + ";path=/";
+                document.cookie =
+                    name + "=" + value + ";" + expires + ";path=/";
             }
-            
+
             function getCookie(name) {
                 const cname = name + "=";
                 const decodedCookie = decodeURIComponent(document.cookie);
-                const ca = decodedCookie.split(';');
+                const ca = decodedCookie.split(";");
                 for (let i = 0; i < ca.length; i++) {
                     let c = ca[i];
-                    while (c.charAt(0) === ' ') {
+                    while (c.charAt(0) === " ") {
                         c = c.substring(1);
                     }
                     if (c.indexOf(cname) === 0) {
@@ -29,33 +30,34 @@
                 }
                 return "";
             }
-            
+
             function deleteCookie(name) {
-                document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                document.cookie =
+                    name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             }
-            
+
             // Trap the user in nightmare
             setCookie("nightmareTrapped", "true", 1); // Set for 1 day
-            
+
             // Check if user has escaped
             const hasEscaped = getCookie("nightmareEscaped") === "true";
-            
+
             // Intercept navigation attempts if user hasn't escaped
             if (!hasEscaped) {
                 // Override history navigation
                 history.pushState(null, document.title, location.href);
-                window.addEventListener('popstate', function() {
+                window.addEventListener("popstate", function () {
                     history.pushState(null, document.title, location.href);
                     showNightmareWhisper("you can't escape...");
                 });
-                
+
                 // Add event listener to detect when document becomes visible again
-                document.addEventListener("visibilitychange", function() {
+                document.addEventListener("visibilitychange", function () {
                     if (!document.hidden && !hasEscaped) {
                         showNightmareWhisper("still trapped...");
                     }
                 });
-                
+
                 // Function to show nightmare whisper when escape attempts happen
                 function showNightmareWhisper(text) {
                     const whisper = document.createElement("div");
@@ -64,9 +66,9 @@
                     whisper.style.top = Math.random() * 80 + 10 + "%";
                     whisper.style.opacity = "0.6";
                     whisper.textContent = text;
-                    
+
                     document.getElementById("whispers").appendChild(whisper);
-                    
+
                     setTimeout(() => {
                         whisper.style.opacity = "0";
                         setTimeout(() => {
@@ -135,19 +137,39 @@
 
             /* Glitch effect for text */
             @keyframes glitchEffect {
-                0% { opacity: 0.2; transform: translate(-2px, 2px); }
-                25% { opacity: 0.5; transform: translate(2px, -2px); filter: hue-rotate(90deg); }
-                50% { opacity: 0.3; transform: translate(-1px, -1px); filter: hue-rotate(180deg); }
-                75% { opacity: 0.4; transform: translate(1px, 1px); filter: hue-rotate(270deg); }
-                100% { opacity: 0.2; transform: translate(-2px, 2px); }
+                0% {
+                    opacity: 0.2;
+                    transform: translate(-2px, 2px);
+                }
+                25% {
+                    opacity: 0.5;
+                    transform: translate(2px, -2px);
+                    filter: hue-rotate(90deg);
+                }
+                50% {
+                    opacity: 0.3;
+                    transform: translate(-1px, -1px);
+                    filter: hue-rotate(180deg);
+                }
+                75% {
+                    opacity: 0.4;
+                    transform: translate(1px, 1px);
+                    filter: hue-rotate(270deg);
+                }
+                100% {
+                    opacity: 0.2;
+                    transform: translate(-2px, 2px);
+                }
             }
-            
+
             .whisper.glitch {
                 animation: glitchEffect 0.3s infinite;
                 color: rgba(255, 255, 255, 0.7);
                 font-family: monospace;
                 letter-spacing: -1px;
-                text-shadow: 0 0 5px rgba(255, 0, 0, 0.5), 0 0 10px rgba(0, 0, 255, 0.3);
+                text-shadow:
+                    0 0 5px rgba(255, 0, 0, 0.5),
+                    0 0 10px rgba(0, 0, 255, 0.3);
             }
 
             .container {
@@ -216,7 +238,9 @@
                 font-size: 1rem;
                 cursor: pointer;
                 opacity: 0;
-                transition: opacity 0.3s ease, background-color 0.3s ease;
+                transition:
+                    opacity 0.3s ease,
+                    background-color 0.3s ease;
             }
 
             .music-control {
@@ -244,20 +268,32 @@
             <div id="whispers"></div>
             <div id="flash"></div>
             <div id="flashText"></div>
-            
+
             <button id="wakeUpBtn">ESCAPE</button>
-            
+
             <!-- Music control button -->
-            <button id="musicControlBtn" class="music-control">Music: On</button>
-            
+            <button id="musicControlBtn" class="music-control">
+                Music: On
+            </button>
+
             <!-- Background music (hidden) -->
-            <audio id="backgroundMusic" loop preload="auto" style="display: none;">
-                <source src="/audio/creepy-music-box.mp3" type="audio/mpeg">
+            <audio
+                id="backgroundMusic"
+                loop
+                preload="auto"
+                style="display: none"
+            >
+                <source src="/audio/creepy-music-box.mp3" type="audio/mpeg" />
             </audio>
-            
+
             <!-- Pink Noise (hidden) with even lower volume -->
-            <audio id="pinkNoiseAudio" loop preload="auto" style="display: none;">
-                <source src="/audio/pink-noise.mp3" type="audio/mpeg">
+            <audio
+                id="pinkNoiseAudio"
+                loop
+                preload="auto"
+                style="display: none"
+            >
+                <source src="/audio/pink-noise.mp3" type="audio/mpeg" />
             </audio>
         </div>
 
@@ -431,7 +467,7 @@
                 "w̧̮̿͋̌e̠̊̎̄ ̰̳̩̑a̧̝̩ͅr̵̟̬ͅe̞͡͝ ̠̓͗͡w̧̛̜ͅa̡̪̪̓ͅt̺ͅc̢̠ͅh̨̙͕̓i̙̗̓ͅn̠̰ͅg̩̾͢ͅ",
                 "̨͓̤͛͘h̴͕̫̻͗e̥͙̔ͬͅl̴͖̬̦̃p̹͚̩͘͟ ̟̓ͯ͒͝m̡̟̼̆ͨe͉̫͈ͮ̕",
                 "̶̯̫̱ͤṅ̴͕̱̩̂o͕̝̙͗̕ ̶̵̨̯̒e̷̫̹̱͊s̡̩̰̮͂c̛̣̪͕͒ä̡̛̰͖́p̘̳ͮͨ͘e̻̥̜̅͜",
-                "͓̭͂ͯ͞i̧̪̳̊͋t̤̥̜͆͡'̸̭͙ͩͬs̵̳̥ͣͤ ̓͏̻̥̥a͓̭̯͑͘l͎̱̭̆̕l̷̗̣̃́ ̫̰̋ͭ͞y̨͙͓̏̉ŏ̷̬̤̘ͧuͤ͏̣͕̙r̵̫̮̲̓ ̜̘͙̂͠f̙̪̘̉͠a̮̫͔̎͟u̴̻̻̓͠l͚̹̾ͬ͝t̞̪ͥ͑͜"
+                "͓̭͂ͯ͞i̧̪̳̊͋t̤̥̜͆͡'̸̭͙ͩͬs̵̳̥ͣͤ ̓͏̻̥̥a͓̭̯͑͘l͎̱̭̆̕l̷̗̣̃́ ̫̰̋ͭ͞y̨͙͓̏̉ŏ̷̬̤̘ͧuͤ͏̣͕̙r̵̫̮̲̓ ̜̘͙̂͠f̙̪̘̉͠a̮̫͔̎͟u̴̻̻̓͠l͚̹̾ͬ͝t̞̪ͥ͑͜",
             ];
 
             // Maximum number of whispers at once - dikurangi untuk optimasi performa
@@ -443,31 +479,35 @@
 
             // Main controller for audio caching and requests
             let audioCache = new Map();
-            
+
             // Create random whispers
             function createWhispers() {
                 const container = document.getElementById("whispers");
-                
+
                 // Clear any existing whispers for fresh start
-                container.innerHTML = '';
+                container.innerHTML = "";
 
                 for (let i = 0; i < MAX_WHISPERS; i++) {
                     const whisper = document.createElement("div");
                     whisper.className = "whisper";
-                    
+
                     // Randomly decide if this will be a glitched text (20-30% chance)
-                    const isGlitch = Math.random() < (Math.random() * 0.1 + 0.2);
-                    
+                    const isGlitch = Math.random() < Math.random() * 0.1 + 0.2;
+
                     let text;
                     if (isGlitch) {
-                        const glitchIndex = Math.floor(Math.random() * glitchWhisperTexts.length);
+                        const glitchIndex = Math.floor(
+                            Math.random() * glitchWhisperTexts.length,
+                        );
                         text = glitchWhisperTexts[glitchIndex];
-                        whisper.classList.add('glitch'); // Add glitch class for visual effect
+                        whisper.classList.add("glitch"); // Add glitch class for visual effect
                     } else {
-                        const randomIndex = Math.floor(Math.random() * whisperTexts.length);
+                        const randomIndex = Math.floor(
+                            Math.random() * whisperTexts.length,
+                        );
                         text = whisperTexts[randomIndex];
                     }
-                    
+
                     whisper.textContent = text;
                     whisper.dataset.isGlitch = isGlitch;
 
@@ -489,7 +529,7 @@
                 if (activeAudioCount >= MAX_ACTIVE_AUDIO) {
                     return;
                 }
-                
+
                 try {
                     activeAudioCount++;
 
@@ -501,7 +541,7 @@
 
                     // Use cache if available
                     const cacheKey = `${text}_${stability.toFixed(2)}_${similarity_boost.toFixed(2)}_${style.toFixed(2)}_${speaking_rate.toFixed(2)}`;
-                    
+
                     let audioPath;
                     if (audioCache.has(cacheKey)) {
                         audioPath = audioCache.get(cacheKey);
@@ -523,14 +563,14 @@
                                         speaking_rate: speaking_rate,
                                     },
                                 }),
-                            }
+                            },
                         );
 
                         const data = await response.json();
                         if (!data.success || !data.audioPath) {
                             throw new Error("Failed to generate audio");
                         }
-                        
+
                         audioPath = data.audioPath;
                         audioCache.set(cacheKey, audioPath);
                     }
@@ -538,10 +578,11 @@
                     const audio = new Audio(audioPath);
 
                     // Varied volume for more realistic effect
-                    audio.volume = Math.random() * 0.25 + 0.15; // Volume between 0.15-0.4
+                    audio.volume = Math.random() * 0.45 + 0.15; // Volume between 0.15-0.4
 
-                    // Add random stereo effect (left/right) for "crowd" sensation 
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    // Add random stereo effect (left/right) for "crowd" sensation
+                    const audioContext = new (window.AudioContext ||
+                        window.webkitAudioContext)();
                     const source = audioContext.createMediaElementSource(audio);
                     const stereoPanner = audioContext.createStereoPanner();
 
@@ -552,7 +593,7 @@
                     stereoPanner.connect(audioContext.destination);
 
                     // When audio ends, release the slot
-                    audio.addEventListener('ended', () => {
+                    audio.addEventListener("ended", () => {
                         activeAudioCount--;
                     });
 
@@ -571,21 +612,21 @@
                 let whisperCount = 0;
                 const MAX_CONCURRENT_WHISPERS = 2; // Reducing max whispers for optimization
                 let whisperIntervalId = null;
-                
+
                 // Clear interval if visitor is inactive to save resources
                 let userActive = true;
                 let inactivityTimer = null;
-                
+
                 // Check user activity
                 function resetInactivityTimer() {
                     userActive = true;
                     clearTimeout(inactivityTimer);
-                    
+
                     // If interval isn't active, recreate it
                     if (!whisperIntervalId) {
                         startWhisperInterval();
                     }
-                    
+
                     // Set timer to detect inactivity
                     inactivityTimer = setTimeout(() => {
                         userActive = false;
@@ -596,23 +637,23 @@
                         }
                     }, 60000); // 60 seconds inactive
                 }
-                
+
                 // Listen for mouse movement to detect activity
-                document.addEventListener('mousemove', resetInactivityTimer);
-                document.addEventListener('keydown', resetInactivityTimer);
-                document.addEventListener('click', resetInactivityTimer);
-                document.addEventListener('scroll', resetInactivityTimer);
-                
+                document.addEventListener("mousemove", resetInactivityTimer);
+                document.addEventListener("keydown", resetInactivityTimer);
+                document.addEventListener("click", resetInactivityTimer);
+                document.addEventListener("scroll", resetInactivityTimer);
+
                 // Start by default
                 resetInactivityTimer();
-                
+
                 // Function to start the interval
                 function startWhisperInterval() {
                     // Ensure no duplicate intervals
                     if (whisperIntervalId) {
                         clearInterval(whisperIntervalId);
                     }
-                    
+
                     whisperIntervalId = setInterval(() => {
                         // Check if user is still active
                         if (!userActive) {
@@ -620,7 +661,7 @@
                             whisperIntervalId = null;
                             return;
                         }
-                        
+
                         const now = Date.now();
                         const timeSinceLastWhisper = now - lastWhisperTime;
 
@@ -633,61 +674,84 @@
                         const shouldShowWhisper = Math.random() < 0.25; // Reduce from 0.3 to 0.25
 
                         // Show whisper if not exceeding the maximum concurrent limit
-                        if (shouldShowWhisper && whisperCount < MAX_CONCURRENT_WHISPERS) {
+                        if (
+                            shouldShowWhisper &&
+                            whisperCount < MAX_CONCURRENT_WHISPERS
+                        ) {
                             // When simultaneous whispers will appear (higher = less frequent)
                             const isMultipleWhispers = Math.random() < 0.15;
 
                             // Number of whispers to show simultaneously
-                            const whispersToShow = isMultipleWhispers ? Math.floor(Math.random() * 2) + 2 : 1;
+                            const whispersToShow = isMultipleWhispers
+                                ? Math.floor(Math.random() * 2) + 2
+                                : 1;
 
                             // Select different whispers to display
                             const usedIndices = new Set();
                             const usedTexts = new Set();
                             const usedGlitchTexts = new Set();
 
-                            for (let i = 0; i < whispersToShow && whisperCount < MAX_CONCURRENT_WHISPERS; i++) {
+                            for (
+                                let i = 0;
+                                i < whispersToShow &&
+                                whisperCount < MAX_CONCURRENT_WHISPERS;
+                                i++
+                            ) {
                                 // Choose whisper element that hasn't been used yet
                                 let randomIndex;
                                 do {
-                                    randomIndex = Math.floor(Math.random() * whispers.length);
+                                    randomIndex = Math.floor(
+                                        Math.random() * whispers.length,
+                                    );
                                 } while (usedIndices.has(randomIndex));
                                 usedIndices.add(randomIndex);
 
                                 const whisper = whispers[randomIndex];
-                                
+
                                 // Determine if this will be a glitch text (20-30% chance)
-                                const isGlitch = Math.random() < (Math.random() * 0.1 + 0.2);
-                                
+                                const isGlitch =
+                                    Math.random() < Math.random() * 0.1 + 0.2;
+
                                 // Reset class
                                 whisper.className = "whisper";
                                 if (isGlitch) {
-                                    whisper.classList.add('glitch');
+                                    whisper.classList.add("glitch");
                                 }
-                                
+
                                 let whisperText;
-                                
+
                                 if (isGlitch) {
                                     // Choose an unused glitch text
                                     do {
-                                        whisperText = glitchWhisperTexts[
-                                            Math.floor(Math.random() * glitchWhisperTexts.length)
-                                        ];
+                                        whisperText =
+                                            glitchWhisperTexts[
+                                                Math.floor(
+                                                    Math.random() *
+                                                        glitchWhisperTexts.length,
+                                                )
+                                            ];
                                     } while (usedGlitchTexts.has(whisperText));
                                     usedGlitchTexts.add(whisperText);
                                 } else {
                                     // Choose an unused normal whisper text
                                     do {
-                                        whisperText = whisperTexts[
-                                            Math.floor(Math.random() * whisperTexts.length)
-                                        ];
+                                        whisperText =
+                                            whisperTexts[
+                                                Math.floor(
+                                                    Math.random() *
+                                                        whisperTexts.length,
+                                                )
+                                            ];
                                     } while (usedTexts.has(whisperText));
                                     usedTexts.add(whisperText);
                                 }
 
                                 whisper.textContent = whisperText;
-                                
+
                                 // Glitch text appears with slightly higher opacity
-                                whisper.style.opacity = isGlitch ? Math.random() * 0.3 + 0.1 : Math.random() * 0.1 + 0.05;
+                                whisper.style.opacity = isGlitch
+                                    ? Math.random() * 0.3 + 0.1
+                                    : Math.random() * 0.1 + 0.05;
 
                                 // Random position
                                 const randomX = Math.random() * 100;
@@ -699,15 +763,20 @@
                                 // Only play audio for normal text, not for glitch text
                                 if (!isGlitch) {
                                     // Play audio for normal whispers with a slight delay to avoid playing at exactly the same time
-                                    setTimeout(() => {
-                                        playWhisperAudio(whisperText);
-                                    }, i * (Math.random() * 300 + 50)); // 50-350ms delay between sounds
+                                    setTimeout(
+                                        () => {
+                                            playWhisperAudio(whisperText);
+                                        },
+                                        i * (Math.random() * 300 + 50),
+                                    ); // 50-350ms delay between sounds
                                 }
 
                                 // Hide after a while
                                 // Glitch text lasts shorter
-                                const displayDuration = isGlitch ? Math.random() * 1500 + 1000 : Math.random() * 3000 + 2000;
-                                    
+                                const displayDuration = isGlitch
+                                    ? Math.random() * 1500 + 1000
+                                    : Math.random() * 3000 + 2000;
+
                                 setTimeout(() => {
                                     whisper.style.opacity = 0;
                                     whisperCount--;
@@ -719,7 +788,7 @@
                             lastWhisperTime = now;
                         }
                     }, 700); // Slightly longer interval to be less frequent
-                }  // End of function startWhisperInterval
+                } // End of function startWhisperInterval
             }
 
             // Create white flashes
@@ -744,13 +813,16 @@
                         const wakeUpBtn = document.getElementById("wakeUpBtn");
 
                         // Escape button opacity during light flashes (10-20% of flash intensity)
-                        const buttonOpacity = flashIntensity * (Math.random() * 0.1 + 0.1);
+                        const buttonOpacity =
+                            flashIntensity * (Math.random() * 0.1 + 0.1);
                         wakeUpBtn.style.opacity = buttonOpacity;
 
                         // Sometimes show text with the flash
                         if (Math.random() < 0.4) {
                             // Random message
-                            const messageIndex = Math.floor(Math.random() * flashMessages.length);
+                            const messageIndex = Math.floor(
+                                Math.random() * flashMessages.length,
+                            );
                             const message = flashMessages[messageIndex];
                             flashText.textContent = message;
                             flashText.style.opacity = 1;
@@ -758,9 +830,10 @@
 
                             // Make escape button clearer during flash messages
                             // For flashes with messages, make button much more visible (40-60% of flash intensity)
-                            const enhancedButtonOpacity = flashIntensity * (Math.random() * 0.2 + 0.4);
+                            const enhancedButtonOpacity =
+                                flashIntensity * (Math.random() * 0.2 + 0.4);
                             wakeUpBtn.style.opacity = enhancedButtonOpacity;
-                            
+
                             // Add thin white border for button when flash message appears
                             wakeUpBtn.style.borderColor = `rgba(255, 255, 255, ${enhancedButtonOpacity + 0.1})`;
                             wakeUpBtn.style.boxShadow = `0 0 8px rgba(255, 255, 255, ${enhancedButtonOpacity * 0.8})`;
@@ -770,7 +843,8 @@
                                 flashText.style.opacity = 0;
                                 // Hide button again after message
                                 wakeUpBtn.style.opacity = 0;
-                                wakeUpBtn.style.borderColor = "rgba(255, 255, 255, 0)";
+                                wakeUpBtn.style.borderColor =
+                                    "rgba(255, 255, 255, 0)";
                                 wakeUpBtn.style.boxShadow = "none";
                             }, duration + 50);
                         }
@@ -795,7 +869,9 @@
                         const flashCount = Math.floor(Math.random() * 3) + 2; // 2-4 flashes in sequence
 
                         // Show flash message with sequence
-                        const messageIndex = Math.floor(Math.random() * flashMessages.length);
+                        const messageIndex = Math.floor(
+                            Math.random() * flashMessages.length,
+                        );
                         const message = flashMessages[messageIndex];
                         flashText.textContent = message;
 
@@ -804,39 +880,49 @@
 
                         // Create multiple flashes in sequence
                         for (let i = 0; i < flashCount; i++) {
-                            setTimeout(() => {
-                                // Higher intensity for sequences
-                                const flashIntensity = Math.random() * 0.7 + 0.3;
-                                flash.style.opacity = flashIntensity;
-                                flashText.style.opacity = 0.8 + Math.random() * 0.2;
+                            setTimeout(
+                                () => {
+                                    // Higher intensity for sequences
+                                    const flashIntensity =
+                                        Math.random() * 0.7 + 0.3;
+                                    flash.style.opacity = flashIntensity;
+                                    flashText.style.opacity =
+                                        0.8 + Math.random() * 0.2;
 
-                                // Show escape button during flash sequences with much higher opacity
-                                // For flash sequences, make button very visible (40-70% of flash intensity)
-                                const buttonOpacity = flashIntensity * (Math.random() * 0.3 + 0.4);
-                                wakeUpBtn.style.opacity = buttonOpacity;
-                                
-                                // Add stronger glow effect for button during sequences
-                                wakeUpBtn.style.borderColor = `rgba(255, 255, 255, ${buttonOpacity + 0.2})`;
-                                wakeUpBtn.style.boxShadow = `0 0 12px rgba(255, 255, 255, ${buttonOpacity * 0.9})`;
-                                
-                                // Make text color clearer during sequences
-                                wakeUpBtn.style.color = `rgba(255, 255, 255, ${buttonOpacity + 0.3})`;
+                                    // Show escape button during flash sequences with much higher opacity
+                                    // For flash sequences, make button very visible (40-70% of flash intensity)
+                                    const buttonOpacity =
+                                        flashIntensity *
+                                        (Math.random() * 0.3 + 0.4);
+                                    wakeUpBtn.style.opacity = buttonOpacity;
 
-                                // Flicker effect
-                                setTimeout(() => {
-                                    flash.style.opacity = 0;
+                                    // Add stronger glow effect for button during sequences
+                                    wakeUpBtn.style.borderColor = `rgba(255, 255, 255, ${buttonOpacity + 0.2})`;
+                                    wakeUpBtn.style.boxShadow = `0 0 12px rgba(255, 255, 255, ${buttonOpacity * 0.9})`;
 
-                                    // Hide button again
-                                    wakeUpBtn.style.opacity = 0;
+                                    // Make text color clearer during sequences
+                                    wakeUpBtn.style.color = `rgba(255, 255, 255, ${buttonOpacity + 0.3})`;
 
-                                    if (i === flashCount - 1) {
-                                        // Last flash in sequence, hide text
-                                        setTimeout(() => {
-                                            flashText.style.opacity = 0;
-                                        }, 200);
-                                    }
-                                }, 100 + Math.random() * 150);
-                            }, i * (Math.random() * 200 + 200)); // 200-400ms between flashes in a sequence
+                                    // Flicker effect
+                                    setTimeout(
+                                        () => {
+                                            flash.style.opacity = 0;
+
+                                            // Hide button again
+                                            wakeUpBtn.style.opacity = 0;
+
+                                            if (i === flashCount - 1) {
+                                                // Last flash in sequence, hide text
+                                                setTimeout(() => {
+                                                    flashText.style.opacity = 0;
+                                                }, 200);
+                                            }
+                                        },
+                                        100 + Math.random() * 150,
+                                    );
+                                },
+                                i * (Math.random() * 200 + 200),
+                            ); // 200-400ms between flashes in a sequence
                         }
 
                         // Schedule next sequence
@@ -863,8 +949,10 @@
                     const margin = 20;
 
                     // Generate random position within browser window considering margin
-                    const newX = margin + Math.random() * (viewportWidth - margin * 2);
-                    const newY = margin + Math.random() * (viewportHeight - margin * 2);
+                    const newX =
+                        margin + Math.random() * (viewportWidth - margin * 2);
+                    const newY =
+                        margin + Math.random() * (viewportHeight - margin * 2);
 
                     // Reset transform property to remove translateX(-50%) effect
                     wakeUpBtn.style.transition = "all 0.3s ease";
@@ -876,15 +964,18 @@
 
                 // Change button position every 5 seconds
                 randomizeButtonPosition(); // Initial random position
-                const positionInterval = setInterval(randomizeButtonPosition, 5000);
+                const positionInterval = setInterval(
+                    randomizeButtonPosition,
+                    5000,
+                );
 
-                wakeUpBtn.addEventListener("click", function() {
+                wakeUpBtn.addEventListener("click", function () {
                     // Stop position change interval
                     clearInterval(positionInterval);
-                    
+
                     // Set cookie to indicate user has escaped
                     setCookie("nightmareEscaped", "true", 1); // 1 day
-                    
+
                     // Remove trapped cookie
                     deleteCookie("nightmareTrapped");
 
@@ -893,12 +984,12 @@
                     flash.style.opacity = 1;
 
                     // Fade out after a delay
-                    setTimeout(function() {
+                    setTimeout(function () {
                         document.body.style.transition = "opacity 2s ease-out";
                         document.body.style.opacity = "0";
 
                         // Redirect back to main page
-                        setTimeout(function() {
+                        setTimeout(function () {
                             window.location.href = "/";
                         }, 2000);
                     }, 300);
@@ -907,21 +998,24 @@
 
             // Function to initialize and control background music
             function setupBackgroundMusic() {
-                const backgroundMusic = document.getElementById("backgroundMusic");
-                const pinkNoiseAudio = document.getElementById("pinkNoiseAudio");
-                const musicControlBtn = document.getElementById("musicControlBtn");
+                const backgroundMusic =
+                    document.getElementById("backgroundMusic");
+                const pinkNoiseAudio =
+                    document.getElementById("pinkNoiseAudio");
+                const musicControlBtn =
+                    document.getElementById("musicControlBtn");
                 let isMusicPlaying = false;
-                
+
                 // Set music volume very low - lower than whisperTexts
-                backgroundMusic.volume = 0.08; // Much lower than whisper volume (0.15-0.4)
-                pinkNoiseAudio.volume = 0.03; // Pink noise quieter than music box
-                
+                backgroundMusic.volume = 0.15; // Much lower than whisper volume (0.15-0.4)
+                pinkNoiseAudio.volume = 0.005; // Pink noise quieter than music box
+
                 // Make sure all audio loops
                 backgroundMusic.loop = true;
                 pinkNoiseAudio.loop = true;
-                
+
                 // Add event listener to control all music
-                musicControlBtn.addEventListener("click", function() {
+                musicControlBtn.addEventListener("click", function () {
                     if (isMusicPlaying) {
                         backgroundMusic.pause();
                         pinkNoiseAudio.pause();
@@ -934,17 +1028,18 @@
                         isMusicPlaying = true;
                     }
                 });
-                
+
                 // Auto-play music after a few seconds
                 setTimeout(() => {
                     // Start music box
-                    backgroundMusic.play()
+                    backgroundMusic
+                        .play()
                         .then(() => {
                             isMusicPlaying = true;
                             // After music box successfully plays, start pink noise
                             return pinkNoiseAudio.play();
                         })
-                        .catch(error => {
+                        .catch((error) => {
                             console.error("Music couldn't auto-play:", error);
                             // Browser policy may block autoplay
                             musicControlBtn.style.opacity = 0.2; // Make button more visible if autoplay fails
@@ -958,27 +1053,35 @@
                 let lastFrameTime = 0;
                 const targetFPS = 30; // Lower FPS target for better performance
                 const frameInterval = 1000 / targetFPS;
-                
+
                 // Replace requestAnimationFrame with throttled version
                 const originalRAF = window.requestAnimationFrame;
-                window.requestAnimationFrame = function(callback) {
+                window.requestAnimationFrame = function (callback) {
                     const currentTime = performance.now();
-                    const timeUntilNextFrame = Math.max(0, frameInterval - (currentTime - lastFrameTime));
-                    
+                    const timeUntilNextFrame = Math.max(
+                        0,
+                        frameInterval - (currentTime - lastFrameTime),
+                    );
+
                     setTimeout(() => {
                         lastFrameTime = performance.now();
                         callback(lastFrameTime);
                     }, timeUntilNextFrame);
                 };
-                
+
                 // Clean up unused resources periodically
                 setInterval(() => {
                     // Limit audio cache size
                     if (audioCache.size > 30) {
                         // Keep only the 20 most recent entries
                         const entries = Array.from(audioCache.entries());
-                        const entriesToRemove = entries.slice(0, entries.length - 20);
-                        entriesToRemove.forEach(([key]) => audioCache.delete(key));
+                        const entriesToRemove = entries.slice(
+                            0,
+                            entries.length - 20,
+                        );
+                        entriesToRemove.forEach(([key]) =>
+                            audioCache.delete(key),
+                        );
                     }
                 }, 60000); // Check every minute
             }
@@ -989,90 +1092,97 @@
                 if (getCookie("nightmareEscaped") === "true") {
                     return;
                 }
-                
+
                 // Override all link clicks
-                document.addEventListener('click', function(e) {
+                document.addEventListener("click", function (e) {
                     // Check if it's a link click
                     const target = e.target;
-                    const linkElement = target instanceof Element ? target.closest('a') : null;
-                    
+                    const linkElement =
+                        target instanceof Element ? target.closest("a") : null;
+
                     if (linkElement) {
                         e.preventDefault();
                         e.stopPropagation();
-                        
+
                         // Create scary whisper when trying to click links
-                        const randomIndex = Math.floor(Math.random() * glitchWhisperTexts.length);
+                        const randomIndex = Math.floor(
+                            Math.random() * glitchWhisperTexts.length,
+                        );
                         const whisper = document.createElement("div");
                         whisper.className = "whisper glitch";
                         whisper.style.left = e.clientX + "px";
                         whisper.style.top = e.clientY + "px";
                         whisper.style.opacity = "0.8";
                         whisper.textContent = glitchWhisperTexts[randomIndex];
-                        
-                        document.getElementById("whispers").appendChild(whisper);
-                        
+
+                        document
+                            .getElementById("whispers")
+                            .appendChild(whisper);
+
                         // Flash the screen red
                         const flash = document.getElementById("flash");
                         flash.style.backgroundColor = "rgba(255, 0, 0, 0.3)";
                         flash.style.opacity = "1";
-                        
+
                         setTimeout(() => {
                             flash.style.opacity = "0";
                             flash.style.backgroundColor = "white";
-                            
+
                             setTimeout(() => {
                                 whisper.style.opacity = "0";
                                 setTimeout(() => whisper.remove(), 500);
                             }, 1000);
                         }, 100);
-                        
+
                         return false;
                     }
                 });
-                
+
                 // Block F5, Ctrl+R, and browser refresh
-                window.addEventListener('keydown', function(e) {
+                window.addEventListener("keydown", function (e) {
                     // Block F5 and Ctrl+R
-                    if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+                    if (e.key === "F5" || (e.ctrlKey && e.key === "r")) {
                         e.preventDefault();
                         showNightmareWhisper("you can't refresh...");
                         return false;
                     }
-                    
+
                     // Block Alt+Left Arrow (browser back)
-                    if (e.altKey && e.key === 'ArrowLeft') {
+                    if (e.altKey && e.key === "ArrowLeft") {
                         e.preventDefault();
                         showNightmareWhisper("there is no going back...");
                         return false;
                     }
                 });
-                
+
                 // Handle beforeunload (closing tab or window)
-                window.addEventListener('beforeunload', function(e) {
+                window.addEventListener("beforeunload", function (e) {
                     // Display confirmation message
-                    const message = "Are you sure you want to leave? You'll remain trapped in the nightmare...";
+                    const message =
+                        "Are you sure you want to leave? You'll remain trapped in the nightmare...";
                     e.returnValue = message;
                     return message;
                 });
             }
-            
+
             // Initialize everything
-            window.onload = function() {
+            window.onload = function () {
                 // Apply performance optimizations
                 optimizePerformance();
-                
+
                 // Start all effects
                 createWhispers();
                 animateWhispers();
                 createFlashes();
                 setupWakeUpButton();
                 setupBackgroundMusic();
-                
+
                 // Block all navigation attempts if trapped
                 blockAllNavigation();
 
                 // Subtle breathing animation for the entire page
-                document.body.style.animation = "breathe 10s infinite ease-in-out";
+                document.body.style.animation =
+                    "breathe 10s infinite ease-in-out";
             };
         </script>
     </body>

@@ -81,7 +81,6 @@ export const HOVER_DIALOGS = {
       "I SAID STOP! This is your FINAL warning!",
       "THAT'S IT! You're getting on my LAST nerve!",
       "I'M DONE with this ridiculous game. LAST WARNING!",
-      "STOP THIS IMMEDIATELY or you'll REGRET it!",
     ],
   },
 };
@@ -164,7 +163,12 @@ class HoverDialogController {
   ): "contact" | "social" | "none" {
     if (linkType === "whatsapp" || linkType === "email") {
       return "contact";
-    } else if (linkType === "linkedin" || linkType === "github" || linkType === "tiktok" || linkType === "youtube") {
+    } else if (
+      linkType === "linkedin" ||
+      linkType === "github" ||
+      linkType === "tiktok" ||
+      linkType === "youtube"
+    ) {
       return "social";
     }
     return "none";
@@ -199,30 +203,40 @@ class HoverDialogController {
     // Jika sudah menampilkan second level annoyance, hitung hover setelahnya
     if (this.hasShownSecondLevelAnnoyance) {
       this.hoverCountAfterSecondLevel++;
-      console.log("Hover setelah peringatan level kedua:", this.hoverCountAfterSecondLevel);
+      console.log(
+        "Hover setelah peringatan level kedua:",
+        this.hoverCountAfterSecondLevel,
+      );
 
       // Setelah 2 kali hover, trigger EXCESSIVE_HOVER_WARNING
       if (this.hoverCountAfterSecondLevel === 2) {
         try {
           const idleController = IdleTimeoutController.getInstance();
           if (idleController) {
-            console.log("Triggering excessive hover punishment via IdleTimeoutController after 2 hovers following second level warning");
+            console.log(
+              "Triggering excessive hover punishment via IdleTimeoutController after 2 hovers following second level warning",
+            );
             idleController.handleExcessiveHover();
           }
         } catch (e) {
           console.error("Could not trigger IdleTimeoutController warning:", e);
         }
-      } 
+      }
       // Setelah 3 kali hover, trigger FINAL_HOVER_WARNING
       else if (this.hoverCountAfterSecondLevel === 3) {
         try {
           const idleController = IdleTimeoutController.getInstance();
           if (idleController) {
-            console.log("Triggering final hover warning via IdleTimeoutController after 3 hovers following second level warning");
+            console.log(
+              "Triggering final hover warning via IdleTimeoutController after 3 hovers following second level warning",
+            );
             idleController.handleFinalHoverWarning();
           }
         } catch (e) {
-          console.error("Could not trigger IdleTimeoutController final warning:", e);
+          console.error(
+            "Could not trigger IdleTimeoutController final warning:",
+            e,
+          );
         }
       }
       // Setelah 4 kali hover, trigger punchUser (bukan throwUser)
@@ -230,9 +244,11 @@ class HoverDialogController {
         try {
           const idleController = IdleTimeoutController.getInstance();
           if (idleController) {
-            console.log("Triggering punch user effect via IdleTimeoutController after 4 hovers following second level warning");
+            console.log(
+              "Triggering punch user effect via IdleTimeoutController after 4 hovers following second level warning",
+            );
             // Perlu menambahkan metode public handlePunchUser di IdleTimeoutController
-            if (typeof idleController.handlePunchUser === 'function') {
+            if (typeof idleController.handlePunchUser === "function") {
               idleController.handlePunchUser();
             } else {
               // Fallback jika metode belum diimplementasikan
@@ -240,10 +256,13 @@ class HoverDialogController {
             }
           }
         } catch (e) {
-          console.error("Could not trigger IdleTimeoutController punch user:", e);
+          console.error(
+            "Could not trigger IdleTimeoutController punch user:",
+            e,
+          );
         }
       }
-      
+
       // Update last hovered link tanpa trigger dialog
       this.lastHoveredLink = linkType;
       return;
