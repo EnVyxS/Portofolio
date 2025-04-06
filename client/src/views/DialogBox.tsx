@@ -4,15 +4,7 @@ import DialogController from "../controllers/dialogController";
 import HoverDialogController from "../controllers/hoverDialogController";
 import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import ElevenLabsService from "../services/elevenlabsService";
-
-// Export responses for contract interactions
-export const CONTRACT_RESPONSES = [
-  "Didn't lie. Never have, never will. Maybe next time, use your damn brain before throwing accusations.",
-  "Not a liar. Never was. Maybe next time, don't waste my time with your doubts.",
-  "Told you the truth. Always do. Maybe next time, keep your mouth shut until you know better.",
-  "Didn't lie. Don't need to. Maybe next time, think twice before making a fool of yourself.",
-  "Believe me now? Thought so. Next time, don't question what you don't understand.",
-];
+import { CONTRACT_RESPONSES } from "../components/ContractCard";
 
 // Import fungsi hash untuk debugging
 function generateSimpleHash(text: string): string {
