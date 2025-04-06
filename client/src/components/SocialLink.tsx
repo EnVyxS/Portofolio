@@ -27,6 +27,10 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
         return 'linkedin';
       case 'github':
         return 'github';
+      case 'tiktok':
+        return 'tiktok';
+      case 'youtube':
+        return 'youtube';
       default:
         return 'none';
     }

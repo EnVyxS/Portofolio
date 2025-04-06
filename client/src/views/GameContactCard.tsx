@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { FaGithub, FaLinkedin, FaWhatsapp, FaEnvelope } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaWhatsapp, FaEnvelope, FaTiktok, FaYoutube } from "react-icons/fa";
 import { motion } from "framer-motion";
 import SocialLink from "../components/SocialLink";
 
@@ -48,6 +48,22 @@ const GameContactCard: React.FC = () => {
       icon: <FaLinkedin size={24} />,
       color: "#0077B5",
       hoverColor: "#0ea5e9", // Restored to blue color
+    },
+    {
+      id: "tiktok",
+      name: "TikTok",
+      url: "https://www.tiktok.com/@envyxs",
+      icon: <FaTiktok size={24} />,
+      color: "#000000",
+      hoverColor: "#ff0050", // TikTok pink color
+    },
+    {
+      id: "youtube",
+      name: "YouTube",
+      url: "https://www.youtube.com/@envyxs",
+      icon: <FaYoutube size={24} />,
+      color: "#FF0000",
+      hoverColor: "#FF0000", // YouTube red color
     },
     {
       id: "whatsapp",
