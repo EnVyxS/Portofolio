@@ -1,7 +1,7 @@
 import DialogController from "./dialogController";
 import HoverDialogController from "./hoverDialogController";
 import ElevenLabsService from "../services/elevenlabsService";
-import { PUNCH_TEXT, THROW_TEXT } from "../constants/dialogResponses";
+import { IDLE_DIALOGS, PUNCH_TEXT, THROW_TEXT } from "../constants/dialogResponses";
 
 // Dialog yang akan ditampilkan pada timeout tertentu
 export const IDLE_DIALOGS = {
@@ -503,7 +503,7 @@ class IdleTimeoutController {
     }
 
     // Tambahkan dialog peringatan untuk 'melempar' dengan nada kemarahan
-    // Using THROW_TEXT constant from dialogResponses.ts
+    const throwText = "That's it. GET OUT OF MY SIGHT!";
     
     // Atur dialogSource ke 'main' sebelum menampilkan peringatan
     // untuk memastikan teks muncul di dialog box utama
@@ -512,7 +512,7 @@ class IdleTimeoutController {
       this.hoverDialogController.setDialogSource('main');
     }
     
-    this.showIdleWarning(THROW_TEXT);
+    this.showIdleWarning(throwText);
     
     // Pastikan bahwa dialog controller tahu ini adalah post-reset dialog
     try {
@@ -583,7 +583,7 @@ class IdleTimeoutController {
     // Log removed
 
     // Tambahkan dialog peringatan untuk 'memukul'
-    // Using PUNCH_TEXT constant from dialogResponses.ts
+    const punchText = "YOU ASKED FOR THIS.";
     
     // Atur dialogSource ke 'main' sebelum menampilkan peringatan
     // untuk memastikan teks muncul di dialog box utama
@@ -651,7 +651,7 @@ class IdleTimeoutController {
     };
     
     // Tampilkan peringatan, tetapi tunggu dialog selesai sebelum melanjutkan
-    this.showIdleWarning(PUNCH_TEXT);
+    this.showIdleWarning(punchText);
     
     // Cek apakah ada dialog atau audio aktif
     const checkDialogAndPunch = () => {
