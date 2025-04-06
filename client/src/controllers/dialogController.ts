@@ -106,7 +106,15 @@ class DialogController {
     const isContractResponse = dialog.text.includes("real qualifications") || 
                             dialog.text.includes("I'm the real deal") ||
                             dialog.text.includes("answer your questions about my background") ||
-                            dialog.text.includes("Now you've seen the proof");
+                            dialog.text.includes("Now you've seen the proof") ||
+                            dialog.text.includes("I've never lied to you");
+    
+    // Cek juga dari flag global untuk dialog kontrak yang diatur oleh ContractCard.tsx
+    // @ts-ignore - akses properti global dari window
+    const isContractDialogActive = window.__contractDialogActive === true;
+    
+    // Variable gabungan untuk pengecekan kontrak
+    const isContractRelated = isContractResponse || isContractDialogActive;
     
     // Perkiraan durasi dialog berdasarkan panjang teks
     // Rata-rata pembacaan 12 karakter per detik (standar untuk bahasa Inggris - lebih lambat untuk DIVA JUAN)
@@ -142,7 +150,7 @@ class DialogController {
     }
     
     // Tunggu sedikit untuk memastikan audioDuration sudah terisi jika ada
-    if (isContractResponse && audioStarted) {
+    if (isContractRelated && audioStarted) {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
     
@@ -188,8 +196,8 @@ class DialogController {
       
       // Hitung kecepatan ketik optimal untuk selesai tepat saat audio selesai
       // Untuk semua dialog audio, kita ingin menampilkan teks sedikit lebih lambat untuk selesai bersamaan audio
-      if (isContractResponse) {
-        // Jika ini respon kontrak, kita ingin typing selesai tepat saat audio selesai
+      if (isContractRelated) {
+        // Jika ini respon kontrak atau flag kontrak aktif, kita ingin typing selesai tepat saat audio selesai
         actualTypingSpeed = Math.max(25, typingDuration / effectiveLength);
         console.log(`[DialogController] CONTRACT RESPONSE - typingSpeed diatur ke ${Math.round(actualTypingSpeed)}ms per karakter`);
       } else {
@@ -210,7 +218,7 @@ class DialogController {
     // Jika audio berhasil diputar, gunakan timer untuk memastikan dialog selesai
     if (audioStarted) {
       // Gunakan durasi audio sebenarnya ditambah buffer untuk memastikan typing selesai dengan benar
-      const bufferTime = isContractResponse ? 500 : 1000; // Buffer lebih pendek untuk respons kontrak
+      const bufferTime = isContractRelated ? 500 : 1000; // Buffer lebih pendek untuk respons kontrak
       const completionTimeout = (audioDuration > 0 ? audioDuration : estimatedDuration) + bufferTime;
       
       audioCompletionTimer = setTimeout(() => {
@@ -378,10 +386,18 @@ class DialogController {
       }
       
       // Gunakan callback sementara untuk memastikan dialog source tetap correct
+      // dan untuk menerapkan pemantauan performa serta penyesuaian kecepatan typing
       const wrappedCallback = (text: string, isComplete: boolean) => {
         // Log tambahan untuk debugging
         console.log(`[DialogController] Custom dialog callback - Text: "${text.substring(0, 20)}..." isComplete: ${isComplete}`);
         
+        // Pantau apakah ini adalah respons kontrak berdasarkan isi teks
+        const isContractResponse = text.includes("I've never lied to you") || 
+                                  text.includes("seen the proof") ||
+                                  text.includes("real qualifications") ||
+                                  text.includes("answer your questions about my background") ||
+                                  text.includes("I'm the real deal");
+                                
         // Panggil callback asli
         callback(text, isComplete);
         

@@ -276,10 +276,15 @@ const ContractCard: React.FC = () => {
         hoverDialogController.setDialogSource("main");
       }
 
-      // Pastikan isDialogFinished di DialogBox diatur ke false terlebih dahulu
-      // Gunakan objek window untuk menyimpan state terkait kontrak
+      // Tandai bahwa dialog kontrak aktif SEBELUM mencoba menampilkan dialog baru
+      // dan SEBELUM memanggil dialog controller
+      // ini memastikan bahwa dialog box tetap terlihat selama transisi
       // @ts-ignore - tambahkan properti global untuk komunikasi antar komponen
       window.__contractDialogActive = true;
+      
+      // Simpan teks kontrak untuk referensi global (digunakan di DialogBox.tsx)
+      // @ts-ignore - simpan teks respons kontrak
+      window.__contractResponseText = randomResponse;
       
       // Sebelum menampilkan dialog custom, reset dialogController dulu
       dialogController.stopTyping();
@@ -288,6 +293,17 @@ const ContractCard: React.FC = () => {
       const textSetter = window.__dialogBoxTextSetter;
       // @ts-ignore - untuk mendapatkan akses ke isCompleteSetter di DialogBox jika tersedia
       const isCompleteSetter = window.__dialogBoxIsCompleteSetter;
+      
+      // Jika setter tersedia, kosongkan teks terlebih dahulu untuk mencegah
+      // teks lama terlihat saat transisi ke dialog kontrak
+      if (typeof textSetter === 'function') {
+        textSetter("");
+      }
+      
+      // Pastikan bahwa dialog box mengetahui ini bukan dialog yang selesai
+      if (typeof isCompleteSetter === 'function') {
+        isCompleteSetter(false);
+      }
       
       // Pre-load audio untuk dialog kontrak untuk mengurangi delay
       // Gunakan immediate callback untuk meningkatkan kecepatan respons

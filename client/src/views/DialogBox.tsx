@@ -340,13 +340,20 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // @ts-ignore - akses properti global dari window yang disimpan di ContractCard
   const contractResponseText = window.__contractResponseText;
   
-  // Kita menghilangkan bagian yang membuat dialog kontrak muncul penuh
-  // Sekarang, saat contractDialogActive, kita biarkan efek typewriter berjalan
-  // tanpa mengubah teks secara manual
-  // Kita tetapkan bahwa ini adalah kontrak dialog berdasarkan flag __contractDialogActive
-  // dan bukan berdasarkan teks lengkap (tidak menggunakan contractResponseText)
+  // Expose text setter dan isComplete setter untuk ContractCard agar bisa memanggil secara langsung
+  // @ts-ignore - simpan setter ke global window untuk memungkinkan akses dari ContractCard
+  window.__dialogBoxTextSetter = setText;
   
-  if (isDialogFinished && text === "" && !isContractDialogActive) {
+  // @ts-ignore - simpan isComplete setter ke global window untuk memungkinkan akses dari ContractCard
+  window.__dialogBoxIsCompleteSetter = setIsComplete;
+  
+  // Jika dialog kontrak aktif tetapi teks kosong, cek contractResponseText
+  // Ini mencegah dialog box menghilang saat beralih dari dialog model ke contract response
+  if (isContractDialogActive && text === "" && contractResponseText) {
+    // Jangan ubah teks di sini, karena kita ingin efek typewriter berjalan
+    // hanya berikan indikasi bahwa dialog box harus tetap terlihat
+    console.log("[DialogBox] Contract dialog active but text empty, keeping dialog box visible");
+  } else if (isDialogFinished && text === "" && !isContractDialogActive) {
     // Debug untuk membantu melihat status dialog
     console.log("[DialogBox] Dialog finished with empty text, hiding dialog box");
     return null; // Hanya return null jika tidak ada teks sama sekali dan bukan dialog kontrak
