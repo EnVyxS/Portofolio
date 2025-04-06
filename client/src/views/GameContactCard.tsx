@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { FaGithub, FaLinkedin, FaWhatsapp, FaEnvelope, FaYoutube, FaTiktok } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaWhatsapp, FaEnvelope } from "react-icons/fa";
 import { motion } from "framer-motion";
 import SocialLink from "../components/SocialLink";
 
@@ -48,22 +48,6 @@ const GameContactCard: React.FC = () => {
       icon: <FaLinkedin size={24} />,
       color: "#0077B5",
       hoverColor: "#0ea5e9", // Restored to blue color
-    },
-    {
-      id: "youtube",
-      name: "YouTube",
-      url: "https://www.youtube.com/c/DivaJuanNurTaqarrub", // URL diisi dengan channel YouTube
-      icon: <FaYoutube size={24} />,
-      color: "#FF0000", 
-      hoverColor: "#FF0000", // Warna merah YouTube
-    },
-    {
-      id: "tiktok",
-      name: "TikTok",
-      url: "https://www.tiktok.com/@divajuanvx", // URL diisi dengan akun TikTok
-      icon: <FaTiktok size={24} />,
-      color: "#000000",
-      hoverColor: "#25F4EE", // Warna aksen TikTok
     },
     {
       id: "whatsapp",
@@ -178,7 +162,7 @@ const GameContactCard: React.FC = () => {
           max-width: 500px;
           margin: 0 auto;
           position: absolute;
-          top: 25%; /* Posisi lebih ke atas untuk menghindari dialog box */
+          top: 40%; /* Lebih tinggi dari tengah agar tidak tumpang tindih dengan dialog box */
           right: 40px; /* Position further to the right side */
           transform: translateY(-50%); /* Perfect vertical centering */
         }
@@ -279,7 +263,7 @@ const GameContactCard: React.FC = () => {
         /* Media query with simpler clamp and consistent rem/vh usage */
         @media (max-width: 768px) {
           .content-wrapper {
-            top: 25%; /* Konsisten dengan desktop */
+            top: 40%; /* Konsisten dengan desktop */
             right: 2vw; /* Closer to edge on tablets */
             max-width: 320px;
             z-index: 10; /* Ensure it's above other elements */
@@ -306,7 +290,7 @@ const GameContactCard: React.FC = () => {
 
         @media (max-width: 640px) {
           .content-wrapper {
-            top: 30%; /* Posisi lebih ke atas untuk menghindari dialog box di mobile */
+            top: 50%; /* Posisi tepat di tengah untuk mobile */
             right: 0; /* Center horizontal di layar mobile */
             left: 0;
             margin: 0 auto;
@@ -338,7 +322,7 @@ const GameContactCard: React.FC = () => {
         /* Extra small devices */
         @media (max-width: 480px) {
           .content-wrapper {
-            top: 25%; /* Posisi lebih ke atas untuk menghindari dialog box */
+            top: 50%; /* Centered di tengah layar */
             width: 100%; /* Use full width */
             padding: 0 1rem; /* Add padding */
             display: flex;
@@ -373,7 +357,7 @@ const GameContactCard: React.FC = () => {
         /* Landscape mode on mobile devices */
         @media (max-height: 500px) and (orientation: landscape) {
           .content-wrapper {
-            top: 25%; /* Posisi lebih ke atas untuk menghindari dialog box */
+            top: 50%; /* Center vertically in landscape */
             right: 10px; /* Close to the right edge */
             transform: translateY(-50%); /* Perfect vertical centering */
           }

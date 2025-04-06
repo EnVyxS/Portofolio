@@ -9,8 +9,6 @@ export type HoverLinkType =
   | "email"
   | "linkedin"
   | "github"
-  | "youtube"
-  | "tiktok"
   | "none";
 
 // Dialog khusus berdasarkan status dan jenis link
@@ -164,7 +162,7 @@ class HoverDialogController {
   ): "contact" | "social" | "none" {
     if (linkType === "whatsapp" || linkType === "email") {
       return "contact";
-    } else if (linkType === "linkedin" || linkType === "github" || linkType === "youtube" || linkType === "tiktok") {
+    } else if (linkType === "linkedin" || linkType === "github") {
       return "social";
     }
     return "none";
