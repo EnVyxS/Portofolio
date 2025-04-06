@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import HoverDialogController, { HoverLinkType } from "../controllers/hoverDialogController";
+import DialogController from "../controllers/dialogController";
 
 interface SocialLinkProps {
   name: string;
@@ -27,6 +28,10 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
         return 'linkedin';
       case 'github':
         return 'github';
+      case 'youtube':
+        return 'youtube';
+      case 'tiktok':
+        return 'tiktok';
       default:
         return 'none';
     }
@@ -39,6 +44,34 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
     setTimeout(() => setIsGlitching(false), glitchDuration);
   };
   
+  // Pesan Geralt-style untuk link yang kosong
+  const emptyLinkMessages = {
+    youtube: [
+      "Hmm... tidak suka dipublikasikan. Mungkin lain waktu.",
+      "Tsk... Videos? Membuang waktuku saja.",
+      "Tidak tertarik membuat video. Lebih baik bekerja dalam diam.",
+      "Hmph. YouTube? Bukan gayaku untuk pamer.",
+      "Belum perlu terlalu dikenal... Lebih aman begitu."
+    ],
+    tiktok: [
+      "Menari di TikTok? Heh... Aku pembunuh monster, bukan penari.",
+      "Jangan konyol. TikTok bukan urusanku.",
+      "Hmm. Terlalu sibuk untuk hal-hal semacam itu.",
+      "Tarian pendek? Lebih baik berlatih pedang.",
+      "Hmph. TikTok hanya akan membuatku kehilangan reputasi."
+    ]
+  };
+
+  // Fungsi untuk mendapatkan pesan acak untuk link kosong
+  const getRandomEmptyLinkMessage = (linkType: string): string => {
+    if (linkType === 'youtube' || linkType === 'tiktok') {
+      const messages = emptyLinkMessages[linkType as keyof typeof emptyLinkMessages];
+      const randomIndex = Math.floor(Math.random() * messages.length);
+      return messages[randomIndex];
+    }
+    return "";
+  };
+
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     // Prevent default behavior for all links to handle redirection manually
     e.preventDefault();
@@ -53,6 +86,24 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
     const hoverType = mapIdToLinkType(id);
     hoverController.handleHoverDialog(hoverType);
     
+    // Jika URL kosong untuk YouTube atau TikTok, tampilkan pesan khusus
+    if (url === "" && (id === "youtube" || id === "tiktok")) {
+      const message = getRandomEmptyLinkMessage(id);
+      if (message) {
+        console.log(`Empty ${id} link clicked, showing message: ${message}`);
+        // Menggunakan dialog controller untuk menampilkan pesan
+        const dialogController = DialogController.getInstance();
+        if (dialogController) {
+          dialogController.showCustomDialog(message, (text, isComplete) => {
+            console.log("Empty link dialog: ", text, isComplete);
+          });
+        } else {
+          alert(message); // Fallback jika dialog controller tidak tersedia
+        }
+        return;
+      }
+    }
+    
     // Check if audio is currently playing
     if (elevenlabsService.isCurrentlyPlaying()) {
       console.log("Audio is playing - waiting for completion before redirecting to:", url);
@@ -66,7 +117,7 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
         // Use window.open for external links, window.location for mailto
         if (url.startsWith('mailto:')) {
           window.location.href = url;
-        } else {
+        } else if (url) { // Tambahkan pengecekan URL tidak kosong
           window.open(url, '_blank', 'noopener,noreferrer');
         }
       }, redirectDelay);
@@ -76,7 +127,7 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
       
       if (url.startsWith('mailto:')) {
         window.location.href = url;
-      } else {
+      } else if (url) { // Tambahkan pengecekan URL tidak kosong
         window.open(url, '_blank', 'noopener,noreferrer');
       }
     }
