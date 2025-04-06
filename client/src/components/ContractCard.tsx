@@ -12,13 +12,13 @@ import DialogController from "../controllers/dialogController";
 import HoverDialogController from "../controllers/hoverDialogController";
 import { useAudio } from "../context/AudioManager";
 
-// Responses for contract interactions - moved from DialogBox.tsx
+// Responses for contract interactions - moved from DialogBox.tsx and made more natural
 export const CONTRACT_RESPONSES = [
-  "Didn't lie. Never have, never will. Maybe next time, use your damn brain before throwing accusations.",
-  "Not a liar. Never was. Maybe next time, don't waste my time with your doubts.",
-  "Told you the truth. Always do. Maybe next time, keep your mouth shut until you know better.",
-  "Didn't lie. Don't need to. Maybe next time, think twice before making a fool of yourself.",
-  "Believe me now? Thought so. Next time, don't question what you don't understand.",
+  "Look, I've never lied to you. You've seen my credentials now. Let's move on with our conversation.",
+  "Now you've seen the proof. Are we good to continue, or do you need more convincing?",
+  "Those are my real qualifications. Hope that settles any doubts you had. What else would you like to know?",
+  "That should answer your questions about my background. Ready to talk about something else now?", 
+  "There's everything you needed to see. I'm the real deal. What would you like to discuss next?",
 ];
 
 // Import sounds

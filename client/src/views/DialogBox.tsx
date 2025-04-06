@@ -341,7 +341,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const contractResponseText = window.__contractResponseText;
   
   // Jika ada teks kontrak yang perlu ditampilkan, override text
-  if (isContractDialogActive && contractResponseText) {
+  // Tapi hanya jika dialog source adalah 'main' (bukan 'hover')
+  if (isContractDialogActive && contractResponseText && dialogSource === 'main') {
     // Jika contractDialogActive, tampilkan teks dari contractResponseText
     // jika typewriter effect sedang berjalan
     if (!isComplete) {
@@ -362,11 +363,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   }
   
   // Periksa apakah ini adalah dialog kontrak (CONTRACT_RESPONSES) berdasarkan teks
-  const isContractResponse = text.includes("next time, use your") || 
-                          text.includes("next time, don't waste") ||
-                          text.includes("next time, keep your") ||
-                          text.includes("next time, think twice") ||
-                          text.includes("Believe me now");
+  const isContractResponse = text.includes("I've never lied to you") || 
+                          text.includes("seen the proof") ||
+                          text.includes("real qualifications") ||
+                          text.includes("answer your questions about my background") ||
+                          text.includes("I'm the real deal");
   
   // Log khusus untuk dialog kontrak
   if (isContractResponse) {
@@ -411,11 +412,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
                 !text.includes("Staring at me") &&
                 !text.includes("throw") &&
                 !text.includes("punch") &&
-                !text.includes("next time, use your") && // Contract responses specific phrases
-                !text.includes("next time, don't waste") &&
-                !text.includes("next time, keep your") &&
-                !text.includes("next time, think twice") &&
-                !text.includes("Believe me now") ? (
+                !text.includes("I've never lied to you") && // Contract responses specific phrases
+                !text.includes("seen the proof") &&
+                !text.includes("real qualifications") &&
+                !text.includes("answer your questions about my background") &&
+                !text.includes("I'm the real deal") ? (
                 <div className="auto-continue-hint">
                   Auto-continues in a moment...
                 </div>
