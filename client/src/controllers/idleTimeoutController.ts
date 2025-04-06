@@ -469,9 +469,19 @@ class IdleTimeoutController {
       
       // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
       setTimeout(() => {
+        // Set dialog source ke 'main' lagi untuk pastikan, tepat sebelum menampilkan dialog
+        // Ini diperlukan karena callback dari hover bisa mengubahnya kembali ke 'hover' tergantung teksnya
+        if (this.hoverDialogController.setDialogSource) {
+          console.log("[IdleTimeoutController] FORCE Setting dialog source to 'main' just before showing dialog");
+          this.hoverDialogController.setDialogSource('main');
+        }
+        
         // Tampilkan dialog peringatan dengan text custom
         // Dialog Controller akan mengelola audio secara otomatis
         this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
+          // Log untuk debugging dialog idle
+          console.log(`[IdleTimeoutController] Showing IDLE_WARNING dialog:`, text);
+          
           if (isComplete) {
             // Tandai bahwa user sudah berinteraksi dengan dialog
             this.hoverDialogController.setHasInteractedWithHover(true);

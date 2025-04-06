@@ -280,8 +280,29 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     hoverDialogController.setHoverTextCallback((text, complete) => {
       setText(text);
       setIsComplete(complete);
-      setDialogSource("hover");
-      setCharacterName("DIVA JUAN NUR TAQARRUB"); // Dialog hover dari DIVA JUAN (idle warnings juga)
+      
+      // Jangan mengatur ulang dialogSource ke "hover" di sini
+      // karena dialogSource mungkin sudah diatur ke "main" oleh IdleTimeoutController
+      // Ini akan mengganggu tampilan idle warnings dan pesan lainnya
+      
+      // Hanya atur dialogSource ke "hover" jika sumber belum secara eksplisit diatur ke "main"
+      // Ini memungkinkan IdleTimeoutController mengatur sumber ke "main" dan tetap
+      // menggunakan mekanisme yang sama untuk menampilkan teks
+      
+      // Gunakan dialogSource yang ada, atau atur ke "hover" jika belum diatur dari luar
+      if (!(text.includes("What the hell are you staring at") || 
+           text.includes("You really gonna keep ignoring me") ||
+           text.includes("You think this is funny") ||
+           text.includes("Now what, you little filth") ||
+           text.includes("Hmph... Finally, you decide to move") ||
+           text.includes("KEEP PUSHING, AND YOU'LL REGRET IT") ||
+           text.includes("I'VE HAD ENOUGH OF YOUR GAMES") ||
+           text.includes("That's it. GET OUT OF MY SIGHT") ||
+           text.includes("YOU ASKED FOR THIS"))) {
+        setDialogSource("hover");
+      }
+      
+      setCharacterName("DIVA JUAN NUR TAQARRUB"); // Semua dialog dari DIVA JUAN
     });
 
     // Buat function untuk set dialogSource dari luar komponen
