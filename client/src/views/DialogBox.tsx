@@ -358,10 +358,26 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
                           text.includes("real qualifications") ||
                           text.includes("answer your questions about my background") ||
                           text.includes("I'm the real deal");
+                          
+  // Periksa apakah ini adalah dialog idle timeout/hover berlebihan berdasarkan teks
+  const isIdleTimeoutResponse = text.includes("What the hell are you staring at") || 
+                               text.includes("You really gonna keep ignoring me") ||
+                               text.includes("You think this is funny") ||
+                               text.includes("Now what, you little filth") ||
+                               text.includes("Hmph... Finally, you decide to move") ||
+                               text.includes("KEEP PUSHING, AND YOU'LL REGRET IT") ||
+                               text.includes("I'VE HAD ENOUGH OF YOUR GAMES") ||
+                               text.includes("That's it. GET OUT OF MY SIGHT") ||
+                               text.includes("YOU ASKED FOR THIS");
   
   // Log khusus untuk dialog kontrak
   if (isContractResponse) {
     console.log(`[DialogBox] CONTRACT RESPONSE dialog active: "${text.substring(0, 30)}..."`);
+  }
+  
+  // Log khusus untuk dialog idle timeout
+  if (isIdleTimeoutResponse) {
+    console.log(`[DialogBox] IDLE TIMEOUT RESPONSE dialog active: "${text.substring(0, 30)}..."`);
   }
   
   // Tambahkan log untuk membantu debug tampilan dialog
@@ -397,16 +413,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
                 </div>
               ) : // Only show auto-continue hint for main dialog and not for other types
               // Check if it's not a hover dialog, idle warning, or contract response
-              dialogSource === "main" &&
-                !text.includes("fuck you") && // Idle timeout specific phrases
-                !text.includes("Staring at me") &&
-                !text.includes("throw") &&
-                !text.includes("punch") &&
-                !text.includes("I've never lied to you") && // Contract responses specific phrases
-                !text.includes("seen the proof") &&
-                !text.includes("real qualifications") &&
-                !text.includes("answer your questions about my background") &&
-                !text.includes("I'm the real deal") ? (
+              (dialogSource === "main" &&
+               !isContractResponse && // Tidak tampilkan auto-continue untuk dialog kontrak
+               !isIdleTimeoutResponse) ? ( // Tidak tampilkan auto-continue untuk dialog idle timeout/hover punishment
                 <div className="auto-continue-hint">
                   Auto-continues in a moment...
                 </div>
