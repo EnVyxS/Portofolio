@@ -1,7 +1,7 @@
 import DialogModel, { Dialog, RETURN_DIALOG } from '../models/dialogModel';
 import ElevenLabsService from '../services/elevenlabsService';
 import HoverDialogController from './hoverDialogController';
-import { CONTRACT_RESPONSES } from '../constants/dialogResponses';
+import { CONTRACT_RESPONSES } from '../components/ContractCard';
 
 class DialogController {
   private static instance: DialogController;

@@ -4,7 +4,7 @@ import DialogController from "../controllers/dialogController";
 import HoverDialogController from "../controllers/hoverDialogController";
 import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import ElevenLabsService from "../services/elevenlabsService";
-import { CONTRACT_RESPONSES } from "../constants/dialogResponses";
+import { CONTRACT_RESPONSES } from "../components/ContractCard";
 
 // Import fungsi hash untuk debugging
 function generateSimpleHash(text: string): string {
