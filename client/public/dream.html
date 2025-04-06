@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgotten Dream</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Cormorant+Garamond:wght@300;400;500&display=swap" rel="stylesheet">
+    <title>Abandoned Dream</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -15,19 +15,20 @@
         body, html {
             margin: 0;
             padding: 0;
-            font-family: 'Cormorant Garamond', serif;
-            color: #d0c8bc;
-            background-color: #0a0a0c;
+            font-family: 'EB Garamond', serif;
+            color: #a49682;
+            background-color: #060607;
             height: 100%;
             overflow: auto;
             line-height: 1.6;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="%23301b0b" stroke="%23b08f68" stroke-width="1"/></svg>') 8 8, auto;
             background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c4zIypAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgvJEaAAAAVklEQVRIx+3RSRaAIAxE0b5EEESUGcf7X9eo4GqXsR8B10+W2jLEwM0DmE0PQgFnmO1MWXMTyF1K3LFHD8AXByGVLtghjWmB3YE1oHB4MVaVwJSKZYuB2bw7APsPy4I/JCIYAAAAAElFTkSuQmCC');
             background-repeat: repeat;
         }
 
         .dream-container {
             position: relative;
-            max-width: 1100px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 5vh 20px;
             min-height: 100vh;
@@ -38,13 +39,26 @@
 
         .dream-title {
             font-family: 'Cinzel', serif;
-            font-size: 3.2rem;
+            font-size: 3rem;
             text-align: center;
-            color: #b9ad9c;
+            color: #9c8872;
             margin: 5vh 0 8vh;
             letter-spacing: 2px;
             font-weight: 400;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+            animation: flicker 6s infinite;
+            position: relative;
+        }
+
+        .dream-title::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 110%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(156, 136, 114, 0.3), transparent);
         }
 
         .grid-container {
@@ -55,10 +69,32 @@
         }
 
         .grid-item {
-            background-color: rgba(18, 18, 20, 0.8);
-            border: 1px solid rgba(100, 90, 80, 0.3);
+            background-color: rgba(14, 12, 10, 0.8);
+            border: 1px solid rgba(100, 80, 60, 0.2);
             padding: 30px;
             border-radius: 0px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease;
+            min-height: 220px;
+        }
+
+        .grid-item::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c4zIypAAAAIgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACTINFEAAAAC3RSTlOIiIiIiIiIiIiIiIgSfFAWAAAATUlEQVRIx+3WsQ0AIAwDwYRByvDv2YIFkPhY+Pe2TwAApu/5kt5p22p12ytue9k+lR199szcphyYmZlZ1TPztZZZZlJkZjRm9q91AGyYL2TI3yhTAAAAAElFTkSuQmCC');
+            opacity: 0.03;
+            pointer-events: none;
+        }
+
+        .grid-item:hover {
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.7), 0 0 10px rgba(156, 136, 114, 0.2);
+            border-color: rgba(156, 136, 114, 0.3);
         }
 
         .grid-full {
@@ -67,10 +103,23 @@
 
         .section-title {
             font-family: 'Cinzel', serif;
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             margin-bottom: 25px;
-            color: #d0c8bc;
+            color: #a49682;
             font-weight: 500;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(156, 136, 114, 0.5), transparent);
         }
 
         .memory-quote {
@@ -78,72 +127,128 @@
             margin-bottom: 20px;
             font-size: 1.3rem;
             line-height: 1.8;
+            color: #7d6a58;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
         }
 
         .link-item {
             display: block;
-            margin-bottom: 15px;
-            color: #a7987b;
+            margin-bottom: 20px;
+            color: #7d6a58;
             text-decoration: none;
             font-size: 1.3rem;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
             position: relative;
             padding-left: 15px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
         }
 
         .link-item:before {
-            content: "▹";
+            content: "➤";
             position: absolute;
-            left: 0;
-            opacity: 0.6;
+            left: -5px;
+            opacity: 0.5;
+            font-size: 0.7em;
+            transition: all 0.3s ease;
         }
 
         .link-item:hover {
-            color: #d0c0a5;
+            color: #b39e7e;
+            transform: translateX(5px);
+        }
+
+        .link-item:hover::before {
+            opacity: 1;
+            color: #8e735c;
         }
 
         .music-player {
             display: flex;
             align-items: center;
             gap: 20px;
+            position: relative;
+            padding: 10px 0;
+        }
+
+        .music-player::before, .music-player::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(156, 136, 114, 0.2), transparent);
+        }
+
+        .music-player::before {
+            top: 0;
+        }
+
+        .music-player::after {
+            bottom: 0;
         }
 
         .play-button {
             width: 40px;
             height: 40px;
             background: none;
-            border: 1px solid #a7987b;
-            color: #a7987b;
+            border: 1px solid #7d6a58;
+            color: #7d6a58;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            border-radius: 50%;
+            border-radius: 0;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .play-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(156, 136, 114, 0.2), transparent);
+            transition: all 0.6s ease;
+        }
+
+        .play-button:hover::before {
+            left: 100%;
         }
 
         .play-button:hover {
-            background: rgba(167, 152, 123, 0.2);
+            background: rgba(63, 52, 41, 0.4);
+            border-color: #9c8872;
+            color: #9c8872;
         }
 
         .player-text {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
+            color: #7d6a58;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
         }
 
         .dream-image {
             width: 100%;
-            height: 300px;
+            height: 220px;
             object-fit: cover;
-            border: 1px solid rgba(100, 90, 80, 0.3);
+            border: 1px solid rgba(100, 80, 60, 0.3);
             display: block;
             margin-bottom: 15px;
-            filter: brightness(0.8) contrast(1.1) saturate(0.7);
+            filter: brightness(0.6) contrast(1.2) saturate(0.6) sepia(0.2);
+            transition: all 1s ease;
+        }
+
+        .dream-image:hover {
+            filter: brightness(0.7) contrast(1.3) saturate(0.7) sepia(0.1);
         }
 
         .whisper-text {
             font-size: 1.3rem;
-            color: #928577;
-            line-height: 1.6;
+            color: #7d6a58;
+            line-height: 1.7;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
         }
 
         .vignette {
@@ -155,29 +260,52 @@
             pointer-events: none;
             background: radial-gradient(
                 ellipse at center,
-                rgba(10, 10, 12, 0) 40%,
-                rgba(10, 10, 12, 1) 100%
+                rgba(6, 6, 7, 0) 20%,
+                rgba(6, 6, 7, 0.8) 90%,
+                rgba(6, 6, 7, 1) 100%
             );
             z-index: 2;
+            opacity: 0.9;
         }
 
         .wake-up-btn {
             background: none;
-            border: 1px solid #a7987b;
-            color: #a7987b;
+            border: 1px solid #7d6a58;
+            color: #7d6a58;
             font-family: 'Cinzel', serif;
             font-size: 1.1rem;
             padding: 15px 30px;
             margin: 40px auto 20px;
             display: block;
             cursor: pointer;
-            transition: all 0.3s ease;
-            letter-spacing: 1px;
+            transition: all 0.5s ease;
+            letter-spacing: 2px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wake-up-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(156, 136, 114, 0.2), transparent);
+            transition: all 0.6s ease;
+        }
+
+        .wake-up-btn:hover::before {
+            left: 100%;
         }
 
         .wake-up-btn:hover {
-            background: rgba(167, 152, 123, 0.2);
-            color: #d0c0a5;
+            background: rgba(63, 52, 41, 0.4);
+            color: #b39e7e;
+            border-color: #9c8872;
+            letter-spacing: 3px;
+            box-shadow: 0 0 15px rgba(156, 136, 114, 0.2);
         }
 
         .fog-overlay {
@@ -186,10 +314,17 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c4zIypAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgvJEaAAAAVklEQVRIx+3RSRaAIAxE0b5EEESUGcf7X9eo4GqXsR8B10+W2jLEwM0DmE0PQgFnmO1MWXMTyF1K3LFHD8AXByGVLtghjWmB3YE1oHB4MVaVwJSKZYuB2bw7APsPy4I/JCIYAAAAAElFTkSuQmCC');
-            opacity: 0.02;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJub2lzZSIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNiIgbnVtT2N0YXZlcz0iMyIgc3RpdGNoVGlsZXM9InN0aXRjaCIgcmVzdWx0PSJub2lzZSIvPjxmZUNvbG9yTWF0cml4IHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAyMCAwIiBpbj0ibm9pc2UiIHJlc3VsdD0iY29udHJhc3ROb2lzZSIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjMzAxYjBiIiBvcGFjaXR5PSIwLjA1IiBmaWx0ZXI9InVybCgjbm9pc2UpIi8+PC9zdmc+');
+            opacity: 0.8;
             pointer-events: none;
             z-index: 3;
+            mix-blend-mode: soft-light;
+            animation: fogMove 60s infinite alternate;
+        }
+
+        @keyframes fogMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 100% 100%; }
         }
 
         .particles {
@@ -204,27 +339,180 @@
 
         .particle {
             position: absolute;
-            background-color: rgba(167, 152, 123, 0.4);
-            width: 2px;
-            height: 2px;
+            background-color: rgba(115, 96, 79, 0.15);
+            width: 3px;
+            height: 3px;
             border-radius: 50%;
             animation: float linear infinite;
+            box-shadow: 0 0 5px rgba(115, 96, 79, 0.3);
         }
 
         @keyframes float {
             0% {
-                transform: translateY(100vh);
+                transform: translateY(100vh) translateX(0);
                 opacity: 0;
             }
             10% {
-                opacity: 0.5;
+                opacity: 0.2;
             }
             90% {
-                opacity: 0.5;
+                opacity: 0.2;
             }
             100% {
-                transform: translateY(-10px);
+                transform: translateY(-10px) translateX(10px);
                 opacity: 0;
+            }
+        }
+
+        /* Dark Souls text flicker effect */
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            5% { opacity: 0.9; }
+            10% { opacity: 1; }
+            15% { opacity: 0.9; }
+            20% { opacity: 1; }
+            25% { opacity: 0.9; }
+            30% { opacity: 1; }
+            35% { opacity: 0.9; }
+            40% { opacity: 1; }
+            45% { opacity: 0.9; }
+            50% { opacity: 1; }
+            55% { opacity: 0.9; }
+            60% { opacity: 1; }
+            92% { opacity: 1; }
+            93% { opacity: 0.6; }
+            94% { opacity: 0.9; }
+            95% { opacity: 1; }
+            96% { opacity: 0.6; }
+            97% { opacity: 0.9; }
+            98% { opacity: 1; }
+            99% { opacity: 0.9; }
+        }
+
+        /* Bonfire flames */
+        .bonfire {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 80px;
+            z-index: 10;
+            opacity: 0.8;
+            cursor: pointer;
+            transform: translateY(0);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .bonfire:hover {
+            opacity: 1;
+            transform: translateY(-3px);
+        }
+
+        .logs {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 25px;
+            height: 8px;
+            background: #49392a;
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+
+        .logs::before, .logs::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 8px;
+            background: #49392a;
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+
+        .logs::before {
+            transform: rotate(30deg);
+            right: 5px;
+            bottom: 0;
+        }
+
+        .logs::after {
+            transform: rotate(-30deg);
+            left: 5px;
+            bottom: 0;
+        }
+
+        .flames {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 60px;
+        }
+
+        .flame {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 50% 50% 20% 20%;
+            filter: blur(5px);
+            animation: flameAnimation 2s infinite;
+        }
+
+        .flame1 {
+            width: 20px;
+            height: 40px;
+            background: linear-gradient(to top, #FF5722, #FFC107);
+            opacity: 0.8;
+        }
+
+        .flame2 {
+            width: 15px;
+            height: 30px;
+            background: linear-gradient(to top, #FFC107, #FFEB3B);
+            animation-delay: 0.3s;
+        }
+
+        .flame3 {
+            width: 10px;
+            height: 20px;
+            background: linear-gradient(to top, #FFEB3B, #FFF);
+            animation-delay: 0.6s;
+        }
+
+        @keyframes flameAnimation {
+            0%, 100% {
+                height: 40px;
+                opacity: 0.8;
+            }
+            50% {
+                height: 45px;
+                opacity: 0.9;
+            }
+        }
+
+        /* Embers */
+        .ember {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #FFC107;
+            border-radius: 50%;
+            filter: blur(1px);
+            box-shadow: 0 0 3px #FF5722;
+            animation: emberRise linear infinite;
+        }
+
+        @keyframes emberRise {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), -40px) scale(0.2);
             }
         }
 
@@ -234,12 +522,12 @@
             }
 
             .dream-title {
-                font-size: 2.3rem;
+                font-size: 2rem;
                 margin: 3vh 0 5vh;
             }
 
             .section-title {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
             }
 
             .memory-quote,
@@ -250,7 +538,11 @@
             }
 
             .dream-image {
-                height: 200px;
+                height: 180px;
+            }
+            
+            .bonfire {
+                display: none;
             }
         }
     </style>
@@ -261,7 +553,7 @@
         
         <div class="grid-container">
             <!-- Dream Shrine -->
-            <div class="grid-item">
+            <div class="grid-item" data-depth="0.08">
                 <h2 class="section-title">Dream Shrine</h2>
                 <a href="#" class="link-item">The Fog</a>
                 <a href="#" class="link-item">The Echoes</a>
@@ -269,13 +561,13 @@
             </div>
             
             <!-- Memory Fragments -->
-            <div class="grid-item">
+            <div class="grid-item" data-depth="0.05">
                 <h2 class="section-title">Memory Fragments</h2>
                 <p class="memory-quote">"Seek the flame, lest your soul fade into nothingness."</p>
             </div>
             
             <!-- Background Music -->
-            <div class="grid-item grid-full">
+            <div class="grid-item grid-full" data-depth="0.03">
                 <div class="music-player">
                     <button class="play-button" id="playButton">▶</button>
                     <span class="player-text">Background Music</span>
@@ -284,19 +576,28 @@
             </div>
             
             <!-- Dream Path -->
-            <div class="grid-item">
+            <div class="grid-item" data-depth="0.06">
                 <h2 class="section-title">Dream Path</h2>
-                <img src="https://images.unsplash.com/photo-1535231540604-72e8fbaf8cdb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1335&q=80" alt="Dark forest path" class="dream-image">
+                <img src="https://images.unsplash.com/photo-1519331379826-f10be5486c6f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Dark souls path" class="dream-image">
             </div>
             
             <!-- Whispers -->
-            <div class="grid-item">
+            <div class="grid-item" data-depth="0.07">
                 <h2 class="section-title">Whispers</h2>
-                <p class="whisper-text">The darkness is nigh...</p>
+                <p class="whisper-text">The darkness is nigh... Those who remain shall inherit the darkness...</p>
             </div>
         </div>
         
         <button id="wakeUpBtn" class="wake-up-btn">AWAKEN</button>
+    </div>
+    
+    <div class="bonfire" id="bonfire">
+        <div class="logs"></div>
+        <div class="flames">
+            <div class="flame flame1"></div>
+            <div class="flame flame2"></div>
+            <div class="flame flame3"></div>
+        </div>
     </div>
     
     <div class="vignette"></div>
@@ -304,10 +605,10 @@
     <div class="particles" id="particles"></div>
     
     <script>
-        // Create particles
+        // Create particles (dust/ash particles)
         function createParticles() {
             const particlesContainer = document.getElementById('particles');
-            const numParticles = 50;
+            const numParticles = 70;
             
             for (let i = 0; i < numParticles; i++) {
                 const particle = document.createElement('div');
@@ -322,23 +623,57 @@
                 particle.style.top = `${startY}vh`;
                 
                 // Random duration
-                const duration = Math.random() * 60 + 30;
+                const duration = Math.random() * 80 + 50;
                 particle.style.animationDuration = `${duration}s`;
                 
                 // Random delay
-                const delay = Math.random() * 30;
+                const delay = Math.random() * 40;
                 particle.style.animationDelay = `${delay}s`;
                 
                 particlesContainer.appendChild(particle);
             }
         }
         
-        // Add audio functionality
+        // Create bonfire embers
+        function createEmbers() {
+            const bonfire = document.getElementById('bonfire');
+            const numEmbers = 15;
+            
+            setInterval(() => {
+                const ember = document.createElement('div');
+                ember.className = 'ember';
+                
+                // Random position around the center of the flames
+                const offsetX = (Math.random() - 0.5) * 20;
+                ember.style.left = `50%`;
+                ember.style.bottom = `30px`;
+                ember.style.transform = `translateX(${offsetX}px)`;
+                
+                // Random trajectory
+                const tx = (Math.random() - 0.5) * 40;
+                ember.style.setProperty('--tx', `${tx}px`);
+                
+                // Random duration
+                const duration = Math.random() * 2 + 1;
+                ember.style.animationDuration = `${duration}s`;
+                
+                bonfire.appendChild(ember);
+                
+                // Remove ember after animation completes
+                setTimeout(() => {
+                    if (bonfire.contains(ember)) {
+                        bonfire.removeChild(ember);
+                    }
+                }, duration * 1000);
+            }, 200);
+        }
+        
+        // Dark Souls-like music (slow, atmospheric)
         function setupAudio() {
             const playButton = document.getElementById('playButton');
-            const audio = new Audio('https://soundimage.org/wp-content/uploads/2016/03/Cyberpunk-2100.mp3');
+            const audio = new Audio('https://soundimage.org/wp-content/uploads/2016/11/Dark-Intro.mp3');
             audio.loop = true;
-            audio.volume = 0.3;
+            audio.volume = 0.4;
             
             let isPlaying = false;
             
@@ -347,10 +682,18 @@
                     audio.pause();
                     playButton.textContent = '▶';
                 } else {
-                    audio.play();
+                    audio.play().catch(e => console.log("Audio play failed:", e));
                     playButton.textContent = '❚❚';
                 }
                 isPlaying = !isPlaying;
+            });
+            
+            document.getElementById('bonfire').addEventListener('click', function() {
+                if (!isPlaying) {
+                    audio.play().catch(e => console.log("Audio play failed:", e));
+                    playButton.textContent = '❚❚';
+                    isPlaying = true;
+                }
             });
         }
         
@@ -371,6 +714,7 @@
         // Initialize everything
         window.onload = function() {
             createParticles();
+            createEmbers();
             setupAudio();
             setupWakeUpButton();
             
@@ -386,6 +730,10 @@
                     const translateY = moveY * 100 * depth;
                     item.style.transform = `translate(${translateX}px, ${translateY}px)`;
                 });
+                
+                // Move title with slower, subtler effect
+                const title = document.querySelector('.dream-title');
+                title.style.transform = `translate(${moveX * 10}px, ${moveY * 10}px)`;
             });
         };
     </script>
