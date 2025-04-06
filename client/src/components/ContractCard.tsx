@@ -262,6 +262,7 @@ const ContractCard: React.FC = () => {
     dialogController.getDialogModel().setCurrentDialogIndex(lastDialogIndex);
 
     // Show custom dialog with the selected response setelah semua preset
+    // Mengurangi delay dari 300ms menjadi 100ms
     setTimeout(() => {
       // Dapatkan instance HoverDialogController untuk set source
       const hoverDialogController = HoverDialogController.getInstance();
@@ -326,7 +327,7 @@ const ContractCard: React.FC = () => {
           }, 5000); // Beri waktu 5 detik untuk dialog tetap terlihat
         }
       });
-    }, 300);
+    }, 100); // Mengurangi delay dari 300ms menjadi 100ms
 
     setIsOpen(false);
     setCurrentIndex(0);

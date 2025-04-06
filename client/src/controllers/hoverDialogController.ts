@@ -328,7 +328,7 @@ class HoverDialogController {
 
   // Method untuk mengatur dialogSource di DialogBox
   public setDialogSource: ((source: "main" | "hover") => void) | null = null;
-  private typingSpeed: number = 40; // Sedikit lebih cepat dari dialog utama
+  private typingSpeed: number = 20; // Dipercepat dari 40ms ke 20ms - dua kali lebih cepat
   private typingInterval: NodeJS.Timeout | null = null;
   private currentText: string = "";
   private fullText: string = "";

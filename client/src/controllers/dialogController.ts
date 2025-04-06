@@ -7,7 +7,7 @@ class DialogController {
   private static instance: DialogController;
   private dialogModel: DialogModel;
   private elevenlabsService: ElevenLabsService;
-  private typingSpeed: number = 50; // ms per character
+  private typingSpeed: number = 25; // ms per character - kecepatan ketik dipercepat dari 50ms ke 25ms
   private isTyping: boolean = false;
   private typewriterCallback: ((text: string, isComplete: boolean) => void) | null = null;
   private currentText: string = '';
@@ -112,14 +112,14 @@ class DialogController {
       audioStarted = await this.elevenlabsService.speakText(exactDialogText);
     }
     
-    // Sesuaikan kecepatan typing dengan durasi audio
+    // Sesuaikan kecepatan typing dengan durasi audio - dipercepat
     // Jika audio berhasil diputar, kita akan menyelesaikan typing sedikit lebih lambat dari durasi audio
     const typingDuration = audioStarted ? estimatedDuration : (dialog.text.length * this.typingSpeed);
     
     // Untuk dialog panjang, gunakan kecepatan typing lebih cepat
     // Untuk dialog pendek, gunakan kecepatan typing lebih lambat
     const typingSpeed = audioStarted 
-      ? Math.max(20, Math.min(50, typingDuration / dialog.text.length)) 
+      ? Math.max(15, Math.min(30, typingDuration / dialog.text.length)) // Dipercepat dari 20-50ms ke 15-30ms per karakter
       : this.typingSpeed;
     
     console.log(`Autoplay untuk dialog ${dialog.id} dalam ${Math.round(typingDuration)}ms (${dialog.persistent ? 'persistent' : 'non-persistent'})`);
@@ -217,11 +217,12 @@ class DialogController {
     console.log(`[DialogController] Memulai dialog custom: "${text}"`);
     
     // Tunggu sebentar untuk memastikan audio sebelumnya sudah selesai
+    // Mengurangi delay dari 300ms menjadi 100ms
     setTimeout(() => {
       // Pastikan audio benar-benar berhenti
       this.elevenlabsService.stopSpeaking();
       
-      // Tambahkan delay lagi untuk memastikan benar-benar bersih
+      // Mengurangi delay dari 200ms menjadi 50ms
       setTimeout(() => {
         // Buat dialog custom
         const customDialog: Dialog = {
@@ -281,8 +282,8 @@ class DialogController {
         
         // Tampilkan dialog custom
         this.typeDialog(customDialog, wrappedCallback);
-      }, 200);
-    }, 300); // Delay 300ms untuk menghindari tumpang tindih audio
+      }, 50); // Dipercepat dari 200ms ke 50ms
+    }, 100); // Dipercepat dari 300ms ke 100ms
   }
   
   // Method khusus untuk menampilkan dialog setelah user dilempar dan kemudian kembali
@@ -305,7 +306,7 @@ class DialogController {
       this.typeDialog(RETURN_DIALOG, callback);
       
       console.log("Showing return dialog after reset:", RETURN_DIALOG.text);
-    }, 300); // Delay 300ms untuk menghindari tumpang tindih audio
+    }, 100); // Dipercepat dari 300ms ke 100ms
   }
   
   // Getter untuk memeriksa apakah ini adalah dialog setelah reset
