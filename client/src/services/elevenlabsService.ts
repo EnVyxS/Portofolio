@@ -12,6 +12,9 @@ class ElevenLabsService {
   
   // Ambient audio untuk latar belakang
   private ambientAudio: HTMLAudioElement | null = null;
+  
+  // Menyimpan durasi audio terakhir yang diputar (dalam ms)
+  private lastAudioDuration: number = 0;
 
   private constructor() {
     // Ambil API key dari environment variable
@@ -167,6 +170,12 @@ class ElevenLabsService {
       return false; // Indikasi bahwa tidak ada audio sebenarnya yang dimainkan
     }
 
+    // Deteksi apakah ini respons kontrak dari teks pengecekan
+    const isContractResponse = text.includes("real qualifications") || 
+                            text.includes("I'm the real deal") ||
+                            text.includes("answer your questions about my background") ||
+                            text.includes("Now you've seen the proof");
+
     // Generate speech
     const audioBlob = await this.generateSpeech(text);
     if (!audioBlob) {
@@ -176,10 +185,26 @@ class ElevenLabsService {
 
     // Create audio URL and element
     const audioUrl = URL.createObjectURL(audioBlob);
-    this.audioElement = new Audio(audioUrl);
     
-    // Set audio properties untuk pengalaman yang lebih baik
-    this.audioElement.preload = "auto";
+    // Gunakan hidden audio element dari DOM jika ini adalah respons kontrak
+    if (isContractResponse) {
+      // Cari elemen audio-element dari DOM
+      const domAudioElement = document.getElementById('audio-element') as HTMLAudioElement;
+      if (domAudioElement) {
+        // Gunakan elemen dari DOM
+        domAudioElement.src = audioUrl;
+        domAudioElement.preload = "auto";
+        this.audioElement = domAudioElement;
+      } else {
+        // Fallback ke Audio baru
+        this.audioElement = new Audio(audioUrl);
+        this.audioElement.preload = "auto";
+      }
+    } else {
+      // Untuk non-kontrak, gunakan Audio baru seperti biasa
+      this.audioElement = new Audio(audioUrl);
+      this.audioElement.preload = "auto";
+    }
     
     // Play audio
     try {
@@ -190,6 +215,8 @@ class ElevenLabsService {
       this.audioElement.onloadedmetadata = () => {
         if (this.audioElement) {
           const duration = this.audioElement.duration;
+          // Simpan durasi untuk referensi dialogController
+          this.lastAudioDuration = duration * 1000; // Konversi ke ms
           console.log(`Audio duration: ${duration.toFixed(2)} seconds for text: "${text.substring(0, 20)}..."`);
         }
       };
@@ -208,8 +235,15 @@ class ElevenLabsService {
         console.log("Audio playback completed successfully");
         this.isPlaying = false;
         if (this.audioElement) {
-          URL.revokeObjectURL(audioUrl);
-          this.audioElement = null;
+          // Jika bukan elemen DOM, revoke object URL
+          if (!isContractResponse && this.audioElement.src.startsWith('blob:')) {
+            URL.revokeObjectURL(audioUrl);
+          }
+          
+          // Jika bukan elemen DOM, set ke null (don't null the DOM element)
+          if (!isContractResponse) {
+            this.audioElement = null;
+          }
         }
       };
       
@@ -218,8 +252,15 @@ class ElevenLabsService {
       // Error log removed
       this.isPlaying = false;
       if (this.audioElement) {
-        URL.revokeObjectURL(audioUrl);
-        this.audioElement = null;
+        // Jika bukan elemen DOM, revoke object URL
+        if (!isContractResponse && this.audioElement.src.startsWith('blob:')) {
+          URL.revokeObjectURL(audioUrl);
+        }
+        
+        // Jika bukan elemen DOM, set ke null (don't null the DOM element)
+        if (!isContractResponse) {
+          this.audioElement = null;
+        }
       }
       return false;
     }
@@ -236,13 +277,23 @@ class ElevenLabsService {
         this.audioElement.onended = null;
         this.audioElement.onerror = null;
         
-        // Revoke object URL jika masih ada
-        if (this.audioElement.src.startsWith('blob:')) {
+        // Deteksi apakah ini audio element DOM atau instance normal
+        const isDomElement = this.audioElement.id === 'audio-element';
+        
+        // Revoke object URL jika masih ada dan bukan DOM element
+        if (!isDomElement && this.audioElement.src.startsWith('blob:')) {
           URL.revokeObjectURL(this.audioElement.src);
         }
         
-        // Null-kan audio element untuk memastikan tidak ada referensi yang tertinggal
-        this.audioElement = null;
+        // Null-kan audio element hanya jika bukan DOM element
+        // Untuk DOM element, biarkan tetap ada di instance tapi kosongkan src
+        if (isDomElement) {
+          // Reset source tanpa menghilangkan referensi
+          this.audioElement.removeAttribute('src');
+        } else {
+          // Null-kan audio element untuk memastikan tidak ada referensi non-DOM yang tertinggal
+          this.audioElement = null;
+        }
       } catch (error) {
         // Error log removed
       }
@@ -254,6 +305,19 @@ class ElevenLabsService {
 
   public isCurrentlyPlaying(): boolean {
     return this.isPlaying;
+  }
+  
+  // Metode untuk mendapatkan audio element
+  public getAudioElement(): HTMLAudioElement | null {
+    return this.audioElement;
+  }
+  
+  // Metode untuk mendapatkan durasi audio yang sedang diputar (dalam milidetik)
+  public getAudioDuration(): number {
+    if (this.audioElement && this.audioElement.duration) {
+      return this.audioElement.duration * 1000; // Konversi ke milidetik
+    }
+    return 0;
   }
   
   // Metode untuk memainkan suara ambient api dengan volume lebih rendah

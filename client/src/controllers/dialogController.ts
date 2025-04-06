@@ -93,11 +93,20 @@ class DialogController {
     this.typewriterCallback = callback;
     this.isTyping = true;
     
+    // Catat waktu mulai untuk melacak kinerja
+    const startTime = Date.now();
+    
     // Deteksi apakah dialog harus persistent berdasarkan konten dialog
     if (dialog.persistent === undefined) {
       // Deteksi berdasarkan dialog content (pertanyaan atau tidak)
       dialog.persistent = dialog.text.includes('?');
     }
+    
+    // Cek apakah dialog ini adalah respons kontrak dari teks pengecekan
+    const isContractResponse = dialog.text.includes("real qualifications") || 
+                            dialog.text.includes("I'm the real deal") ||
+                            dialog.text.includes("answer your questions about my background") ||
+                            dialog.text.includes("Now you've seen the proof");
     
     // Perkiraan durasi dialog berdasarkan panjang teks
     // Rata-rata pembacaan 12 karakter per detik (standar untuk bahasa Inggris - lebih lambat untuk DIVA JUAN)
@@ -105,40 +114,114 @@ class DialogController {
     
     // Try to speak the text if voice is enabled - menggunakan text asli tanpa modifikasi
     let audioStarted = false;
+    let audioDuration = 0;
+    
     if (this.elevenlabsService.getApiKey()) {
       // Pastikan teks yang dikirim ke speech generator 100% sama dengan yang ditampilkan
       const exactDialogText = dialog.text;
       console.log("Generating speech for exact text:", exactDialogText);
+      
+      // Untuk respons kontrak, tambahkan event listener ke audioElement untuk mendapatkan durasi sebenarnya
+      const audioElement = document.getElementById('audio-element') as HTMLAudioElement;
+      if (audioElement && isContractResponse) {
+        // Tambahkan event listener untuk metadata dan ambil durasi audio yang benar
+        const originalOnLoadedMetadata = audioElement.onloadedmetadata;
+        audioElement.onloadedmetadata = (e) => {
+          audioDuration = audioElement.duration * 1000; // konversi ke ms
+          console.log(`[DialogController] Audio actual duration for contract response: ${audioDuration}ms`);
+          
+          // Panggil handler asli jika ada
+          if (originalOnLoadedMetadata) {
+            // @ts-ignore
+            originalOnLoadedMetadata(e);
+          }
+        };
+      }
+      
       audioStarted = await this.elevenlabsService.speakText(exactDialogText);
     }
     
+    // Tunggu sedikit untuk memastikan audioDuration sudah terisi jika ada
+    if (isContractResponse && audioStarted) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    // Untuk respons kontrak, gunakan durasi audio yang lebih akurat
+    // Jika kontrak, kita kurangi typing speed untuk membuatnya lebih lambat supaya tampilan teks 
+    // selesai bersamaan dengan audio (tidak selesai duluan)
+    let actualTypingSpeed = this.typingSpeed;
+    
     // Sesuaikan kecepatan typing dengan durasi audio
-    // Jika audio berhasil diputar, kita akan menyelesaikan typing sedikit lebih lambat dari durasi audio
-    const typingDuration = audioStarted ? estimatedDuration : (dialog.text.length * this.typingSpeed);
+    if (audioStarted) {
+      // Jika audio berhasil diputar, kita perlu kecepatan ketik yang sesuai dengan durasi audio
+      // Coba dapatkan durasi dari elevenlabsService langsung
+      audioDuration = this.elevenlabsService.getAudioDuration();
+      
+      if (audioDuration === 0) {
+        // Fallback ke audio element yang ada di DOM jika perlu
+        const audioElement = document.getElementById('audio-element') as HTMLAudioElement;
+        if (audioElement && audioElement.duration) {
+          audioDuration = audioElement.duration * 1000; // Dalam milidetik
+        }
+      }
+      
+      console.log(`[DialogController] Audio duration detected: ${audioDuration}ms for contract response`);
+
+      // Gunakan durasi audio sebenarnya jika tersedia, jika tidak gunakan estimasi
+      const typingDuration = audioDuration > 0 ? audioDuration : estimatedDuration;
+      
+      // Hitung jumlah karakter efektif untuk perhitungan kecepatan ketik
+      // Berikan bobot lebih pada karakter seperti ellipsis yang membutuhkan delay visual lebih lama
+      let effectiveLength = this.fullText.length;
+      
+      // Berikan bobot tambahan untuk teks yang mengandung banyak ellipsis atau simbol khusus
+      if (this.fullText.includes('...')) {
+        // Setiap ellipsis menambah 5 karakter "virtual" untuk perhitungan kecepatan
+        const ellipsisCount = (this.fullText.match(/\.\.\./g) || []).length;
+        effectiveLength += ellipsisCount * 5;
+      }
+      
+      // Perlihatkan dialog lebih perlahan jika sangat pendek untuk mencegah dialog sangat cepat berakhir
+      if (effectiveLength < 20) {
+        effectiveLength = effectiveLength * 1.5;
+      }
+      
+      // Hitung kecepatan ketik optimal untuk selesai tepat saat audio selesai
+      // Untuk semua dialog audio, kita ingin menampilkan teks sedikit lebih lambat untuk selesai bersamaan audio
+      if (isContractResponse) {
+        // Jika ini respon kontrak, kita ingin typing selesai tepat saat audio selesai
+        actualTypingSpeed = Math.max(25, typingDuration / effectiveLength);
+        console.log(`[DialogController] CONTRACT RESPONSE - typingSpeed diatur ke ${Math.round(actualTypingSpeed)}ms per karakter`);
+      } else {
+        // Untuk dialog normal dengan audio, tetap sinkronkan dengan durasi audio
+        // tetapi gunakan batas minimum dan maksimum untuk kecepatan yang wajar
+        const calculatedSpeed = typingDuration / effectiveLength;
+        actualTypingSpeed = Math.max(20, Math.min(60, calculatedSpeed));
+        
+        console.log(`[DialogController] Durasi audio: ${Math.round(typingDuration)}ms, karakter: ${effectiveLength}, kecepatan: ${Math.round(actualTypingSpeed)}ms`);
+      }
+    }
     
-    // Untuk dialog panjang, gunakan kecepatan typing lebih cepat
-    // Untuk dialog pendek, gunakan kecepatan typing lebih lambat
-    const typingSpeed = audioStarted 
-      ? Math.max(20, Math.min(50, typingDuration / dialog.text.length)) 
-      : this.typingSpeed;
-    
-    console.log(`Autoplay untuk dialog ${dialog.id} dalam ${Math.round(typingDuration)}ms (${dialog.persistent ? 'persistent' : 'non-persistent'})`);
+    console.log(`Autoplay untuk dialog ${dialog.id} dalam ${Math.round(audioDuration || estimatedDuration)}ms (${dialog.persistent ? 'persistent' : 'non-persistent'})`);
     
     // Tambahkan variabel timeout untuk memastikan dialog tidak terhenti
     let audioCompletionTimer: NodeJS.Timeout | null = null;
     
     // Jika audio berhasil diputar, gunakan timer untuk memastikan dialog selesai
     if (audioStarted) {
-      // Tambahkan buffer 500ms untuk memastikan audio benar-benar selesai
+      // Gunakan durasi audio sebenarnya ditambah buffer untuk memastikan typing selesai dengan benar
+      const bufferTime = isContractResponse ? 500 : 1000; // Buffer lebih pendek untuk respons kontrak
+      const completionTimeout = (audioDuration > 0 ? audioDuration : estimatedDuration) + bufferTime;
+      
       audioCompletionTimer = setTimeout(() => {
         if (this.isTyping) {
           console.log("Audio completion timer triggered - finishing dialog typing");
           this.skipToFullText();
         }
-      }, estimatedDuration + 1000); // Tambahkan buffer 1 detik
+      }, completionTimeout);
     }
     
-    // Start typewriter effect
+    // Start typewriter effect with adjusted typing speed
     this.typingInterval = setInterval(() => {
       if (this.charIndex < this.fullText.length) {
         this.currentText += this.fullText[this.charIndex];
@@ -160,9 +243,21 @@ class DialogController {
         
         if (this.typewriterCallback) {
           this.typewriterCallback(this.currentText, true);
+          
+          // Hitung dan tampilkan waktu yang diperlukan untuk typewriting
+          const endTime = Date.now();
+          const typingDuration = endTime - startTime;
+          console.log(`[Performa] Dialog typing selesai dalam ${typingDuration}ms (${this.fullText.length} karakter)`);
+          
+          // Jika audio diputar, bandingkan dengan durasi audio
+          if (audioStarted && audioDuration > 0) {
+            const diff = Math.abs(typingDuration - audioDuration);
+            const syncQuality = diff < 500 ? "Bagus" : diff < 1000 ? "Cukup" : "Perlu Perbaikan";
+            console.log(`[Sinkronisasi] Audio: ${Math.round(audioDuration)}ms, Typing: ${Math.round(typingDuration)}ms, Selisih: ${Math.round(diff)}ms - ${syncQuality}`);
+          }
         }
       }
-    }, typingSpeed);
+    }, actualTypingSpeed);
   }
 
   public stopTyping(): void {
@@ -296,7 +391,14 @@ class DialogController {
         }
       };
       
-      // Tampilkan dialog custom dengan kecepatan ketik yang disesuaikan
+      // Untuk dialog kustom (terutama CONTRACT_RESPONSES), kita ingin memastikan bahwa
+      // kecepatan ketik disesuaikan dengan audio yang akan dihasilkan
+      // sehingga teks selesai tepat saat audio selesai.
+      // Meskipun parameter customTypingSpeed disediakan, kita akan override jika perlu
+      // berdasarkan durasi audio sebenarnya.
+      
+      // Tampilkan dialog custom dengan kecepatan ketik yang akan otomatis disesuaikan
+      // oleh typeDialog berdasarkan durasi audio sebenarnya
       this.typeDialog(customDialog, wrappedCallback);
     }, 50); // Kurangi delay dari 300ms menjadi 50ms untuk respons yang lebih cepat
   }

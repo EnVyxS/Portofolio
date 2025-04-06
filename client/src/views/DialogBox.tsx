@@ -376,6 +376,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
+      {/* Hidden audio element for better timing control */}
+      <audio id="audio-element" style={{ display: 'none' }} />
       <div
         className={`dialog-box ${dialogSource === "hover" ? "hover-dialog" : ""}`}
       >

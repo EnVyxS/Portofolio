@@ -294,7 +294,7 @@ const ContractCard: React.FC = () => {
       console.log("[ContractCard] Menampilkan dialog kontrak segera:", randomResponse);
       
       // PENTING: Dialog custom harus selalu menjadi dialog aktif dan utama
-      // Gunakan typing speed yang lebih cepat (30ms vs default 50ms)
+      // Kecepatan ketik akan otomatis disesuaikan dengan durasi audio sebenarnya oleh DialogController
       dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
         // Callback ini dipanggil setiap karakter (saat dialog sedang berjalan dan setelah selesai)
         // Pastikan dialog source tetap 'main' dan dialog box ditampilkan
@@ -325,7 +325,7 @@ const ContractCard: React.FC = () => {
             window.__contractResponseText = null;
           }, 4000); // Kurangi waktu dari 5 detik menjadi 4 detik
         }
-      }, 30);
+      });
     }, 50); // Kurangi timeout dari 300ms menjadi 50ms
 
     setIsOpen(false);
