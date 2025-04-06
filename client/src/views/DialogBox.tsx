@@ -378,8 +378,21 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     text.includes("Hmph... Finally, you decide to move") ||
     text.includes("KEEP PUSHING, AND YOU'LL REGRET IT") ||
     text.includes("I'VE HAD ENOUGH OF YOUR GAMES") ||
+    text.includes("I SAID STOP") ||
+    text.includes("FINAL warning") ||
     text.includes("That's it. GET OUT OF MY SIGHT") ||
     text.includes("YOU ASKED FOR THIS");
+
+  // Cek apakah flag global untuk idle timeout warning aktif
+  // Flag ini diatur oleh IdleTimeoutController
+  const isIdleTimeoutActive = typeof window.__idleTimeoutWarningActive !== 'undefined' && window.__idleTimeoutWarningActive === true;
+  
+  // Penting: untuk idle warning, paksa dialogSource menjadi 'main' 
+  // agar selalu ditampilkan dengan prioritas tinggi
+  if ((isIdleTimeoutWarning || isIdleTimeoutActive) && dialogSource !== 'main') {
+    console.log(`[DialogBox] 🔄 Force setting dialogSource to 'main' for idle warning`);
+    setDialogSource('main');
+  }
 
   // Log khusus untuk idle warning detection
   if (isIdleTimeoutWarning) {
@@ -393,15 +406,15 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // dan bukan berdasarkan teks lengkap (tidak menggunakan contractResponseText)
   
   // Jangan pernah menghilangkan dialog box jika ada idle warning/timeout dialog
-  const shouldNotHideDialog = isContractDialogActive || dialogSource === 'main';
+  const shouldNotHideDialog = isContractDialogActive || dialogSource === 'main' || isIdleTimeoutWarning || isIdleTimeoutActive;
 
   // FORCE SHOW dialog for idle timeout responses
-  if (isIdleTimeoutWarning) {
+  if (isIdleTimeoutWarning || isIdleTimeoutActive) {
     console.log(`[DialogBox] 🔴 FORCE SHOWING dialog box for IDLE WARNING: "${text.substring(0, 30)}..."`);
     // Jangan lakukan return disini, biarkan dialog box rendering berjalan normal
   }
   // Regular hide dialog logic
-  else if (isDialogFinished && text === "" && !shouldNotHideDialog && !isIdleTimeoutWarning) {
+  else if (isDialogFinished && text === "" && !shouldNotHideDialog && !isIdleTimeoutWarning && !isIdleTimeoutActive) {
     // Debug untuk membantu melihat status dialog
     console.log("[DialogBox] Dialog finished with empty text, hiding dialog box");
     return null; // Hanya return null jika tidak ada teks sama sekali dan bukan dialog penting
@@ -455,7 +468,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
               // Check if it's not a hover dialog, idle warning, or contract response
               (dialogSource === "main" &&
                !isContractResponse && // Tidak tampilkan auto-continue untuk dialog kontrak
-               !isIdleTimeoutWarning) ? ( // Tidak tampilkan auto-continue untuk dialog idle timeout/hover punishment
+               !isIdleTimeoutWarning && // Tidak tampilkan auto-continue untuk dialog idle timeout/hover punishment
+               !isIdleTimeoutActive) ? ( // Tidak tampilkan auto-continue jika timeout warning aktif
                 <div className="auto-continue-hint">
                   Auto-continues in a moment...
                 </div>

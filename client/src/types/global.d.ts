@@ -2,4 +2,8 @@
 
 interface Window {
   createWhooshSound?: () => any;
+  __idleTimeoutWarningActive?: boolean;
+  __currentDialogText?: string;
+  __contractDialogActive?: boolean;
+  __contractResponseText?: string;
 }

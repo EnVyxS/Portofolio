@@ -453,6 +453,15 @@ class IdleTimeoutController {
     this.dialogController.stopTyping();
     this.hoverDialogController.stopTyping();
     
+    // Aktifkan window flag untuk memberi tahu semua komponen bahwa dialog idle timeout sedang aktif
+    // Flag ini dapat dibaca oleh DialogBox untuk memaksa visibility
+    try {
+      window.__idleTimeoutWarningActive = true;
+      console.log("[IdleTimeoutController] Set global flag __idleTimeoutWarningActive = true");
+    } catch (e) {
+      console.error("Error setting __idleTimeoutWarningActive flag:", e);
+    }
+    
     // Pastikan tidak ada audio yang sedang diputar dengan delay untuk memastikan
     // semua audio benar-benar berhenti
     setTimeout(() => {
@@ -474,6 +483,14 @@ class IdleTimeoutController {
         if (this.hoverDialogController.setDialogSource) {
           console.log("[IdleTimeoutController] FORCE Setting dialog source to 'main' just before showing dialog");
           this.hoverDialogController.setDialogSource('main');
+        }
+        
+        // Perubahan penting - set window flag untuk memudahkan DialogBox mendeteksi dialog idle timeout
+        try {
+          window.__currentDialogText = text;
+          console.log("[IdleTimeoutController] Set global dialog text:", text);
+        } catch (e) {
+          console.error("Error setting global dialog text:", e);
         }
         
         // Tampilkan dialog peringatan dengan text custom
