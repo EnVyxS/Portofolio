@@ -103,29 +103,31 @@
                 z-index: 2;
             }
 
-            /* Wake up button (always visible but subtle) */
+            /* Wake up button (sangat kecil dan bergerak) */
             .wake-up-btn {
                 position: fixed;
                 bottom: 40px;
                 left: 50%;
                 transform: translateX(-50%);
                 background: none;
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                color: rgba(255, 255, 255, 0.3);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                color: rgba(255, 255, 255, 0.2);
                 font-family: "EB Garamond", serif;
-                font-size: 1.2rem;
-                padding: 12px 30px;
+                font-size: 0.65rem;
+                padding: 5px 10px;
                 cursor: pointer;
                 transition: all 0.5s ease;
-                letter-spacing: 0.5em;
+                letter-spacing: 0.2em;
                 text-transform: uppercase;
                 z-index: 20;
+                opacity: 0.6;
             }
 
             .wake-up-btn:hover {
                 background: rgba(255, 255, 255, 0.05);
-                color: rgba(255, 255, 255, 0.6);
-                border-color: rgba(255, 255, 255, 0.4);
+                color: rgba(255, 255, 255, 0.4);
+                border-color: rgba(255, 255, 255, 0.3);
+                transform: translateX(-50%) scale(1.1);
             }
 
             /* Breathing animation */
@@ -172,11 +174,11 @@
                     font-size: 1.8rem;
                     letter-spacing: 0.2em;
                 }
-
+                
+                /* Tombol escape di mobile tetap kecil */
                 .wake-up-btn {
-                    bottom: 30px;
-                    font-size: 1rem;
-                    padding: 10px 25px;
+                    font-size: 0.65rem;
+                    padding: 5px 10px;
                 }
             }
         </style>
@@ -479,7 +481,35 @@
             function setupWakeUpButton() {
                 const wakeUpBtn = document.getElementById("wakeUpBtn");
 
+                // Fungsi untuk mengubah posisi tombol secara acak
+                function randomizeButtonPosition() {
+                    // Mendapatkan dimensi jendela browser
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+                    
+                    // Mengatur margin minimum dari tepi layar (dalam piksel)
+                    const margin = 20;
+                    
+                    // Menghasilkan posisi acak di dalam jendela browser dengan mempertimbangkan margin
+                    const newX = margin + Math.random() * (viewportWidth - (margin * 2));
+                    const newY = margin + Math.random() * (viewportHeight - (margin * 2));
+                    
+                    // Mengatur ulang properti transform untuk menghilangkan efek translateX(-50%)
+                    wakeUpBtn.style.transition = "all 0.3s ease";
+                    wakeUpBtn.style.left = `${newX}px`;
+                    wakeUpBtn.style.top = `${newY}px`;
+                    wakeUpBtn.style.bottom = "auto";
+                    wakeUpBtn.style.transform = "none";
+                }
+                
+                // Mengubah posisi tombol setiap 5 detik
+                randomizeButtonPosition(); // Posisi awal acak
+                const positionInterval = setInterval(randomizeButtonPosition, 5000);
+
                 wakeUpBtn.addEventListener("click", function () {
+                    // Menghentikan interval perubahan posisi
+                    clearInterval(positionInterval);
+                    
                     // Flash before exiting
                     const flash = document.getElementById("flash");
                     flash.style.opacity = 1;
