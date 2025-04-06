@@ -226,7 +226,8 @@ class DialogController {
         const customDialog: Dialog = {
           id: 9999, // ID khusus untuk dialog timeout
           text: text,
-          character: "DIVA JUAN NUR TAQARRUB" // Karakter untuk dialog timeout/idle
+          character: "DIVA JUAN NUR TAQARRUB", // Karakter untuk dialog timeout/idle
+          persistent: false // Set persistent ke false untuk memastikan dialog ditampilkan dengan benar
         };
         
         // Periksa tipe dialog berdasarkan teksnya
@@ -247,19 +248,38 @@ class DialogController {
                                text.includes("throw") ||
                                text.includes("punch");
           
+          // Khusus untuk CONTRACT_RESPONSES, log tambahan
+          if (isFromContract) {
+            console.log("[DialogController] Showing CONTRACT_RESPONSE dialog:", text);
+            // Tandai ini sebagai dialog kontrak dengan persistent false
+            customDialog.persistent = false;
+          }
+          
           // Semua dialog khusus (CONTRACT_RESPONSES, IDLE_DIALOGS, punchText, throwText)
           // harus selalu ditampilkan di dialogBox utama sebagai 'main'
           if (hoverDialogController.setDialogSource) {
             // Semua dialog khusus ditampilkan sebagai 'main' untuk memastikan muncul di dialog box utama
             console.log("[DialogController] Setting dialog source to 'main' for custom dialog");
             hoverDialogController.setDialogSource('main');
+            
+            // Reset status dialog interaksi untuk hover controller
+            hoverDialogController.setHasInteractedWithHover(false);
           }
         } catch (e) {
           console.error("[DialogController] Error checking/setting dialog source:", e);
         }
         
+        // Gunakan callback sementara untuk memastikan dialog source tetap correct
+        const wrappedCallback = (text: string, isComplete: boolean) => {
+          // Log tambahan untuk debugging
+          console.log(`[DialogController] Custom dialog callback - Text: "${text.substring(0, 20)}..." isComplete: ${isComplete}`);
+          
+          // Panggil callback asli
+          callback(text, isComplete);
+        };
+        
         // Tampilkan dialog custom
-        this.typeDialog(customDialog, callback);
+        this.typeDialog(customDialog, wrappedCallback);
       }, 200);
     }, 300); // Delay 300ms untuk menghindari tumpang tindih audio
   }

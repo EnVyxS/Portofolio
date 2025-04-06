@@ -332,8 +332,33 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
   // Dialog box akan tetap muncul meskipun dialog selesai
   // JANGAN return null di sini agar dialog box tetap ditampilkan
-  if (isDialogFinished && text === "") {
-    return null; // Hanya return null jika tidak ada teks sama sekali
+  // Tambahan: pastikan dialog kontrak juga tetap terlihat
+  
+  // Periksa apakah dialog kontrak sedang aktif
+  // @ts-ignore - akses properti global dari window yang disimpan di ContractCard
+  const isContractDialogActive = window.__contractDialogActive === true;
+  
+  if (isDialogFinished && text === "" && !isContractDialogActive) {
+    // Debug untuk membantu melihat status dialog
+    console.log("[DialogBox] Dialog finished with empty text, hiding dialog box");
+    return null; // Hanya return null jika tidak ada teks sama sekali dan bukan dialog kontrak
+  }
+  
+  // Periksa apakah ini adalah dialog kontrak (CONTRACT_RESPONSES) berdasarkan teks
+  const isContractResponse = text.includes("next time, use your") || 
+                          text.includes("next time, don't waste") ||
+                          text.includes("next time, keep your") ||
+                          text.includes("next time, think twice") ||
+                          text.includes("Believe me now");
+  
+  // Log khusus untuk dialog kontrak
+  if (isContractResponse) {
+    console.log(`[DialogBox] CONTRACT RESPONSE dialog active: "${text.substring(0, 30)}..."`);
+  }
+  
+  // Tambahkan log untuk membantu debug tampilan dialog
+  if (!isDialogFinished) {
+    console.log(`[DialogBox] Showing dialog - Text: "${text.substring(0, 30)}..." Source: ${dialogSource}`);
   }
 
   return (

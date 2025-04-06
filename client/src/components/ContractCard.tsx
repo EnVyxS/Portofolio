@@ -267,9 +267,29 @@ const ContractCard: React.FC = () => {
         hoverDialogController.setDialogSource("main");
       }
 
+      // Pastikan isDialogFinished di DialogBox diatur ke false terlebih dahulu (jika ada cara mengaksesnya)
+      // Gunakan objek window untuk menyimpan state terkait kontrak
+      // @ts-ignore - tambahkan properti global untuk komunikasi antar komponen
+      window.__contractDialogActive = true;
+      
       dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
         // Callback ini dipanggil setiap karakter (saat dialog sedang berjalan dan setelah selesai)
-        // Tidak perlu mengatur ulang dialogSource di sini karena dialogController sudah mengaturnya
+        // Pastikan dialog source tetap 'main' dan dialog box ditampilkan
+        if (hoverDialogController.setDialogSource) {
+          hoverDialogController.setDialogSource("main");
+        }
+        
+        // Tambahkan logging untuk membantu debug
+        console.log(`[ContractCard] Dialog callback - Text: "${text.substring(0, 20)}..." isComplete: ${isComplete}`);
+        
+        // Pada akhir dialog (isComplete = true), tandai bahwa dialog kontrak telah selesai
+        if (isComplete) {
+          // @ts-ignore - hapus properti global ketika dialog selesai
+          setTimeout(() => {
+            // @ts-ignore
+            window.__contractDialogActive = false;
+          }, 5000); // Beri waktu 5 detik untuk dialog tetap terlihat
+        }
       });
     }, 300);
 
