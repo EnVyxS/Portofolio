@@ -361,18 +361,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // @ts-ignore - akses properti global dari window yang disimpan di ContractCard
   const contractResponseText = window.__contractResponseText;
   
-  // Kita menghilangkan bagian yang membuat dialog kontrak muncul penuh
-  // Sekarang, saat contractDialogActive, kita biarkan efek typewriter berjalan
-  // tanpa mengubah teks secara manual
-  // Kita tetapkan bahwa ini adalah kontrak dialog berdasarkan flag __contractDialogActive
-  // dan bukan berdasarkan teks lengkap (tidak menggunakan contractResponseText)
-  
-  if (isDialogFinished && text === "" && !isContractDialogActive) {
-    // Debug untuk membantu melihat status dialog
-    console.log("[DialogBox] Dialog finished with empty text, hiding dialog box");
-    return null; // Hanya return null jika tidak ada teks sama sekali dan bukan dialog kontrak
-  }
-  
   // Periksa apakah ini adalah dialog kontrak (CONTRACT_RESPONSES) berdasarkan teks
   const isContractResponse = text.includes("I've never lied to you") || 
                           text.includes("seen the proof") ||
@@ -381,15 +369,46 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
                           text.includes("I'm the real deal");
                           
   // Periksa apakah ini adalah dialog idle timeout/hover berlebihan berdasarkan teks
-  const isIdleTimeoutResponse = text.includes("What the hell are you staring at") || 
-                               text.includes("You really gonna keep ignoring me") ||
-                               text.includes("You think this is funny") ||
-                               text.includes("Now what, you little filth") ||
-                               text.includes("Hmph... Finally, you decide to move") ||
-                               text.includes("KEEP PUSHING, AND YOU'LL REGRET IT") ||
-                               text.includes("I'VE HAD ENOUGH OF YOUR GAMES") ||
-                               text.includes("That's it. GET OUT OF MY SIGHT") ||
-                               text.includes("YOU ASKED FOR THIS");
+  // PENTING: Ini didefinisikan sebelum kondisi shouldNotHideDialog agar nilai dapat digunakan
+  const isIdleTimeoutWarning = 
+    text.includes("What the hell are you staring at") || 
+    text.includes("You really gonna keep ignoring me") ||
+    text.includes("You think this is funny") ||
+    text.includes("Now what, you little filth") ||
+    text.includes("Hmph... Finally, you decide to move") ||
+    text.includes("KEEP PUSHING, AND YOU'LL REGRET IT") ||
+    text.includes("I'VE HAD ENOUGH OF YOUR GAMES") ||
+    text.includes("That's it. GET OUT OF MY SIGHT") ||
+    text.includes("YOU ASKED FOR THIS");
+
+  // Log khusus untuk idle warning detection
+  if (isIdleTimeoutWarning) {
+    console.log(`[DialogBox] ⚠️ IDLE TIMEOUT text detected: "${text.substring(0, 30)}..."`);
+  }
+  
+  // Kita menghilangkan bagian yang membuat dialog kontrak muncul penuh
+  // Sekarang, saat contractDialogActive, kita biarkan efek typewriter berjalan
+  // tanpa mengubah teks secara manual
+  // Kita tetapkan bahwa ini adalah kontrak dialog berdasarkan flag __contractDialogActive
+  // dan bukan berdasarkan teks lengkap (tidak menggunakan contractResponseText)
+  
+  // Jangan pernah menghilangkan dialog box jika ada idle warning/timeout dialog
+  const shouldNotHideDialog = isContractDialogActive || dialogSource === 'main';
+
+  // FORCE SHOW dialog for idle timeout responses
+  if (isIdleTimeoutWarning) {
+    console.log(`[DialogBox] 🔴 FORCE SHOWING dialog box for IDLE WARNING: "${text.substring(0, 30)}..."`);
+    // Jangan lakukan return disini, biarkan dialog box rendering berjalan normal
+  }
+  // Regular hide dialog logic
+  else if (isDialogFinished && text === "" && !shouldNotHideDialog && !isIdleTimeoutWarning) {
+    // Debug untuk membantu melihat status dialog
+    console.log("[DialogBox] Dialog finished with empty text, hiding dialog box");
+    return null; // Hanya return null jika tidak ada teks sama sekali dan bukan dialog penting
+  }
+  
+  // Log tambahan untuk membantu debug
+  console.log(`[DialogBox] Dialog visibility check - text: "${text.substr(0, 20)}..." | isDialogFinished: ${isDialogFinished} | shouldNotHideDialog: ${shouldNotHideDialog} | dialogSource: ${dialogSource} | isIdleTimeoutWarning: ${isIdleTimeoutWarning}`);
   
   // Log khusus untuk dialog kontrak
   if (isContractResponse) {
@@ -397,7 +416,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   }
   
   // Log khusus untuk dialog idle timeout
-  if (isIdleTimeoutResponse) {
+  if (isIdleTimeoutWarning) {
     console.log(`[DialogBox] IDLE TIMEOUT RESPONSE dialog active: "${text.substring(0, 30)}..."`);
   }
   
@@ -436,7 +455,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
               // Check if it's not a hover dialog, idle warning, or contract response
               (dialogSource === "main" &&
                !isContractResponse && // Tidak tampilkan auto-continue untuk dialog kontrak
-               !isIdleTimeoutResponse) ? ( // Tidak tampilkan auto-continue untuk dialog idle timeout/hover punishment
+               !isIdleTimeoutWarning) ? ( // Tidak tampilkan auto-continue untuk dialog idle timeout/hover punishment
                 <div className="auto-continue-hint">
                   Auto-continues in a moment...
                 </div>
