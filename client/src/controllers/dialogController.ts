@@ -301,6 +301,10 @@ class DialogController {
   public getDialogModel(): DialogModel {
     return this.dialogModel;
   }
+  
+  public getElevenLabsService(): ElevenLabsService {
+    return this.elevenlabsService;
+  }
 }
 
 export default DialogController;
