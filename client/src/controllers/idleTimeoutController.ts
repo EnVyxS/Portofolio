@@ -453,10 +453,10 @@ class IdleTimeoutController {
     this.dialogController.stopTyping();
     this.hoverDialogController.stopTyping();
     
-    // Pastikan tidak ada audio yang sedang diputar dengan delay lebih lama
-    // untuk memastikan semua audio benar-benar berhenti
+    // Pastikan tidak ada audio yang sedang diputar dengan delay untuk memastikan
+    // semua audio benar-benar berhenti
     setTimeout(() => {
-      // Hentikan audio apapun yang masih berjalan (pemeriksaan ganda)
+      // Hentikan audio apapun yang masih berjalan
       this.elevenlabsService.stopSpeaking();
       
       console.log(`[IdleTimeoutController] Showing warning message: "${text}"`);
@@ -467,26 +467,18 @@ class IdleTimeoutController {
         this.hoverDialogController.setDialogSource('main');
       }
       
-      // Tambahkan delay yang lebih lama untuk memastikan semua suara berhenti sebelum memulai dialog baru
-      // dan memastikan dialog source benar-benar diubah
+      // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
       setTimeout(() => {
-        // Periksa dan paksa pengaturan dialog source ke 'main' lagi sebelum menampilkan dialog
-        if (this.hoverDialogController.setDialogSource) {
-          this.hoverDialogController.setDialogSource('main');
-        }
-        
         // Tampilkan dialog peringatan dengan text custom
         // Dialog Controller akan mengelola audio secara otomatis
-        console.log(`[IdleTimeoutController] Executing showCustomDialog with text: "${text}"`);
         this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
           if (isComplete) {
             // Tandai bahwa user sudah berinteraksi dengan dialog
             this.hoverDialogController.setHasInteractedWithHover(true);
-            console.log("[IdleTimeoutController] Idle warning dialog completed");
           }
         });
-      }, 400);
-    }, 300);
+      }, 200);
+    }, 100);
     
     // Tidak perlu memanggil elevenlabsService.speakText disini
     // karena sudah dipanggil oleh dialogController.showCustomDialog

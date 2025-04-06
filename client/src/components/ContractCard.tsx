@@ -4,7 +4,6 @@ import { FaScroll, FaSearchPlus, FaSearchMinus, FaArrowLeft, FaArrowRight, FaFil
 import DialogController from '../controllers/dialogController';
 import HoverDialogController from '../controllers/hoverDialogController';
 import { useAudio } from '../context/AudioManager';
-import ElevenLabsService from '../services/elevenlabsService';
 import { CONTRACT_RESPONSES } from '../views/DialogBox';
 
 // Import sounds
@@ -241,38 +240,23 @@ const ContractCard: React.FC = () => {
     const lastDialogIndex = dialogs.length - 1;
     dialogController.getDialogModel().setCurrentDialogIndex(lastDialogIndex);
     
-    // Show custom dialog with the selected response setelah semua preset dengan delay yang lebih lama
+    // Show custom dialog with the selected response setelah semua preset
     setTimeout(() => {
       // Dapatkan instance HoverDialogController untuk set source
       const hoverDialogController = HoverDialogController.getInstance();
       
-      // Pastikan tidak ada audio yang sedang diputar atau dialog yang sedang berjalan
-      const elevenlabsService = DialogController.getInstance().getElevenLabsService();
-      if (elevenlabsService && elevenlabsService.isCurrentlyPlaying()) {
-        elevenlabsService.stopSpeaking();
+      // Set dialog source ke 'main' SEBELUM memanggil showCustomDialog
+      // Ini penting karena showCustomDialog akan mengubahnya ke 'hover' di dalamnya
+      if (hoverDialogController.setDialogSource) {
+        console.log("[ContractCard] Setting dialog source to 'main' before showing custom dialog");
+        hoverDialogController.setDialogSource('main');
       }
       
-      // Tambahkan delay tambahan untuk memastikan semua suara benar-benar berhenti
-      setTimeout(() => {
-        // Set dialog source ke 'main' SEBELUM memanggil showCustomDialog
-        // Ini penting karena showCustomDialog akan mengubahnya ke 'hover' di dalamnya
-        if (hoverDialogController.setDialogSource) {
-          console.log("[ContractCard] Setting dialog source to 'main' before showing custom dialog");
-          hoverDialogController.setDialogSource('main');
-        }
-        
-        // Sisipkan log tambahan agar mudah dilacak
-        console.log(`[ContractCard] Showing custom contract dialog: "${randomResponse}"`);
-        
-        dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
-          // Callback ini dipanggil setiap karakter (saat dialog sedang berjalan dan setelah selesai)
-          if (isComplete) {
-            // Tambahkan log debug agar mudah dilacak
-            console.log("[ContractCard] Contract dialog completed");
-          }
-        });
-      }, 200);
-    }, 500);
+      dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
+        // Callback ini dipanggil setiap karakter (saat dialog sedang berjalan dan setelah selesai)
+        // Tidak perlu mengatur ulang dialogSource di sini karena dialogController sudah mengaturnya
+      });
+    }, 300);
     
     setIsOpen(false);
     setCurrentIndex(0);
