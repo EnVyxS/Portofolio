@@ -267,11 +267,19 @@ const ContractCard: React.FC = () => {
         hoverDialogController.setDialogSource("main");
       }
 
-      // Pastikan isDialogFinished di DialogBox diatur ke false terlebih dahulu (jika ada cara mengaksesnya)
+      // Pastikan isDialogFinished di DialogBox diatur ke false terlebih dahulu
       // Gunakan objek window untuk menyimpan state terkait kontrak
       // @ts-ignore - tambahkan properti global untuk komunikasi antar komponen
       window.__contractDialogActive = true;
       
+      // Sebelum menampilkan dialog custom, reset dialogController dulu
+      dialogController.stopTyping();
+      
+      // Simpan reference ke teks kontrak yang saat ini ditampilkan
+      // @ts-ignore - tambah properti baru untuk digunakan di DialogBox
+      window.__contractResponseText = randomResponse;
+      
+      // PENTING: Dialog custom harus selalu menjadi dialog aktif dan utama
       dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
         // Callback ini dipanggil setiap karakter (saat dialog sedang berjalan dan setelah selesai)
         // Pastikan dialog source tetap 'main' dan dialog box ditampilkan
@@ -288,6 +296,8 @@ const ContractCard: React.FC = () => {
           setTimeout(() => {
             // @ts-ignore
             window.__contractDialogActive = false;
+            // @ts-ignore
+            window.__contractResponseText = null;
           }, 5000); // Beri waktu 5 detik untuk dialog tetap terlihat
         }
       });
