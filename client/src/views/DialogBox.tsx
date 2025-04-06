@@ -387,12 +387,32 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // Flag ini diatur oleh IdleTimeoutController
   const isIdleTimeoutActive = typeof window.__idleTimeoutWarningActive !== 'undefined' && window.__idleTimeoutWarningActive === true;
   
-  // Penting: untuk idle warning, paksa dialogSource menjadi 'main' 
-  // agar selalu ditampilkan dengan prioritas tinggi
-  if ((isIdleTimeoutWarning || isIdleTimeoutActive) && dialogSource !== 'main') {
-    console.log(`[DialogBox] 🔄 Force setting dialogSource to 'main' for idle warning`);
-    setDialogSource('main');
-  }
+  // SOLUSI HARD OVERRIDE: Jika idle timeout aktif, kita ubah dialogSource ke 'main'
+  // dan paksa akomodasi visual untuk dialog idle timeout
+  
+  // Logic override baru yang lebih agresif:
+  // 1. Cek jika idle timeout dialog aktif atau text-nya menunjukkan idle timeout warning
+  // 2. Paksa dialogSource ke main
+  // 3. Tampilkan lapisan visual khusus untuk memberi tahu bahwa ini idle timeout dialog
+  
+  useEffect(() => {
+    // Ketika component mount atau text berubah
+    // Periksa apakah ini idle timeout warning, dan jika ya, paksa dialogSource ke 'main'
+    if (isIdleTimeoutWarning || isIdleTimeoutActive) {
+      console.log(`[DialogBox] 🔄 CRITICAL OVERRIDE: Force setting dialogSource to 'main' for idle warning`);
+      
+      // Paksa perubahan state melalui callback agar tidak terjadi race condition
+      setDialogSource('main');
+      
+      // Tambahkan flag untuk mencegah hover dialog muncul
+      try {
+        window.__idleTimeoutWarningActive = true;
+        window.__hoverDialogDisabled = true;
+      } catch (e) {
+        console.error("Error setting global flags:", e);
+      }
+    }
+  }, [text, isIdleTimeoutWarning, isIdleTimeoutActive]); // Dependency array
 
   // Log khusus untuk idle warning detection
   if (isIdleTimeoutWarning) {

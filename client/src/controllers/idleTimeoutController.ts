@@ -457,9 +457,10 @@ class IdleTimeoutController {
     // Flag ini dapat dibaca oleh DialogBox untuk memaksa visibility
     try {
       window.__idleTimeoutWarningActive = true;
-      console.log("[IdleTimeoutController] Set global flag __idleTimeoutWarningActive = true");
+      window.__hoverDialogDisabled = true; // Disable hover dialog saat idle timeout aktif
+      console.log("[IdleTimeoutController] Set global flags: __idleTimeoutWarningActive = true, __hoverDialogDisabled = true");
     } catch (e) {
-      console.error("Error setting __idleTimeoutWarningActive flag:", e);
+      console.error("Error setting global flags:", e);
     }
     
     // Pastikan tidak ada audio yang sedang diputar dengan delay untuk memastikan
