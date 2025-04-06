@@ -261,7 +261,8 @@ const ContractCard: React.FC = () => {
     const lastDialogIndex = dialogs.length - 1;
     dialogController.getDialogModel().setCurrentDialogIndex(lastDialogIndex);
 
-    // Show custom dialog with the selected response setelah semua preset
+    // Show custom dialog dengan response yang dipilih
+    // Kita menggunakan setTimeout yang lebih pendek (50ms) agar tidak terlalu menunda
     setTimeout(() => {
       // Dapatkan instance HoverDialogController untuk set source
       const hoverDialogController = HoverDialogController.getInstance();
@@ -283,17 +284,17 @@ const ContractCard: React.FC = () => {
       // Sebelum menampilkan dialog custom, reset dialogController dulu
       dialogController.stopTyping();
       
-      // Dapatkan handler dari DialogBox untuk setText dan setIsComplete
-      // Kita TIDAK menggunakan __contractResponseText disini karena itu membuat teks muncul penuh
-      // sebelum efek typewriter. Sebagai gantinya, kita hanya menandai bahwa dialog kontrak sedang aktif
-      // tanpa menyimpan teks lengkapnya.
-      
       // @ts-ignore - untuk mendapatkan akses ke textSetter di DialogBox jika tersedia
       const textSetter = window.__dialogBoxTextSetter;
       // @ts-ignore - untuk mendapatkan akses ke isCompleteSetter di DialogBox jika tersedia
       const isCompleteSetter = window.__dialogBoxIsCompleteSetter;
       
+      // Pre-load audio untuk dialog kontrak untuk mengurangi delay
+      // Gunakan immediate callback untuk meningkatkan kecepatan respons
+      console.log("[ContractCard] Menampilkan dialog kontrak segera:", randomResponse);
+      
       // PENTING: Dialog custom harus selalu menjadi dialog aktif dan utama
+      // Gunakan typing speed yang lebih cepat (30ms vs default 50ms)
       dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
         // Callback ini dipanggil setiap karakter (saat dialog sedang berjalan dan setelah selesai)
         // Pastikan dialog source tetap 'main' dan dialog box ditampilkan
@@ -306,7 +307,6 @@ const ContractCard: React.FC = () => {
         
         // Langsung update text di DialogBox jika setter tersedia
         if (typeof textSetter === 'function') {
-          console.log(`[ContractCard] Updating DialogBox text directly`);
           textSetter(text);
         }
         
@@ -323,10 +323,10 @@ const ContractCard: React.FC = () => {
             window.__contractDialogActive = false;
             // @ts-ignore
             window.__contractResponseText = null;
-          }, 5000); // Beri waktu 5 detik untuk dialog tetap terlihat
+          }, 4000); // Kurangi waktu dari 5 detik menjadi 4 detik
         }
-      });
-    }, 300);
+      }, 30);
+    }, 50); // Kurangi timeout dari 300ms menjadi 50ms
 
     setIsOpen(false);
     setCurrentIndex(0);

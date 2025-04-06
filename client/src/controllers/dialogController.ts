@@ -209,80 +209,96 @@ class DialogController {
   }
   
   // Method khusus untuk menampilkan dialog timeout/idle
-  public showCustomDialog(text: string, callback: (text: string, isComplete: boolean) => void): void {
+  // Tambahkan parameter customTypingSpeed untuk mendukung pengetikan yang lebih cepat
+  public showCustomDialog(
+    text: string, 
+    callback: (text: string, isComplete: boolean) => void,
+    customTypingSpeed?: number // Parameter opsional untuk kecepatan ketik kustom
+  ): void {
     // Hentikan dialog yang sedang berjalan
     this.stopTyping();
     
     // Log untuk debugging
     console.log(`[DialogController] Memulai dialog custom: "${text}"`);
     
-    // Tunggu sebentar untuk memastikan audio sebelumnya sudah selesai
+    // Kurangi delay untuk respons yang lebih cepat
     setTimeout(() => {
       // Pastikan audio benar-benar berhenti
       this.elevenlabsService.stopSpeaking();
       
-      // Tambahkan delay lagi untuk memastikan benar-benar bersih
-      setTimeout(() => {
-        // Buat dialog custom
-        const customDialog: Dialog = {
-          id: 9999, // ID khusus untuk dialog timeout
-          text: text,
-          character: "DIVA JUAN NUR TAQARRUB", // Karakter untuk dialog timeout/idle
-          persistent: false // Set persistent ke false untuk memastikan dialog ditampilkan dengan benar
-        };
+      // Buat dialog custom
+      const customDialog: Dialog = {
+        id: 9999, // ID khusus untuk dialog timeout
+        text: text,
+        character: "DIVA JUAN NUR TAQARRUB", // Karakter untuk dialog timeout/idle
+        persistent: false // Set persistent ke false untuk memastikan dialog ditampilkan dengan benar
+      };
+      
+      // Periksa tipe dialog berdasarkan teksnya
+      try {
+        // Import HoverDialogController jika belum diimport
+        const hoverDialogController = HoverDialogController.getInstance();
         
-        // Periksa tipe dialog berdasarkan teksnya
-        try {
-          // Import HoverDialogController jika belum diimport
-          const hoverDialogController = HoverDialogController.getInstance();
-          
-          // Identifikasi jenis dialog berdasarkan konten teks
-          const isFromContract = text.includes("Didn't lie") || 
-                               text.includes("Not a liar") || 
-                               text.includes("Told you the truth") || 
-                               text.includes("Believe me now");
-                               
-          const isIdleWarning = text.includes("distracted") || 
-                               text.includes("paying attention") || 
-                               text.includes("Staring at me") || 
-                               text.includes("fuck you") ||
-                               text.includes("throw") ||
-                               text.includes("punch");
-          
-          // Khusus untuk CONTRACT_RESPONSES, log tambahan
-          if (isFromContract) {
-            console.log("[DialogController] Showing CONTRACT_RESPONSE dialog:", text);
-            // Tandai ini sebagai dialog kontrak dengan persistent false
-            customDialog.persistent = false;
-          }
-          
-          // Semua dialog khusus (CONTRACT_RESPONSES, IDLE_DIALOGS, punchText, throwText)
-          // harus selalu ditampilkan di dialogBox utama sebagai 'main'
-          if (hoverDialogController.setDialogSource) {
-            // Semua dialog khusus ditampilkan sebagai 'main' untuk memastikan muncul di dialog box utama
-            console.log("[DialogController] Setting dialog source to 'main' for custom dialog");
-            hoverDialogController.setDialogSource('main');
-            
-            // Reset status dialog interaksi untuk hover controller
-            hoverDialogController.setHasInteractedWithHover(false);
-          }
-        } catch (e) {
-          console.error("[DialogController] Error checking/setting dialog source:", e);
+        // Update identifikasi kontrak dialog berdasarkan teks baru
+        const isFromContract = text.includes("I've never lied to you") || 
+                             text.includes("Now you've seen the proof") || 
+                             text.includes("real qualifications") || 
+                             text.includes("answer your questions about my background") ||
+                             text.includes("I'm the real deal");
+                             
+        const isIdleWarning = text.includes("distracted") || 
+                             text.includes("paying attention") || 
+                             text.includes("Staring at me") || 
+                             text.includes("fuck you") ||
+                             text.includes("throw") ||
+                             text.includes("punch");
+        
+        // Khusus untuk CONTRACT_RESPONSES, log tambahan
+        if (isFromContract) {
+          console.log("[DialogController] Showing CONTRACT_RESPONSE dialog:", text);
+          // Tandai ini sebagai dialog kontrak dengan persistent false
+          customDialog.persistent = false;
         }
         
-        // Gunakan callback sementara untuk memastikan dialog source tetap correct
-        const wrappedCallback = (text: string, isComplete: boolean) => {
-          // Log tambahan untuk debugging
-          console.log(`[DialogController] Custom dialog callback - Text: "${text.substring(0, 20)}..." isComplete: ${isComplete}`);
+        // Semua dialog khusus (CONTRACT_RESPONSES, IDLE_DIALOGS, punchText, throwText)
+        // harus selalu ditampilkan di dialogBox utama sebagai 'main'
+        if (hoverDialogController.setDialogSource) {
+          // Semua dialog khusus ditampilkan sebagai 'main' untuk memastikan muncul di dialog box utama
+          console.log("[DialogController] Setting dialog source to 'main' for custom dialog");
+          hoverDialogController.setDialogSource('main');
           
-          // Panggil callback asli
-          callback(text, isComplete);
-        };
+          // Reset status dialog interaksi untuk hover controller
+          hoverDialogController.setHasInteractedWithHover(false);
+        }
+      } catch (e) {
+        console.error("[DialogController] Error checking/setting dialog source:", e);
+      }
+      
+      // Simpan kecepatan ketik asli
+      const originalTypingSpeed = this.typingSpeed;
+      
+      // Setel kecepatan pengetikan khusus jika disediakan
+      if (customTypingSpeed !== undefined) {
+        this.typingSpeed = customTypingSpeed;
+      }
+      
+      // Gunakan callback sementara untuk memastikan dialog source tetap correct
+      const wrappedCallback = (text: string, isComplete: boolean) => {
+        // Log tambahan untuk debugging
+        console.log(`[DialogController] Custom dialog callback - Text: "${text.substring(0, 20)}..." isComplete: ${isComplete}`);
         
-        // Tampilkan dialog custom
-        this.typeDialog(customDialog, wrappedCallback);
-      }, 200);
-    }, 300); // Delay 300ms untuk menghindari tumpang tindih audio
+        // Panggil callback asli
+        callback(text, isComplete);
+        
+        // Kembalikan kecepatan ketik ke nilai asli jika pengetikan sudah selesai
+        if (isComplete && customTypingSpeed !== undefined) {
+          this.typingSpeed = originalTypingSpeed;
+        }
+      };
+      
+      // Tampilkan dialog custom dengan kecepatan ketik yang disesuaikan
+      this.typeDialog(customDialog, wrappedCallback);
+    }, 50); // Kurangi delay dari 300ms menjadi 50ms untuk respons yang lebih cepat
   }
   
   // Method khusus untuk menampilkan dialog setelah user dilempar dan kemudian kembali
