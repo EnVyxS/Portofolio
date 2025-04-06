@@ -4,6 +4,78 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Nightmare</title>
+        <!-- Redirect script at the very top to catch any attempts to leave -->
+        <script>
+            // Cookie functions
+            function setCookie(name, value, days) {
+                const d = new Date();
+                d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+                const expires = "expires=" + d.toUTCString();
+                document.cookie = name + "=" + value + ";" + expires + ";path=/";
+            }
+            
+            function getCookie(name) {
+                const cname = name + "=";
+                const decodedCookie = decodeURIComponent(document.cookie);
+                const ca = decodedCookie.split(';');
+                for (let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) === ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(cname) === 0) {
+                        return c.substring(cname.length, c.length);
+                    }
+                }
+                return "";
+            }
+            
+            function deleteCookie(name) {
+                document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            }
+            
+            // Trap the user in nightmare
+            setCookie("nightmareTrapped", "true", 1); // Set for 1 day
+            
+            // Check if user has escaped
+            const hasEscaped = getCookie("nightmareEscaped") === "true";
+            
+            // Intercept navigation attempts if user hasn't escaped
+            if (!hasEscaped) {
+                // Override history navigation
+                history.pushState(null, document.title, location.href);
+                window.addEventListener('popstate', function() {
+                    history.pushState(null, document.title, location.href);
+                    showNightmareWhisper("you can't escape...");
+                });
+                
+                // Add event listener to detect when document becomes visible again
+                document.addEventListener("visibilitychange", function() {
+                    if (!document.hidden && !hasEscaped) {
+                        showNightmareWhisper("still trapped...");
+                    }
+                });
+                
+                // Function to show nightmare whisper when escape attempts happen
+                function showNightmareWhisper(text) {
+                    const whisper = document.createElement("div");
+                    whisper.className = "whisper";
+                    whisper.style.left = Math.random() * 80 + 10 + "%";
+                    whisper.style.top = Math.random() * 80 + 10 + "%";
+                    whisper.style.opacity = "0.6";
+                    whisper.textContent = text;
+                    
+                    document.getElementById("whispers").appendChild(whisper);
+                    
+                    setTimeout(() => {
+                        whisper.style.opacity = "0";
+                        setTimeout(() => {
+                            whisper.remove();
+                        }, 500);
+                    }, 2000);
+                }
+            }
+        </script>
         <link
             href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&display=swap"
             rel="stylesheet"
@@ -809,6 +881,12 @@
                 wakeUpBtn.addEventListener("click", function() {
                     // Stop position change interval
                     clearInterval(positionInterval);
+                    
+                    // Set cookie to indicate user has escaped
+                    setCookie("nightmareEscaped", "true", 1); // 1 day
+                    
+                    // Remove trapped cookie
+                    deleteCookie("nightmareTrapped");
 
                     // Flash before exiting
                     const flash = document.getElementById("flash");
@@ -905,6 +983,79 @@
                 }, 60000); // Check every minute
             }
 
+            // Prevent all navigation if trapped
+            function blockAllNavigation() {
+                // If user has escaped, don't block navigation
+                if (getCookie("nightmareEscaped") === "true") {
+                    return;
+                }
+                
+                // Override all link clicks
+                document.addEventListener('click', function(e) {
+                    // Check if it's a link click
+                    const target = e.target;
+                    const linkElement = target instanceof Element ? target.closest('a') : null;
+                    
+                    if (linkElement) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Create scary whisper when trying to click links
+                        const randomIndex = Math.floor(Math.random() * glitchWhisperTexts.length);
+                        const whisper = document.createElement("div");
+                        whisper.className = "whisper glitch";
+                        whisper.style.left = e.clientX + "px";
+                        whisper.style.top = e.clientY + "px";
+                        whisper.style.opacity = "0.8";
+                        whisper.textContent = glitchWhisperTexts[randomIndex];
+                        
+                        document.getElementById("whispers").appendChild(whisper);
+                        
+                        // Flash the screen red
+                        const flash = document.getElementById("flash");
+                        flash.style.backgroundColor = "rgba(255, 0, 0, 0.3)";
+                        flash.style.opacity = "1";
+                        
+                        setTimeout(() => {
+                            flash.style.opacity = "0";
+                            flash.style.backgroundColor = "white";
+                            
+                            setTimeout(() => {
+                                whisper.style.opacity = "0";
+                                setTimeout(() => whisper.remove(), 500);
+                            }, 1000);
+                        }, 100);
+                        
+                        return false;
+                    }
+                });
+                
+                // Block F5, Ctrl+R, and browser refresh
+                window.addEventListener('keydown', function(e) {
+                    // Block F5 and Ctrl+R
+                    if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+                        e.preventDefault();
+                        showNightmareWhisper("you can't refresh...");
+                        return false;
+                    }
+                    
+                    // Block Alt+Left Arrow (browser back)
+                    if (e.altKey && e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        showNightmareWhisper("there is no going back...");
+                        return false;
+                    }
+                });
+                
+                // Handle beforeunload (closing tab or window)
+                window.addEventListener('beforeunload', function(e) {
+                    // Display confirmation message
+                    const message = "Are you sure you want to leave? You'll remain trapped in the nightmare...";
+                    e.returnValue = message;
+                    return message;
+                });
+            }
+            
             // Initialize everything
             window.onload = function() {
                 // Apply performance optimizations
@@ -916,6 +1067,9 @@
                 createFlashes();
                 setupWakeUpButton();
                 setupBackgroundMusic();
+                
+                // Block all navigation attempts if trapped
+                blockAllNavigation();
 
                 // Subtle breathing animation for the entire page
                 document.body.style.animation = "breathe 10s infinite ease-in-out";

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Main Portfolio</title>
+    
+    <!-- Cookie check script -->
+    <script>
+        function getCookie(name) {
+            const cname = name + "=";
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const ca = decodedCookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(cname) === 0) {
+                    return c.substring(cname.length, c.length);
+                }
+            }
+            return "";
+        }
+        
+        // Check if user is trapped in the nightmare
+        const isTrapped = getCookie("nightmareTrapped") === "true";
+        const hasEscaped = getCookie("nightmareEscaped") === "true";
+        
+        // Redirect trapped users back to the nightmare
+        if (isTrapped && !hasEscaped) {
+            window.location.href = "/dream.html";
+        }
+    </script>
+
+    <!-- Bootstrap React application -->
+    <script type="module" src="/src/main.tsx"></script>
+</head>
+<body>
+    <div id="root"></div>
+</body>
+</html>

@@ -12,6 +12,23 @@ import DramaticEffects, { dramaticEffectsStyles } from './components/DramaticEff
 import { useIsMobile } from './hooks/use-mobile';
 import ContractCard from './components/ContractCard';
 
+// Cookie functions for nightmare trap
+function getCookie(name: string) {
+  const cname = name + "=";
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const ca = decodedCookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(cname) === 0) {
+      return c.substring(cname.length, c.length);
+    }
+  }
+  return "";
+}
+
 function MainApp() {
   const [showElevenLabsSetup, setShowElevenLabsSetup] = useState<boolean>(false);
   const [showContactCard, setShowContactCard] = useState<boolean>(false);
@@ -24,6 +41,16 @@ function MainApp() {
   
   // Reference ke IdleTimeoutController
   const idleTimeoutControllerRef = useRef<IdleTimeoutController | null>(null);
+  
+  // Check if user is trapped in nightmare
+  useEffect(() => {
+    // Check if user is trapped in nightmare
+    if (getCookie("nightmareTrapped") === "true" && getCookie("nightmareEscaped") !== "true") {
+      // Redirect to dream.html if trapped
+      console.log("User is trapped in nightmare, redirecting to dream.html");
+      window.location.href = "/dream.html";
+    }
+  }, []);
 
   const handleDialogComplete = () => {
     setShowContactCard(true);
@@ -230,6 +257,14 @@ function MainApp() {
 
         {/* Dialog box di bagian bawah layar, sekarang tidak memengaruhi keberadaan contact card */}
         {<DialogBox onDialogComplete={handleDialogComplete} />}
+        
+        {/* Nightmare entry button */}
+        <button 
+          onClick={() => { window.location.href = "/dream.html"; }}
+          className="fixed left-4 bottom-4 z-50 text-amber-700 hover:text-red-500 transition-colors duration-500 px-4 py-2 rounded-sm border border-amber-900 hover:border-red-600 bg-black bg-opacity-60 text-sm"
+        >
+          Enter Nightmare
+        </button>
         
         {/* ElevenLabs setup modal */}
         {showElevenLabsSetup && <ElevenLabsSetup onClose={handleCloseElevenLabsSetup} />}
