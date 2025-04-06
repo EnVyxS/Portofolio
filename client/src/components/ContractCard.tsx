@@ -224,6 +224,13 @@ const ContractCard: React.FC = () => {
     if (originalVolume !== null) {
       setVolume(originalVolume);
     }
+    export const CONTRACT_RESPONSES = [
+      "Didn't lie. Never have, never will. Maybe next time, use your damn brain before throwing accusations.",
+      "Not a liar. Never was. Maybe next time, don't waste my time with your doubts.",
+      "Told you the truth. Always do. Maybe next time, keep your mouth shut until you know better.",
+      "Didn't lie. Don't need to. Maybe next time, think twice before making a fool of yourself.",
+      "Believe me now? Thought so. Next time, don't question what you don't understand."
+    ];
     
     // Display a random CONTRACT_RESPONSE dialog
     const randomIndex = Math.floor(Math.random() * CONTRACT_RESPONSES.length);
