@@ -143,7 +143,7 @@ const GameContactCard: React.FC = () => {
                 name={link.name}
                 url={link.url}
                 icon={React.cloneElement(link.icon as React.ReactElement, { 
-                  size: "clamp(12px, 2.5vw, 16px)" // Much smaller icons
+                  size: "clamp(10px, 2vw, 14px)" // Ikon sangat kecil untuk menyesuaikan kartu yang lebih kecil
                 })}
                 color={link.color}
                 hoverColor={link.hoverColor}
@@ -179,9 +179,10 @@ const GameContactCard: React.FC = () => {
           max-width: 500px;
           margin: 0;
           position: absolute;
-          top: 80px; /* Fixed position from top (desktop) */
-          right: 30px; /* Position further to the right side */
+          top: 30px; /* Lebih tinggi di layar (untuk menghindari dialog box) */
+          right: 40px; /* Sedikit lebih jauh ke kanan */
           transform: none; /* No vertical centering for desktop */
+          z-index: 20; /* Pastikan selalu di atas elemen lain */
         }
 
         /* Unified card that contains all elements */
@@ -191,12 +192,12 @@ const GameContactCard: React.FC = () => {
           backdrop-filter: blur(2px); /* Sedikit lebih blur */
           opacity: 0.6; /* Kurangi opacity sedikit */
           border-radius: 0; /* No rounded corners ala Souls-like */
-          padding: clamp(0.4rem, 1.2vw, 0.6rem) clamp(0.4rem, 1.2vw, 0.6rem); /* More compact padding */
-          max-width: min(220px, 50%); /* Even smaller max width */
+          padding: clamp(0.3rem, 0.8vw, 0.5rem) clamp(0.3rem, 0.8vw, 0.5rem); /* Padding lebih compact */
+          max-width: min(180px, 40%); /* Ukuran maksimum lebih kecil */
           width: 100%;
           box-shadow:
-            0 8px 20px rgba(0, 0, 0, 0.2),
-            0 0 15px rgba(150, 130, 100, 0.15); /* Shadow emas pudar */
+            0 5px 15px rgba(0, 0, 0, 0.15),
+            0 0 12px rgba(150, 130, 100, 0.15); /* Shadow emas pudar */
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -207,7 +208,7 @@ const GameContactCard: React.FC = () => {
           z-index: 30;
           touch-action: manipulation; /* More responsive touch */
           -webkit-tap-highlight-color: transparent; /* Remove default browser mobile highlight */
-          transform: scale(0.9); /* Slightly smaller scale */
+          transform: scale(0.85); /* Ukuran lebih kecil */
         }
 
         .unified-card::before {
