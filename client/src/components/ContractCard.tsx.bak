@@ -326,7 +326,7 @@ const ContractCard: React.FC = () => {
             window.__contractResponseText = null;
           }, 5000); // Beri waktu 5 detik untuk dialog tetap terlihat
         }
-      }, true);
+      });
     }, 300);
 
     setIsOpen(false);

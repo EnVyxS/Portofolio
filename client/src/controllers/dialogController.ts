@@ -208,13 +208,20 @@ class DialogController {
     }
   }
   
-  // Method khusus untuk menampilkan dialog timeout/idle
-  public showCustomDialog(text: string, callback: (text: string, isComplete: boolean) => void): void {
+  // Method khusus untuk menampilkan dialog timeout/idle atau contract response
+  public showCustomDialog(text: string, callback: (text: string, isComplete: boolean) => void, isContractResponse: boolean = false): void {
     // Hentikan dialog yang sedang berjalan
     this.stopTyping();
     
     // Log untuk debugging
-    console.log(`[DialogController] Memulai dialog custom: "${text}"`);
+    if (isContractResponse) {
+      console.log(`[DialogController] Showing CONTRACT_RESPONSE dialog: "${text}"`);
+    } else {
+      console.log(`[DialogController] Memulai dialog custom: "${text}"`);
+    }
+    
+    // Untuk contract response, mulai typing tanpa delay untuk transisi yang lebih mulus
+    const delay = isContractResponse ? 10 : 100;
     
     // Tunggu sebentar untuk memastikan audio sebelumnya sudah selesai
     setTimeout(() => {
