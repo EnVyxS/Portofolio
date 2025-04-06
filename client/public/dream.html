@@ -103,15 +103,15 @@
                 z-index: 2;
             }
 
-            /* Wake up button (sangat kecil dan bergerak) */
+            /* Wake up button (sangat kecil dan bergerak, sepenuhnya tidak terlihat) */
             .wake-up-btn {
                 position: fixed;
                 bottom: 40px;
                 left: 50%;
                 transform: translateX(-50%);
                 background: none;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                color: rgba(255, 255, 255, 0.2);
+                border: 1px solid rgba(255, 255, 255, 0);
+                color: rgba(255, 255, 255, 0);
                 font-family: "EB Garamond", serif;
                 font-size: 0.65rem;
                 padding: 5px 10px;
@@ -120,14 +120,17 @@
                 letter-spacing: 0.2em;
                 text-transform: uppercase;
                 z-index: 20;
-                opacity: 0.6;
+                opacity: 0;
             }
 
             .wake-up-btn:hover {
                 background: rgba(255, 255, 255, 0.05);
-                color: rgba(255, 255, 255, 0.4);
-                border-color: rgba(255, 255, 255, 0.3);
-                transform: translateX(-50%) scale(1.1);
+                color: rgba(255, 255, 255, 0.2);
+                border-color: rgba(255, 255, 255, 0.1);
+                opacity: 0.2;
+                padding: 8px 16px;
+                font-size: 0.7rem;
+                transform: none;
             }
 
             /* Breathing animation */
@@ -175,10 +178,17 @@
                     letter-spacing: 0.2em;
                 }
                 
-                /* Tombol escape di mobile tetap kecil */
+                /* Tombol escape di mobile tetap kecil dan tidak terlihat */
                 .wake-up-btn {
                     font-size: 0.65rem;
                     padding: 5px 10px;
+                    opacity: 0;
+                }
+                
+                /* Tombol escape di mobile saat hover */
+                .wake-up-btn:hover {
+                    padding: 8px 16px;
+                    font-size: 0.7rem;
                 }
             }
         </style>
@@ -290,7 +300,7 @@
 
                     if (data.success && data.audioPath) {
                         const audio = new Audio(data.audioPath);
-                        audio.volume = 0.15; // Volume rendah untuk efek bisikan
+                        audio.volume = 0.35; // Volume rendah untuk efek bisikan
                         audio.play();
                     }
                 } catch (error) {
