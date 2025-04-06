@@ -280,8 +280,8 @@ const ContractCard: React.FC = () => {
       // @ts-ignore - tambahkan properti global untuk komunikasi antar komponen
       window.__contractDialogActive = true;
       
-      // Tambahkan delay kecil untuk memastikan transisi yang mulus dari dialog lain
-      console.log("[ContractCard] Menampilkan dialog kontrak segera:", randomResponse);
+      // Sebelum menampilkan dialog custom, reset dialogController dulu
+      dialogController.stopTyping();
       
       // Dapatkan handler dari DialogBox untuk setText dan setIsComplete
       // Kita TIDAK menggunakan __contractResponseText disini karena itu membuat teks muncul penuh
@@ -293,8 +293,7 @@ const ContractCard: React.FC = () => {
       // @ts-ignore - untuk mendapatkan akses ke isCompleteSetter di DialogBox jika tersedia
       const isCompleteSetter = window.__dialogBoxIsCompleteSetter;
       
-      // PENTING: Tandai ini sebagai dialog kontrak untuk mendapatkan transisi yang mulus
-      console.log("[ContractCard] Menampilkan dialog kontrak segera:", randomResponse);
+      // PENTING: Dialog custom harus selalu menjadi dialog aktif dan utama
       dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
         // Callback ini dipanggil setiap karakter (saat dialog sedang berjalan dan setelah selesai)
         // Pastikan dialog source tetap 'main' dan dialog box ditampilkan
@@ -326,7 +325,7 @@ const ContractCard: React.FC = () => {
             window.__contractResponseText = null;
           }, 5000); // Beri waktu 5 detik untuk dialog tetap terlihat
         }
-      }, true);
+      });
     }, 300);
 
     setIsOpen(false);
