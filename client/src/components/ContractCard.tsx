@@ -14,10 +14,8 @@ import { useAudio } from "../context/AudioManager";
 
 // Responses for contract interactions - moved from DialogBox.tsx and made more natural
 export const CONTRACT_RESPONSES = [
-  "Look, I've never lied to you. You've seen my credentials now. Let's move on with our conversation.",
   "Now you've seen the proof. Are we good to continue, or do you need more convincing?",
-  "Those are my real qualifications. Hope that settles any doubts you had. What else would you like to know?",
-  "That should answer your questions about my background. Ready to talk about something else now?", 
+  "That should answer your questions about my background. Ready to talk about something else now?",
   "There's everything you needed to see. I'm the real deal. What would you like to discuss next?",
 ];
 
@@ -279,20 +277,20 @@ const ContractCard: React.FC = () => {
       // Gunakan objek window untuk menyimpan state terkait kontrak
       // @ts-ignore - tambahkan properti global untuk komunikasi antar komponen
       window.__contractDialogActive = true;
-      
+
       // Sebelum menampilkan dialog custom, reset dialogController dulu
       dialogController.stopTyping();
-      
+
       // Dapatkan handler dari DialogBox untuk setText dan setIsComplete
       // Kita TIDAK menggunakan __contractResponseText disini karena itu membuat teks muncul penuh
       // sebelum efek typewriter. Sebagai gantinya, kita hanya menandai bahwa dialog kontrak sedang aktif
       // tanpa menyimpan teks lengkapnya.
-      
+
       // @ts-ignore - untuk mendapatkan akses ke textSetter di DialogBox jika tersedia
       const textSetter = window.__dialogBoxTextSetter;
       // @ts-ignore - untuk mendapatkan akses ke isCompleteSetter di DialogBox jika tersedia
       const isCompleteSetter = window.__dialogBoxIsCompleteSetter;
-      
+
       // PENTING: Dialog custom harus selalu menjadi dialog aktif dan utama
       dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
         // Callback ini dipanggil setiap karakter (saat dialog sedang berjalan dan setelah selesai)
@@ -300,21 +298,23 @@ const ContractCard: React.FC = () => {
         if (hoverDialogController.setDialogSource) {
           hoverDialogController.setDialogSource("main");
         }
-        
+
         // Tambahkan logging untuk membantu debug
-        console.log(`[ContractCard] Dialog callback - Text: "${text.substring(0, 20)}..." isComplete: ${isComplete}`);
-        
+        console.log(
+          `[ContractCard] Dialog callback - Text: "${text.substring(0, 20)}..." isComplete: ${isComplete}`,
+        );
+
         // Langsung update text di DialogBox jika setter tersedia
-        if (typeof textSetter === 'function') {
+        if (typeof textSetter === "function") {
           console.log(`[ContractCard] Updating DialogBox text directly`);
           textSetter(text);
         }
-        
+
         // Update isComplete di DialogBox jika setter tersedia
-        if (typeof isCompleteSetter === 'function') {
+        if (typeof isCompleteSetter === "function") {
           isCompleteSetter(isComplete);
         }
-        
+
         // Pada akhir dialog (isComplete = true), tandai bahwa dialog kontrak telah selesai
         if (isComplete) {
           // @ts-ignore - hapus properti global ketika dialog selesai
