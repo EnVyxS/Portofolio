@@ -389,14 +389,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // Tambahkan log explisit untuk membantu debugging
   console.log(`[DialogBox] Dialog status check - isDialogFinished: ${isDialogFinished}, text empty: ${text === ""}, contract active: ${isContractDialogActive}, forceShow: ${forceShowIdleWarning}`);
   
-  // Selalu reset isDialogFinished jika forceShowIdleWarning aktif
-  useEffect(() => {
-    if (forceShowIdleWarning) {
-      // Jika flag force show aktif, pastikan dialog box selalu ditampilkan
+  if (forceShowIdleWarning) {
+    // Jika flag force show aktif, pastikan dialog box selalu ditampilkan
+    // Reset isDialogFinished jika perlu untuk memastikan dialog box muncul kembali
+    if (isDialogFinished) {
       console.log("[DialogBox] Force resetting isDialogFinished to false to show idle warning dialog");
       setIsDialogFinished(false);
     }
-  }, [forceShowIdleWarning]);
+  }
   
   if (isDialogFinished && text === "" && !isContractDialogActive && !forceShowIdleWarning) {
     // Debug untuk membantu melihat status dialog

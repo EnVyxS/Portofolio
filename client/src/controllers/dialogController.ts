@@ -216,11 +216,6 @@ class DialogController {
     // Log untuk debugging
     console.log(`[DialogController] Memulai dialog custom: "${text}"`);
     
-    // Reset charIndex dan pastikan isTyping = false untuk dialog baru
-    this.charIndex = 0;
-    this.currentText = "";
-    this.isTyping = false;
-    
     // Tunggu sebentar untuk memastikan audio sebelumnya sudah selesai
     setTimeout(() => {
       // Pastikan audio benar-benar berhenti
