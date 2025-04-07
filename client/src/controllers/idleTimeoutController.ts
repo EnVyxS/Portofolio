@@ -453,6 +453,14 @@ class IdleTimeoutController {
     this.dialogController.stopTyping();
     this.hoverDialogController.stopTyping();
     
+    // Set global flag untuk memaksa dialog menampilkan pesan idle warning
+    // @ts-ignore 
+    window.__forceShowIdleWarning = true;
+    // @ts-ignore
+    window.__idleWarningText = text;
+    
+    console.log(`[IdleTimeoutController] 🔴 SET GLOBAL FLAG - Forcing idle warning: "${text}"`);
+    
     // Pastikan tidak ada audio yang sedang diputar dengan delay untuk memastikan
     // semua audio benar-benar berhenti
     setTimeout(() => {
@@ -475,6 +483,14 @@ class IdleTimeoutController {
           if (isComplete) {
             // Tandai bahwa user sudah berinteraksi dengan dialog
             this.hoverDialogController.setHasInteractedWithHover(true);
+            
+            // Cek apakah pesan ini adalah pesan idle sebelum melakukan reset flag
+            if (!text.includes("YOU ASKED FOR THIS") && !text.includes("DO NOT FUCK WITH ME")) {
+              // Reset global flag setelah dialog selesai kecuali untuk pesan penting
+              // @ts-ignore
+              window.__forceShowIdleWarning = false;
+              console.log(`[IdleTimeoutController] 🔴 RESET GLOBAL FLAG - Dialog complete`);
+            }
           }
         });
       }, 200);
@@ -510,6 +526,13 @@ class IdleTimeoutController {
       console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing throw dialog");
       this.hoverDialogController.setDialogSource('main');
     }
+    
+    // Set global dialog flag untuk memastikan dialog box muncul
+    // @ts-ignore
+    window.__forceShowIdleWarning = true;
+    // @ts-ignore
+    window.__idleWarningText = throwText;
+    console.log(`[IdleTimeoutController] 🔴 SET GLOBAL FLAG - Forcing throw warning: "${throwText}"`)
     
     this.showIdleWarning(throwText);
     
@@ -590,6 +613,12 @@ class IdleTimeoutController {
       console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing punch dialog");
       this.hoverDialogController.setDialogSource('main');
     }
+    
+    // Set global dialog flag untuk memastikan dialog box muncul
+    // @ts-ignore
+    window.__forceShowIdleWarning = true;
+    // @ts-ignore
+    window.__idleWarningText = punchText;
     
     // Fungsi untuk menjalankan proses pukulan
     const executePunch = () => {
