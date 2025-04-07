@@ -452,21 +452,20 @@ class IdleTimeoutController {
     // Hentikan semua aktivitas dialog terlebih dahulu
     this.dialogController.stopTyping();
     this.hoverDialogController.stopTyping();
-    this.elevenlabsService.stopSpeaking();
     
-    // Set dialog source ke 'main' terlebih dahulu untuk memastikan teks muncul di dialog box utama
-    if (this.hoverDialogController.setDialogSource) {
-      console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing idle warning");
-      this.hoverDialogController.setDialogSource('main');
-    }
-    
-    // Reset dialog box state
-    const textSetter = window.__dialogBoxTextSetter;
-    const isCompleteSetter = window.__dialogBoxIsCompleteSetter;
-    if (textSetter) textSetter("");
-    if (isCompleteSetter) isCompleteSetter(false);
-    
-    console.log(`[IdleTimeoutController] Showing warning message: "${text}"`);
+    // Pastikan tidak ada audio yang sedang diputar dengan delay untuk memastikan
+    // semua audio benar-benar berhenti
+    setTimeout(() => {
+      // Hentikan audio apapun yang masih berjalan
+      this.elevenlabsService.stopSpeaking();
+      
+      console.log(`[IdleTimeoutController] Showing warning message: "${text}"`);
+      
+      // Set dialog source ke 'main' terlebih dahulu untuk memastikan teks muncul di dialog box utama
+      if (this.hoverDialogController.setDialogSource) {
+        console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing idle warning");
+        this.hoverDialogController.setDialogSource('main');
+      }
       
       // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
       setTimeout(() => {
