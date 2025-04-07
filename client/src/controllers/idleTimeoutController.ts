@@ -453,6 +453,11 @@ class IdleTimeoutController {
     this.dialogController.stopTyping();
     this.hoverDialogController.stopTyping();
     
+    // Set global flag untuk memaksa dialog box muncul
+    // @ts-ignore - akses properti global dari window
+    window.__forceShowIdleWarning = true;
+    console.log("[IdleTimeoutController] Setting global flag to force show idle warning dialog");
+    
     // Pastikan tidak ada audio yang sedang diputar dengan delay untuk memastikan
     // semua audio benar-benar berhenti
     setTimeout(() => {
@@ -475,6 +480,9 @@ class IdleTimeoutController {
           if (isComplete) {
             // Tandai bahwa user sudah berinteraksi dengan dialog
             this.hoverDialogController.setHasInteractedWithHover(true);
+            
+            // Setelah dialog selesai, jangan langsung hapus flag agar dialog tetap terlihat
+            // Flag akan dihapus saat user berinteraksi dengan dialog
           }
         });
       }, 200);
@@ -487,6 +495,11 @@ class IdleTimeoutController {
   // Method untuk 'melempar' user
   private throwUser(): void {
     console.log("[IdleTimeoutController] Executing throw user action");
+
+    // Set global flag untuk memaksa dialog box muncul
+    // @ts-ignore - akses properti global dari window
+    window.__forceShowIdleWarning = true;
+    console.log("[IdleTimeoutController] Setting global flag to force show throw warning dialog");
 
     // Play the throw sound effect using the dynamically generated whoosh sound
     try {
@@ -580,6 +593,11 @@ class IdleTimeoutController {
   // Method untuk 'memukul' user
   private punchUser(): void {
     // Log removed
+
+    // Set global flag untuk memaksa dialog box muncul
+    // @ts-ignore - akses properti global dari window
+    window.__forceShowIdleWarning = true;
+    console.log("[IdleTimeoutController] Setting global flag to force show punch warning dialog");
 
     // Tambahkan dialog peringatan untuk 'memukul'
     const punchText = "YOU ASKED FOR THIS.";
@@ -688,6 +706,15 @@ class IdleTimeoutController {
     this.hasInteractedAfterReset = false;
 
     this.lastInteractionTime = Date.now();
+    
+    // Reset global flag untuk force show idle warning
+    try {
+      // @ts-ignore - akses properti global dari window
+      window.__forceShowIdleWarning = false;
+      console.log("[IdleTimeoutController] Reset global flag for force show idle warning");
+    } catch (e) {
+      console.error("Could not reset global flag for force show idle warning:", e);
+    }
 
     // Reset juga status idle timeout di HoverDialogController
     try {

@@ -78,6 +78,15 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
   // Handle Continue sebagai useCallback untuk dapat digunakan dalam useEffect
   const handleContinue = useCallback(() => {
+    // Reset force show idle warning flag saat user menekan tombol continue
+    try {
+      // @ts-ignore - akses properti global dari window
+      window.__forceShowIdleWarning = false;
+      console.log("[DialogBox] Reset force show idle warning flag on user interaction");
+    } catch (e) {
+      console.error("Could not reset force show idle warning flag:", e);
+    }
+    
     // Cek apakah ini adalah dialog khusus post-reset dan perlu direset status nya
     if (dialogController.isShowingPostResetDialog()) {
       dialogController.resetPostResetDialogStatus();
@@ -340,16 +349,25 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // @ts-ignore - akses properti global dari window yang disimpan di ContractCard
   const contractResponseText = window.__contractResponseText;
   
+  // Periksa apakah flag untuk memaksa menampilkan dialog box aktif (untuk idle warnings)
+  // @ts-ignore - akses properti global dari window yang diatur oleh IdleTimeoutController
+  const forceShowIdleWarning = window.__forceShowIdleWarning === true;
+  
+  // Jika ada flag force show idle warning, log untuk debugging
+  if (forceShowIdleWarning) {
+    console.log("[DialogBox] Force show idle warning flag is active, dialog box will remain visible");
+  }
+  
   // Kita menghilangkan bagian yang membuat dialog kontrak muncul penuh
   // Sekarang, saat contractDialogActive, kita biarkan efek typewriter berjalan
   // tanpa mengubah teks secara manual
   // Kita tetapkan bahwa ini adalah kontrak dialog berdasarkan flag __contractDialogActive
   // dan bukan berdasarkan teks lengkap (tidak menggunakan contractResponseText)
   
-  if (isDialogFinished && text === "" && !isContractDialogActive) {
+  if (isDialogFinished && text === "" && !isContractDialogActive && !forceShowIdleWarning) {
     // Debug untuk membantu melihat status dialog
     console.log("[DialogBox] Dialog finished with empty text, hiding dialog box");
-    return null; // Hanya return null jika tidak ada teks sama sekali dan bukan dialog kontrak
+    return null; // Hanya return null jika tidak ada teks sama sekali dan bukan dialog kontrak dan bukan force show
   }
   
   // Periksa apakah ini adalah dialog kontrak (CONTRACT_RESPONSES) berdasarkan teks
