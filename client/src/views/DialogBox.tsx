@@ -421,22 +421,17 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     console.log(`[DialogBox] Showing dialog - Text: "${text.substring(0, 30)}..." Source: ${dialogSource}`);
   }
 
-  // Animasi khusus untuk idle warnings lebih mencolok
-  const isIdleWarning = text.includes("ENOUGH") || text.includes("REGRET") || text.includes("FUCK YOU") || text.includes("SIGHT") || text.includes("KEEP PUSHING") || text.includes("STARING");
-  
   return (
     <motion.div
-      className={`dialog-box-container ${isIdleWarning ? 'idle-warning' : ''}`}
+      className="dialog-box-container"
       initial={{ opacity: 0, y: 50 }}
       animate={{ 
         opacity: 1, 
-        y: 0,
-        scale: isIdleWarning ? [1, 1.03, 1] : 1 // Pulse animation for idle warnings
+        y: 0
       }}
       transition={{ 
         duration: 0.5, 
-        ease: "easeOut",
-        scale: isIdleWarning ? { repeat: 2, duration: 0.5 } : {}
+        ease: "easeOut"
       }}
     >
       <div
@@ -560,31 +555,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           box-sizing: border-box;
         }
         
-        /* Special styling untuk idle warnings */
-        .idle-warning .dialog-box {
-          border: 1px solid rgba(255, 100, 70, 0.4); /* Warna merah untuk peringatan */
-          box-shadow: 0 0 15px rgba(255, 50, 20, 0.3);
-          animation: idle-warning-pulse 2s infinite;
-        }
-        
-        .idle-warning .dialog-text {
-          color: rgba(255, 220, 220, 0.95); /* Text lebih terang untuk peringatan */
-          font-weight: 500;
-        }
-        
-        .idle-warning .character-name {
-          background: rgba(40, 20, 15, 0.9); /* Background lebih merah untuk peringatan */
-          border-color: rgba(180, 100, 70, 0.5);
-        }
-        
-        @keyframes idle-warning-pulse {
-          0%, 100% {
-            box-shadow: 0 0 15px rgba(255, 50, 20, 0.3);
-          }
-          50% {
-            box-shadow: 0 0 20px rgba(255, 50, 20, 0.5);
-          }
-        }
+
         
         /* Tambahkan pseudo-element untuk inner border ornament */
         .dialog-box::before {
