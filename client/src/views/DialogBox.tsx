@@ -346,31 +346,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // Kita tetapkan bahwa ini adalah kontrak dialog berdasarkan flag __contractDialogActive
   // dan bukan berdasarkan teks lengkap (tidak menggunakan contractResponseText)
   
-  // Periksa apakah ada idle warning yang perlu dipaksa ditampilkan
-  // @ts-ignore - karena properti ini akan ditambahkan secara dinamis
-  const shouldForceShowIdleWarning = window.__forceShowIdleWarning === true;
-  // @ts-ignore - karena properti ini akan ditambahkan secara dinamis
-  const idleWarningText = window.__idleWarningText;
-
-  // Jika ada idle warning yang dipaksa ditampilkan, tampilkan
-  if (shouldForceShowIdleWarning && idleWarningText) {
-    console.log(`[DialogBox] 🔴 FORCE SHOWING dialog box for IDLE WARNING: "${idleWarningText.substring(0, 30)}..."`);
-    
-    // JANGAN ubah text secara langsung di sini, biarkan DialogController yang mengelola typewriter effect
-    // Kita hanya akan memastikan dialog box tetap terlihat
-    
-    // Jika text kosong, maka tampilkan loading text
-    if (text === "") {
-      console.log("[DialogBox] No text but dialog should be forced shown, showing loading text...");
-      setIsDialogFinished(false); // Pastikan dialog box tetap muncul
-    }
-  }
-
-  // Log kondisi visibilitas untuk debugging
-  console.log(`[DialogBox] Dialog visibility check - text: "${text.substring(0, 20)}..." | isDialogFinished: ${isDialogFinished} | shouldNotHideDialog: ${shouldForceShowIdleWarning || isContractDialogActive} | dialogSource: ${dialogSource} | isIdleTimeoutWarning: ${shouldForceShowIdleWarning}`);
-  
-  // Cek kondisi untuk mengembalikan null (menyembunyikan dialog box)
-  if (isDialogFinished && text === "" && !isContractDialogActive && !shouldForceShowIdleWarning) {
+  if (isDialogFinished && text === "" && !isContractDialogActive) {
     // Debug untuk membantu melihat status dialog
     console.log("[DialogBox] Dialog finished with empty text, hiding dialog box");
     return null; // Hanya return null jika tidak ada teks sama sekali dan bukan dialog kontrak
