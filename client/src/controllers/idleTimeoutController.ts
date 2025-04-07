@@ -449,38 +449,11 @@ class IdleTimeoutController {
 
   // Method untuk menampilkan peringatan
   private showIdleWarning(text: string): void {
-    console.log(`[IdleTimeoutController] Preparing to show warning message: "${text}"`);
+    // Hentikan semua aktivitas dialog terlebih dahulu
+    this.dialogController.stopTyping();
+    this.hoverDialogController.stopTyping();
     
-    // Pastikan semua aktivitas audio dan dialog dihentikan terlebih dahulu
-    try {
-      console.log("[IdleTimeoutController] Stopping all existing dialogs and audio");
-      
-      // Hentikan audio ElevenLabs
-      this.elevenlabsService.stopSpeaking();
-      
-      // Hentikan audio HTML yang mungkin sedang diputar
-      try {
-        const allAudioElements = document.querySelectorAll('audio');
-        allAudioElements.forEach(audio => {
-          try {
-            audio.pause();
-            console.log("[IdleTimeoutController] Paused audio element:", audio.src);
-          } catch (e) {
-            console.error("Error pausing audio element:", e);
-          }
-        });
-      } catch (e) {
-        console.error("Error stopping HTML audio elements:", e);
-      }
-      
-      // Hentikan semua dialog yang sedang berjalan
-      this.dialogController.stopTyping();
-      this.hoverDialogController.stopTyping();
-    } catch (e) {
-      console.error("Error stopping existing audio/dialogs:", e);
-    }
-    
-    // Pastikan dialog box ditampilkan untuk idle warnings dengan mengatur flag global
+    // Pastikan dialog box ditampilkan untuk idle warnings
     try {
       // Reset isDialogFinished untuk memastikan dialog box muncul kembali jika sudah di-hide
       // @ts-ignore - akses properti global dari window
@@ -494,44 +467,55 @@ class IdleTimeoutController {
       // @ts-ignore - akses properti global dari window
       window.__forceShowIdleWarning = true;
       console.log("[IdleTimeoutController] Setting global flag to force show idle warning dialog");
-      
-      // Trigger custom event untuk memaksa komponen DialogBox merender ulang
-      try {
-        document.dispatchEvent(new CustomEvent('idle-warning-triggered', { detail: { text } }));
-        console.log("[IdleTimeoutController] Dispatched custom event 'idle-warning-triggered'");
-      } catch (e) {
-        console.error("Error dispatching custom event:", e);
-      }
     } catch (e) {
       console.error("Error preparing dialog box for idle warning:", e);
     }
     
-    // Berikan waktu yang cukup untuk membersihkan audio dan dialog sebelumnya
+    // Pastikan tidak ada audio yang sedang diputar dengan delay untuk memastikan
+    // semua audio benar-benar berhenti
     setTimeout(() => {
+      // Hentikan audio apapun yang masih berjalan
+      this.elevenlabsService.stopSpeaking();
+      
       console.log(`[IdleTimeoutController] Showing warning message: "${text}"`);
       
-      // Pastikan dialog source diatur ke 'main'
+      // Set dialog source ke 'main' terlebih dahulu untuk memastikan teks muncul di dialog box utama
       if (this.hoverDialogController.setDialogSource) {
         console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing idle warning");
         this.hoverDialogController.setDialogSource('main');
-        
-        // Reset status dialog interaksi untuk hover controller
-        this.hoverDialogController.setHasInteractedWithHover(false);
       }
       
-      // Tampilkan dialog dengan efek typing melalui dialog controller yang sudah ditingkatkan
-      this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
-        console.log(`[IdleTimeoutController] Dialog callback - text: "${dialogText.substring(0, 20)}...", isComplete: ${isComplete}`);
-        
-        if (isComplete) {
-          // Tandai bahwa user sudah berinteraksi dengan dialog
-          this.hoverDialogController.setHasInteractedWithHover(true);
-          
-          // Jangan reset flag di sini karena kita ingin dialog tetap terlihat
-          // sampai user berinteraksi dengan halaman
+      // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
+      setTimeout(() => {
+        // Tambahkan pre-check apakah dialog box muncul dan reset jika tidak
+        try {
+          // @ts-ignore
+          if (window.__dialogBoxTextSetter && typeof window.__dialogBoxTextSetter === 'function') {
+            // Coba set text langsung via global function untuk memastikan
+            // @ts-ignore
+            window.__dialogBoxTextSetter(text);
+            console.log("[IdleTimeoutController] Directly set text to dialog box:", text);
+          }
+        } catch (e) {
+          console.error("Error directly setting dialog text:", e);
         }
-      });
-    }, 500); // Waktu tunggu yang lebih lama untuk memastikan audio benar-benar berhenti
+
+        // Tampilkan dialog peringatan dengan text custom
+        // Dialog Controller akan mengelola audio secara otomatis
+        this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
+          if (isComplete) {
+            // Tandai bahwa user sudah berinteraksi dengan dialog
+            this.hoverDialogController.setHasInteractedWithHover(true);
+            
+            // Setelah dialog selesai, jangan langsung hapus flag agar dialog tetap terlihat
+            // Flag akan dihapus saat user berinteraksi dengan dialog
+          }
+        });
+      }, 200);
+    }, 100);
+    
+    // Tidak perlu memanggil elevenlabsService.speakText disini
+    // karena sudah dipanggil oleh dialogController.showCustomDialog
   }
 
   // Method untuk 'melempar' user
@@ -539,111 +523,33 @@ class IdleTimeoutController {
     console.log("[IdleTimeoutController] Executing throw user action");
 
     // Set global flag untuk memaksa dialog box muncul
+    // @ts-ignore - akses properti global dari window
+    window.__forceShowIdleWarning = true;
+    console.log("[IdleTimeoutController] Setting global flag to force show throw warning dialog");
+
+    // Play the throw sound effect using the dynamically generated whoosh sound
     try {
-      // Reset isDialogFinished untuk memastikan dialog box muncul kembali jika sudah di-hide
-      // @ts-ignore - akses properti global dari window
-      if (window.__dialogBoxIsFinishedSetter && typeof window.__dialogBoxIsFinishedSetter === 'function') {
-        // @ts-ignore
-        window.__dialogBoxIsFinishedSetter(false);
-        console.log("[IdleTimeoutController] Reset dialog finished state before throw");
+      if (window.createWhooshSound && typeof window.createWhooshSound === 'function') {
+        // Use our custom sound generator
+        console.log("Playing dynamically generated whoosh sound");
+        window.createWhooshSound();
+      } else {
+        console.warn("Whoosh sound generator not available");
       }
-      
-      // @ts-ignore - akses properti global dari window
-      window.__forceShowIdleWarning = true;
-      console.log("[IdleTimeoutController] Setting global flag to force show throw warning dialog");
-      
-      // Trigger custom event untuk memaksa komponen DialogBox merender ulang
-      try {
-        document.dispatchEvent(new CustomEvent('idle-warning-triggered', { detail: { type: 'throw' } }));
-        console.log("[IdleTimeoutController] Dispatched custom event for throw trigger");
-      } catch (e) {
-        console.error("Error dispatching custom throw event:", e);
-      }
-    } catch (e) {
-      console.error("Error preparing dialog box for throw:", e);
+    } catch (error) {
+      console.error("Error playing throw sound effect:", error);
     }
 
     // Tambahkan dialog peringatan untuk 'melempar' dengan nada kemarahan
     const throwText = "That's it. GET OUT OF MY SIGHT!";
-    
-    // Hentikan semua audio yang sedang berjalan
-    this.elevenlabsService.stopSpeaking();
-    try {
-      const allAudioElements = document.querySelectorAll('audio');
-      allAudioElements.forEach(audio => {
-        try {
-          audio.pause();
-        } catch (e) {}
-      });
-    } catch (e) {
-      console.error("Error stopping audio elements:", e);
-    }
     
     // Atur dialogSource ke 'main' sebelum menampilkan peringatan
     // untuk memastikan teks muncul di dialog box utama
     if (this.hoverDialogController.setDialogSource) {
       console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing throw dialog");
       this.hoverDialogController.setDialogSource('main');
-      
-      // Reset status hover dialog juga
-      this.hoverDialogController.setHasInteractedWithHover(false);
     }
     
-    // Play the throw sound effect using the dynamically generated whoosh sound
-    // Memutar suara SETELAH dialog ditampilkan untuk menghindari konflik audio
-    setTimeout(() => {
-      try {
-        if (window.createWhooshSound && typeof window.createWhooshSound === 'function') {
-          // Use our custom sound generator
-          console.log("Playing dynamically generated whoosh sound");
-          window.createWhooshSound();
-        } else {
-          console.warn("Whoosh sound generator not available");
-        }
-      } catch (error) {
-        console.error("Error playing throw sound effect:", error);
-      }
-      
-      // Tambahkan rumble effect setelah dialog ditampilkan
-      try {
-        // Add screen rumble effect
-        document.body.style.transition = "transform 0.1s ease-in-out";
-        const rumble = () => {
-          const intensity = 5;
-          const x = intensity * (Math.random() - 0.5);
-          const y = intensity * (Math.random() - 0.5);
-          document.body.style.transform = `translate(${x}px, ${y}px)`;
-        };
-        
-        // Run rumble effect several times before throw
-        const rumbleCount = 8;
-        const rumbleInterval = setInterval(rumble, 50);
-        
-        // Stop rumble after some time
-        setTimeout(() => {
-          clearInterval(rumbleInterval);
-          document.body.style.transform = '';
-          document.body.style.transition = '';
-        }, rumbleCount * 50 + 50);
-      } catch (error) {
-        console.error("Error applying rumble effect:", error);
-      }
-      
-      // Jalankan callback untuk efek melempar SETELAH dialog dan efek rumble
-      setTimeout(() => {
-        console.log("[IdleTimeoutController] Calling throw user callback");
-        if (this.throwUserCallback) {
-          this.throwUserCallback();
-        }
-
-        // Reset scene
-        if (this.resetSceneCallback) {
-          this.resetSceneCallback();
-        }
-      }, 800); // Waktu tunggu setelah rumble effect
-    }, 800); // Waktu tunggu setelah dialog dimulai
-    
-    // Tampilkan dialog peringatan
     this.showIdleWarning(throwText);
     
     // Pastikan bahwa dialog controller tahu ini adalah post-reset dialog
@@ -670,61 +576,63 @@ class IdleTimeoutController {
     } catch (e) {
       console.error("Could not notify HoverDialogController about idle timeout:", e);
     }
+
+    // Membuat efek rumble pada layar sebelum efek throw
+    try {
+      // Add screen rumble effect
+      document.body.style.transition = "transform 0.1s ease-in-out";
+      const rumble = () => {
+        const intensity = 5;
+        const x = intensity * (Math.random() - 0.5);
+        const y = intensity * (Math.random() - 0.5);
+        document.body.style.transform = `translate(${x}px, ${y}px)`;
+      };
+      
+      // Run rumble effect several times before throw
+      const rumbleCount = 8;
+      const rumbleInterval = setInterval(rumble, 50);
+      
+      // Stop rumble after some time
+      setTimeout(() => {
+        clearInterval(rumbleInterval);
+        document.body.style.transform = '';
+        document.body.style.transition = '';
+      }, rumbleCount * 50 + 50);
+    } catch (error) {
+      console.error("Error applying rumble effect:", error);
+    }
+    
+    // Jalankan callback untuk efek melempar SEGERA - respons lebih cepat
+    setTimeout(() => {
+      console.log("[IdleTimeoutController] Calling throw user callback");
+      if (this.throwUserCallback) {
+        this.throwUserCallback();
+      }
+
+      // Reset scene
+      if (this.resetSceneCallback) {
+        this.resetSceneCallback();
+      }
+    }, 800); // Reduced wait time for quicker response from 2000ms to 800ms
   }
 
   // Method untuk 'memukul' user
   private punchUser(): void {
-    console.log("[IdleTimeoutController] Executing punch user action");
+    // Log removed
 
     // Set global flag untuk memaksa dialog box muncul
-    try {
-      // Reset isDialogFinished untuk memastikan dialog box muncul kembali jika sudah di-hide
-      // @ts-ignore - akses properti global dari window
-      if (window.__dialogBoxIsFinishedSetter && typeof window.__dialogBoxIsFinishedSetter === 'function') {
-        // @ts-ignore
-        window.__dialogBoxIsFinishedSetter(false);
-        console.log("[IdleTimeoutController] Reset dialog finished state before punch");
-      }
-      
-      // @ts-ignore - akses properti global dari window
-      window.__forceShowIdleWarning = true;
-      console.log("[IdleTimeoutController] Setting global flag to force show punch warning dialog");
-      
-      // Trigger custom event untuk memaksa komponen DialogBox merender ulang
-      try {
-        document.dispatchEvent(new CustomEvent('idle-warning-triggered', { detail: { type: 'punch' } }));
-        console.log("[IdleTimeoutController] Dispatched custom event for punch trigger");
-      } catch (e) {
-        console.error("Error dispatching custom punch event:", e);
-      }
-    } catch (e) {
-      console.error("Error preparing dialog box for punch:", e);
-    }
+    // @ts-ignore - akses properti global dari window
+    window.__forceShowIdleWarning = true;
+    console.log("[IdleTimeoutController] Setting global flag to force show punch warning dialog");
 
     // Tambahkan dialog peringatan untuk 'memukul'
     const punchText = "YOU ASKED FOR THIS.";
-    
-    // Hentikan semua audio yang sedang berjalan
-    this.elevenlabsService.stopSpeaking();
-    try {
-      const allAudioElements = document.querySelectorAll('audio');
-      allAudioElements.forEach(audio => {
-        try {
-          audio.pause();
-        } catch (e) {}
-      });
-    } catch (e) {
-      console.error("Error stopping audio elements:", e);
-    }
     
     // Atur dialogSource ke 'main' sebelum menampilkan peringatan
     // untuk memastikan teks muncul di dialog box utama
     if (this.hoverDialogController.setDialogSource) {
       console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing punch dialog");
       this.hoverDialogController.setDialogSource('main');
-      
-      // Reset status hover dialog juga
-      this.hoverDialogController.setHasInteractedWithHover(false);
     }
     
     // Fungsi untuk menjalankan proses pukulan
@@ -750,14 +658,14 @@ class IdleTimeoutController {
         );
       }
 
-      // Memuat dan memutar suara pukulan (punch)
+      // Precarga y reproducción del sonido de golpe
       try {
         const punchSound = new Audio('/assets/sounds/punch_sfx.m4a');
-        punchSound.volume = 0.8; // Volume tinggi untuk memastikan terdengar
+        punchSound.volume = 0.8; // Volumen alto para asegurar que se escuche
         punchSound.load();
         
-        // Memutar suara langsung untuk memastikan terdengar
-        // Bahkan sebelum memanggil callback
+        // Reproducir el sonido directamente para asegurar que se escuche
+        // Incluso antes de llamar al callback
         const playSoundPromise = punchSound.play();
         
         if (playSoundPromise !== undefined) {
@@ -769,20 +677,20 @@ class IdleTimeoutController {
         console.error("[IdleTimeoutController] Failed to initialize punch sound:", soundError);
       }
 
-      // Menjalankan callback dengan segera untuk respons lebih cepat
+      // Ejecutar el callback inmediatamente para una respuesta más rápida
       setTimeout(() => {
         if (this.punchUserCallback) {
           console.log("[IdleTimeoutController] Triggering punch animation");
           this.punchUserCallback();
         }
-      }, 200); // Waktu dikurangi untuk respons lebih cepat
+      }, 200); // Reducido de 500ms a 200ms para una respuesta más rápida
       
-      // Pengalihan ke halaman mimpi (dream) setelah efek blackout
-      // Pertahankan waktu agar efek "pingsan" terlihat jelas
+      // Redirección a la página de sueño (dream) después del efecto blackout
+      // Mantenemos el tiempo para permitir que se vea claramente el efecto de "pingsan" (desmayo)
       setTimeout(() => {
         console.log("[IdleTimeoutController] Redirecting to dream page after blackout effect");
-        window.location.href = "/dream.html"; // Pengalihan ke halaman mimpi dengan video musik
-      }, 2500); // Pertahankan waktu untuk transisi yang jelas dari efek blackout
+        window.location.href = "/dream.html"; // Redirigir a la página de sueño con video de música
+      }, 2500); // Mantenemos 2500ms para una transición clara del efecto blackout
     };
     
     // Tampilkan peringatan, tetapi tunggu dialog selesai sebelum melanjutkan
@@ -803,7 +711,7 @@ class IdleTimeoutController {
     
     // Setelah menampilkan dialog, berikan waktu untuk menunggu dialog muncul
     // dan tunggu hingga dialog selesai
-    setTimeout(checkDialogAndPunch, 800); // Waktu ditingkatkan untuk memastikan dialog muncul
+    setTimeout(checkDialogAndPunch, 500);
   }
 
   // Reset semua timer dan status
