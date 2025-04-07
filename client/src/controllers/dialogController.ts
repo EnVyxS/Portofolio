@@ -210,15 +210,33 @@ class DialogController {
   
   // Method khusus untuk menampilkan dialog timeout/idle
   public showCustomDialog(text: string, callback: (text: string, isComplete: boolean) => void): void {
+    console.log(`[DialogController] Persiapan menampilkan dialog idle warning: "${text}"`);
+    
+    try {
+      // Hentikan semua potensi audio yang sedang berjalan
+      const allAudioElements = document.querySelectorAll('audio');
+      allAudioElements.forEach(audio => {
+        try {
+          audio.pause();
+          console.log("[DialogController] Menghentikan audio element:", audio.src);
+        } catch (e) {}
+      });
+    } catch (e) {
+      console.error("Error menghentikan audio elements:", e);
+    }
+    
     // Hentikan dialog yang sedang berjalan
     this.stopTyping();
+    
+    // Hentikan audio ElevenLabs
+    this.elevenlabsService.stopSpeaking();
     
     // Log untuk debugging
     console.log(`[DialogController] Memulai dialog custom: "${text}"`);
     
-    // Tunggu sebentar untuk memastikan audio sebelumnya sudah selesai
+    // Tunggu lebih lama untuk memastikan audio benar-benar selesai
     setTimeout(() => {
-      // Pastikan audio benar-benar berhenti
+      // Pastikan audio benar-benar berhenti sekali lagi
       this.elevenlabsService.stopSpeaking();
       
       // Tambahkan delay lagi untuk memastikan benar-benar bersih
@@ -270,19 +288,47 @@ class DialogController {
           console.error("[DialogController] Error checking/setting dialog source:", e);
         }
         
+        // Sebelum menampilkan dialog, tetapkan flag global untuk memastikan dialog muncul
+        try {
+          // @ts-ignore - Flag global untuk memaksa dialog box muncul
+          window.__forceShowIdleWarning = true;
+          console.log("[DialogController] Setting global flag __forceShowIdleWarning = true");
+        } catch (e) {
+          console.error("Error setting global force show flag:", e);
+        }
+        
         // Gunakan callback sementara untuk memastikan dialog source tetap correct
         const wrappedCallback = (text: string, isComplete: boolean) => {
           // Log tambahan untuk debugging
           console.log(`[DialogController] Custom dialog callback - Text: "${text.substring(0, 20)}..." isComplete: ${isComplete}`);
           
+          // Jika dialog sudah complete, reset global flag
+          if (isComplete) {
+            try {
+              // @ts-ignore
+              window.__forceShowIdleWarning = false;
+              console.log("[DialogController] Dialog selesai, reset flag __forceShowIdleWarning = false");
+            } catch (e) {}
+          }
+          
           // Panggil callback asli
           callback(text, isComplete);
         };
         
-        // Tampilkan dialog custom
-        this.typeDialog(customDialog, wrappedCallback);
-      }, 200);
-    }, 300); // Delay 300ms untuk menghindari tumpang tindih audio
+        // Sebelum menampilkan dialog, coba dispatch custom event untuk memaksa refresh state
+        try {
+          document.dispatchEvent(new CustomEvent('idle-warning-triggered', { detail: { text } }));
+          console.log("[DialogController] Dispatching custom event 'idle-warning-triggered'");
+        } catch (e) {
+          console.error("Error dispatching custom event:", e);
+        }
+        
+        // Tampilkan dialog custom dengan delay tambahan
+        setTimeout(() => {
+          this.typeDialog(customDialog, wrappedCallback);
+        }, 100);
+      }, 300);
+    }, 500); // Delay 500ms untuk menghindari tumpang tindih audio
   }
   
   // Method khusus untuk menampilkan dialog setelah user dilempar dan kemudian kembali
