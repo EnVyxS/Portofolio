@@ -487,18 +487,10 @@ class IdleTimeoutController {
       
       // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
       setTimeout(() => {
-        // Tambahkan pre-check apakah dialog box muncul dan reset jika tidak
-        try {
-          // @ts-ignore
-          if (window.__dialogBoxTextSetter && typeof window.__dialogBoxTextSetter === 'function') {
-            // Coba set text langsung via global function untuk memastikan
-            // @ts-ignore
-            window.__dialogBoxTextSetter(text);
-            console.log("[IdleTimeoutController] Directly set text to dialog box:", text);
-          }
-        } catch (e) {
-          console.error("Error directly setting dialog text:", e);
-        }
+        // JANGAN set teks dialog secara langsung, biarkan dialogController.showCustomDialog 
+      // yang menanganinya dengan efek typewriter
+      // Kode window.__dialogBoxTextSetter di bawah dihapus untuk memastikan
+      // dialog idle warning menggunakan efek typing seperti dialog lainnya
 
         // Tampilkan dialog peringatan dengan text custom
         // Dialog Controller akan mengelola audio secara otomatis
@@ -525,6 +517,14 @@ class IdleTimeoutController {
     // Set global flag untuk memaksa dialog box muncul
     // @ts-ignore - akses properti global dari window
     window.__forceShowIdleWarning = true;
+    
+    // Reset isDialogFinished untuk memastikan dialog box muncul
+    // @ts-ignore - akses properti global dari window
+    if (window.__dialogBoxIsFinishedSetter && typeof window.__dialogBoxIsFinishedSetter === 'function') {
+      // @ts-ignore
+      window.__dialogBoxIsFinishedSetter(false);
+    }
+    
     console.log("[IdleTimeoutController] Setting global flag to force show throw warning dialog");
 
     // Play the throw sound effect using the dynamically generated whoosh sound
@@ -623,6 +623,14 @@ class IdleTimeoutController {
     // Set global flag untuk memaksa dialog box muncul
     // @ts-ignore - akses properti global dari window
     window.__forceShowIdleWarning = true;
+    
+    // Reset isDialogFinished untuk memastikan dialog box muncul
+    // @ts-ignore - akses properti global dari window
+    if (window.__dialogBoxIsFinishedSetter && typeof window.__dialogBoxIsFinishedSetter === 'function') {
+      // @ts-ignore
+      window.__dialogBoxIsFinishedSetter(false);
+    }
+    
     console.log("[IdleTimeoutController] Setting global flag to force show punch warning dialog");
 
     // Tambahkan dialog peringatan untuk 'memukul'
