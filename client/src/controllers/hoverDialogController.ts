@@ -748,6 +748,13 @@ class HoverDialogController {
     this.hoverCountAfterSecondLevel = 0; // Reset hover counter setelah second level warning
     this.isHandlingHover = false;
     this.stopTyping(); // Stop typing animation jika ada
+    
+    // Reset text yang ditampilkan
+    if (this.hoverTextCallback) {
+      this.hoverTextCallback("", true);
+    }
+    this.currentText = "";
+    this.fullText = "";
     // tidak reset processedTexts agar dialog tidak diulang
   }
 
