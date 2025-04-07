@@ -72,7 +72,6 @@ class ElevenLabsService {
   public async generateSpeech(text: string): Promise<Blob | null> {
     try {
       // Jika ini adalah teks kosong atau HANYA ellipsis, gunakan silent.mp3
-      // Perhatikan kondisi pengetesan menjadi text.trim() === '.....' || text.trim() === '...'
       const trimmedText = text.trim();
       if (trimmedText === '.....' || trimmedText === '...' || trimmedText === '') {
         console.log("Using silent audio for:", text);
@@ -99,9 +98,30 @@ class ElevenLabsService {
         return this.audioCache[cacheKey];
       }
       
+      // Cek apakah file audio sudah ada di cache file system dengan mencoba mengakses file langsung
+      // menggunakan hash yang sama seperti di server
+      const hash = this.generateSimpleHash(text);
+      const cachedFilePath = `/audio/character/dialog_${hash}.mp3`;
+      
+      try {
+        // Coba akses file terlebih dahulu sebelum mengirim request ke server
+        const cachedResponse = await fetch(cachedFilePath, { method: 'HEAD' });
+        if (cachedResponse.ok) {
+          console.log("Directly accessing cached file from file system:", cachedFilePath);
+          const audioResponse = await fetch(cachedFilePath);
+          if (audioResponse.ok) {
+            const audioBlob = await audioResponse.blob();
+            this.audioCache[cacheKey] = audioBlob;
+            return audioBlob;
+          }
+        }
+      } catch (error) {
+        // Ignore error and continue with server request
+        console.log("Cached file not found in file system, continuing with server request");
+      }
+      
       // Untuk teks seperti "...You got a name?", kita perlu perlakuan khusus
       // untuk mengurangi delay/jeda yang tidak diinginkan di awal
-      let processedText = text;
       let isStartingWithEllipsis = false;
       
       // Deteksi pola khusus '...' di awal teks yang diikuti konten bermakna
@@ -111,7 +131,7 @@ class ElevenLabsService {
         console.log("Detected text starting with ellipsis:", text);
       }
       
-      console.log("Requesting audio for:", text);
+      console.log("Generating speech for exact text:", text);
       
       // Gunakan endpoint server untuk generate speech
       const response = await fetch('/api/elevenlabs/text-to-speech', {
@@ -129,7 +149,7 @@ class ElevenLabsService {
       
       if (!response.ok) {
         const errorData = await response.json();
-        // Error log removed
+        console.error("Error generating speech:", errorData);
         return null;
       }
       
@@ -146,10 +166,10 @@ class ElevenLabsService {
         }
       }
       
-      // Error log removed
+      console.error("Failed to get audio blob");
       return null;
     } catch (error) {
-      // Error log removed
+      console.error("Error in generateSpeech:", error);
       return null;
     }
   }
