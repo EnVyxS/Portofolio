@@ -453,10 +453,23 @@ class IdleTimeoutController {
     this.dialogController.stopTyping();
     this.hoverDialogController.stopTyping();
     
-    // Set global flag untuk memaksa dialog box muncul
-    // @ts-ignore - akses properti global dari window
-    window.__forceShowIdleWarning = true;
-    console.log("[IdleTimeoutController] Setting global flag to force show idle warning dialog");
+    // Pastikan dialog box ditampilkan untuk idle warnings
+    try {
+      // Reset isDialogFinished untuk memastikan dialog box muncul kembali jika sudah di-hide
+      // @ts-ignore - akses properti global dari window
+      if (window.__dialogBoxIsFinishedSetter && typeof window.__dialogBoxIsFinishedSetter === 'function') {
+        // @ts-ignore
+        window.__dialogBoxIsFinishedSetter(false);
+        console.log("[IdleTimeoutController] Reset dialog finished state to show dialog box");
+      }
+      
+      // Set global flag untuk memaksa dialog box muncul
+      // @ts-ignore - akses properti global dari window
+      window.__forceShowIdleWarning = true;
+      console.log("[IdleTimeoutController] Setting global flag to force show idle warning dialog");
+    } catch (e) {
+      console.error("Error preparing dialog box for idle warning:", e);
+    }
     
     // Pastikan tidak ada audio yang sedang diputar dengan delay untuk memastikan
     // semua audio benar-benar berhenti
@@ -474,6 +487,19 @@ class IdleTimeoutController {
       
       // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
       setTimeout(() => {
+        // Tambahkan pre-check apakah dialog box muncul dan reset jika tidak
+        try {
+          // @ts-ignore
+          if (window.__dialogBoxTextSetter && typeof window.__dialogBoxTextSetter === 'function') {
+            // Coba set text langsung via global function untuk memastikan
+            // @ts-ignore
+            window.__dialogBoxTextSetter(text);
+            console.log("[IdleTimeoutController] Directly set text to dialog box:", text);
+          }
+        } catch (e) {
+          console.error("Error directly setting dialog text:", e);
+        }
+
         // Tampilkan dialog peringatan dengan text custom
         // Dialog Controller akan mengelola audio secara otomatis
         this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {

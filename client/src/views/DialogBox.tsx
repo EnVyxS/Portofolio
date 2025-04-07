@@ -281,9 +281,22 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   useEffect(() => {
     // Expose setText and setIsComplete via window for ContractCard to use
     // @ts-ignore - membuat setter functions global untuk penggunaan di ContractCard
-    window.__dialogBoxTextSetter = setText;
+    window.__dialogBoxTextSetter = (value: string) => {
+      console.log(`[DialogBox] External call to set dialog text: "${value.substring(0, 30)}..."`);
+      setText(value);
+      // Also ensure dialog is visible
+      setIsDialogFinished(false);
+    };
+    
     // @ts-ignore - membuat setter functions global untuk penggunaan di ContractCard
     window.__dialogBoxIsCompleteSetter = setIsComplete;
+    
+    // Add a global setter for the isDialogFinished state - needed for idle warnings
+    // @ts-ignore
+    window.__dialogBoxIsFinishedSetter = (value: boolean) => {
+      console.log(`[DialogBox] External call to set isDialogFinished to ${value}`);
+      setIsDialogFinished(value);
+    };
     
     // Set hover dialog callback terlebih dahulu untuk menangkap hover dialog yang sudah aktif
     hoverDialogController.setHoverTextCallback((text, complete) => {
@@ -332,6 +345,15 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       if (autoPlayTimerRef.current) {
         clearTimeout(autoPlayTimerRef.current);
       }
+      
+      // Clean up global setter functions
+      // @ts-ignore
+      delete window.__dialogBoxTextSetter;
+      // @ts-ignore
+      delete window.__dialogBoxIsCompleteSetter;
+      // @ts-ignore
+      delete window.__dialogBoxIsFinishedSetter;
+      
       // Jangan reset hover state saat unmount untuk mempertahankan hover dialog
       // hoverDialogController.resetHoverState(); - dihapus karena mengakibatkan reset dialog
     };
@@ -364,6 +386,18 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // Kita tetapkan bahwa ini adalah kontrak dialog berdasarkan flag __contractDialogActive
   // dan bukan berdasarkan teks lengkap (tidak menggunakan contractResponseText)
   
+  // Tambahkan log explisit untuk membantu debugging
+  console.log(`[DialogBox] Dialog status check - isDialogFinished: ${isDialogFinished}, text empty: ${text === ""}, contract active: ${isContractDialogActive}, forceShow: ${forceShowIdleWarning}`);
+  
+  if (forceShowIdleWarning) {
+    // Jika flag force show aktif, pastikan dialog box selalu ditampilkan
+    // Reset isDialogFinished jika perlu untuk memastikan dialog box muncul kembali
+    if (isDialogFinished) {
+      console.log("[DialogBox] Force resetting isDialogFinished to false to show idle warning dialog");
+      setIsDialogFinished(false);
+    }
+  }
+  
   if (isDialogFinished && text === "" && !isContractDialogActive && !forceShowIdleWarning) {
     // Debug untuk membantu melihat status dialog
     console.log("[DialogBox] Dialog finished with empty text, hiding dialog box");
@@ -387,12 +421,23 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     console.log(`[DialogBox] Showing dialog - Text: "${text.substring(0, 30)}..." Source: ${dialogSource}`);
   }
 
+  // Animasi khusus untuk idle warnings lebih mencolok
+  const isIdleWarning = text.includes("ENOUGH") || text.includes("REGRET") || text.includes("FUCK YOU") || text.includes("SIGHT") || text.includes("KEEP PUSHING") || text.includes("STARING");
+  
   return (
     <motion.div
-      className="dialog-box-container"
+      className={`dialog-box-container ${isIdleWarning ? 'idle-warning' : ''}`}
       initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      animate={{ 
+        opacity: 1, 
+        y: 0,
+        scale: isIdleWarning ? [1, 1.03, 1] : 1 // Pulse animation for idle warnings
+      }}
+      transition={{ 
+        duration: 0.5, 
+        ease: "easeOut",
+        scale: isIdleWarning ? { repeat: 2, duration: 0.5 } : {}
+      }}
     >
       <div
         className={`dialog-box ${dialogSource === "hover" ? "hover-dialog" : ""}`}
@@ -513,6 +558,32 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           backdrop-filter: blur(5px);
           /* Tambahkan dekorasi border tipis di dalamnya */
           box-sizing: border-box;
+        }
+        
+        /* Special styling untuk idle warnings */
+        .idle-warning .dialog-box {
+          border: 1px solid rgba(255, 100, 70, 0.4); /* Warna merah untuk peringatan */
+          box-shadow: 0 0 15px rgba(255, 50, 20, 0.3);
+          animation: idle-warning-pulse 2s infinite;
+        }
+        
+        .idle-warning .dialog-text {
+          color: rgba(255, 220, 220, 0.95); /* Text lebih terang untuk peringatan */
+          font-weight: 500;
+        }
+        
+        .idle-warning .character-name {
+          background: rgba(40, 20, 15, 0.9); /* Background lebih merah untuk peringatan */
+          border-color: rgba(180, 100, 70, 0.5);
+        }
+        
+        @keyframes idle-warning-pulse {
+          0%, 100% {
+            box-shadow: 0 0 15px rgba(255, 50, 20, 0.3);
+          }
+          50% {
+            box-shadow: 0 0 20px rgba(255, 50, 20, 0.5);
+          }
         }
         
         /* Tambahkan pseudo-element untuk inner border ornament */
