@@ -87,6 +87,17 @@ class DialogController {
   }
 
   private async typeDialog(dialog: Dialog, callback: (text: string, isComplete: boolean) => void): Promise<void> {
+    // Debug log untuk membantu tracking dialog
+    console.log(`[DialogController] Tipe dialog mulai: "${dialog.text.substring(0, 30)}..."`);
+    
+    // Cek apakah ini adalah dialog idle warning
+    // @ts-ignore - karena properti ini akan ditambahkan secara dinamis
+    const shouldForceShowIdleWarning = window.__forceShowIdleWarning === true;
+    
+    if (shouldForceShowIdleWarning) {
+      console.log("[DialogController] 🔴 Dialog ini adalah FORCED IDLE WARNING, memastikan terlihat");
+    }
+    
     this.fullText = dialog.text;
     this.currentText = '';
     this.charIndex = 0;

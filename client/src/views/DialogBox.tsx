@@ -355,8 +355,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // Jika ada idle warning yang dipaksa ditampilkan, tampilkan
   if (shouldForceShowIdleWarning && idleWarningText) {
     console.log(`[DialogBox] 🔴 FORCE SHOWING dialog box for IDLE WARNING: "${idleWarningText.substring(0, 30)}..."`);
-    if (text !== idleWarningText) {
-      setText(idleWarningText);
+    
+    // JANGAN ubah text secara langsung di sini, biarkan DialogController yang mengelola typewriter effect
+    // Kita hanya akan memastikan dialog box tetap terlihat
+    
+    // Jika text kosong, maka tampilkan loading text
+    if (text === "") {
+      console.log("[DialogBox] No text but dialog should be forced shown, showing loading text...");
+      setIsDialogFinished(false); // Pastikan dialog box tetap muncul
     }
   }
 
