@@ -249,17 +249,18 @@
                 left: 20px;
                 padding: 5px 10px;
                 background-color: rgba(0, 0, 0, 0.8);
-                color: rgba(255, 255, 255, 0.15); /* Hampir tidak terlihat */
+                color: rgba(255, 255, 255, 0.15);
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 3px;
                 font-size: 12px;
-                opacity: 0.1; /* Hampir transparan */
-                transition: opacity 0.3s ease;
-                z-index: 1000;
+                opacity: 0; /* Completely invisible */
+                pointer-events: none; /* Can't be clicked */
+                display: none; /* Completely hide the element */
+                z-index: -1; /* Behind everything */
             }
 
             .music-control:hover {
-                opacity: 0.8; /* Lebih terlihat saat di-hover */
+                opacity: 0; /* Still invisible even on hover */
             }
         </style>
     </head>
@@ -1041,8 +1042,18 @@
                         })
                         .catch((error) => {
                             console.error("Music couldn't auto-play:", error);
-                            // Browser policy may block autoplay
-                            musicControlBtn.style.opacity = 0.2; // Make button more visible if autoplay fails
+                            // We won't make the music control button visible even if autoplay fails
+                            // Force user to hear music when they interact with the page
+                            document.addEventListener('click', function musicClickHandler() {
+                                backgroundMusic.play()
+                                    .then(() => {
+                                        isMusicPlaying = true;
+                                        pinkNoiseAudio.play();
+                                        // Remove this listener after successfully playing
+                                        document.removeEventListener('click', musicClickHandler);
+                                    })
+                                    .catch((err) => console.error("Still can't play music:", err));
+                            });
                         });
                 }, 1500);
             }
