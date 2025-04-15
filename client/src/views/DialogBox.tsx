@@ -389,6 +389,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // Tambahkan log explisit untuk membantu debugging
   console.log(`[DialogBox] Dialog status check - isDialogFinished: ${isDialogFinished}, text empty: ${text === ""}, contract active: ${isContractDialogActive}, forceShow: ${forceShowIdleWarning}`);
   
+  // Log untuk teks yang sedang ditampilkan hanya jika ada text
+  // (dipindahkan ke bawah, di blok return)
+  
   if (forceShowIdleWarning) {
     // Jika flag force show aktif, pastikan dialog box selalu ditampilkan
     // Reset isDialogFinished jika perlu untuk memastikan dialog box muncul kembali
@@ -398,7 +401,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     }
   }
   
-  if (isDialogFinished && text === "" && !isContractDialogActive && !forceShowIdleWarning) {
+  // Ubah logika render agar dialog tetap muncul jika ada teks
+  // atau jika flag force show aktif atau jika dialog kontrak aktif
+  if ((isDialogFinished && text === "" && !isContractDialogActive && !forceShowIdleWarning)) {
     // Debug untuk membantu melihat status dialog
     console.log("[DialogBox] Dialog finished with empty text, hiding dialog box");
     return null; // Hanya return null jika tidak ada teks sama sekali dan bukan dialog kontrak dan bukan force show
@@ -416,8 +421,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     console.log(`[DialogBox] CONTRACT RESPONSE dialog active: "${text.substring(0, 30)}..."`);
   }
   
-  // Tambahkan log untuk membantu debug tampilan dialog
-  if (!isDialogFinished) {
+  // Log untuk membantu debug tampilan dialog
+  if (!isDialogFinished && text) {
     console.log(`[DialogBox] Showing dialog - Text: "${text.substring(0, 30)}..." Source: ${dialogSource}`);
   }
 
