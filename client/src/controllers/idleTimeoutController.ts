@@ -487,9 +487,21 @@ class IdleTimeoutController {
       
       // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
       setTimeout(() => {
-        // Tampilkan dialog peringatan dengan text custom dan efek typing
-        // Dialog Controller akan mengelola audio dan efek typing secara otomatis
-        console.log("[IdleTimeoutController] Showing idle warning through DialogController:", text);
+        // Tambahkan pre-check apakah dialog box muncul dan reset jika tidak
+        try {
+          // @ts-ignore
+          if (window.__dialogBoxTextSetter && typeof window.__dialogBoxTextSetter === 'function') {
+            // Coba set text langsung via global function untuk memastikan
+            // @ts-ignore
+            window.__dialogBoxTextSetter(text);
+            console.log("[IdleTimeoutController] Directly set text to dialog box:", text);
+          }
+        } catch (e) {
+          console.error("Error directly setting dialog text:", e);
+        }
+
+        // Tampilkan dialog peringatan dengan text custom
+        // Dialog Controller akan mengelola audio secara otomatis
         this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
           if (isComplete) {
             // Tandai bahwa user sudah berinteraksi dengan dialog
