@@ -6,6 +6,9 @@ import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import ElevenLabsService from "../services/elevenlabsService";
 import { CONTRACT_RESPONSES } from "../components/ContractCard";
 
+// Debug counter untuk melacak kemunculan dialog
+let dialogBoxRenderCount = 0;
+
 // Import fungsi hash untuk debugging
 function generateSimpleHash(text: string): string {
   // Remove emotion tags for consistent hashing
@@ -417,8 +420,18 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   }
   
   // Tambahkan log untuk membantu debug tampilan dialog
+  // Increment render counter untuk debugging
+  dialogBoxRenderCount++;
+  console.log(`[DialogBox] Render #${dialogBoxRenderCount} - Text length: ${text.length}, Text: "${text.substring(0, 30)}...", forceShow: ${forceShowIdleWarning}`);
+
   if (!isDialogFinished) {
     console.log(`[DialogBox] Showing dialog - Text: "${text.substring(0, 30)}..." Source: ${dialogSource}`);
+  }
+
+  // PERBAIKAN: Paksa show dialog untuk kasus marah
+  if (forceShowIdleWarning && text === "") {
+    console.log("[DialogBox] Forcing empty text dialog to show due to forceShowIdleWarning flag");
+    // Ini membantu debugging, tapi tidak menyelesaikan masalah
   }
 
   return (

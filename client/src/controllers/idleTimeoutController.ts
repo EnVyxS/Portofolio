@@ -517,6 +517,19 @@ class IdleTimeoutController {
     // @ts-ignore - akses properti global dari window
     window.__forceShowIdleWarning = true;
     console.log("[IdleTimeoutController] Setting global flag to force show throw warning dialog");
+    
+    // PERBAIKAN: Pastikan dialog box visible terlebih dahulu
+    try {
+      // Reset isDialogFinished terlebih dahulu untuk memastikan dialog box muncul
+      // @ts-ignore - akses properti global dari window
+      if (window.__dialogBoxIsFinishedSetter && typeof window.__dialogBoxIsFinishedSetter === 'function') {
+        // @ts-ignore
+        window.__dialogBoxIsFinishedSetter(false);
+        console.log("[IdleTimeoutController] Reset dialog finished state for throw dialog");
+      }
+    } catch (e) {
+      console.error("Error resetting dialog finished state for throw dialog:", e);
+    }
 
     // Play the throw sound effect using the dynamically generated whoosh sound
     try {
@@ -615,6 +628,19 @@ class IdleTimeoutController {
     // @ts-ignore - akses properti global dari window
     window.__forceShowIdleWarning = true;
     console.log("[IdleTimeoutController] Setting global flag to force show punch warning dialog");
+
+    // PERBAIKAN: Pastikan dialog box visible terlebih dahulu
+    try {
+      // Reset isDialogFinished terlebih dahulu untuk memastikan dialog box muncul
+      // @ts-ignore - akses properti global dari window
+      if (window.__dialogBoxIsFinishedSetter && typeof window.__dialogBoxIsFinishedSetter === 'function') {
+        // @ts-ignore
+        window.__dialogBoxIsFinishedSetter(false);
+        console.log("[IdleTimeoutController] Reset dialog finished state for punch dialog");
+      }
+    } catch (e) {
+      console.error("Error resetting dialog finished state:", e);
+    }
 
     // Tambahkan dialog peringatan untuk 'memukul'
     const punchText = "YOU ASKED FOR THIS.";
