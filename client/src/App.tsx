@@ -12,6 +12,7 @@ import DramaticEffects, {
   dramaticEffectsStyles,
 } from "./components/DramaticEffects";
 import { useIsMobile } from "./hooks/use-mobile";
+import ContractCard from "./components/ContractCard";
 
 // Cookie functions for nightmare trap
 function getCookie(name: string) {
@@ -297,11 +298,14 @@ function MainApp() {
           )}
         </button>
 
-        {/* Contact card */}
+        {/* Contact card selalu ditampilkan, tidak bergantung pada showContactCard */}
         <GameContactCard />
 
-        {/* Dialog box */}
-        <DialogBox onDialogComplete={handleDialogComplete} />
+        {/* Contract Card untuk menampilkan dokumen sertifikat */}
+        <ContractCard />
+
+        {/* Dialog box di bagian bawah layar, sekarang tidak memengaruhi keberadaan contact card */}
+        {<DialogBox onDialogComplete={handleDialogComplete} />}
 
         {/* ElevenLabs setup modal */}
         {showElevenLabsSetup && (
