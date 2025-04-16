@@ -487,12 +487,21 @@ class IdleTimeoutController {
       
       // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
       setTimeout(() => {
-        // PERBAIKAN: Hapus penggunaan window.__dialogBoxTextSetter yang menyebabkan teks muncul langsung
-        // tanpa efek typing. Kita akan menggunakan dialogController.showCustomDialog saja yang sudah 
-        // mendukung efek typing secara otomatis.
+        // Tambahkan pre-check apakah dialog box muncul dan reset jika tidak
+        try {
+          // @ts-ignore
+          if (window.__dialogBoxTextSetter && typeof window.__dialogBoxTextSetter === 'function') {
+            // Coba set text langsung via global function untuk memastikan
+            // @ts-ignore
+            window.__dialogBoxTextSetter(text);
+            console.log("[IdleTimeoutController] Directly set text to dialog box:", text);
+          }
+        } catch (e) {
+          console.error("Error directly setting dialog text:", e);
+        }
 
         // Tampilkan dialog peringatan dengan text custom
-        // Dialog Controller akan mengelola audio dan efek typing secara otomatis
+        // Dialog Controller akan mengelola audio secara otomatis
         this.dialogController.showCustomDialog(text, (dialogText, isComplete) => {
           if (isComplete) {
             // Tandai bahwa user sudah berinteraksi dengan dialog
@@ -517,19 +526,6 @@ class IdleTimeoutController {
     // @ts-ignore - akses properti global dari window
     window.__forceShowIdleWarning = true;
     console.log("[IdleTimeoutController] Setting global flag to force show throw warning dialog");
-    
-    // PERBAIKAN: Pastikan dialog box visible terlebih dahulu
-    try {
-      // Reset isDialogFinished terlebih dahulu untuk memastikan dialog box muncul
-      // @ts-ignore - akses properti global dari window
-      if (window.__dialogBoxIsFinishedSetter && typeof window.__dialogBoxIsFinishedSetter === 'function') {
-        // @ts-ignore
-        window.__dialogBoxIsFinishedSetter(false);
-        console.log("[IdleTimeoutController] Reset dialog finished state for throw dialog");
-      }
-    } catch (e) {
-      console.error("Error resetting dialog finished state for throw dialog:", e);
-    }
 
     // Play the throw sound effect using the dynamically generated whoosh sound
     try {
@@ -628,19 +624,6 @@ class IdleTimeoutController {
     // @ts-ignore - akses properti global dari window
     window.__forceShowIdleWarning = true;
     console.log("[IdleTimeoutController] Setting global flag to force show punch warning dialog");
-
-    // PERBAIKAN: Pastikan dialog box visible terlebih dahulu
-    try {
-      // Reset isDialogFinished terlebih dahulu untuk memastikan dialog box muncul
-      // @ts-ignore - akses properti global dari window
-      if (window.__dialogBoxIsFinishedSetter && typeof window.__dialogBoxIsFinishedSetter === 'function') {
-        // @ts-ignore
-        window.__dialogBoxIsFinishedSetter(false);
-        console.log("[IdleTimeoutController] Reset dialog finished state for punch dialog");
-      }
-    } catch (e) {
-      console.error("Error resetting dialog finished state:", e);
-    }
 
     // Tambahkan dialog peringatan untuk 'memukul'
     const punchText = "YOU ASKED FOR THIS.";
