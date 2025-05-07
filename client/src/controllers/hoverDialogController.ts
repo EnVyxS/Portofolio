@@ -177,11 +177,32 @@ class HoverDialogController {
 
   // Handler untuk hover event dari komponen SocialLink
   public handleHoverDialog(linkType: HoverLinkType): void {
+    // Log debug
+    console.log(`[HoverDialogController] Handling hover dialog for: ${linkType}`);
+    
+    // Cek Dialog Controller dan Idle Timeout Controller terlebih dahulu
+    const dialogController = DialogController.getInstance();
+    const idleTimeoutController = IdleTimeoutController.getInstance();
+    
     // Jika tidak ada link yang di-hover, reset saja
     if (linkType === "none") {
       return;
     }
-
+    
+    // Periksa apakah ada dialog post-reset yang sedang aktif (prioritas tertinggi)
+    if (dialogController.isShowingPostResetDialog()) {
+      console.log("[HoverDialogController] Post-reset dialog sedang aktif, hover dialog diabaikan");
+      this.lastHoveredLink = linkType; // Update last hovered link tanpa trigger dialog
+      return;
+    }
+    
+    // Periksa apakah idle warning sedang aktif (prioritas tinggi)
+    if (idleTimeoutController.isAnyIdleWarningActive()) {
+      console.log("[HoverDialogController] Idle warning sedang aktif, hover dialog diabaikan");
+      this.lastHoveredLink = linkType; // Update last hovered link tanpa trigger dialog
+      return;
+    }
+    
     // Force reset isHandlingHover jika hover event baru terjadi terlalu cepat setelah yang sebelumnya
     if (this.isHandlingHover) {
       this.isHandlingHover = false;
@@ -196,7 +217,7 @@ class HoverDialogController {
 
     // Jika idle timeout sudah terjadi, tidak perlu menampilkan hover dialog lagi
     if (this.hasIdleTimeoutOccurred) {
-      console.log("Idle timeout telah terjadi, hover dialog diabaikan");
+      console.log("[HoverDialogController] Idle timeout telah terjadi, hover dialog diabaikan");
       this.lastHoveredLink = linkType; // Update last hovered link tanpa trigger dialog
       return;
     }
@@ -438,8 +459,15 @@ class HoverDialogController {
       this.isHandlingHover = false;
       return;
     }
+    
+    // Pemeriksaan paling pertama: apakah POST_RESET_DIALOG sedang ditampilkan (prioritas #1)
+    if (this.dialogController.isShowingPostResetDialog()) {
+      console.log("[HoverDialogController] Post-reset dialog sedang aktif, hover dialog diabaikan");
+      this.isHandlingHover = false;
+      return;
+    }
 
-    // Cek apakah ada dialog yang sedang berjalan dari IdleTimeoutController
+    // Cek apakah ada dialog yang sedang berjalan dari IdleTimeoutController (prioritas #2)
     try {
       const idleController = IdleTimeoutController.getInstance();
       if (
@@ -452,13 +480,32 @@ class HoverDialogController {
       ) {
         // Jika sudah ada dialog dari IdleTimeoutController, jangan interrupt
         console.log(
-          "IdleTimeoutController sedang menampilkan dialog, hover dialog diabaikan",
+          "[HoverDialogController] IdleTimeoutController sedang menampilkan dialog, hover dialog diabaikan"
         );
         this.isHandlingHover = false;
         return;
       }
     } catch (e) {
-      console.error("Could not check IdleTimeoutController status:", e);
+      console.error("[HoverDialogController] Could not check IdleTimeoutController status:", e);
+    }
+    
+    // Periksa apakah dialog utama sedang diproses (prioritas #3)
+    if (this.dialogController.isAudioProcessing() || this.dialogController.isCurrentlyTyping()) {
+      console.log("[HoverDialogController] Dialog utama sedang aktif (audio/typing), tunggu hingga selesai");
+      
+      // Jika dialog utama sedang aktif dengan audio, sebaiknya menunggu audio selesai
+      // sebelum menampilkan hover dialog
+      if (this.dialogController.isAudioProcessing()) {
+        // Tambahkan retry logic
+        this.isHandlingHover = false;
+        setTimeout(() => {
+          // Coba lagi setelah 1 detik jika user masih melakukan hover
+          if (this.lastHoveredLink === linkType) {
+            this.debouncedHoverHandler(linkType);
+          }
+        }, 1000);
+        return;
+      }
     }
 
     // Hentikan dialog yang sedang berjalan jika ada

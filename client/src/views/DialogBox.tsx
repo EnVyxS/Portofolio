@@ -299,23 +299,64 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     // @ts-ignore - membuat setter functions global untuk penggunaan di ContractCard
     window.__dialogBoxTextSetter = (value: string) => {
       console.log(`[DialogBox] External call to set dialog text: "${value.substring(0, 30)}..."`);
+      
+      // Tambahkan pemeriksaan prioritas dialog untuk mencegah bentrok
+      // Jika saat ini sedang menampilkan RETURN_DIALOG atau HOVER_AFTER_RESET, prioritaskan dialog tersebut
+      if (dialogController.isShowingPostResetDialog()) {
+        console.log(`[DialogBox] Dialog post-reset aktif, mengabaikan external call dialog`);
+        return;
+      }
+      
+      // Jika saat ini sedang menampilkan dialog dari idle timeout, prioritaskan dialog tersebut
+      if (idleTimeoutController.isAnyIdleWarningActive()) {
+        console.log(`[DialogBox] Idle warning aktif, mengabaikan external call dialog`);
+        return;
+      }
+      
       setText(value);
       // Also ensure dialog is visible
       setIsDialogFinished(false);
     };
     
     // @ts-ignore - membuat setter functions global untuk penggunaan di ContractCard
-    window.__dialogBoxIsCompleteSetter = setIsComplete;
+    window.__dialogBoxIsCompleteSetter = (value: boolean) => {
+      // Tambahkan pemeriksaan prioritas dialog untuk mencegah bentrok
+      if (dialogController.isShowingPostResetDialog() || idleTimeoutController.isAnyIdleWarningActive()) {
+        console.log(`[DialogBox] Dialog prioritas aktif, mengabaikan external call setIsComplete`);
+        return;
+      }
+      
+      setIsComplete(value);
+    };
     
     // Add a global setter for the isDialogFinished state - needed for idle warnings
     // @ts-ignore
     window.__dialogBoxIsFinishedSetter = (value: boolean) => {
       console.log(`[DialogBox] External call to set isDialogFinished to ${value}`);
+      
+      // Jika sedang menampilkan dialog post-reset, jangan izinkan dialog box hilang
+      if (value === true && dialogController.isShowingPostResetDialog()) {
+        console.log(`[DialogBox] Dialog post-reset aktif, mencegah dialog box hilang`);
+        return;
+      }
+      
       setIsDialogFinished(value);
     };
     
     // Set hover dialog callback terlebih dahulu untuk menangkap hover dialog yang sudah aktif
     hoverDialogController.setHoverTextCallback((text, complete) => {
+      // Tambahkan pemeriksaan prioritas dialog untuk mencegah bentrok
+      if (dialogController.isShowingPostResetDialog()) {
+        console.log(`[DialogBox] Dialog post-reset aktif, mengabaikan hover dialog`);
+        return;
+      }
+      
+      // Jika saat ini sedang menampilkan dialog dari idle timeout, prioritaskan dialog tersebut
+      if (idleTimeoutController.isAnyIdleWarningActive()) {
+        console.log(`[DialogBox] Idle warning aktif, mengabaikan hover dialog`);
+        return;
+      }
+      
       setText(text);
       setIsComplete(complete);
       setDialogSource("hover");
@@ -324,6 +365,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
     // Buat function untuk set dialogSource dari luar komponen
     hoverDialogController.setDialogSource = (source: "main" | "hover") => {
+      // Tambahkan pemeriksaan prioritas dialog untuk mencegah bentrok
+      if (dialogController.isShowingPostResetDialog() || idleTimeoutController.isAnyIdleWarningActive()) {
+        console.log(`[DialogBox] Dialog prioritas aktif, mengabaikan set dialog source`);
+        return;
+      }
+      
       setDialogSource(source);
       if (source === "main") {
         setCharacterName("DIVA JUAN NUR TAQARRUB");
