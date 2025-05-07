@@ -95,6 +95,11 @@ class DialogController {
     // Reset dialog to beginning
     this.dialogModel.resetDialog();
     
+    // Reset dialog interrupt status and visited dialogs for new session
+    this.resetDialogInterruption();
+    this.dialogsVisited.clear();
+    console.log(`[DialogController] Starting new dialog session. Achievement tracking reset.`);
+    
     // Get first dialog
     const dialog = this.dialogModel.getCurrentDialog();
     if (dialog) {
@@ -174,6 +179,11 @@ class DialogController {
           audioCompletionTimer = null;
         }
         
+        // Tandai dialog ini sudah selesai dikunjungi (untuk fitur achievement 'listener')
+        if (dialog.id && dialog.id < 1000) {  // Hanya dialog normal yang dihitung, bukan dialog khusus (id >= 1000)
+          this.markDialogVisited(dialog.id);
+        }
+        
         if (this.typewriterCallback) {
           this.typewriterCallback(this.currentText, true);
         }
@@ -182,17 +192,19 @@ class DialogController {
   }
 
   public stopTyping(): void {
+    // Ketika user menghentikan dialog sebelum selesai, tandai bahwa ada interupsi
+    // Harus dicek sebelum mengubah isTyping
+    const wasTyping = this.isTyping;
+    const currentDialog = this.dialogModel.getCurrentDialog();
+    if (currentDialog && wasTyping) {
+      console.log(`[DialogController] Dialog ${currentDialog.id} interrupted by user`);
+      this.dialogInterrupted = true;
+    }
+    
     this.isTyping = false;
     if (this.typingInterval) {
       clearInterval(this.typingInterval);
       this.typingInterval = null;
-    }
-    
-    // Ketika user menghentikan dialog sebelum selesai, tandai bahwa ada interupsi
-    const currentDialog = this.dialogModel.getCurrentDialog();
-    if (currentDialog && this.isTyping) {
-      console.log(`[DialogController] Dialog ${currentDialog.id} interrupted by user`);
-      this.dialogInterrupted = true;
     }
     
     this.elevenlabsService.stopSpeaking();
@@ -211,6 +223,12 @@ class DialogController {
     // Set fullText untuk ditampilkan langsung
     this.currentText = this.fullText;
     this.isTyping = false;
+    
+    // Tandai dialog ini sebagai telah dikunjungi (untuk achievement 'listener')
+    const currentDialog = this.dialogModel.getCurrentDialog();
+    if (currentDialog && currentDialog.id && currentDialog.id < 1000) {  // Hanya dialog normal yang dihitung
+      this.markDialogVisited(currentDialog.id);
+    }
     
     // Memberitahu callback bahwa dialog sekarang complete
     if (this.typewriterCallback) {
@@ -359,14 +377,14 @@ class DialogController {
   // Periksa apakah user telah mendengarkan semua dialog tanpa interupsi
   private checkAllDialogsVisited(): void {
     // Periksa jika semua dialog telah dikunjungi dan tidak ada interupsi
-    if (this.dialogsVisited.size >= this.totalDialogCount && !this.wasDialogInterrupted) {
+    if (this.dialogsVisited.size >= this.totalDialogCount && !this.dialogInterrupted) {
       console.log(`[DialogController] All dialogs visited without interruption! Triggering 'listener' achievement.`);
       
       // Tampilkan achievement untuk mendengarkan semua dialog
       try {
         const achievementController = AchievementController.getInstance();
         if (achievementController) {
-          achievementController.triggerAchievement('listener');
+          achievementController.unlockAchievement('listener');
         }
       } catch (e) {
         console.error('[DialogController] Error triggering listener achievement:', e);
@@ -376,13 +394,13 @@ class DialogController {
   
   // Reset status interupsi dialog
   public resetDialogInterruption(): void {
-    this.wasDialogInterrupted = false;
+    this.dialogInterrupted = false;
     console.log(`[DialogController] Dialog interruption status reset`);
   }
   
   // Dapatkan status interupsi dialog
   public getDialogInterruptionStatus(): boolean {
-    return this.wasDialogInterrupted;
+    return this.dialogInterrupted;
   }
 }
 
