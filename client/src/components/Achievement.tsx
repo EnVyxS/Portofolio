@@ -8,7 +8,8 @@ export type AchievementType =
   | 'success'     // Berhasil membuat kontrak (link ditekan)
   | 'document'    // Berhasil membuka dokumen kontrak
   | 'anger'       // Berhasil membuat marah
-  | 'nightmare';  // Berhasil masuk ke nightmare
+  | 'nightmare'   // Berhasil masuk ke nightmare
+  | 'listener';   // Mendengar semua dialog tanpa interupsi
 
 // Icon SVG untuk setiap jenis achievement
 const AchievementIcons: Record<AchievementType, React.ReactNode> = {
@@ -64,6 +65,17 @@ const AchievementIcons: Record<AchievementType, React.ReactNode> = {
       <path d="M12 7v5M12 16v.1" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
       <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1" strokeDasharray="1 1" />
     </svg>
+  ),
+  listener: (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 1C7.03 1 3 5.03 3 10v7c0 1.66 1.34 3 3 3h5c1.66 0 3-1.34 3-3v-4c0-1.66-1.34-3-3-3H5V10c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-1c-1.66 0-3 1.34-3 3v4c0 1.66 1.34 3 3 3h5c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z"
+        stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
+      <path d="M7 15c1.5-1 3.5-1 5 0" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M16 14c1.5-1 3-1 4.5 0" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M8 12c1-0.7 2-0.7 3 0" stroke="#FFC107" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M17 11c0.7-0.5 1.3-0.5 2 0" stroke="#FFC107" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="9" stroke="#FFC107" strokeWidth="0.5" strokeDasharray="1 2" />
+    </svg>
   )
 };
 
@@ -74,7 +86,8 @@ const AchievementTitles: Record<AchievementType, string> = {
   document: 'DOCUMENT VIEWER',
   success: 'CONNECTION ESTABLISHED',
   anger: 'CHALLENGE ACCEPTED',
-  nightmare: 'DIGITAL ODYSSEY'
+  nightmare: 'DIGITAL ODYSSEY',
+  listener: 'PATIENT LISTENER'
 };
 
 // Deskripsi achievement
@@ -84,7 +97,8 @@ const AchievementDescriptions: Record<AchievementType, string> = {
   document: 'You\'ve examined the detailed documents within the contract.',
   success: 'You\'ve successfully connected with the professional profile.',
   anger: 'You tested the limits of the interactive experience.',
-  nightmare: 'You discovered the creative side of this digital portfolio.'
+  nightmare: 'You discovered the creative side of this digital portfolio.',
+  listener: 'You\'ve listened to the full story without interruption.'
 };
 
 // Dark Souls inspired fog/mist particles for achievement with green color
@@ -291,7 +305,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
     // Mainkan suara achievement dengan Web Audio API
     try {
       // Pastikan script achievement-sound.js sudah dimuat
-      const createAchievementSound = window.createAchievementSound;
+      const createAchievementSound = (window as any).createAchievementSound;
       if (createAchievementSound && typeof createAchievementSound === 'function') {
         const playAchievementSound = createAchievementSound();
         if (playAchievementSound) {
@@ -515,6 +529,15 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                           <path d="M12 2l2.5 5 5.5.5-4 4 1 5.5-5-2.5-5 2.5 1-5.5-4-4 5.5-.5L12 2z" 
                             stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
                           <path d="M12 7v5M12 16v.1" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      )}
+                      
+                      {type === 'listener' && (
+                        <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 sm:h-7 sm:w-7" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 1C7.03 1 3 5.03 3 10v7c0 1.66 1.34 3 3 3h5c1.66 0 3-1.34 3-3v-4c0-1.66-1.34-3-3-3H5V10c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-1c-1.66 0-3 1.34-3 3v4c0 1.66 1.34 3 3 3h5c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z"
+                            stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
+                          <path d="M7 15c1.5-1 3.5-1 5 0" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+                          <path d="M16 14c1.5-1 3-1 4.5 0" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
                         </svg>
                       )}
                       

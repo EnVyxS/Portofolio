@@ -2,6 +2,7 @@ import DialogModel, { Dialog, RETURN_DIALOG } from '../models/dialogModel';
 import ElevenLabsService from '../services/elevenlabsService';
 import HoverDialogController from './hoverDialogController';
 import { CONTRACT_RESPONSES } from '../components/ContractCard';
+import AchievementController from './achievementController';
 
 class DialogController {
   private static instance: DialogController;
@@ -15,10 +16,25 @@ class DialogController {
   private charIndex: number = 0;
   private typingInterval: NodeJS.Timeout | null = null;
   private isPostResetDialog: boolean = false; // Melacak apakah dialog khusus setelah reset sedang aktif
+  private wasDialogInterrupted: boolean = false; // Melacak apakah dialog diinterupsi oleh user
+  private dialogsVisited: Set<number> = new Set(); // Melacak dialog yang telah dikunjungi
+  private totalDialogCount: number = 0; // Total jumlah dialog yang harus dikunjungi
 
   private constructor() {
     this.dialogModel = DialogModel.getInstance();
     this.elevenlabsService = ElevenLabsService.getInstance();
+    
+    // Hitung total jumlah dialog yang tersedia
+    this.calculateTotalDialogs();
+  }
+  
+  // Hitung total jumlah dialog yang tersedia di DialogModel
+  private calculateTotalDialogs(): void {
+    const model = this.dialogModel.getDialogs();
+    if (model && model.length > 0) {
+      this.totalDialogCount = model.length;
+      console.log(`[DialogController] Total dialog count: ${this.totalDialogCount}`);
+    }
   }
 
   public static getInstance(): DialogController {
