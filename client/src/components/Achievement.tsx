@@ -72,6 +72,50 @@ const AchievementDescriptions: Record<AchievementType, string> = {
   nightmare: 'You discovered the creative side of this digital portfolio.'
 };
 
+// Dark Souls inspired fog/mist particles for achievement
+const FogParticle: React.FC<{
+  delay: number;
+  duration: number;
+  positionX: number;
+  size: number;
+}> = ({ delay, duration, positionX, size }) => {
+  return (
+    <motion.div
+      className="absolute rounded-full bg-amber-500/5"
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        left: `${positionX}%`,
+        bottom: '-10px',
+      }}
+      initial={{ y: 0, opacity: 0 }}
+      animate={{
+        y: [0, -15 - size * 0.7], 
+        opacity: [0, 0.3, 0],
+        scale: [1, 1.5, 0.8]
+      }}
+      transition={{
+        duration,
+        ease: "easeOut",
+        delay,
+        repeat: Infinity,
+        repeatDelay: Math.random() * 0.5,
+      }}
+    />
+  );
+};
+
+// Generate a random set of fog particles
+const generateFogParticles = (count: number) => {
+  return Array.from({ length: count }).map((_, i) => ({
+    id: i,
+    delay: Math.random() * 1.5,
+    duration: 1.5 + Math.random() * 2,
+    positionX: Math.random() * 100,
+    size: 10 + Math.random() * 20,
+  }));
+};
+
 interface AchievementProps {
   type: AchievementType;
   onComplete?: () => void;
@@ -80,7 +124,8 @@ interface AchievementProps {
 const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
   const [isVisible, setIsVisible] = useState(true);
   const achievementSoundRef = useRef<HTMLAudioElement | null>(null);
-
+  const fogParticles = useRef(generateFogParticles(7)); // Generate 7 fog particles
+  
   useEffect(() => {
     // Mainkan suara achievement dengan Web Audio API
     try {
@@ -125,9 +170,9 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -30 }}
+          initial={{ opacity: 0, y: 30, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -30, scale: 0.9 }}
           transition={{ 
             type: "spring", 
             stiffness: 300, 
@@ -136,29 +181,119 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
           }}
           className="fixed bottom-6 right-6 z-50"
         >
-          {/* Dark Souls style achievement - minimalis dan kecil di pojok kanan bawah */}
-          <div className="flex flex-col items-start">
+          {/* Dark Souls style achievement - dengan efek asap/kabut */}
+          <motion.div 
+            className="flex flex-col items-start"
+            animate={{ 
+              boxShadow: ["0 0 10px rgba(255, 193, 7, 0.1)", "0 0 20px rgba(255, 193, 7, 0.2)", "0 0 10px rgba(255, 193, 7, 0.1)"]
+            }}
+            transition={{
+              duration: 2.5,
+              repeat: Infinity,
+              repeatType: "reverse"
+            }}
+          >
             {/* Achievement notification */}
-            <div className="px-4 py-2 bg-black/90 border border-amber-900/50 shadow-lg relative overflow-hidden w-64">
-              {/* Soft glow */}
-              <div className="absolute inset-0 opacity-10 bg-amber-500 blur-md"></div>
+            <div className="px-4 py-3 bg-black/90 border border-amber-900/50 shadow-lg relative overflow-hidden w-72">
+              {/* Dark Souls inspired fog effect */}
+              <div className="absolute inset-0 overflow-hidden">
+                {/* Ambient glow behind text */}
+                <motion.div 
+                  className="absolute inset-0 opacity-20 bg-gradient-to-t from-amber-500/20 to-transparent"
+                  animate={{ 
+                    opacity: [0.1, 0.2, 0.1]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatType: "reverse"
+                  }}
+                />
+                
+                {/* Fog particles at the bottom */}
+                {fogParticles.current.map((particle) => (
+                  <FogParticle 
+                    key={particle.id}
+                    delay={particle.delay}
+                    duration={particle.duration}
+                    positionX={particle.positionX}
+                    size={particle.size}
+                  />
+                ))}
+              </div>
+              
+              {/* Dark Souls style dark edges */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/60 pointer-events-none"></div>
               
               {/* Title with subtle animation */}
               <div className="mb-1 relative z-10">
-                <p className="text-[10px] text-amber-500/80 uppercase tracking-widest">Achievement Unlocked</p>
+                <motion.p
+                  className="text-[10px] text-amber-500/80 uppercase tracking-widest font-serif"
+                  initial={{ y: -5, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <span className="text-amber-300/70 mr-1.5">★</span>Achievement Unlocked
+                </motion.p>
               </div>
               
-              {/* Achievement name */}
-              <div className="flex items-center gap-2 relative z-10">
-                <div className="text-amber-200 text-sm uppercase font-serif tracking-wider">
+              {/* Achievement name - animated entrance */}
+              <motion.div 
+                className="flex items-center gap-2 relative z-10 pl-1"
+                initial={{ x: -10, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.2 }}
+              >
+                <div className="text-amber-200 text-base uppercase font-serif tracking-widest">
                   {AchievementTitles[type]}
                 </div>
-              </div>
+              </motion.div>
+              
+              {/* Achievement icon - with pulsing glow */}
+              <motion.div 
+                className="absolute right-3 top-3 opacity-70"
+                animate={{ 
+                  opacity: [0.6, 0.8, 0.6],
+                  scale: [0.95, 1.05, 0.95]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                }}
+              >
+                <div className="text-amber-500/80 z-10 relative">
+                  {AchievementIcons[type]}
+                </div>
+                <div className="absolute inset-0 bg-amber-500/10 blur-xl rounded-full"></div>
+              </motion.div>
               
               {/* Souls-style line separator */}
-              <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-amber-900/70 to-transparent"></div>
+              <motion.div 
+                className="absolute bottom-0 left-0 right-0 h-[1px]"
+                style={{
+                  background: 'linear-gradient(to right, transparent, rgba(255, 193, 7, 0.7), transparent)'
+                }}
+                animate={{
+                  opacity: [0.5, 0.8, 0.5]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity
+                }}
+              />
+              
+              {/* Dark Souls style vertical line accent */}
+              <motion.div 
+                className="absolute left-0 top-0 bottom-0 w-[1px]"
+                style={{
+                  background: 'linear-gradient(to bottom, transparent, rgba(255, 193, 7, 0.3), transparent)'
+                }}
+                initial={{ opacity: 0, scaleY: 0.7 }}
+                animate={{ opacity: 1, scaleY: 1 }}
+                transition={{ duration: 0.5 }}
+              />
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
