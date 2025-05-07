@@ -1250,13 +1250,36 @@
                             z-index: 9999;
                             background-color: rgba(0, 0, 0, 0.85);
                             border: 1px solid rgba(255, 193, 7, 0.5);
-                            padding: 8px 12px;
+                            padding: 10px 14px;
                             color: #e2c080;
                             font-family: serif;
                             width: 240px;
                             animation: achievementFadeIn 0.4s forwards, achievementFadeOut 0.4s 3.6s forwards;
-                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 193, 7, 0.2);
                             overflow: hidden;
+                            position: relative;
+                        }
+                        
+                        .achievement-fog {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                            background: radial-gradient(
+                                circle at 50% 30%, 
+                                rgba(255, 193, 7, 0.05), 
+                                transparent 70%
+                            );
+                            filter: blur(5px);
+                            opacity: 0.7;
+                            animation: fogPulse 3s infinite alternate;
+                            z-index: 1;
+                        }
+                        
+                        @keyframes fogPulse {
+                            0% { opacity: 0.4; transform: scale(0.95); }
+                            100% { opacity: 0.7; transform: scale(1.05); }
                         }
                         
                         .achievement-content {
@@ -1274,6 +1297,24 @@
                             color: rgba(255, 193, 7, 0.7);
                             text-transform: uppercase;
                             letter-spacing: 1px;
+                            position: relative;
+                            z-index: 2;
+                        }
+                        
+                        /* Add a subtle icon glow before the title */
+                        .achievement-title span::before {
+                            content: '★'; /* Using a star as icon */
+                            display: inline-block;
+                            margin-right: 5px;
+                            font-size: 10px;
+                            color: rgba(255, 193, 7, 0.9);
+                            text-shadow: 0 0 5px rgba(255, 193, 7, 0.7);
+                            animation: iconPulse 2s infinite alternate;
+                        }
+                        
+                        @keyframes iconPulse {
+                            0% { opacity: 0.7; transform: scale(1); }
+                            100% { opacity: 1; transform: scale(1.1); }
                         }
                         
                         .achievement-name {
@@ -1283,6 +1324,9 @@
                             font-weight: normal;
                             letter-spacing: 0.5px;
                             margin-top: 2px;
+                            position: relative;
+                            z-index: 2;
+                            text-shadow: 0 0 5px rgba(226, 192, 128, 0.3);
                         }
                         
                         /* Subtle line at the bottom */

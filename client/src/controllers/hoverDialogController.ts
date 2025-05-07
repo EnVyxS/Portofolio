@@ -2,6 +2,7 @@ import ElevenLabsService from "../services/elevenlabsService";
 import DialogController from "./dialogController";
 import IdleTimeoutController, { IDLE_DIALOGS } from "./idleTimeoutController";
 import { debounce } from "../lib/utils";
+import AchievementController from "./achievementController";
 
 // Jenis link yang mungkin di-hover
 export type HoverLinkType =
