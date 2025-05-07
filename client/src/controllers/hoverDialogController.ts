@@ -431,32 +431,54 @@ class HoverDialogController {
     // Stop any ongoing typing first
     this.stopTyping();
 
-    // CRITICAL FIX: Set isDialogFinished to true for main dialog
-    // This explicitly hides the main dialog box before showing hover dialog
-    if (this.setIsDialogFinished) {
-      console.log('[HoverDialogController] Hiding main dialog before showing hover dialog');
-      this.setIsDialogFinished(true);  
-      
-      // Also set dialog source to HOVER
-      if (this.setDialogSource) {
-        console.log('[HoverDialogController] Setting dialog source to HOVER');
-        this.setDialogSource(DialogSource.HOVER);
-      }
-    }
-
-    // Set up typing variables
-    this.fullText = text;
-    this.currentText = "";
-    this.charIndex = 0;
+    console.log('[HoverDialogController] *** RADICAL HOVER ACTIVATION ***');
+    console.log('[HoverDialogController] Preparing to display hover dialog');
+    
+    // Set flag bahwa hover dialog sedang aktif (sangat penting)
     this.isTypingHover = true;
-
-    // Delay hover callback slightly to ensure main dialog is hidden first
-    setTimeout(() => {
-      // Panggil callback dengan teks kosong untuk memastikan dialog box muncul
-      if (this.hoverTextCallback) {
-        this.hoverTextCallback("", false);
-      }
-    }, 50);
+    
+    // LANGKAH 1: Sembunyikan dialog box utama
+    if (this.setIsDialogFinished) {
+      console.log('[HoverDialogController] STEP 1: Hiding main dialog box');
+      this.setIsDialogFinished(true);
+      
+      // LANGKAH 2: Tunggu dialog box utama benar-benar hilang
+      setTimeout(() => {
+        console.log('[HoverDialogController] STEP 2: Dialog box hidden, setting source to HOVER');
+        
+        // LANGKAH 3: Set dialog source ke HOVER
+        if (this.setDialogSource) {
+          this.setDialogSource(DialogSource.HOVER);
+          
+          // LANGKAH 4: Tunggu source terupdate
+          setTimeout(() => {
+            console.log('[HoverDialogController] STEP 3: Source set to HOVER, setting up hover text');
+            
+            // Set up typing variables
+            this.fullText = text;
+            this.currentText = "";
+            this.charIndex = 0;
+            
+            // LANGKAH 5: Tampilkan hover dialog
+            setTimeout(() => {
+              console.log('[HoverDialogController] STEP 4: Showing hover dialog with empty text');
+              // Panggil callback dengan teks kosong untuk memastikan dialog box muncul
+              if (this.hoverTextCallback) {
+                this.hoverTextCallback("", false);
+                
+                // LANGKAH 6: Setelah dialog muncul, ubah isDialogFinished ke false
+                setTimeout(() => {
+                  console.log('[HoverDialogController] STEP 5: Ensuring dialog box is visible');
+                  if (this.setIsDialogFinished) {
+                    this.setIsDialogFinished(false);
+                  }
+                }, 10);
+              }
+            }, 10);
+          }, 10);
+        }
+      }, 50);
+    }
 
     // Start typewriter effect
     this.typingInterval = setInterval(() => {

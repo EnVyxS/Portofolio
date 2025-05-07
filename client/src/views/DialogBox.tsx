@@ -585,43 +585,39 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // Periksa apakah ada hover dialog yang menunggu untuk ditampilkan
   const hasPendingHover = hoverDialogController.isTypingHoverDialog();
   
-  // ***********************************
-  // CRITICAL FIX - DIALOG CONFLICT RESOLUTION
-  // ***********************************
+  // **********************************************
+  // ULTRA-RADICAL DIALOG CONFLICT RESOLUTION 
+  // Complete rewrite with simple, direct conditions
+  // **********************************************
   
-  // Pertama: periksa apakah hover dialog sedang atau akan aktif
+  // Pemeriksaan paling dasar: apakah ada hover dialog yang aktif
   const isHoverDialogActive = hoverDialogController.isTypingHoverDialog();
   
-  // Tambahkan log explisit untuk membantu debugging
-  console.log(`[DialogBox] Dialog status check - isDialogFinished: ${isDialogFinished}, text empty: ${text === ""}, contract active: ${isContractDialogActive}, forceShow: ${forceShowIdleWarning}, isHoverActive: ${isHoverDialogActive}, source: ${dialogSource}`);
+  // Log untuk debug - selalu dipertahankan
+  console.log(`[DialogBox] ULTIMATE STATUS CHECK - source: ${dialogSource}, isHoverActive: ${isHoverDialogActive}, forceShow: ${forceShowIdleWarning}`);
   
-  // Cek prioritas pertama: Jika hover dialog sedang aktif, HANYA tampilkan dialog jika source-nya adalah HOVER
-  if (isHoverDialogActive && dialogSource !== DialogSource.HOVER) {
-    console.log("[DialogBox] Hiding dialog box because hover dialog is active but current source is not HOVER");
-    return null;
-  }
-  
-  // Cek prioritas kedua: Jika sedang menampilkan dialog utama tapi ada hover dialog aktif, JANGAN tampilkan
-  if (dialogSource === DialogSource.MAIN && isHoverDialogActive) {
-    console.log("[DialogBox] Hiding MAIN dialog because hover dialog is active");
-    return null;
-  }
-  
-  // Cek prioritas ketiga: Force show idle warning
-  if (forceShowIdleWarning) {
-    // Jika flag force show aktif, pastikan dialog box selalu ditampilkan
-    // Reset isDialogFinished jika perlu untuk memastikan dialog box muncul kembali
-    if (isDialogFinished) {
-      console.log("[DialogBox] Force resetting isDialogFinished to false to show idle warning dialog");
-      setIsDialogFinished(false);
+  // ATURAN #1: Jika ada hover dialog aktif, HANYA TAMPILKAN dialog dengan source HOVER
+  if (isHoverDialogActive) {
+    // Jika source bukan HOVER, langsung return null (TIDAK tampilkan dialog)
+    if (dialogSource !== DialogSource.HOVER) {
+      console.log("[DialogBox] HARD RULE #1 - Hover dialog active but source is not HOVER, hiding all non-hover dialogs");
+      return null;
     }
   }
   
-  // Cek prioritas keempat: Kondisi normal untuk sembunyikan dialog
-  if ((isDialogFinished && text === "" && !isContractDialogActive && !forceShowIdleWarning)) {
-    // Debug untuk membantu melihat status dialog
-    console.log("[DialogBox] Hiding dialog box - finished empty dialog with no special conditions");
-    return null; 
+  // ATURAN #2: Jika idle warning dipaksa tampil, SELALU tampilkan tanpa pengecualian
+  if (forceShowIdleWarning) {
+    console.log("[DialogBox] HARD RULE #2 - Force showing idle warning dialog");
+    // Pastikan dialog box tidak dalam keadaan finished
+    if (isDialogFinished) {
+      setIsDialogFinished(false);
+    }
+    // Lanjutkan rendering dialog (tidak return null)
+  } 
+  // ATURAN #3: Jika dialog sudah finished dan tidak ada teks/kontrak/force show, SEMBUNYIKAN
+  else if (isDialogFinished && text === "" && !isContractDialogActive) {
+    console.log("[DialogBox] HARD RULE #3 - Dialog is finished with no text/contract/force show, hiding dialog");
+    return null;
   }
   
   // Periksa apakah ini adalah dialog kontrak (CONTRACT_RESPONSES) berdasarkan teks
