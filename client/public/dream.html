@@ -1229,15 +1229,23 @@
                     const achievementEl = document.createElement('div');
                     achievementEl.className = 'achievement-notification';
                     achievementEl.innerHTML = `
-                        <div class="achievement-content">
-                            <div class="achievement-title">
-                                <span>Achievement Unlocked</span>
+                        <div class="achievement-inner">
+                            <div class="achievement-fog"></div>
+                            <div class="achievement-icon">
+                                <div class="icon-star">★</div>
                             </div>
-                            <div class="achievement-name">
-                                ${titles[type]}
+                            <div class="achievement-content">
+                                <div class="achievement-title">
+                                    <span>Achievement Unlocked</span>
+                                </div>
+                                <div class="achievement-name">
+                                    ${titles[type]}
+                                </div>
+                                <div class="achievement-desc">
+                                    ${descriptions[type]}
+                                </div>
                             </div>
                         </div>
-                        <div class="achievement-fog"></div>
                     `;
                     
                     // Add styles inline
@@ -1246,7 +1254,8 @@
                         .achievement-notification {
                             position: fixed;
                             bottom: 26vh; /* Ditinggikan agar tidak menutupi tombol escape */
-                            right: max(4vw, 20px); /* Semakin besar layar, semakin jauh dari tepi */
+                            right: max(5vw, 24px); /* Sedikit lebih jauh dari tepi untuk konsistensi */
+                            left: auto; /* Pastikan tidak menggunakan left */
                             z-index: 40; /* Same z-index as main app achievement */
                             background-color: rgba(0, 0, 0, 0.9);
                             border: 2px solid rgba(255, 180, 30, 0.5); /* Amber gold border */
@@ -1254,6 +1263,8 @@
                             color: #e2c080;
                             font-family: "EB Garamond", serif;
                             width: min(280px, 85vw); /* Responsive with max width */
+                            max-width: 280px; /* Tetapkan max-width untuk konsistensi */
+                            min-width: 240px; /* Min-width untuk mencegah konten terpotong */
                             animation: achievementFadeIn 0.5s forwards, achievementFadeOut 0.5s 4.5s forwards;
                             box-shadow: 
                                 0 4px 12px rgba(0, 0, 0, 0.6), 
@@ -1263,6 +1274,7 @@
                             position: relative;
                             border-radius: 2px; /* Very subtle rounded corners */
                             transform-origin: center bottom;
+                            margin-left: auto; /* Tambahan untuk memastikan alignment */
                         }
                         
                         .achievement-fog {
@@ -1329,9 +1341,54 @@
                             100% { opacity: 0.9; transform: scale(1.03); filter: blur(6px); }
                         }
                         
+                        .achievement-inner {
+                            position: relative;
+                            display: flex;
+                            align-items: flex-start;
+                            width: 100%;
+                        }
+                        
+                        .achievement-icon {
+                            flex-shrink: 0;
+                            position: relative;
+                            width: 40px;
+                            height: 40px;
+                            margin-right: 12px;
+                            background: rgba(0, 0, 0, 0.7);
+                            border: 1px solid rgba(255, 180, 30, 0.4);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            border-radius: 1px;
+                            z-index: 2;
+                        }
+                        
+                        .icon-star {
+                            font-size: 18px;
+                            color: rgba(255, 180, 30, 0.9);
+                            text-shadow: 0 0 6px rgba(255, 180, 30, 0.5);
+                            animation: starPulse 2s infinite alternate;
+                        }
+                        
+                        @keyframes starPulse {
+                            0% { opacity: 0.7; transform: scale(1); }
+                            100% { opacity: 1; transform: scale(1.15); }
+                        }
+                        
                         .achievement-content {
                             display: flex;
                             flex-direction: column;
+                            position: relative;
+                            flex: 1;
+                        }
+                        
+                        .achievement-desc {
+                            font-size: 10px;
+                            color: rgba(255, 180, 30, 0.7);
+                            margin-top: 2px;
+                            line-height: 1.4;
+                            max-width: 100%;
+                            z-index: 2;
                             position: relative;
                         }
                         
@@ -1350,16 +1407,7 @@
                             text-shadow: 0 0 4px rgba(255, 180, 30, 0.3);
                         }
                         
-                        /* Dark Souls style icon */
-                        .achievement-title span::before {
-                            content: '✧'; /* Better looking star symbol */
-                            display: inline-block;
-                            margin-right: 6px;
-                            font-size: 11px;
-                            color: rgba(255, 180, 30, 0.95);
-                            text-shadow: 0 0 6px rgba(255, 180, 30, 0.5);
-                            animation: iconPulse 2.2s infinite alternate;
-                        }
+                        /* Removed extra star before title as we have icon separately */
                         
                         @keyframes iconPulse {
                             0% { opacity: 0.7; transform: scale(1); text-shadow: 0 0 4px rgba(255, 180, 30, 0.3); }
