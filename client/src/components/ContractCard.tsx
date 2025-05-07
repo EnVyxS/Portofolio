@@ -12,6 +12,7 @@ import DialogController from "../controllers/dialogController";
 import HoverDialogController from "../controllers/hoverDialogController";
 import AchievementController from "../controllers/achievementController";
 import { useAudio } from "../context/AudioManager";
+import { DialogSource } from "../views/DialogBox";
 
 // Responses for contract interactions - moved from DialogBox.tsx and made more natural
 export const CONTRACT_RESPONSES = [

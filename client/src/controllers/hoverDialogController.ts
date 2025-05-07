@@ -3,6 +3,7 @@ import DialogController from "./dialogController";
 import IdleTimeoutController, { IDLE_DIALOGS } from "./idleTimeoutController";
 import { debounce } from "../lib/utils";
 import AchievementController from "./achievementController";
+import { DialogSource } from "../views/DialogBox";
 
 // Jenis link yang mungkin di-hover
 export type HoverLinkType =
@@ -359,7 +360,7 @@ class HoverDialogController {
   }
 
   // Method untuk mengatur dialogSource di DialogBox
-  public setDialogSource: ((source: any) => void) | null = null;
+  public setDialogSource: ((source: DialogSource) => void) | null = null;
   private typingSpeed: number = 40; // Sedikit lebih cepat dari dialog utama
   private typingInterval: NodeJS.Timeout | null = null;
   private currentText: string = "";

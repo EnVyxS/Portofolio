@@ -21,7 +21,7 @@ function generateSimpleHash(text: string): string {
 }
 
 // Enum untuk menyimpan sumber dialog
-enum DialogSource {
+export enum DialogSource {
   MAIN = "main",
   HOVER = "hover",
   IDLE_WARNING = "idle_warning",
@@ -126,7 +126,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       dialogController.resetPostResetDialogStatus();
     }
 
-    if (dialogSource === "main") {
+    if (dialogSource === DialogSource.MAIN) {
       // Jika dialog masih dalam proses typing tetapi user menekan tombol SKIP/NEXT
       if (!isComplete) {
         // Hentikan dialog dan audio yang sedang berjalan
@@ -198,7 +198,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           }
         });
       }
-    } else if (dialogSource === "hover") {
+    } else if (dialogSource === DialogSource.HOVER) {
       // For hover dialogs
       if (!isComplete) {
         // Jika dialog masih dalam proses typing, langsung tampilkan full text
@@ -228,7 +228,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
   // Effect untuk auto-continue ketika dialog selesai - dimodifikasi untuk berjalan untuk semua dialog
   useEffect(() => {
-    if (isComplete && dialogSource === "main") {
+    if (isComplete && dialogSource === DialogSource.MAIN) {
       // Clear any existing timer
       if (autoPlayTimerRef.current) {
         clearTimeout(autoPlayTimerRef.current);
