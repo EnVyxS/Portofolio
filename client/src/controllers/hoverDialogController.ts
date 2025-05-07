@@ -216,6 +216,16 @@ class HoverDialogController {
             console.log(
               "Triggering excessive hover punishment via IdleTimeoutController after 2 hovers following second level warning",
             );
+            
+            // Trigger achievement for anger at this point
+            try {
+              console.log("Unlocking ANGER achievement during excessive hover");
+              const achievementController = AchievementController.getInstance();
+              achievementController.unlockAchievement('anger');
+            } catch (error) {
+              console.error("Failed to unlock anger achievement:", error);
+            }
+            
             idleController.handleExcessiveHover();
           }
         } catch (e) {
