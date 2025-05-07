@@ -157,6 +157,15 @@ const ContractCard: React.FC = () => {
         console.error("Failed to unlock contract achievement:", error);
       }
 
+      // Set flag for contract dialog active - this will be checked in IdleTimeoutController
+      try {
+        // @ts-ignore - setting global property on window
+        window.__contractDialogActive = true;
+        console.log("[ContractCard] Set contract dialog active flag to true");
+      } catch (e) {
+        console.error("Could not set contract dialog active flag:", e);
+      }
+
       setIsOpen(true);
     }
   };
@@ -248,6 +257,15 @@ const ContractCard: React.FC = () => {
     // Kembalikan volume saat kontrak ditutup
     if (originalVolume !== null) {
       setVolume(originalVolume);
+    }
+    
+    // Reset contract dialog active flag
+    try {
+      // @ts-ignore - reset global property on window
+      window.__contractDialogActive = false;
+      console.log("[ContractCard] Reset contract dialog active flag to false when closing contract");
+    } catch (e) {
+      console.error("Could not reset contract dialog active flag:", e);
     }
 
     // Display a random CONTRACT_RESPONSE dialog
