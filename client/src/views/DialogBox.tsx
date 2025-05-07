@@ -97,16 +97,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       console.error("Could not reset force show idle warning flag:", e);
     }
     
-    // Cek apakah kontrak dialog sedang aktif
-    // @ts-ignore
-    const isContractDialogActive = window.__contractDialogActive === true;
-    
-    // Jika kontrak dialog aktif, jangan lakukan apapun saat tombol NEXT/SKIP ditekan
-    if (isContractDialogActive) {
-      console.log("[DialogBox] Contract dialog active, ignoring next/skip button press");
-      return;
-    }
-    
     // Cek apakah ini adalah dialog khusus post-reset dan perlu direset status nya
     if (dialogController.isShowingPostResetDialog()) {
       dialogController.resetPostResetDialogStatus();
@@ -117,12 +107,39 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       if (!isComplete) {
         // Hentikan dialog dan audio yang sedang berjalan
         dialogController.skipToFullText();
-        
-        // Jika tombol SKIP ditekan, jangan langsung lanjut ke dialog berikutnya
-        // Biarkan pengguna membaca dialog saat ini dulu
-        console.log("[DialogBox] Skip button pressed, showing complete text without advancing");
-        setIsComplete(true);
-        return;
+
+        // Langsung lanjut ke dialog berikutnya tanpa menunggu user klik lagi
+        // Gunakan setTimeout dengan delay singkat untuk memastikan UI diupdate
+        setTimeout(() => {
+          // Cek apakah user sudah berinteraksi dengan hover dialog
+          if (hoverDialogController.hasUserInteractedWithHover()) {
+            // Jangan hilangkan dialog box, tetapi tetap jalankan callback jika dibutuhkan
+            if (onDialogComplete) onDialogComplete();
+            return;
+          }
+
+          // Move to the next dialog
+          dialogController.nextDialog((text, complete) => {
+            setText(text);
+            setIsComplete(complete);
+
+            // Get current dialog to display character name
+            const currentDialog = dialogController.getCurrentDialog();
+            if (currentDialog) {
+              setCharacterName(currentDialog.character);
+              // Update hover dialog controller with completion status
+              hoverDialogController.setDialogCompleted(complete);
+            } else {
+              // Tandai dialog sudah selesai untuk interaksi hover
+              hoverDialogController.setDialogCompleted(true);
+
+              // Tetap menjalankan onDialogComplete jika ada
+              if (onDialogComplete) {
+                onDialogComplete();
+              }
+            }
+          });
+        }, 50); // Delay kecil untuk memastikan UI diupdate dengan benar
       } else {
         // Dialog sudah selesai dan user menekan NEXT
         // Cek apakah user sudah berinteraksi dengan hover dialog
@@ -133,12 +150,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           // Hanya panggil onDialogComplete jika dibutuhkan
           if (onDialogComplete) onDialogComplete();
           return;
-        }
-
-        // Pastikan tidak ada hover dialog yang aktif
-        if (hoverDialogController.isHoverActive()) {
-          console.log("[DialogBox] Hover dialog is active, resetting hover state before advancing dialog");
-          hoverDialogController.resetHoverState();
         }
 
         // Move to the next dialog
@@ -156,10 +167,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             // Tetap tandai dialog sebagai selesai untuk interaksi hover
             hoverDialogController.setDialogCompleted(true);
 
-            // Jika tidak ada dialog berikutnya, sembunyikan dialog box
-            setIsDialogFinished(true);
-            
-            // Tetap jalankan callback jika ada
+            // Jangan set isDialogFinished ke true agar tetap menampilkan dialog box
             if (onDialogComplete) {
               onDialogComplete();
             }
