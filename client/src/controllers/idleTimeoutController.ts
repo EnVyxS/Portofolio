@@ -447,13 +447,25 @@ class IdleTimeoutController {
     }
   }
 
+  // Set untuk melacak dialog marah yang sudah ditampilkan
+  private displayedAngryDialogs: Set<string> = new Set();
+
   // Method untuk menampilkan peringatan
   private showIdleWarning(text: string): void {
-    // Cek jika dialog yang sama sudah ditampilkan
-    const currentText = this.dialogController.getCurrentDialog()?.text;
-    if (currentText === text) {
-      console.log("[IdleTimeoutController] Preventing duplicate dialog:", text);
+    // Cek apakah ini dialog marah dan sudah pernah ditampilkan
+    const isAngryDialog = text.includes("KEEP PUSHING") || 
+                         text.includes("GET OUT") || 
+                         text.includes("ENOUGH") ||
+                         text.includes("ASKED FOR THIS");
+                         
+    if (isAngryDialog && this.displayedAngryDialogs.has(text)) {
+      console.log("[IdleTimeoutController] Preventing duplicate angry dialog:", text);
       return;
+    }
+    
+    // Tambahkan ke set jika ini dialog marah
+    if (isAngryDialog) {
+      this.displayedAngryDialogs.add(text);
     }
     
     // Hentikan semua aktivitas dialog terlebih dahulu
@@ -726,10 +738,14 @@ class IdleTimeoutController {
     this.clearAllIdleTimers();
     this.clearAllHoverTimers();
 
+    // Reset semua status
     this.hasShownFirstWarning = false;
     this.hasShownSecondWarning = false;
     this.hasShownFinalWarning = false;
     this.hasBeenThrown = false;
+    
+    // Clear set dialog marah yang sudah ditampilkan
+    this.displayedAngryDialogs.clear();
 
     this.hasShownExcessiveHoverWarning = false;
     this.hasShownFinalHoverWarning = false;
