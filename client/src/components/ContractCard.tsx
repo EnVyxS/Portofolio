@@ -339,7 +339,7 @@ const ContractCard: React.FC = () => {
           isCompleteSetter(isComplete);
         }
 
-        // Pada akhir dialog (isComplete = true), tandai bahwa dialog kontrak telah selesai
+        // Pada akhir dialog (isComplete = true), tandai bahwa dialog kontrak telah selesai dan sembunyikan dialog box
         if (isComplete) {
           // @ts-ignore - hapus properti global ketika dialog selesai
           setTimeout(() => {
@@ -347,7 +347,14 @@ const ContractCard: React.FC = () => {
             window.__contractDialogActive = false;
             // @ts-ignore
             window.__contractResponseText = null;
-          }, 5000); // Beri waktu 5 detik untuk dialog tetap terlihat
+            
+            // Sembunyikan dialog box dengan mengatur isDialogFinished ke true
+            // @ts-ignore
+            if (typeof window.__dialogBoxIsFinishedSetter === "function") {
+              console.log("[ContractCard] Hiding dialog box after contract dialog finished");
+              window.__dialogBoxIsFinishedSetter(true);
+            }
+          }, 500); // Beri waktu sangat singkat setelah dialog selesai untuk membacanya, lalu hilangkan
         }
       });
     }, 300);
