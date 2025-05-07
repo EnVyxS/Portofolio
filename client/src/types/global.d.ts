@@ -2,4 +2,5 @@
 
 interface Window {
   createWhooshSound?: () => any;
+  createAchievementSound?: () => () => void;
 }
