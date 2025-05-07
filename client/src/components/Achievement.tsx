@@ -78,41 +78,131 @@ const FogParticle: React.FC<{
   duration: number;
   positionX: number;
   size: number;
-}> = ({ delay, duration, positionX, size }) => {
+  color: string;
+  blur: number;
+}> = ({ delay, duration, positionX, size, color, blur }) => {
   return (
     <motion.div
-      className="absolute rounded-full bg-amber-500/5"
+      className="absolute rounded-full"
       style={{
         width: `${size}px`,
         height: `${size}px`,
         left: `${positionX}%`,
         bottom: '-10px',
+        background: color,
+        filter: `blur(${blur}px)`,
       }}
       initial={{ y: 0, opacity: 0 }}
       animate={{
-        y: [0, -15 - size * 0.7], 
-        opacity: [0, 0.3, 0],
-        scale: [1, 1.5, 0.8]
+        y: [0, -20 - size * 0.8], 
+        opacity: [0, 0.4, 0],
+        scale: [1, 1.8, 0.6]
       }}
       transition={{
         duration,
         ease: "easeOut",
         delay,
         repeat: Infinity,
-        repeatDelay: Math.random() * 0.5,
+        repeatDelay: Math.random() * 0.3,
       }}
     />
   );
 };
 
-// Generate a random set of fog particles
+// Soul essence particle effect
+const SoulEssence: React.FC<{
+  delay: number;
+  duration: number;
+  startX: number;
+  startY: number;
+}> = ({ delay, duration, startX, startY }) => {
+  // Random end positions
+  const endX = startX + (Math.random() * 40 - 20);
+  const endY = startY - 10 - Math.random() * 30;
+  const size = 2 + Math.random() * 3;
+  
+  return (
+    <motion.div
+      className="absolute w-1 h-1 rounded-full bg-blue-400/30"
+      style={{
+        left: `${startX}%`,
+        top: `${startY}%`,
+        width: `${size}px`,
+        height: `${size}px`,
+        boxShadow: `0 0 ${6 + size}px 1px rgba(120, 170, 255, 0.7)`,
+      }}
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{
+        opacity: [0, 0.7, 0],
+        scale: [0.3, 1, 0.2],
+        x: [0, endX - startX],
+        y: [0, endY - startY],
+      }}
+      transition={{
+        duration,
+        ease: "easeOut",
+        delay,
+        repeat: Infinity,
+        repeatDelay: Math.random() * 2 + 1,
+      }}
+    />
+  );
+};
+
+// Generate random mystical fog particles
 const generateFogParticles = (count: number) => {
+  const particles = [];
+  
+  // Dark fog
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      id: `dark-${i}`,
+      delay: Math.random() * 1.5,
+      duration: 2 + Math.random() * 3,
+      positionX: Math.random() * 100,
+      size: 12 + Math.random() * 30,
+      color: 'rgba(20, 15, 35, 0.7)',
+      blur: 10 + Math.random() * 8
+    });
+  }
+  
+  // Mystical blue/purple fog
+  for (let i = 0; i < Math.floor(count/2); i++) {
+    particles.push({
+      id: `mystic-${i}`,
+      delay: Math.random() * 2,
+      duration: 3 + Math.random() * 3,
+      positionX: Math.random() * 100,
+      size: 5 + Math.random() * 20,
+      color: `rgba(${30 + Math.random() * 30}, ${20 + Math.random() * 40}, ${80 + Math.random() * 80}, 0.4)`,
+      blur: 8 + Math.random() * 5
+    });
+  }
+  
+  // Amber highlights
+  for (let i = 0; i < Math.floor(count/3); i++) {
+    particles.push({
+      id: `amber-${i}`,
+      delay: Math.random() * 3,
+      duration: 2 + Math.random() * 2,
+      positionX: Math.random() * 100,
+      size: 4 + Math.random() * 12,
+      color: 'rgba(255, 193, 7, 0.1)',
+      blur: 7 + Math.random() * 3
+    });
+  }
+  
+  return particles;
+};
+
+// Generate soul essence particles
+const generateSoulEssences = (count: number) => {
   return Array.from({ length: count }).map((_, i) => ({
-    id: i,
-    delay: Math.random() * 1.5,
-    duration: 1.5 + Math.random() * 2,
-    positionX: Math.random() * 100,
-    size: 10 + Math.random() * 20,
+    id: `soul-${i}`,
+    delay: Math.random() * 3,
+    duration: 2 + Math.random() * 3,
+    startX: 30 + Math.random() * 40, // position in the middle area
+    startY: 30 + Math.random() * 60, // random vertical position
   }));
 };
 
@@ -124,7 +214,10 @@ interface AchievementProps {
 const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
   const [isVisible, setIsVisible] = useState(true);
   const achievementSoundRef = useRef<HTMLAudioElement | null>(null);
-  const fogParticles = useRef(generateFogParticles(7)); // Generate 7 fog particles
+  
+  // Generate mystical particles
+  const fogParticles = useRef(generateFogParticles(12));
+  const soulEssences = useRef(generateSoulEssences(8));
   
   useEffect(() => {
     // Mainkan suara achievement dengan Web Audio API
@@ -155,7 +248,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
       setTimeout(() => {
         if (onComplete) onComplete();
       }, 500); // Tunggu animasi exit selesai
-    }, 4000); // Tampilkan selama 4 detik saja agar tidak terlalu lama
+    }, 5000); // Sedikit lebih lama untuk efek yang dramatis
 
     return () => {
       clearTimeout(timer);
@@ -181,36 +274,51 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
           }}
           className="fixed bottom-6 right-6 z-50"
         >
-          {/* Dark Souls style achievement - dengan efek asap/kabut */}
+          {/* Dark Souls style achievement - dengan efek kabut mistis */}
           <motion.div 
             className="flex flex-col items-start"
             animate={{ 
-              boxShadow: ["0 0 10px rgba(255, 193, 7, 0.1)", "0 0 20px rgba(255, 193, 7, 0.2)", "0 0 10px rgba(255, 193, 7, 0.1)"]
+              boxShadow: [
+                "0 0 15px rgba(120, 170, 255, 0.1)", 
+                "0 0 25px rgba(120, 170, 255, 0.2)", 
+                "0 0 15px rgba(120, 170, 255, 0.1)"
+              ]
             }}
             transition={{
-              duration: 2.5,
+              duration: 3,
               repeat: Infinity,
               repeatType: "reverse"
             }}
           >
-            {/* Achievement notification */}
-            <div className="px-4 py-3 bg-black/90 border border-amber-900/50 shadow-lg relative overflow-hidden w-72">
-              {/* Dark Souls inspired fog effect */}
+            {/* Achievement notification - wider for more dramatic effect */}
+            <div className="px-5 py-4 bg-black/95 border border-blue-900/50 shadow-lg relative overflow-hidden w-80">
+              {/* Dark mystical background */}
+              <div 
+                className="absolute inset-0" 
+                style={{
+                  background: 'radial-gradient(circle at 50% 30%, rgba(30, 30, 60, 0.7) 0%, rgba(15, 15, 35, 0.8) 60%, rgba(5, 5, 15, 0.9) 100%)',
+                }}
+              />
+              
+              {/* Mystical effects container */}
               <div className="absolute inset-0 overflow-hidden">
-                {/* Ambient glow behind text */}
+                {/* Deep void gradient background */}
                 <motion.div 
-                  className="absolute inset-0 opacity-20 bg-gradient-to-t from-amber-500/20 to-transparent"
+                  className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(to bottom, rgba(20, 20, 40, 0.5), rgba(5, 5, 20, 0.8))'
+                  }}
                   animate={{ 
-                    opacity: [0.1, 0.2, 0.1]
+                    opacity: [0.6, 0.8, 0.6]
                   }}
                   transition={{
-                    duration: 2,
+                    duration: 4,
                     repeat: Infinity,
                     repeatType: "reverse"
                   }}
                 />
                 
-                {/* Fog particles at the bottom */}
+                {/* Mystical fog particles */}
                 {fogParticles.current.map((particle) => (
                   <FogParticle 
                     key={particle.id}
@@ -218,42 +326,106 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                     duration={particle.duration}
                     positionX={particle.positionX}
                     size={particle.size}
+                    color={particle.color}
+                    blur={particle.blur}
                   />
                 ))}
+                
+                {/* Soul essence particles */}
+                {soulEssences.current.map((essence) => (
+                  <SoulEssence
+                    key={essence.id}
+                    delay={essence.delay}
+                    duration={essence.duration}
+                    startX={essence.startX}
+                    startY={essence.startY}
+                  />
+                ))}
+                
+                {/* Dramatic light rays */}
+                <motion.div
+                  className="absolute inset-0 opacity-30"
+                  style={{
+                    background: 'radial-gradient(circle at 70% 20%, rgba(100, 130, 255, 0.3) 0%, transparent 50%)',
+                    filter: 'blur(10px)',
+                  }}
+                  animate={{
+                    opacity: [0.2, 0.4, 0.2],
+                    scale: [0.9, 1.1, 0.9]
+                  }}
+                  transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                  }}
+                />
               </div>
               
-              {/* Dark Souls style dark edges */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/60 pointer-events-none"></div>
+              {/* Dark Souls style vignette edges */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/70 pointer-events-none"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-black/70 pointer-events-none"></div>
               
-              {/* Title with subtle animation */}
-              <div className="mb-1 relative z-10">
+              {/* Title with mystic animation */}
+              <div className="mb-2 relative z-10">
                 <motion.p
-                  className="text-[10px] text-amber-500/80 uppercase tracking-widest font-serif"
+                  className="text-[10px] text-blue-300/80 uppercase tracking-widest font-serif"
                   initial={{ y: -5, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <span className="text-amber-300/70 mr-1.5">★</span>Achievement Unlocked
+                  <motion.span 
+                    className="text-blue-200/90 mr-1.5 inline-block"
+                    animate={{ 
+                      textShadow: [
+                        '0 0 3px rgba(120, 170, 255, 0.5)', 
+                        '0 0 8px rgba(120, 170, 255, 0.8)', 
+                        '0 0 3px rgba(120, 170, 255, 0.5)'
+                      ]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >★</motion.span>
+                  <span className="text-gradient-souls">Achievement Unlocked</span>
                 </motion.p>
               </div>
               
-              {/* Achievement name - animated entrance */}
+              {/* Achievement name - animated mystic entrance */}
               <motion.div 
                 className="flex items-center gap-2 relative z-10 pl-1"
                 initial={{ x: -10, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
               >
-                <div className="text-amber-200 text-base uppercase font-serif tracking-widest">
+                <motion.div 
+                  className="text-blue-100 text-base uppercase font-serif tracking-widest"
+                  animate={{
+                    textShadow: ['0 0 4px rgba(120, 170, 255, 0.3)', '0 0 8px rgba(120, 170, 255, 0.6)', '0 0 4px rgba(120, 170, 255, 0.3)']
+                  }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                >
                   {AchievementTitles[type]}
-                </div>
+                </motion.div>
               </motion.div>
               
-              {/* Achievement icon - with pulsing glow */}
+              {/* Dark Souls style rune */}
               <motion.div 
-                className="absolute right-3 top-3 opacity-70"
+                className="absolute -right-3 -top-3 w-24 h-24 opacity-20 z-0"
+                style={{
+                  background: 'radial-gradient(circle at center, rgba(100, 130, 255, 0.4) 0%, transparent 70%)',
+                }}
+                animate={{
+                  opacity: [0.15, 0.25, 0.15],
+                  rotate: [0, 360],
+                }}
+                transition={{
+                  opacity: { duration: 3, repeat: Infinity },
+                  rotate: { duration: 20, repeat: Infinity, ease: "linear" }
+                }}
+              />
+              
+              {/* Achievement icon - with mystical glow */}
+              <motion.div 
+                className="absolute right-4 top-4 opacity-80"
                 animate={{ 
-                  opacity: [0.6, 0.8, 0.6],
+                  opacity: [0.7, 0.9, 0.7],
                   scale: [0.95, 1.05, 0.95]
                 }}
                 transition={{
@@ -261,36 +433,102 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                   repeat: Infinity,
                 }}
               >
-                <div className="text-amber-500/80 z-10 relative">
+                <div className="text-blue-300/90 z-10 relative filter drop-shadow-md">
                   {AchievementIcons[type]}
                 </div>
-                <div className="absolute inset-0 bg-amber-500/10 blur-xl rounded-full"></div>
+                <motion.div 
+                  className="absolute inset-0 bg-blue-500/10 blur-xl rounded-full"
+                  animate={{
+                    boxShadow: [
+                      '0 0 10px 5px rgba(100, 130, 255, 0.1)',
+                      '0 0 20px 10px rgba(100, 130, 255, 0.2)',
+                      '0 0 10px 5px rgba(100, 130, 255, 0.1)'
+                    ]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
               </motion.div>
               
-              {/* Souls-style line separator */}
+              {/* Mystical runes/glyphs scattered in the background */}
+              <motion.div
+                className="absolute left-3 bottom-3 text-[8px] text-blue-500/30 font-serif"
+                animate={{ opacity: [0.2, 0.4, 0.2] }}
+                transition={{ duration: 4, repeat: Infinity }}
+              >
+                ⦿⦾⧖⧗
+              </motion.div>
+              
+              <motion.div
+                className="absolute right-3 bottom-3 text-[8px] text-blue-500/30 font-serif"
+                animate={{ opacity: [0.3, 0.5, 0.3] }}
+                transition={{ duration: 3, repeat: Infinity, delay: 1 }}
+              >
+                ⦿⧗⧉
+              </motion.div>
+              
+              {/* Dark Souls style separator lines */}
               <motion.div 
                 className="absolute bottom-0 left-0 right-0 h-[1px]"
                 style={{
-                  background: 'linear-gradient(to right, transparent, rgba(255, 193, 7, 0.7), transparent)'
+                  background: 'linear-gradient(to right, transparent, rgba(100, 130, 255, 0.7), transparent)'
                 }}
                 animate={{
-                  opacity: [0.5, 0.8, 0.5]
+                  opacity: [0.5, 0.8, 0.5],
+                  boxShadow: [
+                    '0 0 3px 0 rgba(100, 130, 255, 0.3)',
+                    '0 0 8px 0 rgba(100, 130, 255, 0.5)',
+                    '0 0 3px 0 rgba(100, 130, 255, 0.3)'
+                  ]
                 }}
                 transition={{
-                  duration: 2,
+                  duration: 3,
                   repeat: Infinity
                 }}
               />
               
-              {/* Dark Souls style vertical line accent */}
+              {/* Vertical mystic line accents */}
               <motion.div 
                 className="absolute left-0 top-0 bottom-0 w-[1px]"
                 style={{
-                  background: 'linear-gradient(to bottom, transparent, rgba(255, 193, 7, 0.3), transparent)'
+                  background: 'linear-gradient(to bottom, transparent, rgba(100, 130, 255, 0.5), transparent)'
                 }}
                 initial={{ opacity: 0, scaleY: 0.7 }}
-                animate={{ opacity: 1, scaleY: 1 }}
-                transition={{ duration: 0.5 }}
+                animate={{ 
+                  opacity: 1, 
+                  scaleY: 1,
+                  boxShadow: [
+                    '0 0 2px 0 rgba(100, 130, 255, 0.2)',
+                    '0 0 5px 0 rgba(100, 130, 255, 0.4)',
+                    '0 0 2px 0 rgba(100, 130, 255, 0.2)'
+                  ]
+                }}
+                transition={{ 
+                  opacity: { duration: 0.5 },
+                  scaleY: { duration: 0.5 },
+                  boxShadow: { duration: 2, repeat: Infinity }
+                }}
+              />
+              
+              <motion.div 
+                className="absolute right-0 top-0 bottom-0 w-[1px]"
+                style={{
+                  background: 'linear-gradient(to bottom, transparent, rgba(100, 130, 255, 0.5), transparent)'
+                }}
+                initial={{ opacity: 0, scaleY: 0.7 }}
+                animate={{ 
+                  opacity: 1, 
+                  scaleY: 1,
+                  boxShadow: [
+                    '0 0 2px 0 rgba(100, 130, 255, 0.2)',
+                    '0 0 5px 0 rgba(100, 130, 255, 0.4)',
+                    '0 0 2px 0 rgba(100, 130, 255, 0.2)'
+                  ]
+                }}
+                transition={{ 
+                  opacity: { duration: 0.5, delay: 0.2 },
+                  scaleY: { duration: 0.5, delay: 0.2 },
+                  boxShadow: { duration: 2, repeat: Infinity, delay: 0.5 }
+                }}
               />
             </div>
           </motion.div>
