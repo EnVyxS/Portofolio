@@ -187,14 +187,11 @@ const ContractCard: React.FC = () => {
         setCurrentIndex((prev) => prev + 1);
         setScale(0.8); // Reset zoom ke 80%
         setPosition({ x: 0, y: 0 }); // Reset posisi saat ganti halaman
-        // Tidak mereset hasDragged sehingga tooltip tetap tersembunyi jika pernah digunakan
-
-        // Beri jeda sedikit sebelum mengizinkan animasi lagi
-        setTimeout(() => {
-          setIsAnimating(false);
-          setPageDirection(null);
-        }, 50);
-      }, 100); // Tunggu 100ms untuk animasi flip (dipercepat)
+        
+        // Langsung reset animasi state
+        setIsAnimating(false);
+        setPageDirection(null);
+      }, 50); // Tunggu hanya 50ms untuk animasi flip
     }
   };
 
@@ -799,7 +796,7 @@ const ContractCard: React.FC = () => {
         }
         
         .page-flip-next .book-container {
-          animation: flipNext 0.2s cubic-bezier(0.25, 0.1, 0.25, 1.0);
+          animation: flipNext 0.1s ease-out;
           transform: translateX(-50%); /* Pertahankan posisi center saat animasi */
           perspective-origin: left center; /* Animasi dari kiri ke kanan */
         }
@@ -870,33 +867,15 @@ const ContractCard: React.FC = () => {
         
         @keyframes flipNext {
           0% { 
-            transform: translateX(-50%) rotateY(0deg); 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); 
+            transform: translateX(-50%) rotateY(0deg);
             filter: brightness(1);
           }
-          15% { 
-            transform: translateX(-51%) rotateY(-5deg); 
-            box-shadow: -5px 5px 15px rgba(0, 0, 0, 0.4); 
-            filter: brightness(0.97);
-          }
-          30% { 
-            transform: translateX(-52%) rotateY(-15deg); 
-            box-shadow: -10px 5px 25px rgba(0, 0, 0, 0.45); 
+          50% { 
+            transform: translateX(-51%) rotateY(-15deg);
             filter: brightness(0.95);
           }
-          70% { 
-            transform: translateX(-48%) rotateY(-22deg); 
-            box-shadow: -18px 5px 35px rgba(0, 0, 0, 0.5); 
-            filter: brightness(0.93);
-          }
-          85% { 
-            transform: translateX(-49%) rotateY(-10deg); 
-            box-shadow: -8px 5px 20px rgba(0, 0, 0, 0.4); 
-            filter: brightness(0.97);
-          }
           100% { 
-            transform: translateX(-50%) rotateY(0deg); 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); 
+            transform: translateX(-50%) rotateY(0deg);
             filter: brightness(1);
           }
         }
