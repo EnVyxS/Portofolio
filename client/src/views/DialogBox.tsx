@@ -509,8 +509,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // Kita tetapkan bahwa ini adalah kontrak dialog berdasarkan flag __contractDialogActive
   // dan bukan berdasarkan teks lengkap (tidak menggunakan contractResponseText)
   
+  // Periksa apakah ada hover dialog yang menunggu untuk ditampilkan
+  const hasPendingHover = hoverDialogController.isTypingHoverDialog();
+  
   // Tambahkan log explisit untuk membantu debugging
-  console.log(`[DialogBox] Dialog status check - isDialogFinished: ${isDialogFinished}, text empty: ${text === ""}, contract active: ${isContractDialogActive}, forceShow: ${forceShowIdleWarning}`);
+  console.log(`[DialogBox] Dialog status check - isDialogFinished: ${isDialogFinished}, text empty: ${text === ""}, contract active: ${isContractDialogActive}, forceShow: ${forceShowIdleWarning}, hasPendingHover: ${hasPendingHover}`);
   
   if (forceShowIdleWarning) {
     // Jika flag force show aktif, pastikan dialog box selalu ditampilkan
@@ -521,10 +524,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     }
   }
   
-  if (isDialogFinished && text === "" && !isContractDialogActive && !forceShowIdleWarning) {
+  // Sembunyikan dialog box jika salah satu kondisi ini terpenuhi:
+  // 1. Dialog selesai, tidak ada teks, bukan kontrak dialog dan tidak ada force show
+  // 2. Dialog source MAIN, tapi ada hover dialog yang sedang menunggu dan source saat ini adalah MAIN
+  if ((isDialogFinished && text === "" && !isContractDialogActive && !forceShowIdleWarning) || 
+      (hasPendingHover && dialogSource === DialogSource.MAIN)) {
     // Debug untuk membantu melihat status dialog
-    console.log("[DialogBox] Dialog finished with empty text, hiding dialog box");
-    return null; // Hanya return null jika tidak ada teks sama sekali dan bukan dialog kontrak dan bukan force show
+    console.log("[DialogBox] Hiding dialog box - finished empty dialog or pending hover dialog");
+    return null; 
   }
   
   // Periksa apakah ini adalah dialog kontrak (CONTRACT_RESPONSES) berdasarkan teks

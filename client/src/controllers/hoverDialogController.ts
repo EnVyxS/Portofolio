@@ -385,6 +385,8 @@ class HoverDialogController {
   public setDialogSource: ((source: DialogSource) => void) | null = null;
   // Track current dialog source for internal state management
   private currentDialogSource: DialogSource = DialogSource.MAIN;
+  // Function to explicitly hide main dialog box (to be set from DialogBox component)
+  public setIsDialogFinished: ((value: boolean) => void) | null = null;
   private typingSpeed: number = 40; // Sedikit lebih cepat dari dialog utama
   private typingInterval: NodeJS.Timeout | null = null;
   private currentText: string = "";
