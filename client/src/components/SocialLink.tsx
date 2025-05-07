@@ -76,40 +76,27 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
         }
       }, redirectDelay);
     } else {
-      // Try to unlock 'success' achievement - as social links are also a type of contract success
+      // Unlock success achievement for social links
       try {
-        // Import the achievement controller
-        import('../controllers/achievementController').then(module => {
-          const AchievementController = module.default;
-          const achievementController = AchievementController.getInstance();
-          achievementController.unlockAchievement('success');
-          
-          console.log("Showing success achievement before redirecting to:", url);
-          
-          // Add a small delay for the achievement to show first
-          setTimeout(() => {
-            console.log("Achievement delay completed, opening URL:", url);
-            
-            if (url.startsWith('mailto:')) {
-              window.location.href = url;
-            } else {
-              window.open(url, '_blank', 'noopener,noreferrer');
-            }
-          }, 3000); // 3 second delay to show achievement
-        }).catch(error => {
-          // If there's an error with achievement, still redirect
-          console.error("Error unlocking achievement:", error);
-          console.log("Redirecting immediately to:", url);
+        // Langsung gunakan achievement controller yang sudah di-import
+        const achievementController = AchievementController.getInstance();
+        achievementController.unlockAchievement('success');
+        
+        console.log("Showing success achievement before redirecting to:", url);
+        
+        // Add a small delay for the achievement to show first
+        setTimeout(() => {
+          console.log("Achievement delay completed, opening URL:", url);
           
           if (url.startsWith('mailto:')) {
             window.location.href = url;
           } else {
             window.open(url, '_blank', 'noopener,noreferrer');
           }
-        });
+        }, 3000); // 3 second delay to show achievement
       } catch (error) {
-        // Fallback if import fails
-        console.error("Error importing achievement controller:", error);
+        // If there's an error with achievement, still redirect
+        console.error("Error unlocking achievement:", error);
         console.log("Redirecting immediately to:", url);
         
         if (url.startsWith('mailto:')) {
