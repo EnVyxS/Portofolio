@@ -16,7 +16,7 @@ class DialogController {
   private charIndex: number = 0;
   private typingInterval: NodeJS.Timeout | null = null;
   private isPostResetDialog: boolean = false; // Melacak apakah dialog khusus setelah reset sedang aktif
-  private wasDialogInterrupted: boolean = false; // Melacak apakah dialog diinterupsi oleh user
+  private dialogInterrupted: boolean = false; // Melacak apakah dialog diinterupsi oleh user
   private dialogsVisited: Set<number> = new Set(); // Melacak dialog yang telah dikunjungi
   private totalDialogCount: number = 0; // Total jumlah dialog yang harus dikunjungi
 
@@ -30,9 +30,9 @@ class DialogController {
   
   // Hitung total jumlah dialog yang tersedia di DialogModel
   private calculateTotalDialogs(): void {
-    const model = this.dialogModel.getDialogs();
-    if (model && model.length > 0) {
-      this.totalDialogCount = model.length;
+    const allDialogs = this.dialogModel.getAllDialogs();
+    if (allDialogs && allDialogs.length > 0) {
+      this.totalDialogCount = allDialogs.length;
       console.log(`[DialogController] Total dialog count: ${this.totalDialogCount}`);
     }
   }
@@ -187,6 +187,14 @@ class DialogController {
       clearInterval(this.typingInterval);
       this.typingInterval = null;
     }
+    
+    // Ketika user menghentikan dialog sebelum selesai, tandai bahwa ada interupsi
+    const currentDialog = this.dialogModel.getCurrentDialog();
+    if (currentDialog && this.isTyping) {
+      console.log(`[DialogController] Dialog ${currentDialog.id} interrupted by user`);
+      this.dialogInterrupted = true;
+    }
+    
     this.elevenlabsService.stopSpeaking();
   }
 
@@ -337,6 +345,44 @@ class DialogController {
   // Method untuk mengakses dialog model
   public getDialogModel(): DialogModel {
     return this.dialogModel;
+  }
+  
+  // Metode untuk melacak dialog yang selesai
+  private markDialogVisited(dialogId: number): void {
+    this.dialogsVisited.add(dialogId);
+    console.log(`[DialogController] Dialog ${dialogId} marked as visited. Total visited: ${this.dialogsVisited.size}/${this.totalDialogCount}`);
+    
+    // Setelah setiap dialog ditandai, periksa apakah semua dialog telah dikunjungi
+    this.checkAllDialogsVisited();
+  }
+  
+  // Periksa apakah user telah mendengarkan semua dialog tanpa interupsi
+  private checkAllDialogsVisited(): void {
+    // Periksa jika semua dialog telah dikunjungi dan tidak ada interupsi
+    if (this.dialogsVisited.size >= this.totalDialogCount && !this.wasDialogInterrupted) {
+      console.log(`[DialogController] All dialogs visited without interruption! Triggering 'listener' achievement.`);
+      
+      // Tampilkan achievement untuk mendengarkan semua dialog
+      try {
+        const achievementController = AchievementController.getInstance();
+        if (achievementController) {
+          achievementController.triggerAchievement('listener');
+        }
+      } catch (e) {
+        console.error('[DialogController] Error triggering listener achievement:', e);
+      }
+    }
+  }
+  
+  // Reset status interupsi dialog
+  public resetDialogInterruption(): void {
+    this.wasDialogInterrupted = false;
+    console.log(`[DialogController] Dialog interruption status reset`);
+  }
+  
+  // Dapatkan status interupsi dialog
+  public getDialogInterruptionStatus(): boolean {
+    return this.wasDialogInterrupted;
   }
 }
 
