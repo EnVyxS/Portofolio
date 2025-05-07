@@ -449,6 +449,13 @@ class IdleTimeoutController {
 
   // Method untuk menampilkan peringatan
   private showIdleWarning(text: string): void {
+    // Cek jika dialog yang sama sudah ditampilkan
+    const currentText = this.dialogController.getCurrentDialog()?.text;
+    if (currentText === text) {
+      console.log("[IdleTimeoutController] Preventing duplicate dialog:", text);
+      return;
+    }
+    
     // Hentikan semua aktivitas dialog terlebih dahulu
     this.dialogController.stopTyping();
     this.hoverDialogController.stopTyping();
