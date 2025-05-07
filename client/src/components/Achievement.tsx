@@ -325,7 +325,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
             damping: 25,
             duration: 0.4
           }}
-          className="fixed bottom-6 right-6 z-50"
+          className="fixed bottom-16 md:bottom-14 lg:bottom-12 right-4 md:right-6 lg:right-8 z-40"
         >
           {/* Dark Souls style achievement - compact design like the screenshot */}
           <motion.div 
@@ -343,8 +343,8 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
               repeatType: "reverse"
             }}
           >
-            {/* Achievement notification - styled like Dark Souls */}
-            <div className="px-4 py-3 bg-black/95 border-2 border-amber-500/50 shadow-xl relative overflow-hidden w-72 rounded-sm">
+            {/* Achievement notification - styled like Dark Souls, responsive width */}
+            <div className="px-3 py-3 sm:px-4 sm:py-3 bg-black/95 border-2 border-amber-500/50 shadow-xl relative overflow-hidden w-[280px] sm:w-72 rounded-sm">
               {/* Dark mystical background */}
               <div 
                 className="absolute inset-0" 
@@ -432,10 +432,10 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                 />
               </div>
               
-              {/* Dark Souls style inner container */}
+              {/* Dark Souls style inner container - responsive for mobile */}
               <div className="relative z-10 flex items-start py-1">
-                {/* Achievement icon */}
-                <div className="flex-shrink-0 w-12 h-12 mr-3">
+                {/* Achievement icon - smaller on mobile */}
+                <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 mr-2 sm:mr-3">
                   <motion.div 
                     className="text-amber-500/90"
                     animate={{ 
@@ -448,13 +448,13 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                     }}
                   >
                     {/* Dark Souls style icon with golden border and glow */}
-                    <div className="h-12 w-12 rounded-sm bg-gradient-to-br from-black to-gray-900 flex items-center justify-center border border-amber-500/40 relative">
+                    <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-sm bg-gradient-to-br from-black to-gray-900 flex items-center justify-center border border-amber-500/40 relative">
                       {/* Icon background glow */}
                       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-amber-900/20 rounded-sm"></div>
                       
                       {/* Achievement type specific icon */}
                       {type === 'approach' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 sm:h-7 sm:w-7" xmlns="http://www.w3.org/2000/svg">
                           <path d="M19 8l-7-7-7 7v11a2 2 0 002 2h10a2 2 0 002-2V8z" 
                             stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
                           <path d="M9 15l3 3 5-5" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -462,7 +462,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                       )}
                       
                       {type === 'contract' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 sm:h-7 sm:w-7" xmlns="http://www.w3.org/2000/svg">
                           <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" 
                             stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
                           <path d="M7 7h10M7 11h10M7 15h6" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
@@ -470,7 +470,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                       )}
                       
                       {type === 'success' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 sm:h-7 sm:w-7" xmlns="http://www.w3.org/2000/svg">
                           <path d="M22 12h-4l-3 9L9 3l-3 9H2" 
                             stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                           <circle cx="12" cy="12" r="3" stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
@@ -478,7 +478,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                       )}
                       
                       {type === 'anger' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 sm:h-7 sm:w-7" xmlns="http://www.w3.org/2000/svg">
                           <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" 
                             stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.2)" />
                           <path d="M12 8v8M8 12h8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
@@ -486,7 +486,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                       )}
                       
                       {type === 'nightmare' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 sm:h-7 sm:w-7" xmlns="http://www.w3.org/2000/svg">
                           <path d="M12 2l2.5 5 5.5.5-4 4 1 5.5-5-2.5-5 2.5 1-5.5-4-4 5.5-.5L12 2z" 
                             stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
                           <path d="M12 7v5M12 16v.1" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
@@ -499,11 +499,11 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                   </motion.div>
                 </div>
                 
-                {/* Achievement text content */}
+                {/* Achievement text content - responsive for mobile */}
                 <div className="flex flex-col mt-1">
                   {/* Achievement title with Dark Souls style - uppercase, letterSpacing */}
                   <motion.p
-                    className="text-amber-100 font-semibold tracking-wide uppercase text-sm"
+                    className="text-xs sm:text-sm text-amber-100 font-semibold tracking-wide uppercase"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
@@ -513,11 +513,11 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                   </motion.p>
                   
                   {/* Thin decorative line */}
-                  <div className="h-px w-full bg-gradient-to-r from-amber-500/50 via-amber-400/30 to-transparent my-1.5"></div>
+                  <div className="h-px w-full bg-gradient-to-r from-amber-500/50 via-amber-400/30 to-transparent my-1 sm:my-1.5"></div>
                   
                   {/* Achievement description - smaller text with subtle color */}
                   <motion.p
-                    className="text-xs text-amber-400/70 leading-snug"
+                    className="text-[10px] sm:text-xs text-amber-400/70 leading-snug"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.9 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
