@@ -6,11 +6,11 @@ import ElevenLabsService from "../services/elevenlabsService";
 // Dialog yang akan ditampilkan pada timeout tertentu
 export const IDLE_DIALOGS = {
   // Dialog setelah 2 menit tidak ada interaksi
-  FIRST_WARNING: "Apa yang kau lihat, hah?! Mau bilang sesuatu?! Atau cuma bisa melongo seperti orang bodoh?!",
+  FIRST_WARNING: "What the hell are you staring at?.. Got something to say!?",
 
   // Dialog setelah 5 menit tidak ada interaksi
   SECOND_WARNING:
-    "Kau benar-benar berniat mengabaikanku terus?! Aku sedang tidak mood meladeni omong kosongmu!",
+    "You really gonna keep ignoring me? I'm not in the mood for this.",
 
   // Dialog setelah 9 menit tidak ada interaksi
   FINAL_WARNING:
@@ -30,14 +30,14 @@ export const IDLE_DIALOGS = {
   FINAL_HOVER_WARNING: "I'VE HAD ENOUGH OF YOUR GAMES!",
 };
 
-// Waktu timeout dalam milidetik (dikonfigurasi untuk testing - waktu sangat singkat)
+// Waktu timeout dalam milidetik
 export const TIMEOUT_DURATIONS = {
-  FIRST_WARNING: 10 * 1000, // 10 detik (aslinya 2 menit)
-  SECOND_WARNING: 15 * 1000, // 15 detik (aslinya 5 menit)
-  FINAL_WARNING: 20 * 1000, // 20 detik (aslinya 9 menit)
-  THROW_USER: 25 * 1000, // 25 detik (aslinya 10 menit)
-  EXCESSIVE_HOVER_WARNING: 5 * 1000, // 5 detik (aslinya 10 detik)
-  FINAL_HOVER_WARNING: 10 * 1000, // 10 detik (aslinya 20 detik)
+  FIRST_WARNING: 2 * 60 * 1000, // 2 menit
+  SECOND_WARNING: 5 * 60 * 1000, // 5 menit
+  FINAL_WARNING: 9 * 60 * 1000, // 9 menit
+  THROW_USER: 10 * 60 * 1000, // 10 menit
+  EXCESSIVE_HOVER_WARNING: 10 * 1000, // 10 detik - Sangat cepat karena triggered oleh HoverDialogController
+  FINAL_HOVER_WARNING: 20 * 1000, // 20 detik
   PUNCH_USER: 30 * 1000, // 30 detik
 };
 
@@ -310,7 +310,7 @@ class IdleTimeoutController {
     }
 
     console.log(
-      "[IdleTimeoutController] Dialog model dan contract dialog selesai. Memulai timer IDLE_DIALOGS dengan waktu yang dipercepat untuk testing - First warning in " +
+      "[IdleTimeoutController] Dialog model dan contract dialog selesai. Memulai timer IDLE_DIALOGS - First warning in " +
         TIMEOUT_DURATIONS.FIRST_WARNING / 1000 +
         "s, second in " +
         TIMEOUT_DURATIONS.SECOND_WARNING / 1000 +
