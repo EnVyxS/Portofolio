@@ -28,7 +28,7 @@ import footstepSoundSrc from "@assets/footsteps sound effect - walking sound eff
 import ijazah from "@assets/Ijazah.jpg";
 import transkrip1 from "@assets/Transkrip Nilai_page-0001.jpg";
 import transkrip2 from "@assets/Transkrip Nilai_page-0002.jpg";
-import universitas from "@assets/111202012560mhs.dinus.ac.id_page-0001.jpg";
+import tofl from "@assets/111202012560mhs.dinus.ac.id_page-0001.jpg";
 import bnsp1 from "@assets/BNSP_page-0001.jpg";
 import bnsp2 from "@assets/BNSP_page-0002.jpg";
 import kampusMerdeka from "@assets/Backend Java MSIB_page-0001.jpg";
@@ -40,7 +40,7 @@ const CONTRACT_IMAGES = [
   ijazah,
   transkrip1,
   transkrip2,
-  universitas,
+  tofl,
   bnsp1,
   bnsp2,
   kampusMerdeka,
@@ -53,7 +53,7 @@ const IMAGE_TITLES = [
   "Ijazah",
   "Transkrip Nilai - Page 1",
   "Transkrip Nilai - Page 2",
-  "Universitas Dian Nuswantoro",
+  "TOFL",
   "Sertifikat Kompetensi BNSP",
   "Daftar Unit Kompetensi BNSP",
   "Sertifikat Kampus Merdeka",
@@ -152,7 +152,7 @@ const ContractCard: React.FC = () => {
       // Unlock achievement for opening contract
       try {
         const achievementController = AchievementController.getInstance();
-        achievementController.unlockAchievement('contract');
+        achievementController.unlockAchievement("contract");
       } catch (error) {
         console.error("Failed to unlock contract achievement:", error);
       }
@@ -205,7 +205,7 @@ const ContractCard: React.FC = () => {
         setCurrentIndex((prev) => prev + 1);
         setScale(0.8); // Reset zoom ke 80%
         setPosition({ x: 0, y: 0 }); // Reset posisi saat ganti halaman
-        
+
         // Langsung reset animasi state
         setIsAnimating(false);
         setPageDirection(null);
@@ -258,12 +258,14 @@ const ContractCard: React.FC = () => {
     if (originalVolume !== null) {
       setVolume(originalVolume);
     }
-    
+
     // Reset contract dialog active flag
     try {
       // @ts-ignore - reset global property on window
       window.__contractDialogActive = false;
-      console.log("[ContractCard] Reset contract dialog active flag to false when closing contract");
+      console.log(
+        "[ContractCard] Reset contract dialog active flag to false when closing contract",
+      );
     } catch (e) {
       console.error("Could not reset contract dialog active flag:", e);
     }
@@ -361,16 +363,18 @@ const ContractCard: React.FC = () => {
 
   const openImageInNewTab = (e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     // Berikan achievement 'document' saat double-click pada gambar kontrak
     try {
       const achievementController = AchievementController.getInstance();
-      achievementController.unlockAchievement('document');
-      
+      achievementController.unlockAchievement("document");
+
       // Buka gambar kontrak di tab baru setelah jeda singkat untuk melihat achievement
       setTimeout(() => {
         window.open(CONTRACT_IMAGES[currentIndex], "_blank");
-        console.log("Opening contract image in new tab after showing document achievement");
+        console.log(
+          "Opening contract image in new tab after showing document achievement",
+        );
       }, 1500); // 1.5 detik delay untuk melihat achievement
     } catch (error) {
       console.error("Failed to unlock document achievement:", error);
