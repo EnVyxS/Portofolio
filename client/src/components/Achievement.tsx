@@ -109,7 +109,7 @@ const FogParticle: React.FC<{
   );
 };
 
-// Soul essence particle effect - green souls style
+// Soul essence particle effect - gold/orange souls style
 const SoulEssence: React.FC<{
   delay: number;
   duration: number;
@@ -123,13 +123,13 @@ const SoulEssence: React.FC<{
   
   return (
     <motion.div
-      className="absolute w-1 h-1 rounded-full bg-emerald-400/40"
+      className="absolute w-1 h-1 rounded-full bg-amber-400/40"
       style={{
         left: `${startX}%`,
         top: `${startY}%`,
         width: `${size}px`,
         height: `${size}px`,
-        boxShadow: `0 0 ${3 + size}px 1px rgba(30, 190, 90, 0.6)`,
+        boxShadow: `0 0 ${3 + size}px 1px rgba(255, 160, 30, 0.6)`,
       }}
       initial={{ opacity: 0, scale: 0 }}
       animate={{
@@ -149,7 +149,7 @@ const SoulEssence: React.FC<{
   );
 };
 
-// Generate random dark souls green fog particles
+// Generate random dark souls gold/orange fog particles
 const generateFogParticles = (count: number) => {
   const particles = [];
   
@@ -161,12 +161,12 @@ const generateFogParticles = (count: number) => {
       duration: 1.8 + Math.random() * 2,
       positionX: Math.random() * 100,
       size: 8 + Math.random() * 15,
-      color: 'rgba(5, 10, 12, 0.6)',
+      color: 'rgba(15, 10, 5, 0.6)',
       blur: 6 + Math.random() * 4
     });
   }
   
-  // Dark souls green fog
+  // Dark souls gold/orange fog
   for (let i = 0; i < Math.floor(count/2); i++) {
     particles.push({
       id: `mystic-${i}`,
@@ -174,20 +174,20 @@ const generateFogParticles = (count: number) => {
       duration: 2 + Math.random() * 2,
       positionX: Math.random() * 100,
       size: 4 + Math.random() * 10,
-      color: `rgba(${10 + Math.random() * 20}, ${100 + Math.random() * 70}, ${50 + Math.random() * 50}, 0.35)`,
+      color: `rgba(${150 + Math.random() * 50}, ${100 + Math.random() * 50}, ${20 + Math.random() * 30}, 0.3)`,
       blur: 5 + Math.random() * 4
     });
   }
   
-  // Subtle green highlights
+  // Subtle gold highlights
   for (let i = 0; i < Math.floor(count/4); i++) {
     particles.push({
-      id: `green-${i}`,
+      id: `gold-${i}`,
       delay: Math.random() * 2,
       duration: 1.5 + Math.random() * 1.5,
       positionX: Math.random() * 100,
       size: 3 + Math.random() * 8,
-      color: 'rgba(30, 200, 100, 0.2)',
+      color: 'rgba(255, 215, 100, 0.2)',
       blur: 4 + Math.random() * 3
     });
   }
@@ -279,9 +279,9 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
             className="flex flex-col items-start"
             animate={{ 
               boxShadow: [
-                "0 0 8px rgba(30, 160, 80, 0.15)", 
-                "0 0 12px rgba(30, 160, 80, 0.25)", 
-                "0 0 8px rgba(30, 160, 80, 0.15)"
+                "0 0 8px rgba(255, 180, 30, 0.15)", 
+                "0 0 12px rgba(255, 180, 30, 0.25)", 
+                "0 0 8px rgba(255, 180, 30, 0.15)"
               ]
             }}
             transition={{
@@ -291,12 +291,12 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
             }}
           >
             {/* Achievement notification - compact like in Dark Souls */}
-            <div className="px-3 py-2 bg-black/95 border-l-2 border-emerald-500/40 shadow-md relative overflow-hidden w-64">
+            <div className="px-3 py-2 bg-black/95 border-l-2 border-amber-500/40 shadow-md relative overflow-hidden w-64">
               {/* Dark mystical background */}
               <div 
                 className="absolute inset-0" 
                 style={{
-                  background: 'linear-gradient(to right, rgba(15, 25, 20, 0.9), rgba(10, 15, 15, 0.95))',
+                  background: 'linear-gradient(to right, rgba(25, 20, 15, 0.9), rgba(15, 12, 10, 0.95))',
                 }}
               />
               
@@ -306,7 +306,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                 <motion.div 
                   className="absolute inset-0"
                   style={{
-                    background: 'linear-gradient(to bottom, rgba(10, 25, 15, 0.8), rgba(0, 10, 5, 0.9))'
+                    background: 'linear-gradient(to bottom, rgba(25, 20, 15, 0.8), rgba(10, 5, 0, 0.9))'
                   }}
                   animate={{ 
                     opacity: [0.7, 0.9, 0.7]
@@ -318,7 +318,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                   }}
                 />
                 
-                {/* Green fog particles - subtle */}
+                {/* Gold fog particles - subtle */}
                 {fogParticles.current.slice(0, 8).map((particle) => (
                   <FogParticle 
                     key={particle.id}
@@ -346,7 +346,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                 <motion.div
                   className="absolute h-8 w-8 left-2 top-2 opacity-40"
                   style={{
-                    background: 'radial-gradient(circle at center, rgba(30, 200, 100, 0.3) 0%, transparent 70%)',
+                    background: 'radial-gradient(circle at center, rgba(255, 170, 50, 0.3) 0%, transparent 70%)',
                     filter: 'blur(3px)',
                   }}
                   animate={{
@@ -365,7 +365,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                 {/* Achievement icon */}
                 <div className="flex-shrink-0 w-8 h-8 mr-3">
                   <motion.div 
-                    className="text-emerald-400/90"
+                    className="text-amber-400/90"
                     animate={{ 
                       opacity: [0.8, 1, 0.8],
                     }}
@@ -375,13 +375,13 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                     }}
                   >
                     {/* Small icon as in Dark Souls */}
-                    <div className="h-8 w-8 rounded-sm bg-black/60 flex items-center justify-center border border-emerald-700/30">
+                    <div className="h-8 w-8 rounded-sm bg-black/60 flex items-center justify-center border border-amber-700/30">
                       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" xmlns="http://www.w3.org/2000/svg">
                         <path 
                           d="M12 2l2.5 5 5.5.5-4 4 1 5.5-5-2.5-5 2.5 1-5.5-4-4 5.5-.5L12 2z" 
                           stroke="currentColor" 
                           strokeWidth="1.5" 
-                          fill="rgba(30, 200, 100, 0.3)" 
+                          fill="rgba(255, 180, 30, 0.3)" 
                         />
                       </svg>
                     </div>
@@ -392,7 +392,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                 <div className="flex flex-col">
                   {/* Today */}
                   <motion.p
-                    className="text-xs text-emerald-300/80 font-medium"
+                    className="text-xs text-amber-300/80 font-medium"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.8 }}
                     transition={{ duration: 0.5 }}
@@ -402,7 +402,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                   
                   {/* Achievement title */}
                   <motion.p
-                    className="text-sm text-emerald-100 font-medium"
+                    className="text-sm text-amber-100 font-medium"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
@@ -412,25 +412,13 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                   
                   {/* Achievement description - smaller text with subtle color */}
                   <motion.p
-                    className="text-xs text-emerald-400/60 mt-0.5"
+                    className="text-xs text-amber-400/60 mt-0.5"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.8 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                   >
                     {AchievementDescriptions[type]}
                   </motion.p>
-                  
-                  {/* Percentage line at bottom - Dark Souls style */}
-                  <motion.div
-                    className="mt-1.5 flex items-center space-x-1"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.8 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                  >
-                    <div className="text-xs text-emerald-300/70">
-                      {Math.floor(90 + Math.random() * 9)}.{Math.floor(Math.random() * 9)}% of players have this achievement
-                    </div>
-                  </motion.div>
                 </div>
               </div>
               
