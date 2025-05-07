@@ -335,6 +335,13 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       setIsDialogFinished(value);
     };
     
+    // Add a global setter for character name - needed for return dialog
+    // @ts-ignore
+    window.__setCharacterName = (name: string) => {
+      console.log(`[DialogBox] External call to set character name to "${name}"`);
+      setCharacterName(name);
+    };
+    
     // Set hover dialog callback terlebih dahulu untuk menangkap hover dialog yang sudah aktif
     hoverDialogController.setHoverTextCallback((text, complete) => {
       setText(text);

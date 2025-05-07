@@ -373,25 +373,73 @@ class DialogController {
           window.__dialogBoxIsFinishedSetter(false);
           console.log("[DialogController] Force reset dialog box visibility to visible");
         }
+        
+        // Force set dialogBox text secara langsung melalui setter global
+        // @ts-ignore
+        if (window.__dialogBoxTextSetter) {
+          // @ts-ignore
+          window.__dialogBoxTextSetter(""); // Reset text dulu agar kosong
+          
+          // Panggil callback dengan string kosong untuk memastikan dialog box terlihat
+          if (callback) callback("", false);
+        }
       } catch (e) {
-        console.error("[DialogController] Failed to force reset dialog box visibility:", e);
+        console.error("[DialogController] Failed to force reset dialog box text/visibility:", e);
       }
       
       // Log detail RETURN_DIALOG for debugging
       console.log("[DialogController] RETURN_DIALOG content:", JSON.stringify(RETURN_DIALOG));
       
-      // Gunakan direct show custom dialog - lebih reliable
-      this.showCustomDialog(RETURN_DIALOG.text, (text, isComplete) => {
-        // Forward the callback
-        if (callback) callback(text, isComplete);
-        
-        // If dialog completes, log it for debugging
-        if (isComplete) {
-          console.log("[DialogController] RETURN_DIALOG completed successfully");
-        }
-      });
+      // MENGGUNAKAN PENDEKATAN YANG BERBEDA:
+      // 1. Alih-alih menggunakan typeDialog atau showCustomDialog, kita akan langsung memanipulasi UI
+      //    dengan mengirim text karakter per karakter melalui callback, seperti simulasi typewriter
       
-      console.log("[DialogController] Showing return dialog after reset:", RETURN_DIALOG.text);
+      // Simpan referensi ke RETURN_DIALOG untuk penggunaan dalam closure
+      const dialogText = RETURN_DIALOG.text;
+      const characterName = RETURN_DIALOG.character;
+      const textLength = dialogText.length;
+      
+      // Pastikan nama karakter terlihat
+      try {
+        // @ts-ignore
+        if (window.__setCharacterName && typeof window.__setCharacterName === 'function') {
+          // @ts-ignore
+          window.__setCharacterName(characterName);
+          console.log("[DialogController] Set character name to:", characterName);
+        }
+      } catch (e) {
+        console.error("[DialogController] Failed to set character name:", e);
+      }
+      
+      // Gunakan setTimeout alih-alih setInterval agar lebih reliable
+      let currentIndex = 0;
+      let currentText = "";
+      
+      // Coba gunakan elevenlabs untuk mengucapkan dialog
+      this.elevenlabsService.speakText(dialogText);
+      
+      // Fungsi rekursif untuk simulasi typing
+      const typeNextChar = () => {
+        if (currentIndex < textLength) {
+          currentText += dialogText[currentIndex];
+          currentIndex++;
+          
+          // Kirim callback dengan text saat ini
+          if (callback) callback(currentText, false);
+          
+          // Jadwalkan karakter selanjutnya dalam 50ms
+          setTimeout(typeNextChar, 50); // 50ms per karakter
+        } else {
+          // Typing selesai, kirim callback dengan completed=true
+          if (callback) callback(currentText, true);
+          console.log("[DialogController] RETURN_DIALOG typing completed successfully");
+        }
+      };
+      
+      // Mulai proses typing setelah 200ms untuk memastikan audio/UI siap
+      setTimeout(typeNextChar, 200);
+      
+      console.log("[DialogController] Started manual typing for RETURN_DIALOG:", dialogText);
     }, 500); // Delay 500ms untuk menghindari tumpang tindih audio
   }
   
