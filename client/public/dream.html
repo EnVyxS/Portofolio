@@ -1245,19 +1245,24 @@
                     styleEl.textContent = `
                         .achievement-notification {
                             position: fixed;
-                            bottom: 24px;
-                            right: 24px;
-                            z-index: 9999;
-                            background-color: rgba(0, 0, 0, 0.85);
-                            border: 1px solid rgba(255, 193, 7, 0.5);
-                            padding: 10px 14px;
+                            bottom: 6vh; /* Adaptif berdasarkan tinggi viewport */
+                            right: max(4vw, 20px); /* Semakin besar layar, semakin jauh dari tepi */
+                            z-index: 40; /* Same z-index as main app achievement */
+                            background-color: rgba(0, 0, 0, 0.9);
+                            border: 2px solid rgba(255, 180, 30, 0.5); /* Amber gold border */
+                            padding: 12px 16px;
                             color: #e2c080;
-                            font-family: serif;
-                            width: 240px;
-                            animation: achievementFadeIn 0.4s forwards, achievementFadeOut 0.4s 3.6s forwards;
-                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 193, 7, 0.2);
+                            font-family: "EB Garamond", serif;
+                            width: min(280px, 85vw); /* Responsive with max width */
+                            animation: achievementFadeIn 0.5s forwards, achievementFadeOut 0.5s 4.5s forwards;
+                            box-shadow: 
+                                0 4px 12px rgba(0, 0, 0, 0.6), 
+                                0 0 20px rgba(255, 180, 30, 0.2),
+                                inset 0 0 8px rgba(255, 180, 30, 0.1);
                             overflow: hidden;
                             position: relative;
+                            border-radius: 2px; /* Very subtle rounded corners */
+                            transform-origin: center bottom;
                         }
                         
                         .achievement-fog {
@@ -1266,20 +1271,62 @@
                             left: 0;
                             right: 0;
                             bottom: 0;
-                            background: radial-gradient(
-                                circle at 50% 30%, 
-                                rgba(255, 193, 7, 0.05), 
-                                transparent 70%
-                            );
-                            filter: blur(5px);
-                            opacity: 0.7;
-                            animation: fogPulse 3s infinite alternate;
+                            background: 
+                                radial-gradient(
+                                    circle at 30% 30%, 
+                                    rgba(255, 180, 30, 0.08), 
+                                    transparent 60%
+                                ),
+                                radial-gradient(
+                                    circle at 70% 60%, 
+                                    rgba(255, 160, 20, 0.05), 
+                                    transparent 50%
+                                );
+                            filter: blur(6px);
+                            opacity: 0.8;
+                            animation: fogPulse 4s infinite alternate;
                             z-index: 1;
+                            pointer-events: none;
+                        }
+                        
+                        /* Additional particle effects */
+                        .achievement-fog::before,
+                        .achievement-fog::after {
+                            content: "";
+                            position: absolute;
+                            width: 4px;
+                            height: 4px;
+                            background: rgba(255, 180, 30, 0.3);
+                            border-radius: 50%;
+                            filter: blur(1px);
+                            z-index: 2;
+                            opacity: 0;
+                            pointer-events: none;
+                        }
+                        
+                        .achievement-fog::before {
+                            top: 30%;
+                            left: 20%;
+                            animation: particleFloat 5s ease-in-out infinite;
+                        }
+                        
+                        .achievement-fog::after {
+                            top: 60%;
+                            left: 70%;
+                            animation: particleFloat 7s ease-in-out 1s infinite;
+                        }
+                        
+                        @keyframes particleFloat {
+                            0% { opacity: 0; transform: translateY(10px); }
+                            30% { opacity: 0.7; }
+                            70% { opacity: 0.5; }
+                            100% { opacity: 0; transform: translateY(-15px) translateX(5px); }
                         }
                         
                         @keyframes fogPulse {
-                            0% { opacity: 0.4; transform: scale(0.95); }
-                            100% { opacity: 0.7; transform: scale(1.05); }
+                            0% { opacity: 0.5; transform: scale(0.97); }
+                            50% { opacity: 0.7; filter: blur(8px); }
+                            100% { opacity: 0.9; transform: scale(1.03); filter: blur(6px); }
                         }
                         
                         .achievement-content {
@@ -1293,61 +1340,89 @@
                         }
                         
                         .achievement-title span {
-                            font-size: 10px;
-                            color: rgba(255, 193, 7, 0.7);
+                            font-size: 11px;
+                            color: rgba(255, 180, 30, 0.85);
                             text-transform: uppercase;
-                            letter-spacing: 1px;
+                            letter-spacing: 1.2px;
                             position: relative;
                             z-index: 2;
+                            font-weight: 500;
+                            text-shadow: 0 0 4px rgba(255, 180, 30, 0.3);
                         }
                         
-                        /* Add a subtle icon glow before the title */
+                        /* Dark Souls style icon */
                         .achievement-title span::before {
-                            content: '★'; /* Using a star as icon */
+                            content: '✧'; /* Better looking star symbol */
                             display: inline-block;
-                            margin-right: 5px;
-                            font-size: 10px;
-                            color: rgba(255, 193, 7, 0.9);
-                            text-shadow: 0 0 5px rgba(255, 193, 7, 0.7);
-                            animation: iconPulse 2s infinite alternate;
+                            margin-right: 6px;
+                            font-size: 11px;
+                            color: rgba(255, 180, 30, 0.95);
+                            text-shadow: 0 0 6px rgba(255, 180, 30, 0.5);
+                            animation: iconPulse 2.2s infinite alternate;
                         }
                         
                         @keyframes iconPulse {
-                            0% { opacity: 0.7; transform: scale(1); }
-                            100% { opacity: 1; transform: scale(1.1); }
+                            0% { opacity: 0.7; transform: scale(1); text-shadow: 0 0 4px rgba(255, 180, 30, 0.3); }
+                            50% { text-shadow: 0 0 8px rgba(255, 180, 30, 0.6); }
+                            100% { opacity: 1; transform: scale(1.15); text-shadow: 0 0 5px rgba(255, 180, 30, 0.4); }
                         }
                         
                         .achievement-name {
                             font-size: 14px;
                             color: #e2c080;
                             text-transform: uppercase;
-                            font-weight: normal;
-                            letter-spacing: 0.5px;
-                            margin-top: 2px;
+                            font-weight: 500;
+                            letter-spacing: 0.7px;
+                            margin-top: 3px;
                             position: relative;
                             z-index: 2;
-                            text-shadow: 0 0 5px rgba(226, 192, 128, 0.3);
+                            text-shadow: 0 0 6px rgba(226, 192, 128, 0.25);
+                            padding-bottom: 1px;
                         }
                         
-                        /* Subtle line at the bottom */
+                        /* Subtle decorative elements and divider */
                         .achievement-content::after {
                             content: '';
                             position: absolute;
-                            bottom: -4px;
+                            bottom: -5px;
                             left: 0;
                             right: 0;
                             height: 1px;
-                            background: linear-gradient(to right, transparent, rgba(255, 193, 7, 0.5), transparent);
+                            background: linear-gradient(to right, 
+                                transparent, 
+                                rgba(255, 180, 30, 0.1), 
+                                rgba(255, 180, 30, 0.5), 
+                                rgba(255, 180, 30, 0.1), 
+                                transparent
+                            );
                         }
                         
+                        /* Additional decorative line */
+                        .achievement-content::before {
+                            content: '';
+                            position: absolute;
+                            top: -3px;
+                            left: 10%;
+                            right: 10%;
+                            height: 1px;
+                            background: linear-gradient(to right, 
+                                transparent, 
+                                rgba(255, 180, 30, 0.3), 
+                                transparent
+                            );
+                        }
+                        
+                        /* Dark Souls inspired smoother animations */
                         @keyframes achievementFadeIn {
-                            from { opacity: 0; transform: translateY(20px); }
-                            to { opacity: 1; transform: translateY(0); }
+                            0% { opacity: 0; transform: translateY(15px) scale(0.96); }
+                            70% { opacity: 1; transform: translateY(-2px) scale(1.01); }
+                            85% { transform: translateY(1px) scale(0.99); }
+                            100% { opacity: 1; transform: translateY(0) scale(1); }
                         }
                         
                         @keyframes achievementFadeOut {
-                            from { opacity: 1; transform: translateY(0); }
-                            to { opacity: 0; transform: translateY(-20px); }
+                            0% { opacity: 1; transform: translateY(0); }
+                            100% { opacity: 0; transform: translateY(-15px) scale(0.98); }
                         }
                     `;
                     
