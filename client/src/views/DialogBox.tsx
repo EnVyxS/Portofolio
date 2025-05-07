@@ -558,22 +558,54 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
         /* Efek untuk dialog marah */
         .dialog-box[data-angry="true"] {
-          background: rgba(20, 10, 8, 0.85);
-          border-color: rgba(200, 50, 30, 0.5);
-          box-shadow: 0 0 20px rgba(200, 30, 0, 0.3);
-          animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+          background: rgba(25, 8, 5, 0.92);
+          border-color: rgba(255, 30, 0, 0.6);
+          box-shadow: 
+            0 0 25px rgba(255, 0, 0, 0.4),
+            inset 0 0 15px rgba(255, 50, 0, 0.3);
+          animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both, 
+                     glow 2s ease-in-out infinite;
+          transform-origin: center;
         }
 
         @keyframes shake {
-          10%, 90% { transform: translate3d(-1px, 0, 0); }
-          20%, 80% { transform: translate3d(2px, 0, 0); }
-          30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-          40%, 60% { transform: translate3d(4px, 0, 0); }
+          0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+          10%, 90% { transform: translate3d(-2px, -1px, 0) rotate(-0.5deg); }
+          20%, 80% { transform: translate3d(3px, 2px, 0) rotate(0.5deg); }
+          30%, 50%, 70% { transform: translate3d(-5px, -2px, 0) rotate(-1deg); }
+          40%, 60% { transform: translate3d(5px, 1px, 0) rotate(1deg); }
+        }
+
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 0 25px rgba(255, 0, 0, 0.4), inset 0 0 15px rgba(255, 50, 0, 0.3); }
+          50% { box-shadow: 0 0 35px rgba(255, 0, 0, 0.6), inset 0 0 25px rgba(255, 50, 0, 0.5); }
         }
 
         .dialog-box[data-angry="true"] .dialog-text {
-          color: #ffebe6;
-          text-shadow: 0 0 3px rgba(255, 50, 0, 0.3);
+          color: #fff;
+          text-shadow: 
+            0 0 8px rgba(255, 50, 0, 0.8),
+            0 0 12px rgba(255, 0, 0, 0.4);
+          animation: textPulse 2s ease-in-out infinite;
+          font-weight: 500;
+          letter-spacing: 0.5px;
+        }
+
+        @keyframes textPulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.8; }
+        }
+
+        .dialog-box[data-angry="true"] .character-name {
+          background: rgba(40, 10, 5, 0.95);
+          border-color: rgba(255, 30, 0, 0.6);
+          box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+          animation: nameGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes nameGlow {
+          0%, 100% { text-shadow: 0 0 8px rgba(255, 50, 0, 0.8); }
+          50% { text-shadow: 0 0 12px rgba(255, 0, 0, 1); }
         }
         
 
