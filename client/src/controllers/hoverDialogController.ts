@@ -3,7 +3,6 @@ import DialogController from "./dialogController";
 import IdleTimeoutController, { IDLE_DIALOGS } from "./idleTimeoutController";
 import { debounce } from "../lib/utils";
 import AchievementController from "./achievementController";
-import { DialogSource } from "../views/DialogBox";
 
 // Jenis link yang mungkin di-hover
 export type HoverLinkType =
@@ -178,32 +177,11 @@ class HoverDialogController {
 
   // Handler untuk hover event dari komponen SocialLink
   public handleHoverDialog(linkType: HoverLinkType): void {
-    // Log debug
-    console.log(`[HoverDialogController] Handling hover dialog for: ${linkType}`);
-    
-    // Cek Dialog Controller dan Idle Timeout Controller terlebih dahulu
-    const dialogController = DialogController.getInstance();
-    const idleTimeoutController = IdleTimeoutController.getInstance();
-    
     // Jika tidak ada link yang di-hover, reset saja
     if (linkType === "none") {
       return;
     }
-    
-    // Periksa apakah ada dialog post-reset yang sedang aktif (prioritas tertinggi)
-    if (dialogController.isShowingPostResetDialog()) {
-      console.log("[HoverDialogController] Post-reset dialog sedang aktif, hover dialog diabaikan");
-      this.lastHoveredLink = linkType; // Update last hovered link tanpa trigger dialog
-      return;
-    }
-    
-    // Periksa apakah idle warning sedang aktif (prioritas tinggi)
-    if (idleTimeoutController.isAnyIdleWarningActive()) {
-      console.log("[HoverDialogController] Idle warning sedang aktif, hover dialog diabaikan");
-      this.lastHoveredLink = linkType; // Update last hovered link tanpa trigger dialog
-      return;
-    }
-    
+
     // Force reset isHandlingHover jika hover event baru terjadi terlalu cepat setelah yang sebelumnya
     if (this.isHandlingHover) {
       this.isHandlingHover = false;
@@ -218,7 +196,7 @@ class HoverDialogController {
 
     // Jika idle timeout sudah terjadi, tidak perlu menampilkan hover dialog lagi
     if (this.hasIdleTimeoutOccurred) {
-      console.log("[HoverDialogController] Idle timeout telah terjadi, hover dialog diabaikan");
+      console.log("Idle timeout telah terjadi, hover dialog diabaikan");
       this.lastHoveredLink = linkType; // Update last hovered link tanpa trigger dialog
       return;
     }
@@ -354,39 +332,13 @@ class HoverDialogController {
     | null = null;
   private isTypingHover: boolean = false;
 
-  // Method publik untuk mengecek status typing atau pending hover dialog dari luar
+  // Method publik untuk mengecek status typing dari luar
   public isTypingHoverDialog(): boolean {
-    // Check if currently typing
-    if (this.isTypingHover) {
-      return true;
-    }
-    
-    // Check if there's a pending hover dialog that needs to be shown
-    try {
-      // If we're handling a hover right now but not actively typing yet
-      if (this.isHandlingHover && !this.isTypingHover) {
-        console.log("[HoverDialogController] Detected pending hover dialog being handled");
-        return true;
-      }
-      
-      // If there's text queued but not being displayed
-      if (this.fullText && this.fullText.length > 0 && !this.isTypingHover && this.hasInteractedWithHover) {
-        console.log("[HoverDialogController] Detected pending hover text:", this.fullText.substring(0, 30) + "...");
-        return true;
-      }
-    } catch (e) {
-      console.error("[HoverDialogController] Error checking for pending hover dialog:", e);
-    }
-    
-    return false;
+    return this.isTypingHover;
   }
 
   // Method untuk mengatur dialogSource di DialogBox
-  public setDialogSource: ((source: DialogSource) => void) | null = null;
-  // Track current dialog source for internal state management
-  private currentDialogSource: DialogSource = DialogSource.MAIN;
-  // Function to explicitly hide main dialog box (to be set from DialogBox component)
-  public setIsDialogFinished: ((value: boolean) => void) | null = null;
+  public setDialogSource: ((source: "main" | "hover") => void) | null = null;
   private typingSpeed: number = 40; // Sedikit lebih cepat dari dialog utama
   private typingInterval: NodeJS.Timeout | null = null;
   private currentText: string = "";
@@ -398,16 +350,6 @@ class HoverDialogController {
     callback: (text: string, isComplete: boolean) => void,
   ): void {
     this.hoverTextCallback = callback;
-    
-    // Track the current dialog source as HOVER when this callback is being used
-    if (this.setDialogSource) {
-      try {
-        this.currentDialogSource = DialogSource.HOVER;
-        console.log("[HoverDialogController] Setting currentDialogSource to HOVER");
-      } catch (e) {
-        console.error("[HoverDialogController] Error setting dialog source:", e);
-      }
-    }
   }
 
   // Helper untuk mengecek apakah dialog perlu persistent
@@ -431,53 +373,15 @@ class HoverDialogController {
     // Stop any ongoing typing first
     this.stopTyping();
 
-    console.log('[HoverDialogController] *** RADICAL HOVER ACTIVATION ***');
-    console.log('[HoverDialogController] Preparing to display hover dialog');
-    
-    // Set flag bahwa hover dialog sedang aktif (sangat penting)
+    // Set up typing variables
+    this.fullText = text;
+    this.currentText = "";
+    this.charIndex = 0;
     this.isTypingHover = true;
-    
-    // LANGKAH 1: Sembunyikan dialog box utama
-    if (this.setIsDialogFinished) {
-      console.log('[HoverDialogController] STEP 1: Hiding main dialog box');
-      this.setIsDialogFinished(true);
-      
-      // LANGKAH 2: Tunggu dialog box utama benar-benar hilang
-      setTimeout(() => {
-        console.log('[HoverDialogController] STEP 2: Dialog box hidden, setting source to HOVER');
-        
-        // LANGKAH 3: Set dialog source ke HOVER
-        if (this.setDialogSource) {
-          this.setDialogSource(DialogSource.HOVER);
-          
-          // LANGKAH 4: Tunggu source terupdate
-          setTimeout(() => {
-            console.log('[HoverDialogController] STEP 3: Source set to HOVER, setting up hover text');
-            
-            // Set up typing variables
-            this.fullText = text;
-            this.currentText = "";
-            this.charIndex = 0;
-            
-            // LANGKAH 5: Tampilkan hover dialog
-            setTimeout(() => {
-              console.log('[HoverDialogController] STEP 4: Showing hover dialog with empty text');
-              // Panggil callback dengan teks kosong untuk memastikan dialog box muncul
-              if (this.hoverTextCallback) {
-                this.hoverTextCallback("", false);
-                
-                // LANGKAH 6: Setelah dialog muncul, ubah isDialogFinished ke false
-                setTimeout(() => {
-                  console.log('[HoverDialogController] STEP 5: Ensuring dialog box is visible');
-                  if (this.setIsDialogFinished) {
-                    this.setIsDialogFinished(false);
-                  }
-                }, 10);
-              }
-            }, 10);
-          }, 10);
-        }
-      }, 50);
+
+    // Panggil callback di awal dengan teks kosong untuk memastikan dialog box muncul
+    if (this.hoverTextCallback) {
+      this.hoverTextCallback("", false);
     }
 
     // Start typewriter effect
@@ -534,15 +438,8 @@ class HoverDialogController {
       this.isHandlingHover = false;
       return;
     }
-    
-    // Pemeriksaan paling pertama: apakah POST_RESET_DIALOG sedang ditampilkan (prioritas #1)
-    if (this.dialogController.isShowingPostResetDialog()) {
-      console.log("[HoverDialogController] Post-reset dialog sedang aktif, hover dialog diabaikan");
-      this.isHandlingHover = false;
-      return;
-    }
 
-    // Cek apakah ada dialog yang sedang berjalan dari IdleTimeoutController (prioritas #2)
+    // Cek apakah ada dialog yang sedang berjalan dari IdleTimeoutController
     try {
       const idleController = IdleTimeoutController.getInstance();
       if (
@@ -555,60 +452,18 @@ class HoverDialogController {
       ) {
         // Jika sudah ada dialog dari IdleTimeoutController, jangan interrupt
         console.log(
-          "[HoverDialogController] IdleTimeoutController sedang menampilkan dialog, hover dialog diabaikan"
+          "IdleTimeoutController sedang menampilkan dialog, hover dialog diabaikan",
         );
         this.isHandlingHover = false;
         return;
       }
     } catch (e) {
-      console.error("[HoverDialogController] Could not check IdleTimeoutController status:", e);
-    }
-    
-    // Periksa apakah dialog utama sedang diproses (prioritas #3)
-    if (this.dialogController.isAudioProcessing() || this.dialogController.isCurrentlyTyping()) {
-      console.log("[HoverDialogController] Dialog utama sedang aktif (audio/typing), tunggu hingga selesai");
-      
-      // Jika dialog utama sedang aktif dengan audio, sebaiknya menunggu audio selesai
-      // sebelum menampilkan hover dialog
-      if (this.dialogController.isAudioProcessing()) {
-        // Tambahkan retry logic
-        this.isHandlingHover = false;
-        setTimeout(() => {
-          // Coba lagi setelah 1 detik jika user masih melakukan hover
-          if (this.lastHoveredLink === linkType) {
-            this.debouncedHoverHandler(linkType);
-          }
-        }, 1000);
-        return;
-      }
+      console.error("Could not check IdleTimeoutController status:", e);
     }
 
-    // CRITICAL FIX - Multi-layer approach to ensure main dialog is hidden
-    // Step 1: Stop any ongoing dialog typing or speaking
+    // Hentikan dialog yang sedang berjalan jika ada
     this.dialogController.stopTyping();
     this.elevenlabsService.stopSpeaking();
-    
-    // Step 2: Force set isDialogFinished to true to hide main dialog
-    if (this.setIsDialogFinished) {
-      console.log('[HoverDialogController] Force hiding main dialog box by setting isDialogFinished to true');
-      this.setIsDialogFinished(true);
-    }
-    
-    // Step 3: Wait a tiny bit to ensure the dialog box is hidden, then set dialog source
-    setTimeout(() => {
-      if (this.setDialogSource) {
-        console.log('[HoverDialogController] Forcing dialog source to HOVER');
-        this.setDialogSource(DialogSource.HOVER);
-      }
-      
-      // Step 4: Wait another tiny bit, then reset isDialogFinished to show hover dialog
-      setTimeout(() => {
-        if (this.setIsDialogFinished) {
-          console.log('[HoverDialogController] Allowing hover dialog to show by setting isDialogFinished to false');
-          this.setIsDialogFinished(false);
-        }
-      }, 10);
-    }, 10);
 
     // Tandai bahwa user sudah berinteraksi dengan hover dialog
     this.hasInteractedWithHover = true;
@@ -875,19 +730,6 @@ class HoverDialogController {
       if (!isAnnoyedLastLevel) {
         this.processedTexts.add(dialogText);
       }
-      
-      // Update internal state to track dialog source
-      this.currentDialogSource = DialogSource.HOVER;
-      console.log("[HoverDialogController] handleHoverDialogActual - Setting currentDialogSource to HOVER");
-      
-      // Ensure DialogBox knows this is a HOVER dialog
-      if (this.setDialogSource) {
-        try {
-          this.setDialogSource(DialogSource.HOVER);
-        } catch (e) {
-          console.error("[HoverDialogController] Error setting dialog source in handleHoverDialogActual:", e);
-        }
-      }
 
       // Mulai animasi typing untuk dialog hover
       this.typeHoverText(dialogText);
@@ -930,19 +772,6 @@ class HoverDialogController {
     this.isHandlingHover = false;
     this.stopTyping(); // Stop typing animation jika ada
     
-    // Set current dialog source back to MAIN
-    this.currentDialogSource = DialogSource.MAIN;
-    console.log("[HoverDialogController] resetHoverState - Setting currentDialogSource back to MAIN");
-    
-    // Update DialogBox's source if callback exists
-    if (this.setDialogSource) {
-      try {
-        this.setDialogSource(DialogSource.MAIN);
-      } catch (e) {
-        console.error("[HoverDialogController] Error setting dialog source in resetHoverState:", e);
-      }
-    }
-    
     // Reset text yang ditampilkan
     if (this.hoverTextCallback) {
       this.hoverTextCallback("", true);
@@ -961,22 +790,6 @@ class HoverDialogController {
     this.hasInteractedWithHover = false;
     this.processedTexts.clear(); // Clear set teks yang sudah ditampilkan
     this.stopTyping();
-    
-    // Reset dialog state
-    this.currentDialogSource = DialogSource.MAIN;
-    this.dialogCompleted = true;
-    this.currentText = "";
-    this.fullText = "";
-    console.log("[HoverDialogController] resetAllState - Full reset of dialog state");
-    
-    // Update DialogBox's source if callback exists
-    if (this.setDialogSource) {
-      try {
-        this.setDialogSource(DialogSource.MAIN);
-      } catch (e) {
-        console.error("[HoverDialogController] Error setting dialog source in resetAllState:", e);
-      }
-    }
 
     // Reset annoyance flags
     this.hasShownFirstLevelAnnoyance = false;

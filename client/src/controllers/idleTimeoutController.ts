@@ -2,7 +2,6 @@ import DialogController from "./dialogController";
 import HoverDialogController from "./hoverDialogController";
 import AchievementController from "./achievementController";
 import ElevenLabsService from "../services/elevenlabsService";
-import { DialogSource } from "../views/DialogBox";
 
 // Dialog yang akan ditampilkan pada timeout tertentu
 export const IDLE_DIALOGS = {
@@ -17,7 +16,7 @@ export const IDLE_DIALOGS = {
   FINAL_WARNING:
     "[furious] You think this is funny?.. [enraged] Staring at me for nine damn minutes?.. [shouting] FUCK YOU!!",
 
-  // Dialog setelah user menekan APPROACH HIM lagi - pastikan teks SAMA PERSIS dengan dialogModel.ts
+  // Dialog setelah user menekan APPROACH HIM lagi
   RETURN_DIALOG: "[menacing] Now what, you little filth!?.. [threatening] Back for more punishment?",
 
   // Dialog setelah user melakukan hover
@@ -599,10 +598,10 @@ class IdleTimeoutController {
       
       console.log(`[IdleTimeoutController] Showing warning message: "${text}"`);
       
-      // Set dialog source ke DialogSource.MAIN terlebih dahulu untuk memastikan teks muncul di dialog box utama
+      // Set dialog source ke 'main' terlebih dahulu untuk memastikan teks muncul di dialog box utama
       if (this.hoverDialogController.setDialogSource) {
-        console.log("[IdleTimeoutController] Setting dialog source to DialogSource.MAIN before showing idle warning");
-        this.hoverDialogController.setDialogSource(DialogSource.MAIN);
+        console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing idle warning");
+        this.hoverDialogController.setDialogSource('main');
       }
       
       // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
@@ -671,11 +670,11 @@ class IdleTimeoutController {
     // Tambahkan dialog peringatan untuk 'melempar' dengan nada kemarahan
     const throwText = "That's it. GET OUT OF MY SIGHT!";
     
-    // Atur dialogSource ke DialogSource.MAIN sebelum menampilkan peringatan
+    // Atur dialogSource ke 'main' sebelum menampilkan peringatan
     // untuk memastikan teks muncul di dialog box utama
     if (this.hoverDialogController.setDialogSource) {
-      console.log("[IdleTimeoutController] Setting dialog source to DialogSource.MAIN before showing throw dialog");
-      this.hoverDialogController.setDialogSource(DialogSource.MAIN);
+      console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing throw dialog");
+      this.hoverDialogController.setDialogSource('main');
     }
     
     this.showIdleWarning(throwText);
@@ -756,11 +755,11 @@ class IdleTimeoutController {
     // Tambahkan dialog peringatan untuk 'memukul'
     const punchText = "YOU ASKED FOR THIS.";
     
-    // Atur dialogSource ke DialogSource.MAIN sebelum menampilkan peringatan
+    // Atur dialogSource ke 'main' sebelum menampilkan peringatan
     // untuk memastikan teks muncul di dialog box utama
     if (this.hoverDialogController.setDialogSource) {
-      console.log("[IdleTimeoutController] Setting dialog source to DialogSource.MAIN before showing punch dialog");
-      this.hoverDialogController.setDialogSource(DialogSource.MAIN);
+      console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing punch dialog");
+      this.hoverDialogController.setDialogSource('main');
     }
     
     // Fungsi untuk menjalankan proses pukulan

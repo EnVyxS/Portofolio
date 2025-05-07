@@ -3,7 +3,6 @@ import ElevenLabsService from '../services/elevenlabsService';
 import HoverDialogController from './hoverDialogController';
 import { CONTRACT_RESPONSES } from '../components/ContractCard';
 import AchievementController from './achievementController';
-import { DialogSource } from '../views/DialogBox';
 
 class DialogController {
   private static instance: DialogController;
@@ -93,22 +92,6 @@ class DialogController {
   }
 
   public startDialog(callback: (text: string, isComplete: boolean) => void): void {
-    // CRITICAL FIX: Check if a hover dialog is active before starting main dialog
-    try {
-      // Import HoverDialogController if not already imported
-      const hoverDialogController = HoverDialogController.getInstance();
-      
-      // If hover dialog is active, don't start main dialog
-      if (hoverDialogController.isTypingHoverDialog()) {
-        console.log(`[DialogController] A hover dialog is active, not starting main dialog.`);
-        // Still store the callback so the hover dialog can use it later
-        this.typewriterCallback = callback;
-        return;
-      }
-    } catch (e) {
-      console.error("Error checking hover dialog status:", e);
-    }
-    
     // Reset dialog to beginning
     this.dialogModel.resetDialog();
     
@@ -316,11 +299,11 @@ class DialogController {
           }
           
           // Semua dialog khusus (CONTRACT_RESPONSES, IDLE_DIALOGS, punchText, throwText)
-          // harus selalu ditampilkan di dialogBox utama sebagai DialogSource.MAIN
+          // harus selalu ditampilkan di dialogBox utama sebagai 'main'
           if (hoverDialogController.setDialogSource) {
-            // Semua dialog khusus ditampilkan sebagai DialogSource.MAIN untuk memastikan muncul di dialog box utama
-            console.log("[DialogController] Setting dialog source to DialogSource.MAIN for custom dialog");
-            hoverDialogController.setDialogSource(DialogSource.MAIN);
+            // Semua dialog khusus ditampilkan sebagai 'main' untuk memastikan muncul di dialog box utama
+            console.log("[DialogController] Setting dialog source to 'main' for custom dialog");
+            hoverDialogController.setDialogSource('main');
             
             // Reset status dialog interaksi untuk hover controller
             hoverDialogController.setHasInteractedWithHover(false);

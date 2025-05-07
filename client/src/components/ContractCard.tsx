@@ -12,7 +12,6 @@ import DialogController from "../controllers/dialogController";
 import HoverDialogController from "../controllers/hoverDialogController";
 import AchievementController from "../controllers/achievementController";
 import { useAudio } from "../context/AudioManager";
-import { DialogSource } from "../views/DialogBox";
 
 // Responses for contract interactions - moved from DialogBox.tsx and made more natural
 export const CONTRACT_RESPONSES = [
@@ -289,13 +288,13 @@ const ContractCard: React.FC = () => {
       // Dapatkan instance HoverDialogController untuk set source
       const hoverDialogController = HoverDialogController.getInstance();
 
-      // Set dialog source ke DialogSource.MAIN SEBELUM memanggil showCustomDialog
-      // Ini penting karena showCustomDialog akan mengubahnya ke DialogSource.HOVER di dalamnya
+      // Set dialog source ke 'main' SEBELUM memanggil showCustomDialog
+      // Ini penting karena showCustomDialog akan mengubahnya ke 'hover' di dalamnya
       if (hoverDialogController.setDialogSource) {
         console.log(
-          "[ContractCard] Setting dialog source to DialogSource.MAIN before showing custom dialog",
+          "[ContractCard] Setting dialog source to 'main' before showing custom dialog",
         );
-        hoverDialogController.setDialogSource(DialogSource.MAIN);
+        hoverDialogController.setDialogSource("main");
       }
 
       // Pastikan isDialogFinished di DialogBox diatur ke false terlebih dahulu
@@ -319,9 +318,9 @@ const ContractCard: React.FC = () => {
       // PENTING: Dialog custom harus selalu menjadi dialog aktif dan utama
       dialogController.showCustomDialog(randomResponse, (text, isComplete) => {
         // Callback ini dipanggil setiap karakter (saat dialog sedang berjalan dan setelah selesai)
-        // Pastikan dialog source tetap DialogSource.MAIN dan dialog box ditampilkan
+        // Pastikan dialog source tetap 'main' dan dialog box ditampilkan
         if (hoverDialogController.setDialogSource) {
-          hoverDialogController.setDialogSource(DialogSource.MAIN);
+          hoverDialogController.setDialogSource("main");
         }
 
         // Tambahkan logging untuk membantu debug

@@ -20,36 +20,12 @@ function generateSimpleHash(text: string): string {
   return Math.abs(hash).toString();
 }
 
-// Enum untuk menyimpan sumber dialog
-export enum DialogSource {
-  MAIN = "main",
-  HOVER = "hover",
-  IDLE_WARNING = "idle_warning",
-  POST_RESET = "post_reset",
-  CONTRACT = "contract"
-}
-
 // Helper untuk menentukan apakah dialog perlu persistensi (tetap terbuka)
 // Versi sederhana: semua dialog autoplay kecuali yang memiliki pola tertentu
-function isDialogPersistent(text: string, source: DialogSource): boolean {
-  // Berdasarkan sumber dialog
-  if (source === DialogSource.POST_RESET) {
-    // Dialog post-reset selalu persistent
-    return true;
-  }
-  
-  if (source === DialogSource.IDLE_WARNING) {
-    // Dialog idle warning selalu persistent
-    return true;
-  }
-  
-  if (source === DialogSource.CONTRACT) {
-    // Dialog kontrak selalu persistent
-    return true;
-  }
-  
-  // Untuk dialog dari sumber lain, periksa konten teks
-  
+function isDialogPersistent(text: string): boolean {
+  // Dialog dari dialogModel.ts hampir semua non-persistent
+  // kita menggunakan pola false secara default
+
   // Khusus untuk RETURN_DIALOG dan HOVER_AFTER_RESET - selalu persistent
   if (
     (text.includes("Now what, you little filth") || text.includes("Back for more punishment")) ||
@@ -83,7 +59,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const [characterName, setCharacterName] = useState<string>("");
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [isDialogFinished, setIsDialogFinished] = useState<boolean>(false);
-  const [dialogSource, setDialogSource] = useState<DialogSource>(DialogSource.MAIN);
+  const [dialogSource, setDialogSource] = useState<"main" | "hover">("main");
   const [isMuted, setIsMuted] = useState<boolean>(false);
 
   const dialogController = DialogController.getInstance();
@@ -112,9 +88,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
   // Handle Continue sebagai useCallback untuk dapat digunakan dalam useEffect
   const handleContinue = useCallback(() => {
-    // Debug log untuk membantu tracking dialog state
-    console.log(`[DialogBox] Next dialog check - hasPendingHover: ${hoverDialogController.isTypingHoverDialog()}, dialogSource: ${dialogSource}`);
-    
     // Reset force show idle warning flag saat user menekan tombol continue
     try {
       // @ts-ignore - akses properti global dari window
@@ -129,7 +102,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       dialogController.resetPostResetDialogStatus();
     }
 
-    if (dialogSource === DialogSource.MAIN) {
+    if (dialogSource === "main") {
       // Jika dialog masih dalam proses typing tetapi user menekan tombol SKIP/NEXT
       if (!isComplete) {
         // Hentikan dialog dan audio yang sedang berjalan
@@ -145,37 +118,25 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             return;
           }
 
-          // Check if there are pending hover dialogs before moving to the next main dialog
-          const hasPendingHover = hoverDialogController.isTypingHoverDialog();
-          console.log(`[DialogBox] Skip to full text - hasPendingHover: ${hasPendingHover}, dialogSource: ${dialogSource}`);
-
           // Move to the next dialog
           dialogController.nextDialog((text, complete) => {
-            // Only update the UI if there's no pending hover dialog
-            if (!hasPendingHover) {
-              setText(text);
-              setIsComplete(complete);
-              setDialogSource(DialogSource.MAIN); // Ensure dialog source is set back to MAIN
+            setText(text);
+            setIsComplete(complete);
 
-              // Get current dialog to display character name
-              const currentDialog = dialogController.getCurrentDialog();
-              if (currentDialog) {
-                setCharacterName(currentDialog.character);
-                // Update hover dialog controller with completion status
-                hoverDialogController.setDialogCompleted(complete);
-              } else {
-                // Tandai dialog sudah selesai untuk interaksi hover
-                hoverDialogController.setDialogCompleted(true);
-  
-                // Tetap menjalankan onDialogComplete jika ada
-                if (onDialogComplete) {
-                  onDialogComplete();
-                }
-              }
-            } else {
-              // If there's a hover dialog waiting, we should prioritize it
-              console.log('[DialogBox] Skipping main dialog update because a hover dialog is waiting');
+            // Get current dialog to display character name
+            const currentDialog = dialogController.getCurrentDialog();
+            if (currentDialog) {
+              setCharacterName(currentDialog.character);
+              // Update hover dialog controller with completion status
               hoverDialogController.setDialogCompleted(complete);
+            } else {
+              // Tandai dialog sudah selesai untuk interaksi hover
+              hoverDialogController.setDialogCompleted(true);
+
+              // Tetap menjalankan onDialogComplete jika ada
+              if (onDialogComplete) {
+                onDialogComplete();
+              }
             }
           });
         }, 50); // Delay kecil untuk memastikan UI diupdate dengan benar
@@ -193,75 +154,40 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
         // Move to the next dialog
         dialogController.nextDialog((text, complete) => {
-          // Check if there are any pending dialog sources that need to take priority
-          const hasPendingHover = hoverDialogController.isTypingHoverDialog();
-          
-          // Log for debugging
-          console.log(`[DialogBox] Next dialog check - hasPendingHover: ${hasPendingHover}, dialogSource: ${dialogSource}`);
-          
-          // Only update the main dialog if there's no higher priority dialog waiting
-          if (!hasPendingHover) {
-            setText(text);
-            setIsComplete(complete);
-            setDialogSource(DialogSource.MAIN); // Ensure dialog source is set back to MAIN
-            
-            // Get current dialog to display character name
-            const currentDialog = dialogController.getCurrentDialog();
-            if (currentDialog) {
-              setCharacterName(currentDialog.character);
-              // Update hover dialog controller with completion status
-              hoverDialogController.setDialogCompleted(complete);
-            } else {
-              // Tetap tandai dialog sebagai selesai untuk interaksi hover
-              hoverDialogController.setDialogCompleted(true);
-  
-              // Jangan set isDialogFinished ke true agar tetap menampilkan dialog box
-              if (onDialogComplete) {
-                onDialogComplete();
-              }
-            }
-          } else {
-            // If there's a hover dialog waiting, we should prioritize it
-            console.log('[DialogBox] Skipping main dialog update because a hover dialog is waiting');
+          setText(text);
+          setIsComplete(complete);
+
+          // Get current dialog to display character name
+          const currentDialog = dialogController.getCurrentDialog();
+          if (currentDialog) {
+            setCharacterName(currentDialog.character);
+            // Update hover dialog controller with completion status
             hoverDialogController.setDialogCompleted(complete);
+          } else {
+            // Tetap tandai dialog sebagai selesai untuk interaksi hover
+            hoverDialogController.setDialogCompleted(true);
+
+            // Jangan set isDialogFinished ke true agar tetap menampilkan dialog box
+            if (onDialogComplete) {
+              onDialogComplete();
+            }
           }
         });
       }
-    } else if (dialogSource === DialogSource.HOVER) {
+    } else if (dialogSource === "hover") {
       // For hover dialogs
       if (!isComplete) {
         // Jika dialog masih dalam proses typing, langsung tampilkan full text
         hoverDialogController.stopTyping();
         setIsComplete(true);
       } else {
-        // Jika dialog sudah selesai, user menekan CLOSE
+        // Jika dialog sudah selesai, user menekan NEXT
         // Reset hover state dan hilangkan dialog box
         hoverDialogController.resetHoverState();
         setIsDialogFinished(true);
-        
-        console.log('[DialogBox] Checking if we need to restore main dialog...');
-        
-        // CRITICAL FIX: Tambahkan pemeriksaan untuk memastikan tak ada hover dialog yang sedang typing
-        if (!hoverDialogController.isTypingHoverDialog()) {
-          // HANYA kembalikan ke dialog utama jika tidak ada hover dialog lain yang aktif
-          // dan dialog utama masih ada
-          if (dialogController.getCurrentDialog() !== null) {
-            // Jika ada dialog utama yang masih aktif, kembalikan ke dialog utama setelah delay
-            console.log('[DialogBox] Returning to main dialog after hover dialog closed');
-            setTimeout(() => {
-              // Periksa sekali lagi apakah masih tidak ada hover dialog yang aktif
-              if (!hoverDialogController.isTypingHoverDialog()) {
-                setDialogSource(DialogSource.MAIN);
-                // Also show dialog box again for main dialog
-                setIsDialogFinished(false);
-              } else {
-                console.log('[DialogBox] New hover dialog detected, NOT returning to main dialog');
-              }
-            }, 100); // Slight delay for clean transition
-          }
-        } else {
-          console.log('[DialogBox] Another hover dialog is active, NOT returning to main dialog');
-        }
+
+        // Jangan kembali ke dialog utama
+        // Ini perbaikan utama yang dilakukan
       }
     }
   }, [
@@ -278,11 +204,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
   // Effect untuk auto-continue ketika dialog selesai - dimodifikasi untuk berjalan untuk semua dialog
   useEffect(() => {
-    // Important: Check for potential pending hover dialogs before processing auto-continue
-    // This helps ensure hover dialogs take priority when they should
-    const hasPendingHover = hoverDialogController.isTypingHoverDialog();
-    
-    if (isComplete && dialogSource === DialogSource.MAIN) {
+    if (isComplete && dialogSource === "main") {
       // Clear any existing timer
       if (autoPlayTimerRef.current) {
         clearTimeout(autoPlayTimerRef.current);
@@ -292,12 +214,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       // Ini adalah perubahan penting untuk memastikan timer baru mulai setelah dialog selesai
       console.log("[DialogBox] Dialog model selesai berbicara, memulai timer IDLE_DIALOGS...");
       idleTimeoutController.startIdleTimerAfterDialogComplete();
-
-      // Skip auto-continue if there's a pending hover dialog
-      if (hasPendingHover) {
-        console.log("[DialogBox] Skipping auto-continue because a hover dialog is pending");
-        return;
-      }
 
       // Cek jika user sudah berinteraksi dengan hover dialog
       if (hoverDialogController.hasUserInteractedWithHover()) {
@@ -313,7 +229,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       const currentDialog = dialogController.getCurrentDialog();
       if (currentDialog) {
         // Periksa apakah dialog ini adalah dialog yang membutuhkan respons (persistent)
-        const shouldPersist = isDialogPersistent(currentDialog.text, dialogSource);
+        const shouldPersist = isDialogPersistent(currentDialog.text);
 
         if (!shouldPersist) {
           // Untuk dialog yang tidak perlu persistent, auto-dismiss lebih cepat
@@ -345,9 +261,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           }
         }
       }
-    } else if (isComplete && dialogSource === DialogSource.HOVER) {
+    } else if (isComplete && dialogSource === "hover") {
       // Untuk hover dialog, periksa juga persistensi
-      if (!isDialogPersistent(text, dialogSource)) {
+      if (!isDialogPersistent(text)) {
         // Hover dialog yang tidak memerlukan respons
         const dismissDelay = 3000; // 3 detik untuk membaca pesan
 
@@ -357,28 +273,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
           // Hilangkan dialog box
           setIsDialogFinished(true);
-          
-          // CRITICAL FIX: Tambahkan pemeriksaan untuk memastikan tak ada hover dialog yang sedang typing
-          if (!hoverDialogController.isTypingHoverDialog()) {
-            // HANYA kembalikan ke dialog utama jika tidak ada hover dialog lain yang aktif
-            // dan dialog utama masih ada
-            if (dialogController.getCurrentDialog() !== null) {
-              // Jika ada dialog utama yang masih aktif, kembalikan ke dialog utama setelah delay
-              console.log('[DialogBox] Auto-returning to main dialog after hover dialog auto-dismissed');
-              setTimeout(() => {
-                // Periksa sekali lagi apakah masih tidak ada hover dialog yang aktif
-                if (!hoverDialogController.isTypingHoverDialog()) {
-                  setDialogSource(DialogSource.MAIN);
-                  // Also show dialog box again for main dialog
-                  setIsDialogFinished(false);
-                } else {
-                  console.log('[DialogBox] New hover dialog detected during auto-dismiss, NOT returning to main dialog');
-                }
-              }, 100); // Slight delay for clean transition
-            }
-          } else {
-            console.log('[DialogBox] Another hover dialog is active during auto-dismiss, NOT returning to main dialog');
-          }
         }, dismissDelay);
       }
     }
@@ -405,109 +299,35 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     // @ts-ignore - membuat setter functions global untuk penggunaan di ContractCard
     window.__dialogBoxTextSetter = (value: string) => {
       console.log(`[DialogBox] External call to set dialog text: "${value.substring(0, 30)}..."`);
-      
-      // Tambahkan pemeriksaan prioritas dialog untuk mencegah bentrok
-      // Jika saat ini sedang menampilkan RETURN_DIALOG atau HOVER_AFTER_RESET, prioritaskan dialog tersebut
-      if (dialogController.isShowingPostResetDialog()) {
-        console.log(`[DialogBox] Dialog post-reset aktif, mengabaikan external call dialog`);
-        return;
-      }
-      
-      // Jika saat ini sedang menampilkan dialog dari idle timeout, prioritaskan dialog tersebut
-      if (idleTimeoutController.isAnyIdleWarningActive()) {
-        console.log(`[DialogBox] Idle warning aktif, mengabaikan external call dialog`);
-        return;
-      }
-      
       setText(value);
       // Also ensure dialog is visible
       setIsDialogFinished(false);
     };
     
     // @ts-ignore - membuat setter functions global untuk penggunaan di ContractCard
-    window.__dialogBoxIsCompleteSetter = (value: boolean) => {
-      // Tambahkan pemeriksaan prioritas dialog untuk mencegah bentrok
-      if (dialogController.isShowingPostResetDialog() || idleTimeoutController.isAnyIdleWarningActive()) {
-        console.log(`[DialogBox] Dialog prioritas aktif, mengabaikan external call setIsComplete`);
-        return;
-      }
-      
-      setIsComplete(value);
-    };
+    window.__dialogBoxIsCompleteSetter = setIsComplete;
     
     // Add a global setter for the isDialogFinished state - needed for idle warnings
     // @ts-ignore
     window.__dialogBoxIsFinishedSetter = (value: boolean) => {
       console.log(`[DialogBox] External call to set isDialogFinished to ${value}`);
-      
-      // Jika sedang menampilkan dialog post-reset, jangan izinkan dialog box hilang
-      if (value === true && dialogController.isShowingPostResetDialog()) {
-        console.log(`[DialogBox] Dialog post-reset aktif, mencegah dialog box hilang`);
-        return;
-      }
-      
       setIsDialogFinished(value);
     };
     
     // Set hover dialog callback terlebih dahulu untuk menangkap hover dialog yang sudah aktif
     hoverDialogController.setHoverTextCallback((text, complete) => {
-      // Tambahkan pemeriksaan prioritas dialog untuk mencegah bentrok
-      if (dialogController.isShowingPostResetDialog()) {
-        console.log(`[DialogBox] Dialog post-reset aktif, mengabaikan hover dialog`);
-        return;
-      }
-      
-      // Jika saat ini sedang menampilkan dialog dari idle timeout, prioritaskan dialog tersebut
-      if (idleTimeoutController.isAnyIdleWarningActive()) {
-        console.log(`[DialogBox] Idle warning aktif, mengabaikan hover dialog`);
-        return;
-      }
-      
-      // CRITICAL FIX: Pastikan dialog utama disembunyikan terlebih dahulu
-      // dengan set isDialogFinished = true sebelum menampilkan hover dialog
-      if (dialogSource === DialogSource.MAIN) {
-        console.log('[DialogBox] Hiding main dialog before showing hover dialog');
-        setIsDialogFinished(true);
-        
-        // Beri sedikit delay sebelum mengubah teks untuk memastikan dialog utama sudah hilang dulu
-        setTimeout(() => {
-          setText(text);
-          setIsComplete(complete);
-          setDialogSource(DialogSource.HOVER);
-          setCharacterName("DIVA JUAN NUR TAQARRUB"); // Dialog hover dari DIVA JUAN (idle warnings juga)
-          
-          // Reset flag untuk memungkinkan hover dialog muncul
-          if (text !== "") {
-            setIsDialogFinished(false);
-          }
-        }, 50);
-      } else {
-        setText(text);
-        setIsComplete(complete);
-        setDialogSource(DialogSource.HOVER);
-        setCharacterName("DIVA JUAN NUR TAQARRUB"); // Dialog hover dari DIVA JUAN (idle warnings juga)
-      }
+      setText(text);
+      setIsComplete(complete);
+      setDialogSource("hover");
+      setCharacterName("DIVA JUAN NUR TAQARRUB"); // Dialog hover dari DIVA JUAN (idle warnings juga)
     });
 
     // Buat function untuk set dialogSource dari luar komponen
-    hoverDialogController.setDialogSource = (source: DialogSource) => {
-      // Tambahkan pemeriksaan prioritas dialog untuk mencegah bentrok
-      if (dialogController.isShowingPostResetDialog() || idleTimeoutController.isAnyIdleWarningActive()) {
-        console.log(`[DialogBox] Dialog prioritas aktif, mengabaikan set dialog source`);
-        return;
-      }
-      
-      console.log(`[DialogBox] Setting dialog source to ${source}`);
+    hoverDialogController.setDialogSource = (source: "main" | "hover") => {
       setDialogSource(source);
-      if (source === DialogSource.MAIN) {
+      if (source === "main") {
         setCharacterName("DIVA JUAN NUR TAQARRUB");
       }
-    };
-    
-    // Buat function untuk set isDialogFinished dari HoverDialogController
-    hoverDialogController.setIsDialogFinished = (value: boolean) => {
-      console.log(`[DialogBox] HoverDialogController setting isDialogFinished to ${value}`);
-      setIsDialogFinished(value);
     };
 
     // Periksa apakah hover dialog sedang aktif (typing)
@@ -522,7 +342,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       dialogController.startDialog((text, complete) => {
         setText(text);
         setIsComplete(complete);
-        setDialogSource(DialogSource.MAIN);
+        setDialogSource("main");
 
         // Get current dialog to display character name
         const currentDialog = dialogController.getCurrentDialog();
@@ -582,42 +402,22 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // Kita tetapkan bahwa ini adalah kontrak dialog berdasarkan flag __contractDialogActive
   // dan bukan berdasarkan teks lengkap (tidak menggunakan contractResponseText)
   
-  // Periksa apakah ada hover dialog yang menunggu untuk ditampilkan
-  const hasPendingHover = hoverDialogController.isTypingHoverDialog();
+  // Tambahkan log explisit untuk membantu debugging
+  console.log(`[DialogBox] Dialog status check - isDialogFinished: ${isDialogFinished}, text empty: ${text === ""}, contract active: ${isContractDialogActive}, forceShow: ${forceShowIdleWarning}`);
   
-  // **********************************************
-  // ULTRA-RADICAL DIALOG CONFLICT RESOLUTION 
-  // Complete rewrite with simple, direct conditions
-  // **********************************************
-  
-  // Pemeriksaan paling dasar: apakah ada hover dialog yang aktif
-  const isHoverDialogActive = hoverDialogController.isTypingHoverDialog();
-  
-  // Log untuk debug - selalu dipertahankan
-  console.log(`[DialogBox] ULTIMATE STATUS CHECK - source: ${dialogSource}, isHoverActive: ${isHoverDialogActive}, forceShow: ${forceShowIdleWarning}`);
-  
-  // ATURAN #1: Jika ada hover dialog aktif, HANYA TAMPILKAN dialog dengan source HOVER
-  if (isHoverDialogActive) {
-    // Jika source bukan HOVER, langsung return null (TIDAK tampilkan dialog)
-    if (dialogSource !== DialogSource.HOVER) {
-      console.log("[DialogBox] HARD RULE #1 - Hover dialog active but source is not HOVER, hiding all non-hover dialogs");
-      return null;
+  if (forceShowIdleWarning) {
+    // Jika flag force show aktif, pastikan dialog box selalu ditampilkan
+    // Reset isDialogFinished jika perlu untuk memastikan dialog box muncul kembali
+    if (isDialogFinished) {
+      console.log("[DialogBox] Force resetting isDialogFinished to false to show idle warning dialog");
+      setIsDialogFinished(false);
     }
   }
   
-  // ATURAN #2: Jika idle warning dipaksa tampil, SELALU tampilkan tanpa pengecualian
-  if (forceShowIdleWarning) {
-    console.log("[DialogBox] HARD RULE #2 - Force showing idle warning dialog");
-    // Pastikan dialog box tidak dalam keadaan finished
-    if (isDialogFinished) {
-      setIsDialogFinished(false);
-    }
-    // Lanjutkan rendering dialog (tidak return null)
-  } 
-  // ATURAN #3: Jika dialog sudah finished dan tidak ada teks/kontrak/force show, SEMBUNYIKAN
-  else if (isDialogFinished && text === "" && !isContractDialogActive) {
-    console.log("[DialogBox] HARD RULE #3 - Dialog is finished with no text/contract/force show, hiding dialog");
-    return null;
+  if (isDialogFinished && text === "" && !isContractDialogActive && !forceShowIdleWarning) {
+    // Debug untuk membantu melihat status dialog
+    console.log("[DialogBox] Dialog finished with empty text, hiding dialog box");
+    return null; // Hanya return null jika tidak ada teks sama sekali dan bukan dialog kontrak dan bukan force show
   }
   
   // Periksa apakah ini adalah dialog kontrak (CONTRACT_RESPONSES) berdasarkan teks
@@ -651,14 +451,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       }}
     >
       <div
-        className={`dialog-box ${dialogSource === DialogSource.HOVER ? "hover-dialog" : ""}`}
+        className={`dialog-box ${dialogSource === "hover" ? "hover-dialog" : ""}`}
         data-angry={text.includes("fuck") || text.includes("ENOUGH") || text.includes("GET OUT") || text.includes("ASKED FOR THIS")}
       >
         <div
-          className={`character-name ${dialogSource === DialogSource.HOVER ? "hover-character" : ""}`}
+          className={`character-name ${dialogSource === "hover" ? "hover-character" : ""}`}
         >
           {characterName}
-          {dialogSource === DialogSource.HOVER && (
+          {dialogSource === "hover" && (
             <span className="hover-indicator">⟳</span>
           )}
         </div>
@@ -666,13 +466,13 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         <div className="dialog-actions">
           <div className="dialog-hints">
             {isComplete &&
-              (isDialogPersistent(text, dialogSource) ? (
+              (isDialogPersistent(text) ? (
                 <div className="waiting-interaction-hint">
                   Waiting for your action...
                 </div>
               ) : // Only show auto-continue hint for main dialog and not for other types
               // Check if it's not a hover dialog, idle warning, or contract response
-              dialogSource === DialogSource.MAIN &&
+              dialogSource === "main" &&
                 !text.includes("fuck") && // Idle timeout and angry dialog phrases
                 !text.includes("ENOUGH") &&
                 !text.includes("GET OUT") &&
@@ -704,30 +504,13 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
             {/* Tentukan apakah tombol NEXT/SKIP harus ditampilkan */}
             {(() => {
-              // For hover dialogs, show CLOSE button when complete
-              if (dialogSource === DialogSource.HOVER) {
-                // Only show Close button for completed hover dialogs
-                return isComplete ? (
-                  <button
-                    className="just-text-button close-button"
-                    onClick={handleContinue}
-                  >
-                    <span className="button-icon">×</span>
-                    <span className="button-text">CLOSE</span>
-                  </button>
-                ) : (
-                  <button
-                    className="just-text-button skip-button"
-                    onClick={handleContinue}
-                  >
-                    <span className="button-icon">▶</span>
-                    <span className="button-text">SKIP</span>
-                  </button>
-                );
+              // Untuk dialog hover, tidak perlu menampilkan tombol NEXT/SKIP
+              if (dialogSource === "hover") {
+                return null;
               }
 
               // Untuk dialog terakhir dari dialogModel, tidak perlu menampilkan tombol NEXT/SKIP
-              if (dialogSource === DialogSource.MAIN) {
+              if (dialogSource === "main") {
                 const allDialogs = dialogController
                   .getDialogModel()
                   .getAllDialogs();
@@ -1092,21 +875,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         .just-text-button:hover {
           color: #fff;
           text-shadow: 0 0 5px rgba(255, 220, 150, 0.6);
-        }
-        
-        /* Close button specific styling */
-        .close-button {
-          color: #e0d0b0;
-        }
-        
-        .close-button .button-icon {
-          font-size: 1.3rem;
-          font-weight: bold;
-        }
-        
-        .close-button:hover {
-          color: #fff;
-          text-shadow: 0 0 8px rgba(255, 220, 150, 0.8);
         }
         
         /* Styling for voice mute button */
