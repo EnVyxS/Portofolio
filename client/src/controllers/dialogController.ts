@@ -300,7 +300,7 @@ class DialogController {
           }
           
           // Semua dialog khusus (CONTRACT_RESPONSES, IDLE_DIALOGS, punchText, throwText)
-          // harus selalu ditampilkan di dialogBox utama sebagai 'main'
+          // harus selalu ditampilkan di dialogBox utama sebagai DialogSource.MAIN
           if (hoverDialogController.setDialogSource) {
             // Semua dialog khusus ditampilkan sebagai DialogSource.MAIN untuk memastikan muncul di dialog box utama
             console.log("[DialogController] Setting dialog source to DialogSource.MAIN for custom dialog");

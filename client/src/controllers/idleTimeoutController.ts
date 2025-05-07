@@ -599,10 +599,10 @@ class IdleTimeoutController {
       
       console.log(`[IdleTimeoutController] Showing warning message: "${text}"`);
       
-      // Set dialog source ke 'main' terlebih dahulu untuk memastikan teks muncul di dialog box utama
+      // Set dialog source ke DialogSource.MAIN terlebih dahulu untuk memastikan teks muncul di dialog box utama
       if (this.hoverDialogController.setDialogSource) {
-        console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing idle warning");
-        this.hoverDialogController.setDialogSource('main');
+        console.log("[IdleTimeoutController] Setting dialog source to DialogSource.MAIN before showing idle warning");
+        this.hoverDialogController.setDialogSource(DialogSource.MAIN);
       }
       
       // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
@@ -671,11 +671,11 @@ class IdleTimeoutController {
     // Tambahkan dialog peringatan untuk 'melempar' dengan nada kemarahan
     const throwText = "That's it. GET OUT OF MY SIGHT!";
     
-    // Atur dialogSource ke 'main' sebelum menampilkan peringatan
+    // Atur dialogSource ke DialogSource.MAIN sebelum menampilkan peringatan
     // untuk memastikan teks muncul di dialog box utama
     if (this.hoverDialogController.setDialogSource) {
-      console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing throw dialog");
-      this.hoverDialogController.setDialogSource('main');
+      console.log("[IdleTimeoutController] Setting dialog source to DialogSource.MAIN before showing throw dialog");
+      this.hoverDialogController.setDialogSource(DialogSource.MAIN);
     }
     
     this.showIdleWarning(throwText);
@@ -756,11 +756,11 @@ class IdleTimeoutController {
     // Tambahkan dialog peringatan untuk 'memukul'
     const punchText = "YOU ASKED FOR THIS.";
     
-    // Atur dialogSource ke 'main' sebelum menampilkan peringatan
+    // Atur dialogSource ke DialogSource.MAIN sebelum menampilkan peringatan
     // untuk memastikan teks muncul di dialog box utama
     if (this.hoverDialogController.setDialogSource) {
-      console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing punch dialog");
-      this.hoverDialogController.setDialogSource('main');
+      console.log("[IdleTimeoutController] Setting dialog source to DialogSource.MAIN before showing punch dialog");
+      this.hoverDialogController.setDialogSource(DialogSource.MAIN);
     }
     
     // Fungsi untuk menjalankan proses pukulan
