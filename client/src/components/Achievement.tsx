@@ -109,41 +109,63 @@ const FogParticle: React.FC<{
   );
 };
 
-// Soul essence particle effect - gold/orange souls style
+// Soul essence particle effect - authentic Dark Souls soul essence style
 const SoulEssence: React.FC<{
   delay: number;
   duration: number;
   startX: number;
   startY: number;
 }> = ({ delay, duration, startX, startY }) => {
-  // Random end positions
-  const endX = startX + (Math.random() * 20 - 10);
-  const endY = startY - 5 - Math.random() * 15;
-  const size = 1.5 + Math.random() * 2;
+  // Generate more authentic dark souls soul movement
+  // In Dark Souls, souls have a gentle floating, rising motion
+  const endX = startX + (Math.random() * 16 - 8); // Less horizontal movement
+  const endY = startY - 10 - Math.random() * 20; // More vertical rise
+  const size = 1.8 + Math.random() * 2.5; // Slightly larger particle
+  
+  // Choose color from authentic Dark Souls palette
+  // Soul particles range from pale gold to amber orange
+  const hue = 35 + Math.random() * 10; // Range from amber-yellow to gold
+  const saturation = 80 + Math.random() * 20; // Highly saturated
+  const lightness = 60 + Math.random() * 20; // Moderate lightness
+  const opacity = 0.6 + Math.random() * 0.3; // Semi-transparent
+  const color = `hsla(${hue}, ${saturation}%, ${lightness}%, ${opacity})`;
+  
+  // Generate a soft glow intensity proportional to particle size
+  const glowSize = 3 + size * 1.2;
+  const glowIntensity = 0.6 + Math.random() * 0.3;
+  
+  // Control path variation for more authentic soul movement
+  const pathVariation = Math.random() > 0.5 ? "pathA" : "pathB";
   
   return (
     <motion.div
-      className="absolute w-1 h-1 rounded-full bg-amber-400/40"
+      className="absolute rounded-full"
       style={{
         left: `${startX}%`,
         top: `${startY}%`,
         width: `${size}px`,
         height: `${size}px`,
-        boxShadow: `0 0 ${3 + size}px 1px rgba(255, 160, 30, 0.6)`,
+        background: color,
+        boxShadow: `0 0 ${glowSize}px ${glowSize/2}px hsla(${hue}, ${saturation}%, ${lightness}%, ${glowIntensity/2})`,
       }}
       initial={{ opacity: 0, scale: 0 }}
-      animate={{
-        opacity: [0, 0.8, 0],
-        scale: [0.4, 1, 0.3],
-        x: [0, endX - startX],
-        y: [0, endY - startY],
+      animate={pathVariation === "pathA" ? {
+        opacity: [0, opacity, 0],
+        scale: [0.3, 1, 0.2],
+        x: [0, endX * 0.3 - startX, endX - startX],
+        y: [0, (endY - startY) * 0.4, endY - startY],
+      } : {
+        opacity: [0, opacity, 0],
+        scale: [0.4, 0.9, 0.3],
+        x: [0, endX - startX, (endX - startX) * 0.8],
+        y: [0, (endY - startY) * 0.6, endY - startY],
       }}
       transition={{
-        duration,
+        duration: duration * 1.2, // Slightly slower for more authentic movement
         ease: "easeOut",
         delay,
         repeat: Infinity,
-        repeatDelay: Math.random() * 1.5 + 0.5,
+        repeatDelay: Math.random() * 2 + 1, // Longer delay between particles
       }}
     />
   );
@@ -195,15 +217,46 @@ const generateFogParticles = (count: number) => {
   return particles;
 };
 
-// Generate soul essence particles
+// Generate soul essence particles with better distribution
 const generateSoulEssences = (count: number) => {
-  return Array.from({ length: count }).map((_, i) => ({
-    id: `soul-${i}`,
-    delay: Math.random() * 2,
-    duration: 1.5 + Math.random() * 2,
-    startX: 20 + Math.random() * 60, // position across the width
-    startY: 40 + Math.random() * 40, // random vertical position
-  }));
+  const essences = [];
+  
+  // Generate particles in different regions for better distribution
+  
+  // Left side of achievement (near icon)
+  for (let i = 0; i < Math.floor(count * 0.4); i++) {
+    essences.push({
+      id: `soul-left-${i}`,
+      delay: Math.random() * 2,
+      duration: 1.5 + Math.random() * 2,
+      startX: 5 + Math.random() * 20, // concentrated around the icon area
+      startY: 30 + Math.random() * 40, // mix of heights
+    });
+  }
+  
+  // Center area of achievement
+  for (let i = 0; i < Math.floor(count * 0.3); i++) {
+    essences.push({
+      id: `soul-center-${i}`,
+      delay: 0.5 + Math.random() * 2,
+      duration: 1.8 + Math.random() * 1.8,
+      startX: 30 + Math.random() * 30, // center section
+      startY: 20 + Math.random() * 60, // full height range
+    });
+  }
+  
+  // Right side of achievement
+  for (let i = 0; i < Math.floor(count * 0.3); i++) {
+    essences.push({
+      id: `soul-right-${i}`,
+      delay: 1 + Math.random() * 2,
+      duration: 2 + Math.random() * 1.5,
+      startX: 65 + Math.random() * 30, // right side
+      startY: 25 + Math.random() * 50, // mid to high positions
+    });
+  }
+  
+  return essences;
 };
 
 interface AchievementProps {
@@ -215,9 +268,9 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
   const [isVisible, setIsVisible] = useState(true);
   const achievementSoundRef = useRef<HTMLAudioElement | null>(null);
   
-  // Generate mystical particles
-  const fogParticles = useRef(generateFogParticles(12));
-  const soulEssences = useRef(generateSoulEssences(8));
+  // Generate mystical particles - increased amounts for more dramatic effect
+  const fogParticles = useRef(generateFogParticles(18)); // Increased from 12 to 18
+  const soulEssences = useRef(generateSoulEssences(15)); // Increased from 8 to 15
   
   useEffect(() => {
     // Mainkan suara achievement dengan Web Audio API
@@ -290,13 +343,13 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
               repeatType: "reverse"
             }}
           >
-            {/* Achievement notification - compact like in Dark Souls */}
-            <div className="px-3 py-2 bg-black/95 border-l-2 border-amber-500/40 shadow-md relative overflow-hidden w-64">
+            {/* Achievement notification - styled like Dark Souls */}
+            <div className="px-4 py-3 bg-black/95 border-2 border-amber-500/50 shadow-xl relative overflow-hidden w-72 rounded-sm">
               {/* Dark mystical background */}
               <div 
                 className="absolute inset-0" 
                 style={{
-                  background: 'linear-gradient(to right, rgba(25, 20, 15, 0.9), rgba(15, 12, 10, 0.95))',
+                  background: 'linear-gradient(to right, rgba(30, 25, 15, 0.95), rgba(20, 15, 10, 0.98))',
                 }}
               />
               
@@ -306,10 +359,10 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                 <motion.div 
                   className="absolute inset-0"
                   style={{
-                    background: 'linear-gradient(to bottom, rgba(25, 20, 15, 0.8), rgba(10, 5, 0, 0.9))'
+                    background: 'linear-gradient(to bottom, rgba(35, 25, 15, 0.9), rgba(15, 10, 5, 0.95))'
                   }}
                   animate={{ 
-                    opacity: [0.7, 0.9, 0.7]
+                    opacity: [0.8, 0.95, 0.8]
                   }}
                   transition={{
                     duration: 3,
@@ -318,8 +371,27 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                   }}
                 />
                 
-                {/* Gold fog particles - subtle */}
-                {fogParticles.current.slice(0, 8).map((particle) => (
+                {/* Ornamental border like in Dark Souls */}
+                <div className="absolute inset-0 border border-amber-700/40 m-[3px] pointer-events-none"></div>
+                
+                {/* Glowing border effect */}
+                <motion.div 
+                  className="absolute inset-0 opacity-0"
+                  style={{
+                    boxShadow: 'inset 0 0 10px 2px rgba(255, 180, 50, 0.3)',
+                  }}
+                  animate={{ 
+                    opacity: [0.2, 0.5, 0.2]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatType: "reverse"
+                  }}
+                />
+                
+                {/* Gold fog particles - enhanced */}
+                {fogParticles.current.map((particle) => (
                   <FogParticle 
                     key={particle.id}
                     delay={particle.delay}
@@ -331,8 +403,8 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                   />
                 ))}
                 
-                {/* Soul essence particles - very subtle */}
-                {soulEssences.current.slice(0, 4).map((essence) => (
+                {/* Soul essence particles - enhanced */}
+                {soulEssences.current.map((essence) => (
                   <SoulEssence
                     key={essence.id}
                     delay={essence.delay}
@@ -342,15 +414,15 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                   />
                 ))}
                 
-                {/* Dark Souls icon glow */}
+                {/* Dark Souls icon glow - enhanced */}
                 <motion.div
-                  className="absolute h-8 w-8 left-2 top-2 opacity-40"
+                  className="absolute h-10 w-10 left-2 top-3 opacity-40"
                   style={{
-                    background: 'radial-gradient(circle at center, rgba(255, 170, 50, 0.3) 0%, transparent 70%)',
-                    filter: 'blur(3px)',
+                    background: 'radial-gradient(circle at center, rgba(255, 180, 50, 0.4) 0%, transparent 70%)',
+                    filter: 'blur(4px)',
                   }}
                   animate={{
-                    opacity: [0.3, 0.5, 0.3],
+                    opacity: [0.4, 0.6, 0.4],
                     scale: [0.9, 1.1, 0.9]
                   }}
                   transition={{
@@ -363,58 +435,91 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
               {/* Dark Souls style inner container */}
               <div className="relative z-10 flex items-start py-1">
                 {/* Achievement icon */}
-                <div className="flex-shrink-0 w-8 h-8 mr-3">
+                <div className="flex-shrink-0 w-12 h-12 mr-3">
                   <motion.div 
-                    className="text-amber-400/90"
+                    className="text-amber-500/90"
                     animate={{ 
                       opacity: [0.8, 1, 0.8],
+                      filter: ["drop-shadow(0 0 3px rgba(255, 180, 30, 0.3))", "drop-shadow(0 0 5px rgba(255, 180, 30, 0.5))", "drop-shadow(0 0 3px rgba(255, 180, 30, 0.3))"]
                     }}
                     transition={{
                       duration: 2,
                       repeat: Infinity,
                     }}
                   >
-                    {/* Small icon as in Dark Souls */}
-                    <div className="h-8 w-8 rounded-sm bg-black/60 flex items-center justify-center border border-amber-700/30">
-                      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" xmlns="http://www.w3.org/2000/svg">
-                        <path 
-                          d="M12 2l2.5 5 5.5.5-4 4 1 5.5-5-2.5-5 2.5 1-5.5-4-4 5.5-.5L12 2z" 
-                          stroke="currentColor" 
-                          strokeWidth="1.5" 
-                          fill="rgba(255, 180, 30, 0.3)" 
-                        />
-                      </svg>
+                    {/* Dark Souls style icon with golden border and glow */}
+                    <div className="h-12 w-12 rounded-sm bg-gradient-to-br from-black to-gray-900 flex items-center justify-center border border-amber-500/40 relative">
+                      {/* Icon background glow */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-amber-900/20 rounded-sm"></div>
+                      
+                      {/* Achievement type specific icon */}
+                      {type === 'approach' && (
+                        <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M19 8l-7-7-7 7v11a2 2 0 002 2h10a2 2 0 002-2V8z" 
+                            stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
+                          <path d="M9 15l3 3 5-5" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                      
+                      {type === 'contract' && (
+                        <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" 
+                            stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
+                          <path d="M7 7h10M7 11h10M7 15h6" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      )}
+                      
+                      {type === 'success' && (
+                        <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M22 12h-4l-3 9L9 3l-3 9H2" 
+                            stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          <circle cx="12" cy="12" r="3" stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
+                        </svg>
+                      )}
+                      
+                      {type === 'anger' && (
+                        <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" 
+                            stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.2)" />
+                          <path d="M12 8v8M8 12h8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      )}
+                      
+                      {type === 'nightmare' && (
+                        <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 2l2.5 5 5.5.5-4 4 1 5.5-5-2.5-5 2.5 1-5.5-4-4 5.5-.5L12 2z" 
+                            stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
+                          <path d="M12 7v5M12 16v.1" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      )}
+                      
+                      {/* Small glowing accent in corner */}
+                      <div className="absolute top-[2px] right-[2px] h-1 w-1 bg-amber-400 rounded-full opacity-80"></div>
                     </div>
                   </motion.div>
                 </div>
                 
                 {/* Achievement text content */}
-                <div className="flex flex-col">
-                  {/* Today */}
+                <div className="flex flex-col mt-1">
+                  {/* Achievement title with Dark Souls style - uppercase, letterSpacing */}
                   <motion.p
-                    className="text-xs text-amber-300/80 font-medium"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.8 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    Today
-                  </motion.p>
-                  
-                  {/* Achievement title */}
-                  <motion.p
-                    className="text-sm text-amber-100 font-medium"
+                    className="text-amber-100 font-semibold tracking-wide uppercase text-sm"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
+                    transition={{ duration: 0.5 }}
+                    style={{ textShadow: '0 0 5px rgba(255, 180, 30, 0.3)' }}
                   >
                     {AchievementTitles[type]}
                   </motion.p>
                   
+                  {/* Thin decorative line */}
+                  <div className="h-px w-full bg-gradient-to-r from-amber-500/50 via-amber-400/30 to-transparent my-1.5"></div>
+                  
                   {/* Achievement description - smaller text with subtle color */}
                   <motion.p
-                    className="text-xs text-amber-400/60 mt-0.5"
+                    className="text-xs text-amber-400/70 leading-snug"
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.8 }}
+                    animate={{ opacity: 0.9 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                   >
                     {AchievementDescriptions[type]}
