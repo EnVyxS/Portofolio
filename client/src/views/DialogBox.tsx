@@ -936,6 +936,20 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           pointer-events: none;
           cursor: not-allowed;
           transition: opacity 0.3s ease;
+          position: relative;
+        }
+        
+        /* Indikator visual untuk tombol yang sedang dalam masa jeda */
+        .button-disabled::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.3);
+          border-radius: 2px;
+          z-index: 2;
         }
         
         /* Styling for pure text buttons (no box/border) */
