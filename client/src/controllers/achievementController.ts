@@ -30,8 +30,13 @@ class AchievementController {
     this.achievementCallback = callback;
   }
   
-  // Load achievements dari localStorage
+  // Load achievements dari localStorage - Disabled for testing
   private loadAchievements(): Set<AchievementType> {
+    // Untuk testing, selalu kembalikan Set kosong agar achievement bisa dilihat berulang kali
+    return new Set<AchievementType>();
+    
+    // Kode asli (dinonaktifkan)
+    /*
     const savedData = localStorage.getItem(ACHIEVEMENTS_KEY);
     if (savedData) {
       try {
@@ -42,6 +47,7 @@ class AchievementController {
       }
     }
     return new Set<AchievementType>();
+    */
   }
   
   // Simpan achievements ke localStorage
@@ -56,16 +62,19 @@ class AchievementController {
   public unlockAchievement(type: AchievementType): void {
     // Jika achievement 'nightmare' dan tidak pada halaman dream.html, abaikan
     if (type === 'nightmare' && !this.isDreamPage) {
+      console.log('Nightmare achievement will only be shown on dream.html page');
       return;
     }
     
-    // Jika achievement belum di-unlock
+    console.log(`Showing achievement: ${type}`);
+    
+    // Jika achievement belum di-unlock dalam sesi ini (untuk testing)
     if (!this.unlockedAchievements.has(type)) {
-      // Tambahkan ke daftar achievements yang unlocked
+      // Tambahkan ke daftar achievements yang unlocked (hanya di memori)
       this.unlockedAchievements.add(type);
       
-      // Simpan ke localStorage
-      this.saveAchievements();
+      // DISABLED: Simpan ke localStorage 
+      // this.saveAchievements();
       
       // Panggil callback untuk menampilkan notifikasi achievement
       if (this.achievementCallback) {

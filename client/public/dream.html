@@ -1198,9 +1198,10 @@
                     return new Set();
                 }
                 
-                // Function to save achievements
+                // Function to save achievements - DISABLED FOR TESTING
                 function saveAchievements(achievements) {
-                    localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify([...achievements]));
+                    // localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify([...achievements]));
+                    console.log('Achievement saving disabled for testing');
                 }
                 
                 // Function to unlock an achievement
