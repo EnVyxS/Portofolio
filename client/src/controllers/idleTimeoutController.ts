@@ -541,6 +541,37 @@ class IdleTimeoutController {
       this.displayedAngryDialogs.add(text);
     }
     
+    // Unlock achievements berdasarkan dialog yang ditampilkan
+    try {
+      const achievementController = AchievementController.getInstance();
+      
+      // Final warning setelah 9 menit
+      if (text.includes("staring at me for nine damn minutes")) {
+        achievementController.unlockAchievement('patience');
+        console.log("[IdleTimeoutController] Unlocked 'patience' achievement for staring at screen");
+      }
+      
+      // Dialog setelah reset
+      else if (text.includes("Now what, you little filth")) {
+        achievementController.unlockAchievement('return');
+        console.log("[IdleTimeoutController] Unlocked 'return' achievement for returning after reset");
+      }
+      
+      // Dialog setelah hover
+      else if (text.includes("Hmph... Finally, you decide to move")) {
+        achievementController.unlockAchievement('hover');
+        console.log("[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset");
+      }
+      
+      // Dialog untuk hover berlebihan
+      else if (text.includes("KEEP PUSHING, AND YOU'LL REGRET IT")) {
+        achievementController.unlockAchievement('tester');
+        console.log("[IdleTimeoutController] Unlocked 'tester' achievement for excessive hovering");
+      }
+    } catch (error) {
+      console.error("Failed to unlock achievement:", error);
+    }
+    
     // Hentikan semua aktivitas dialog terlebih dahulu
     this.dialogController.stopTyping();
     this.hoverDialogController.stopTyping();
