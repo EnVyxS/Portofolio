@@ -289,8 +289,8 @@ const ContractCard: React.FC = () => {
       // Dapatkan instance HoverDialogController untuk set source
       const hoverDialogController = HoverDialogController.getInstance();
 
-      // Set dialog source ke 'main' SEBELUM memanggil showCustomDialog
-      // Ini penting karena showCustomDialog akan mengubahnya ke 'hover' di dalamnya
+      // Set dialog source ke DialogSource.MAIN SEBELUM memanggil showCustomDialog
+      // Ini penting karena showCustomDialog akan mengubahnya ke DialogSource.HOVER di dalamnya
       if (hoverDialogController.setDialogSource) {
         console.log(
           "[ContractCard] Setting dialog source to DialogSource.MAIN before showing custom dialog",
