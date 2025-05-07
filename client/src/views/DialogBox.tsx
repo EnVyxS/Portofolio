@@ -611,9 +611,26 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
             {/* Tentukan apakah tombol NEXT/SKIP harus ditampilkan */}
             {(() => {
-              // Untuk dialog hover, tidak perlu menampilkan tombol NEXT/SKIP
+              // For hover dialogs, show CLOSE button when complete
               if (dialogSource === DialogSource.HOVER) {
-                return null;
+                // Only show Close button for completed hover dialogs
+                return isComplete ? (
+                  <button
+                    className="just-text-button close-button"
+                    onClick={handleContinue}
+                  >
+                    <span className="button-icon">×</span>
+                    <span className="button-text">CLOSE</span>
+                  </button>
+                ) : (
+                  <button
+                    className="just-text-button skip-button"
+                    onClick={handleContinue}
+                  >
+                    <span className="button-icon">▶</span>
+                    <span className="button-text">SKIP</span>
+                  </button>
+                );
               }
 
               // Untuk dialog terakhir dari dialogModel, tidak perlu menampilkan tombol NEXT/SKIP
@@ -982,6 +999,21 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         .just-text-button:hover {
           color: #fff;
           text-shadow: 0 0 5px rgba(255, 220, 150, 0.6);
+        }
+        
+        /* Close button specific styling */
+        .close-button {
+          color: #e0d0b0;
+        }
+        
+        .close-button .button-icon {
+          font-size: 1.3rem;
+          font-weight: bold;
+        }
+        
+        .close-button:hover {
+          color: #fff;
+          text-shadow: 0 0 8px rgba(255, 220, 150, 0.8);
         }
         
         /* Styling for voice mute button */
