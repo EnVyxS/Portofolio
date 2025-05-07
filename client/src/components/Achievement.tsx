@@ -12,8 +12,7 @@ export type AchievementType =
   | 'listener'    // Mendengar semua dialog tanpa interupsi
   | 'patience'    // Diaktifkan setelah 9 menit tidak ada interaksi (FINAL_WARNING)
   | 'return'      // Setelah reset, user menekan APPROACH HIM lagi (RETURN_DIALOG)
-  | 'hover'       // Setelah reset, user melakukan hover (HOVER_AFTER_RESET)
-  | 'tester';     // Mencoba interaksi hover berlebihan (EXCESSIVE_HOVER_WARNING)
+  | 'hover';      // Setelah reset, user melakukan hover (HOVER_AFTER_RESET)
 
 // Icon SVG untuk setiap jenis achievement
 const AchievementIcons: Record<AchievementType, React.ReactNode> = {
@@ -105,16 +104,6 @@ const AchievementIcons: Record<AchievementType, React.ReactNode> = {
       <path d="M17 16l2 2M5 16l-2 2M17 8l2-2M5 8L3 6" 
         stroke="#FFC107" strokeWidth="1" strokeLinecap="round" />
     </svg>
-  ),
-  tester: (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M17 2H7C5.9 2 5 2.9 5 4v16c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" 
-        stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
-      <circle cx="12" cy="18" r="1" fill="#FFC107" />
-      <path d="M12 14v-7" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M9 7h6" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M15 11c0-1.7-1.3-3-3-3s-3 1.3-3 3" stroke="#FFC107" strokeWidth="1" strokeDasharray="1 1" />
-    </svg>
   )
 };
 
@@ -129,8 +118,7 @@ const AchievementTitles: Record<AchievementType, string> = {
   listener: 'PATIENT LISTENER',
   patience: 'TIME GAZER',
   return: 'UNDETERRED SEEKER',
-  hover: 'CURIOUS OBSERVER',
-  tester: 'BOUNDARY PUSHER'
+  hover: 'CURIOUS OBSERVER'
 };
 
 // Deskripsi achievement
@@ -144,8 +132,7 @@ const AchievementDescriptions: Record<AchievementType, string> = {
   listener: 'You\'ve listened to the full story without interruption.',
   patience: 'You\'ve spent significant time contemplating the possibilities.',
   return: 'Despite challenges, you returned to continue exploring.',
-  hover: 'You\'ve shown curiosity in exploring interactive elements.',
-  tester: 'You\'ve dared to test the boundaries of allowed interactions.'
+  hover: 'You\'ve shown curiosity in exploring interactive elements.'
 };
 
 // Dark Souls inspired fog/mist particles for achievement with green color

@@ -563,11 +563,7 @@ class IdleTimeoutController {
         console.log("[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset");
       }
       
-      // Dialog untuk hover berlebihan
-      else if (text.includes("KEEP PUSHING, AND YOU'LL REGRET IT")) {
-        achievementController.unlockAchievement('tester');
-        console.log("[IdleTimeoutController] Unlocked 'tester' achievement for excessive hovering");
-      }
+      // Menghapus referensi achievement untuk hover berlebihan sesuai permintaan
     } catch (error) {
       console.error("Failed to unlock achievement:", error);
     }
