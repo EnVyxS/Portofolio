@@ -143,6 +143,44 @@ class IdleTimeoutController {
     this.resetSceneCallback = callback;
   }
   
+  // Method untuk memanggil startIdleTimer setelah dialog model selesai berbicara
+  public startIdleTimerAfterDialogComplete(): void {
+    console.log("[IdleTimeoutController] Dialog model selesai berbicara. Memeriksa apakah dapat memulai timer IDLE_DIALOGS...");
+    
+    // Periksa terlebih dahulu apakah ada aktivitas audio atau dialog yang masih berjalan
+    if (this.isAudioOrDialogActive()) {
+      console.log("[IdleTimeoutController] Masih ada audio atau dialog aktif. Menunggu...");
+      
+      // Cek lagi setelah beberapa saat
+      setTimeout(() => {
+        this.startIdleTimerAfterDialogComplete();
+      }, 2000); // Cek setiap 2 detik
+      
+      return;
+    }
+    
+    // Periksa apakah ada dialog kontrak yang aktif
+    try {
+      // @ts-ignore - akses properti global dari window
+      if (window.__contractDialogActive) {
+        console.log("[IdleTimeoutController] Dialog kontrak masih aktif. Menunggu...");
+        
+        // Cek lagi setelah beberapa saat
+        setTimeout(() => {
+          this.startIdleTimerAfterDialogComplete();
+        }, 2000); // Cek setiap 2 detik
+        
+        return;
+      }
+    } catch (e) {
+      console.error("[IdleTimeoutController] Error memeriksa status dialog kontrak:", e);
+    }
+    
+    // Jika tidak ada aktivitas yang mengganggu, mulai timer
+    console.log("[IdleTimeoutController] Tidak ada aktivitas yang mengganggu. Memulai timer IDLE_DIALOGS...");
+    this.startIdleTimer();
+  }
+  
   // Getter untuk status peringatan hover berlebihan
   public isExcessiveHoverWarningShown(): boolean {
     return this.hasShownExcessiveHoverWarning;
@@ -242,9 +280,9 @@ class IdleTimeoutController {
 
   // Memulai penghitungan timeout idle
   public startIdleTimer(): void {
-    // Jika ada audio atau dialog yang aktif, jangan jalankan timer
+    // Periksa apakah ada audio atau dialog yang aktif
     if (this.isAudioOrDialogActive()) {
-      // Log removed
+      console.log("[IdleTimeoutController] Dialog model atau audio masih aktif, menunda timer IDLE_DIALOGS...");
 
       // Cek lagi nanti setelah beberapa detik
       setTimeout(() => {
@@ -254,8 +292,25 @@ class IdleTimeoutController {
       return;
     }
 
+    // Periksa apakah properti window untuk dialog kontrak masih aktif
+    try {
+      // @ts-ignore - akses properti global dari window
+      if (window.__contractDialogActive) {
+        console.log("[IdleTimeoutController] Contract dialog masih aktif, menunda timer IDLE_DIALOGS...");
+        
+        // Cek lagi nanti setelah beberapa detik
+        setTimeout(() => {
+          this.startIdleTimer();
+        }, 3000); // cek setiap 3 detik untuk contract dialog
+
+        return;
+      }
+    } catch (e) {
+      console.error("[IdleTimeoutController] Error checking contract dialog status:", e);
+    }
+
     console.log(
-      "[IdleTimeoutController] Idle timers setup - First warning in " +
+      "[IdleTimeoutController] Dialog model dan contract dialog selesai. Memulai timer IDLE_DIALOGS - First warning in " +
         TIMEOUT_DURATIONS.FIRST_WARNING / 1000 +
         "s, second in " +
         TIMEOUT_DURATIONS.SECOND_WARNING / 1000 +
@@ -433,6 +488,23 @@ class IdleTimeoutController {
   // Handler untuk interaksi user
   public handleUserInteraction(): void {
     this.lastInteractionTime = Date.now();
+
+    // Jika dialog model atau audio masih aktif, jangan mulai timer baru
+    if (this.isAudioOrDialogActive()) {
+      console.log("[IdleTimeoutController] Dialog model atau audio masih aktif, menunda handleUserInteraction...");
+      return;
+    }
+
+    // Periksa apakah properti window untuk dialog kontrak masih aktif
+    try {
+      // @ts-ignore - akses properti global dari window
+      if (window.__contractDialogActive) {
+        console.log("[IdleTimeoutController] Contract dialog masih aktif, menunda handleUserInteraction...");
+        return;
+      }
+    } catch (e) {
+      console.error("[IdleTimeoutController] Error checking contract dialog status:", e);
+    }
 
     if (this.hasBeenReset && !this.hasInteractedAfterReset) {
       // Jika user baru saja di-reset dan ini adalah interaksi pertama setelah reset
