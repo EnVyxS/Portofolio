@@ -504,6 +504,17 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
                 }
               }
 
+              // Cek apakah ini adalah dialog marah
+              const isAngryDialog = text.includes("fuck") || 
+                                  text.includes("ENOUGH") || 
+                                  text.includes("GET OUT") || 
+                                  text.includes("ASKED FOR THIS");
+                                  
+              // Jika dialog marah, tidak menampilkan tombol
+              if (isAngryDialog) {
+                return null;
+              }
+              
               // Untuk dialog lainnya, tampilkan tombol NEXT/SKIP seperti biasa
               return isComplete ? (
                 <button
