@@ -32,8 +32,11 @@ const AchievementIcons: Record<AchievementType, React.ReactNode> = {
       <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" 
         stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
       <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M2 10l3 3 3-3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" 
-        fill="none" fillOpacity="0.3" />
+      {/* Simbol 'magnifier' yang lebih terlihat untuk menunjukkan dokumen yang dapat dilihat */}
+      <circle cx="18" cy="20" r="2" stroke="#FFC107" strokeWidth="1.5" fill="none" />
+      <path d="M15 17l2 2" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Highlight dokumen */}
+      <path d="M9 14h6" stroke="#FFC107" strokeWidth="0.75" strokeLinecap="round" strokeOpacity="0.7" />
     </svg>
   ),
   success: (
@@ -306,14 +309,14 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
       console.error("Error playing achievement sound:", e);
     }
 
-    // Otomatis sembunyikan achievement setelah 5 detik
+    // Otomatis sembunyikan achievement setelah 3 detik
     const timer = setTimeout(() => {
       setIsVisible(false);
       // Callback setelah animasi exit selesai
       setTimeout(() => {
         if (onComplete) onComplete();
       }, 500); // Tunggu animasi exit selesai
-    }, 5000); // Sedikit lebih lama untuk efek yang dramatis
+    }, 3000); // Lebih cepat untuk meningkatkan pengalaman pengguna
 
     return () => {
       clearTimeout(timer);
@@ -478,6 +481,16 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                           <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" 
                             stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
                           <path d="M7 7h10M7 11h10M7 15h6" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      )}
+                      
+                      {type === 'document' && (
+                        <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 sm:h-7 sm:w-7" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" 
+                            stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
+                          <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          <circle cx="18" cy="20" r="2" stroke="#FFC107" strokeWidth="1.5" fill="none" />
+                          <path d="M15 17l2 2" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       )}
                       
