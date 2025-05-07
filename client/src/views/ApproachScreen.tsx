@@ -179,34 +179,34 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
             // Pertama, mulai transisi ke scene berikutnya
             onApproach();
             
-            // Kemudian, setelah transisi scene selesai (1.5 detik), unlock achievement
+            // Langsung unlock achievement saat percakapan dimulai, tanpa delay
             setTimeout(() => {
               try {
-                // Unlock achievement 'approach' dengan delay
+                // Unlock achievement 'approach' tanpa delay
                 const achievementController = AchievementController.getInstance();
                 achievementController.unlockAchievement('approach');
-                console.log("Approach achievement unlocked with delay after conversation started");
+                console.log("Approach achievement unlocked immediately after conversation started");
               } catch (error) {
-                console.error("Failed to unlock delayed achievement:", error);
+                console.error("Failed to unlock achievement:", error);
               }
-            }, 1500); // Delay 1.5 detik setelah transisi scene
+            }, 0); // Tanpa delay setelah transisi scene
           }
         }, 65); // Slightly faster interval for smoother fade
       } else {
         // Jika tidak ada footsteps sound, tetap lakukan transisi
         onApproach();
         
-        // Sama seperti di atas, tunggu sebentar lalu unlock achievement
+        // Langsung unlock achievement saat percakapan dimulai, tanpa delay
         setTimeout(() => {
           try {
-            // Unlock achievement 'approach' dengan delay
+            // Unlock achievement 'approach' tanpa delay
             const achievementController = AchievementController.getInstance();
             achievementController.unlockAchievement('approach');
-            console.log("Approach achievement unlocked with delay after conversation started");
+            console.log("Approach achievement unlocked immediately after conversation started");
           } catch (error) {
-            console.error("Failed to unlock delayed achievement:", error);
+            console.error("Failed to unlock achievement:", error);
           }
-        }, 1500); // Delay 1.5 detik setelah transisi scene
+        }, 0); // Tanpa delay setelah transisi scene
       }
     }, 5000); // Total waktu: 5 detik (1.5 detik jeda + 3.5 detik berjalan)
   };
