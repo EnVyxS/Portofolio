@@ -6,11 +6,11 @@ import ElevenLabsService from "../services/elevenlabsService";
 // Dialog yang akan ditampilkan pada timeout tertentu
 export const IDLE_DIALOGS = {
   // Dialog setelah 2 menit tidak ada interaksi
-  FIRST_WARNING: "What the hell are you staring at?.. Got something to say!?",
+  FIRST_WARNING: "Apa yang kau lihat, hah?! Mau bilang sesuatu?! Atau cuma bisa melongo seperti orang bodoh?!",
 
   // Dialog setelah 5 menit tidak ada interaksi
   SECOND_WARNING:
-    "You really gonna keep ignoring me? I'm not in the mood for this.",
+    "Kau benar-benar berniat mengabaikanku terus?! Aku sedang tidak mood meladeni omong kosongmu!",
 
   // Dialog setelah 9 menit tidak ada interaksi
   FINAL_WARNING:
