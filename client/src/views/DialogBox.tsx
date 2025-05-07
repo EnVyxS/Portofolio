@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import DialogController from "../controllers/dialogController";
 import HoverDialogController from "../controllers/hoverDialogController";
+import IdleTimeoutController from "../controllers/idleTimeoutController";
 import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import ElevenLabsService from "../services/elevenlabsService";
 import { CONTRACT_RESPONSES } from "../components/ContractCard";
@@ -56,6 +57,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const dialogController = DialogController.getInstance();
   const hoverDialogController = HoverDialogController.getInstance();
   const elevenLabsService = ElevenLabsService.getInstance();
+  const idleTimeoutController = IdleTimeoutController.getInstance();
 
   // Timer reference untuk auto-continue
   const autoPlayTimerRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -200,6 +202,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         clearTimeout(autoPlayTimerRef.current);
       }
 
+      // Mulai timer IDLE_DIALOGS setelah dialog model selesai berbicara
+      // Ini adalah perubahan penting untuk memastikan timer baru mulai setelah dialog selesai
+      console.log("[DialogBox] Dialog model selesai berbicara, memulai timer IDLE_DIALOGS...");
+      idleTimeoutController.startIdleTimerAfterDialogComplete();
+
       // Cek jika user sudah berinteraksi dengan hover dialog
       if (hoverDialogController.hasUserInteractedWithHover()) {
         return; // Jangan autoplay jika sudah ada interaksi hover
@@ -275,6 +282,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     handleContinue,
     dialogController,
     hoverDialogController,
+    idleTimeoutController,
     setIsDialogFinished,
   ]);
 
