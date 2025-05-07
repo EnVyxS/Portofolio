@@ -93,6 +93,22 @@ class DialogController {
   }
 
   public startDialog(callback: (text: string, isComplete: boolean) => void): void {
+    // CRITICAL FIX: Check if a hover dialog is active before starting main dialog
+    try {
+      // Import HoverDialogController if not already imported
+      const hoverDialogController = HoverDialogController.getInstance();
+      
+      // If hover dialog is active, don't start main dialog
+      if (hoverDialogController.isTypingHoverDialog()) {
+        console.log(`[DialogController] A hover dialog is active, not starting main dialog.`);
+        // Still store the callback so the hover dialog can use it later
+        this.typewriterCallback = callback;
+        return;
+      }
+    } catch (e) {
+      console.error("Error checking hover dialog status:", e);
+    }
+    
     // Reset dialog to beginning
     this.dialogModel.resetDialog();
     

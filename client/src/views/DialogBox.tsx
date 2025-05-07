@@ -239,15 +239,28 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         hoverDialogController.resetHoverState();
         setIsDialogFinished(true);
         
-        // Periksa apakah ada dialog utama yang masih aktif
-        if (dialogController.getCurrentDialog() !== null) {
-          // Jika ada dialog utama yang masih aktif, kembalikan ke dialog utama
-          console.log('[DialogBox] Returning to main dialog after hover dialog closed');
-          setTimeout(() => {
-            setDialogSource(DialogSource.MAIN);
-            // Also show dialog box again for main dialog
-            setIsDialogFinished(false);
-          }, 100); // Slight delay for clean transition
+        console.log('[DialogBox] Checking if we need to restore main dialog...');
+        
+        // CRITICAL FIX: Tambahkan pemeriksaan untuk memastikan tak ada hover dialog yang sedang typing
+        if (!hoverDialogController.isTypingHoverDialog()) {
+          // HANYA kembalikan ke dialog utama jika tidak ada hover dialog lain yang aktif
+          // dan dialog utama masih ada
+          if (dialogController.getCurrentDialog() !== null) {
+            // Jika ada dialog utama yang masih aktif, kembalikan ke dialog utama setelah delay
+            console.log('[DialogBox] Returning to main dialog after hover dialog closed');
+            setTimeout(() => {
+              // Periksa sekali lagi apakah masih tidak ada hover dialog yang aktif
+              if (!hoverDialogController.isTypingHoverDialog()) {
+                setDialogSource(DialogSource.MAIN);
+                // Also show dialog box again for main dialog
+                setIsDialogFinished(false);
+              } else {
+                console.log('[DialogBox] New hover dialog detected, NOT returning to main dialog');
+              }
+            }, 100); // Slight delay for clean transition
+          }
+        } else {
+          console.log('[DialogBox] Another hover dialog is active, NOT returning to main dialog');
         }
       }
     }
@@ -345,15 +358,26 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           // Hilangkan dialog box
           setIsDialogFinished(true);
           
-          // Periksa apakah ada dialog utama yang masih aktif
-          if (dialogController.getCurrentDialog() !== null) {
-            // Jika ada dialog utama yang masih aktif, kembalikan ke dialog utama setelah delay
-            console.log('[DialogBox] Auto-returning to main dialog after hover dialog auto-dismissed');
-            setTimeout(() => {
-              setDialogSource(DialogSource.MAIN);
-              // Also show dialog box again for main dialog
-              setIsDialogFinished(false);
-            }, 100); // Slight delay for clean transition
+          // CRITICAL FIX: Tambahkan pemeriksaan untuk memastikan tak ada hover dialog yang sedang typing
+          if (!hoverDialogController.isTypingHoverDialog()) {
+            // HANYA kembalikan ke dialog utama jika tidak ada hover dialog lain yang aktif
+            // dan dialog utama masih ada
+            if (dialogController.getCurrentDialog() !== null) {
+              // Jika ada dialog utama yang masih aktif, kembalikan ke dialog utama setelah delay
+              console.log('[DialogBox] Auto-returning to main dialog after hover dialog auto-dismissed');
+              setTimeout(() => {
+                // Periksa sekali lagi apakah masih tidak ada hover dialog yang aktif
+                if (!hoverDialogController.isTypingHoverDialog()) {
+                  setDialogSource(DialogSource.MAIN);
+                  // Also show dialog box again for main dialog
+                  setIsDialogFinished(false);
+                } else {
+                  console.log('[DialogBox] New hover dialog detected during auto-dismiss, NOT returning to main dialog');
+                }
+              }, 100); // Slight delay for clean transition
+            }
+          } else {
+            console.log('[DialogBox] Another hover dialog is active during auto-dismiss, NOT returning to main dialog');
           }
         }, dismissDelay);
       }
@@ -561,9 +585,29 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // Periksa apakah ada hover dialog yang menunggu untuk ditampilkan
   const hasPendingHover = hoverDialogController.isTypingHoverDialog();
   
-  // Tambahkan log explisit untuk membantu debugging
-  console.log(`[DialogBox] Dialog status check - isDialogFinished: ${isDialogFinished}, text empty: ${text === ""}, contract active: ${isContractDialogActive}, forceShow: ${forceShowIdleWarning}, hasPendingHover: ${hasPendingHover}`);
+  // ***********************************
+  // CRITICAL FIX - DIALOG CONFLICT RESOLUTION
+  // ***********************************
   
+  // Pertama: periksa apakah hover dialog sedang atau akan aktif
+  const isHoverDialogActive = hoverDialogController.isTypingHoverDialog();
+  
+  // Tambahkan log explisit untuk membantu debugging
+  console.log(`[DialogBox] Dialog status check - isDialogFinished: ${isDialogFinished}, text empty: ${text === ""}, contract active: ${isContractDialogActive}, forceShow: ${forceShowIdleWarning}, isHoverActive: ${isHoverDialogActive}, source: ${dialogSource}`);
+  
+  // Cek prioritas pertama: Jika hover dialog sedang aktif, HANYA tampilkan dialog jika source-nya adalah HOVER
+  if (isHoverDialogActive && dialogSource !== DialogSource.HOVER) {
+    console.log("[DialogBox] Hiding dialog box because hover dialog is active but current source is not HOVER");
+    return null;
+  }
+  
+  // Cek prioritas kedua: Jika sedang menampilkan dialog utama tapi ada hover dialog aktif, JANGAN tampilkan
+  if (dialogSource === DialogSource.MAIN && isHoverDialogActive) {
+    console.log("[DialogBox] Hiding MAIN dialog because hover dialog is active");
+    return null;
+  }
+  
+  // Cek prioritas ketiga: Force show idle warning
   if (forceShowIdleWarning) {
     // Jika flag force show aktif, pastikan dialog box selalu ditampilkan
     // Reset isDialogFinished jika perlu untuk memastikan dialog box muncul kembali
@@ -573,22 +617,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     }
   }
   
-  // Sembunyikan dialog box jika salah satu kondisi ini terpenuhi:
-  // 1. Dialog selesai, tidak ada teks, bukan kontrak dialog dan tidak ada force show
-  // 2. Dialog source MAIN, tapi ada hover dialog yang sedang menunggu dan source saat ini adalah MAIN
-  // 3. Dialog source tidak sama dengan yang sedang aktif (MAIN vs HOVER)
-  if ((isDialogFinished && text === "" && !isContractDialogActive && !forceShowIdleWarning) || 
-      (hasPendingHover && dialogSource === DialogSource.MAIN) || 
-      (dialogSource === DialogSource.MAIN && hoverDialogController.isTypingHoverDialog())) {
+  // Cek prioritas keempat: Kondisi normal untuk sembunyikan dialog
+  if ((isDialogFinished && text === "" && !isContractDialogActive && !forceShowIdleWarning)) {
     // Debug untuk membantu melihat status dialog
-    console.log("[DialogBox] Hiding dialog box - finished empty dialog or pending hover dialog");
+    console.log("[DialogBox] Hiding dialog box - finished empty dialog with no special conditions");
     return null; 
-  }
-  
-  // JANGAN tampilkan dialog box jika dialog source adalah MAIN tapi ada hover dialog yang aktif
-  if (dialogSource === DialogSource.MAIN && hoverDialogController.isTypingHoverDialog()) {
-    console.log("[DialogBox] Hiding MAIN dialog because hover dialog is active");
-    return null;
   }
   
   // Periksa apakah ini adalah dialog kontrak (CONTRACT_RESPONSES) berdasarkan teks
