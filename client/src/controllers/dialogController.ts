@@ -332,6 +332,8 @@ class DialogController {
     // Hentikan dialog yang sedang berjalan
     this.stopTyping();
     
+    console.log("[DialogController] Preparing to show RETURN_DIALOG after user was thrown and returned");
+    
     // Tunggu sebentar untuk memastikan audio sebelumnya sudah selesai
     setTimeout(() => {
       // Pastikan audio benar-benar berhenti
@@ -343,10 +345,32 @@ class DialogController {
       // Tandai bahwa ini adalah dialog khusus setelah reset
       this.isPostResetDialog = true;
       
-      // Tampilkan dialog return yang sudah didefinisikan
-      this.typeDialog(RETURN_DIALOG, callback);
+      // Pastikan HoverDialogController tahu dialog utama sedang berjalan
+      try {
+        const hoverDialogController = HoverDialogController.getInstance();
+        if (hoverDialogController && typeof hoverDialogController.setDialogSource === 'function') {
+          hoverDialogController.setDialogSource('main');
+          console.log("[DialogController] Set dialog source to 'main' for return dialog");
+        }
+      } catch (e) {
+        console.error("[DialogController] Failed to set dialog source:", e);
+      }
       
-      console.log("Showing return dialog after reset:", RETURN_DIALOG.text);
+      // Log detail RETURN_DIALOG for debugging
+      console.log("[DialogController] RETURN_DIALOG content:", JSON.stringify(RETURN_DIALOG));
+      
+      // Tampilkan dialog return yang sudah didefinisikan
+      this.typeDialog(RETURN_DIALOG, (text, isComplete) => {
+        // Forward the callback
+        if (callback) callback(text, isComplete);
+        
+        // If dialog completes, log it for debugging
+        if (isComplete) {
+          console.log("[DialogController] RETURN_DIALOG completed successfully");
+        }
+      });
+      
+      console.log("[DialogController] Showing return dialog after reset:", RETURN_DIALOG.text);
     }, 300); // Delay 300ms untuk menghindari tumpang tindih audio
   }
   

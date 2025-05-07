@@ -239,6 +239,18 @@ function MainApp() {
           dialogController.showReturnDialog(
             (text: string, isComplete: boolean) => {
               // Dialog post-reset displayed
+              console.log("[App] Return dialog being displayed:", text, "isComplete:", isComplete);
+              
+              // Unlock achievement for returning after punishment
+              if (isComplete) {
+                try {
+                  const achievementController = AchievementController.getInstance();
+                  achievementController.unlockAchievement('return');
+                  console.log("[App] Unlocked 'return' achievement for returning after being thrown");
+                } catch (error) {
+                  console.error("Failed to unlock return achievement:", error);
+                }
+              }
             },
           );
         }, 500); // Berikan waktu 500ms untuk memastikan dialogBox siap

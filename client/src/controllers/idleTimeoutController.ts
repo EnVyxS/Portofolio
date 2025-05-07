@@ -540,7 +540,18 @@ class IdleTimeoutController {
     if (this.hasBeenReset && !this.hasInteractedAfterReset) {
       // Jika user baru saja di-reset dan ini adalah interaksi pertama setelah reset
       this.hasInteractedAfterReset = true;
+      
+      console.log("[IdleTimeoutController] Menampilkan HOVER_AFTER_RESET karena ini interaksi pertama setelah reset");
       this.showIdleWarning(IDLE_DIALOGS.HOVER_AFTER_RESET);
+      
+      // Unlock hover achievement untuk hover setelah reset
+      try {
+        const achievementController = AchievementController.getInstance();
+        achievementController.unlockAchievement('hover');
+        console.log("[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset");
+      } catch (error) {
+        console.error("Failed to unlock hover achievement:", error);
+      }
 
       // Mulai timer hover berlebihan
       this.startExcessiveHoverTimers();
