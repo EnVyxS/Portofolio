@@ -414,10 +414,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     }
   }
   
-  if (isDialogFinished && text === "" && !isContractDialogActive && !forceShowIdleWarning) {
+  // Perubahan utama: isDialogFinished langsung menyembunyikan dialog box tanpa memerlukan text === ""
+  if (isDialogFinished && !forceShowIdleWarning) {
     // Debug untuk membantu melihat status dialog
-    console.log("[DialogBox] Dialog finished with empty text, hiding dialog box");
-    return null; // Hanya return null jika tidak ada teks sama sekali dan bukan dialog kontrak dan bukan force show
+    console.log("[DialogBox] Dialog marked as finished, hiding dialog box");
+    return null; // Return null jika dialog selesai tanpa memperhatikan isi teks
   }
   
   // Periksa apakah ini adalah dialog kontrak (CONTRACT_RESPONSES) berdasarkan teks

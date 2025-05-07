@@ -342,12 +342,20 @@ const ContractCard: React.FC = () => {
         // Pada akhir dialog (isComplete = true), tandai bahwa dialog kontrak telah selesai
         if (isComplete) {
           // @ts-ignore - hapus properti global ketika dialog selesai
+          console.log("[ContractCard] Hiding dialog box after contract dialog finished");
+          
+          // Sembunyikan dialog box segera setelah dialog selesai diucapkan
           setTimeout(() => {
-            // @ts-ignore
+            // @ts-ignore - Set isDialogFinished ke true untuk menyembunyikan dialog box
+            if (typeof window.__dialogBoxIsFinishedSetter === "function") {
+              window.__dialogBoxIsFinishedSetter(true);
+            }
+            
+            // @ts-ignore - Reset semua flag dialog kontrak
             window.__contractDialogActive = false;
             // @ts-ignore
             window.__contractResponseText = null;
-          }, 5000); // Beri waktu 5 detik untuk dialog tetap terlihat
+          }, 500); // Beri waktu 0.5 detik agar terlihat natural
         }
       });
     }, 300);
