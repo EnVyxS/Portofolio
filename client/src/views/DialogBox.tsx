@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import DialogController from "../controllers/dialogController";
 import HoverDialogController from "../controllers/hoverDialogController";
@@ -69,6 +69,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
   // Timer reference untuk auto-continue
   const autoPlayTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  
+  // Referensi untuk melacak apakah dialog sedang diproses (mencegah klik berlebihan)
+  const isProcessingRef = useRef<boolean>(false);
+  
+  // Timestamp klik terakhir untuk debounce secara manual
+  const lastClickTimeRef = useRef<number>(0);
 
   // Fungsi untuk toggle mute
   const toggleMute = useCallback(() => {
