@@ -12,62 +12,64 @@ export type AchievementType =
 // Icon SVG untuk setiap jenis achievement
 const AchievementIcons: Record<AchievementType, React.ReactNode> = {
   approach: (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 4L14 8H20L15 12L17 18L12 14L7 18L9 12L4 8H10L12 4Z" 
-        stroke="currentColor" strokeWidth="1.5" fill="currentColor" opacity="0.8" />
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M19 8l-7-7-7 7v11a2 2 0 002 2h10a2 2 0 002-2V8z" 
+        stroke="#FFC107" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
+      <path d="M9 15l3 3 5-5" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   contract: (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M20 8H4C3.44772 8 3 8.44772 3 9V19C3 19.5523 3.44772 20 4 20H20C20.5523 20 21 19.5523 21 19V9C21 8.44772 20.5523 8 20 8Z" 
-        stroke="currentColor" strokeWidth="1.5" fill="currentColor" opacity="0.8" />
-      <path d="M16 8V6C16 4.89543 15.1046 4 14 4H10C8.89543 4 8 4.89543 8 6V8" 
-        stroke="currentColor" strokeWidth="1.5" />
-      <path d="M7 13H17M7 16H14" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" 
+        stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
+      <path d="M7 7h10M7 11h10M7 15h6" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M15 19V5" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" strokeDasharray="1 2" />
     </svg>
   ),
   success: (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" 
-        stroke="currentColor" strokeWidth="1.5" fill="currentColor" opacity="0.7" />
-      <path d="M9 12L11 14L15 10" stroke="#4CAF50" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2" 
+        stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M8 16l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" 
+        fill="currentColor" fillOpacity="0.2" />
+      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
     </svg>
   ),
   anger: (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M15 10C15 10 13.8 12 12 12C10.2 12 9 10 9 10M3 8L5 10M21 8L19 10M12 18L12 16" 
-        stroke="#FF5722" strokeWidth="1.5" strokeLinecap="round" />
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" fill="currentColor" opacity="0.7" />
-      <path d="M12 18V16M3 8L5 10M21 8L19 10" stroke="#FF5722" strokeWidth="1.5" strokeLinecap="round" />
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" 
+        stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
+      <path d="M12 8v8M8 12h8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M15 9l-3-3-3 3M15 15l-3 3-3-3M9 15l-3-3 3-3M15 9l3 3-3 3" 
+        stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.7" />
     </svg>
   ),
   nightmare: (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12Z" 
-        stroke="currentColor" strokeWidth="1.5" fill="#2c2c2c" />
-      <path d="M6 11L8 13M18 11L16 13M9 16C9 16 10 17 12 17C14 17 15 16 15 16" 
-        stroke="#9C27B0" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M11 7L10 9M13 7L14 9" stroke="#9C27B0" strokeWidth="1.5" strokeLinecap="round" />
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2l2.5 5 5.5.5-4 4 1 5.5-5-2.5-5 2.5 1-5.5-4-4 5.5-.5L12 2z" 
+        stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
+      <path d="M12 7v5M12 16v.1" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1" strokeDasharray="1 1" />
     </svg>
   )
 };
 
 // Definisi teks untuk setiap jenis achievement
 const AchievementTitles: Record<AchievementType, string> = {
-  approach: 'THE FIRST STEP',
-  contract: 'CONTRACT REVEALED',
-  success: 'SOUL BOUND',
-  anger: 'WRATH UNLEASHED',
-  nightmare: 'NIGHTMARE DESCENT'
+  approach: 'FIRST IMPRESSION',
+  contract: 'PORTFOLIO EXPLORER',
+  success: 'CONNECTION ESTABLISHED',
+  anger: 'CHALLENGE ACCEPTED',
+  nightmare: 'DIGITAL ODYSSEY'
 };
 
 // Deskripsi achievement
 const AchievementDescriptions: Record<AchievementType, string> = {
-  approach: 'You dared to approach the demon.',
-  contract: 'You uncovered the contract of eternal damnation.',
-  success: 'Your soul is now bound to the eternal contract.',
-  anger: 'You have awakened the demon\'s wrath.',
-  nightmare: 'You have crossed into the realm of nightmares.'
+  approach: 'You took the first step to discover this unique portfolio.',
+  contract: 'You explored the professional projects and credentials.',
+  success: 'You\'ve successfully connected with the professional profile.',
+  anger: 'You tested the limits of the interactive experience.',
+  nightmare: 'You discovered the creative side of this digital portfolio.'
 };
 
 interface AchievementProps {
@@ -133,23 +135,26 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
             duration: 0.5
           }}
           className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center p-6 
-                    bg-black bg-opacity-95 border border-amber-700 
-                    text-amber-100 rounded-none shadow-xl max-w-xl"
+                    bg-gradient-to-b from-zinc-900 to-black bg-opacity-95 border-2 border-amber-600 
+                    text-amber-100 rounded-sm shadow-2xl max-w-xl backdrop-blur-sm"
         >
           <div className="w-full text-center mb-3">
-            <h3 className="text-2xl font-serif font-bold text-amber-400 uppercase tracking-wider">ACHIEVEMENT UNLOCKED</h3>
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-amber-600 to-transparent my-2"></div>
+            <h3 className="text-2xl font-serif font-bold text-amber-300 uppercase tracking-wider animate-pulse">
+              ACHIEVEMENT<span className="text-amber-500 px-2">⚜</span>UNLOCKED
+            </h3>
+            <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent my-3"></div>
           </div>
           <div className="flex items-center w-full">
-            <div className="mr-6 text-amber-400 flex-shrink-0">
+            <div className="mr-6 text-amber-300 flex-shrink-0 p-2 bg-gradient-to-br from-amber-900/20 to-black/50 rounded-lg border border-amber-700/50 drop-shadow-lg">
               {AchievementIcons[type]}
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-amber-400 mb-2 font-serif tracking-wide">{AchievementTitles[type]}</h3>
-              <p className="text-sm text-amber-200 opacity-90">{AchievementDescriptions[type]}</p>
+              <h3 className="text-xl font-bold text-amber-400 mb-2 font-serif tracking-wide drop-shadow-md">{AchievementTitles[type]}</h3>
+              <p className="text-sm text-amber-200 opacity-90 leading-relaxed">{AchievementDescriptions[type]}</p>
             </div>
           </div>
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-amber-600 to-transparent mt-3"></div>
+          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mt-4"></div>
+          <div className="mt-2 text-xs text-amber-400/70 font-serif">Press any key to continue</div>
         </motion.div>
       )}
     </AnimatePresence>
