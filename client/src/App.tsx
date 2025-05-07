@@ -6,7 +6,6 @@ import GameContactCard from "./views/GameContactCard";
 import ElevenLabsSetup from "./views/ElevenLabsSetup";
 import ApproachScreen from "./views/ApproachScreen";
 import { AudioProvider, useAudio } from "./context/AudioManager";
-import { AchievementProvider } from "./context/AchievementManager"; // Added import
 import IdleTimeoutController from "./controllers/idleTimeoutController";
 import DialogController from "./controllers/dialogController";
 import DramaticEffects, {
@@ -329,9 +328,7 @@ function MainApp() {
 function App() {
   return (
     <AudioProvider>
-      <AchievementProvider> {/* Wrapped with AchievementProvider */}
-        <MainApp />
-      </AchievementProvider> {/* Closed AchievementProvider */}
+      <MainApp />
     </AudioProvider>
   );
 }

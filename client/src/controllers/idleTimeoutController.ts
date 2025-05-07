@@ -1,14 +1,4 @@
 import DialogController from "./dialogController";
-import { ACHIEVEMENTS } from "../components/Achievement";
-
-// Add achievement context to window object
-declare global {
-  interface Window {
-    __achievementContext?: {
-      showAchievement: (achievement: typeof ACHIEVEMENTS[keyof typeof ACHIEVEMENTS]) => void;
-    };
-  }
-}
 import HoverDialogController from "./hoverDialogController";
 import ElevenLabsService from "../services/elevenlabsService";
 
@@ -462,20 +452,7 @@ class IdleTimeoutController {
 
   // Method untuk menampilkan peringatan
   private showIdleWarning(text: string): void {
-    // Import achievement context
-    const { showAchievement } = window.__achievementContext || { showAchievement: () => {} };
-    
-    // Show achievement for anger
-    if (text.includes("KEEP PUSHING") || text.includes("GET OUT") || text.includes("ENOUGH")) {
-      showAchievement(ACHIEVEMENTS.ANGER);
-    }
-    
-    // Show achievement for nightmare entry
-    if (text.includes("YOU ASKED FOR THIS")) {
-      showAchievement(ACHIEVEMENTS.NIGHTMARE);
-    }
-    
-    // Cek apakah ini dialog marah dan sudah pernah ditampilkan  
+    // Cek apakah ini dialog marah dan sudah pernah ditampilkan
     const isAngryDialog = text.includes("KEEP PUSHING") || 
                          text.includes("GET OUT") || 
                          text.includes("ENOUGH") ||
