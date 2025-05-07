@@ -115,17 +115,8 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     // Mainkan efek suara souls-like
     playSoulsSound();
     
-    // Unlock achievement 'approach' IMMEDIATELY
-    try {
-      // Execute with requestAnimationFrame to ensure it renders in the next frame
-      requestAnimationFrame(() => {
-        const achievementController = AchievementController.getInstance();
-        achievementController.unlockAchievement('approach');
-        console.log("Approach achievement unlocked immediately");
-      });
-    } catch (error) {
-      console.error("Failed to unlock achievement:", error);
-    }
+    // REMOVED: We no longer unlock achievement immediately
+    // Instead we'll unlock it after the transition completes
     
     // Memulai langkah kaki dengan jeda 1.5 detik setelah klik
     setTimeout(() => {
@@ -185,12 +176,37 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
             clearInterval(fadeOutInterval);
             
             // Lakukan transisi setelah suara langkah kaki fade out
+            // Pertama, mulai transisi ke scene berikutnya
             onApproach();
+            
+            // Kemudian, setelah transisi scene selesai (1.5 detik), unlock achievement
+            setTimeout(() => {
+              try {
+                // Unlock achievement 'approach' dengan delay
+                const achievementController = AchievementController.getInstance();
+                achievementController.unlockAchievement('approach');
+                console.log("Approach achievement unlocked with delay after conversation started");
+              } catch (error) {
+                console.error("Failed to unlock delayed achievement:", error);
+              }
+            }, 1500); // Delay 1.5 detik setelah transisi scene
           }
         }, 65); // Slightly faster interval for smoother fade
       } else {
         // Jika tidak ada footsteps sound, tetap lakukan transisi
         onApproach();
+        
+        // Sama seperti di atas, tunggu sebentar lalu unlock achievement
+        setTimeout(() => {
+          try {
+            // Unlock achievement 'approach' dengan delay
+            const achievementController = AchievementController.getInstance();
+            achievementController.unlockAchievement('approach');
+            console.log("Approach achievement unlocked with delay after conversation started");
+          } catch (error) {
+            console.error("Failed to unlock delayed achievement:", error);
+          }
+        }, 1500); // Delay 1.5 detik setelah transisi scene
       }
     }, 5000); // Total waktu: 5 detik (1.5 detik jeda + 3.5 detik berjalan)
   };
