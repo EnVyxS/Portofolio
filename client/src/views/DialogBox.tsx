@@ -522,14 +522,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       }}
     >
       <div
-        className={`dialog-box ${dialogSource === "hover" ? "hover-dialog" : ""}`}
+        className={`dialog-box ${dialogSource === DialogSource.HOVER ? "hover-dialog" : ""}`}
         data-angry={text.includes("fuck") || text.includes("ENOUGH") || text.includes("GET OUT") || text.includes("ASKED FOR THIS")}
       >
         <div
-          className={`character-name ${dialogSource === "hover" ? "hover-character" : ""}`}
+          className={`character-name ${dialogSource === DialogSource.HOVER ? "hover-character" : ""}`}
         >
           {characterName}
-          {dialogSource === "hover" && (
+          {dialogSource === DialogSource.HOVER && (
             <span className="hover-indicator">⟳</span>
           )}
         </div>
@@ -537,13 +537,13 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         <div className="dialog-actions">
           <div className="dialog-hints">
             {isComplete &&
-              (isDialogPersistent(text) ? (
+              (isDialogPersistent(text, dialogSource) ? (
                 <div className="waiting-interaction-hint">
                   Waiting for your action...
                 </div>
               ) : // Only show auto-continue hint for main dialog and not for other types
               // Check if it's not a hover dialog, idle warning, or contract response
-              dialogSource === "main" &&
+              dialogSource === DialogSource.MAIN &&
                 !text.includes("fuck") && // Idle timeout and angry dialog phrases
                 !text.includes("ENOUGH") &&
                 !text.includes("GET OUT") &&
@@ -576,12 +576,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             {/* Tentukan apakah tombol NEXT/SKIP harus ditampilkan */}
             {(() => {
               // Untuk dialog hover, tidak perlu menampilkan tombol NEXT/SKIP
-              if (dialogSource === "hover") {
+              if (dialogSource === DialogSource.HOVER) {
                 return null;
               }
 
               // Untuk dialog terakhir dari dialogModel, tidak perlu menampilkan tombol NEXT/SKIP
-              if (dialogSource === "main") {
+              if (dialogSource === DialogSource.MAIN) {
                 const allDialogs = dialogController
                   .getDialogModel()
                   .getAllDialogs();
