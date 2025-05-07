@@ -1,5 +1,6 @@
 import DialogController from "./dialogController";
 import HoverDialogController from "./hoverDialogController";
+import AchievementController from "./achievementController";
 import ElevenLabsService from "../services/elevenlabsService";
 
 // Dialog yang akan ditampilkan pada timeout tertentu
@@ -546,6 +547,14 @@ class IdleTimeoutController {
     window.__forceShowIdleWarning = true;
     console.log("[IdleTimeoutController] Setting global flag to force show throw warning dialog");
 
+    // Unlock achievement for making character angry
+    try {
+      const achievementController = AchievementController.getInstance();
+      achievementController.unlockAchievement('anger');
+    } catch (error) {
+      console.error("Failed to unlock anger achievement:", error);
+    }
+
     // Play the throw sound effect using the dynamically generated whoosh sound
     try {
       if (window.createWhooshSound && typeof window.createWhooshSound === 'function') {
@@ -708,6 +717,15 @@ class IdleTimeoutController {
       // Mantenemos el tiempo para permitir que se vea claramente el efecto de "pingsan" (desmayo)
       setTimeout(() => {
         console.log("[IdleTimeoutController] Redirecting to dream page after blackout effect");
+        
+        // Unlock nightmare achievement before redirecting
+        try {
+          const achievementController = AchievementController.getInstance();
+          achievementController.unlockAchievement('nightmare');
+        } catch (error) {
+          console.error("Failed to unlock nightmare achievement:", error);
+        }
+        
         window.location.href = "/dream.html"; // Redirigir a la página de sueño con video de música
       }, 2500); // Mantenemos 2500ms para una transición clara del efecto blackout
     };
