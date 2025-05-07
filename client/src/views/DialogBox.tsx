@@ -26,6 +26,14 @@ function isDialogPersistent(text: string): boolean {
   // Dialog dari dialogModel.ts hampir semua non-persistent
   // kita menggunakan pola false secara default
 
+  // Khusus untuk RETURN_DIALOG dan HOVER_AFTER_RESET - selalu persistent
+  if (
+    (text.includes("Now what, you little filth") || text.includes("Back for more punishment")) ||
+    (text.includes("Hmph... Finally, you decide to move") || text.includes("just get on with signing the damn contract"))
+  ) {
+    return true;
+  }
+
   // Dialog khusus (dari hover) yang perlu persistent
   if (
     text.includes("?") &&

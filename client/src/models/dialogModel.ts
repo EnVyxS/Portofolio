@@ -10,7 +10,7 @@ export interface Dialog {
 export const RETURN_DIALOG: Dialog = {
   id: 1001,
   character: "DIVA JUAN NUR TAQARRUB",
-  text: "Now what, you little filth!? Back for more punishment?",
+  text: "[menacing] Now what, you little filth!?.. [threatening] Back for more punishment?",
   voiceId: "dBynzNhvSFj0l1D7I9yV",
   persistent: true
 };
