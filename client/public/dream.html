@@ -78,6 +78,10 @@
                 }
             }
         </script>
+        
+        <!-- Achievement Sound Script -->
+        <script src="/assets/sounds/achievement-sound.js"></script>
+        
         <link
             href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&display=swap"
             rel="stylesheet"
@@ -1176,6 +1180,179 @@
                 });
             }
 
+            // Achievement System for Dream Page
+            function setupAchievementSystem() {
+                // Achievement definitions
+                const ACHIEVEMENTS_KEY = "portfolio_achievements";
+                
+                // Function to load existing achievements
+                function loadAchievements() {
+                    const savedData = localStorage.getItem(ACHIEVEMENTS_KEY);
+                    if (savedData) {
+                        try {
+                            return new Set(JSON.parse(savedData));
+                        } catch (e) {
+                            console.error('Error parsing achievements data:', e);
+                        }
+                    }
+                    return new Set();
+                }
+                
+                // Function to save achievements
+                function saveAchievements(achievements) {
+                    localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify([...achievements]));
+                }
+                
+                // Function to unlock an achievement
+                function unlockAchievement(type) {
+                    const achievements = loadAchievements();
+                    if (!achievements.has(type)) {
+                        achievements.add(type);
+                        saveAchievements(achievements);
+                        showAchievement(type);
+                    }
+                }
+                
+                // Function to show achievement
+                function showAchievement(type) {
+                    // Achievement data
+                    const titles = {
+                        'nightmare': 'NIGHTMARE DESCENT'
+                    };
+                    
+                    const descriptions = {
+                        'nightmare': 'You have crossed into the realm of nightmares.'
+                    };
+                    
+                    // Create achievement element
+                    const achievementEl = document.createElement('div');
+                    achievementEl.className = 'achievement-notification';
+                    achievementEl.innerHTML = `
+                        <div class="achievement-content">
+                            <div class="achievement-header">
+                                <h3>ACHIEVEMENT UNLOCKED</h3>
+                                <div class="achievement-divider"></div>
+                            </div>
+                            <div class="achievement-body">
+                                <div class="achievement-icon">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12Z" 
+                                            stroke="currentColor" strokeWidth="1.5" fill="#2c2c2c" />
+                                        <path d="M6 11L8 13M18 11L16 13M9 16C9 16 10 17 12 17C14 17 15 16 15 16" 
+                                            stroke="#9C27B0" strokeWidth="1.5" strokeLinecap="round" />
+                                        <path d="M11 7L10 9M13 7L14 9" stroke="#9C27B0" strokeWidth="1.5" strokeLinecap="round" />
+                                    </svg>
+                                </div>
+                                <div class="achievement-text">
+                                    <h4>${titles[type]}</h4>
+                                    <p>${descriptions[type]}</p>
+                                </div>
+                            </div>
+                            <div class="achievement-divider"></div>
+                        </div>
+                    `;
+                    
+                    // Add styles inline
+                    const styleEl = document.createElement('style');
+                    styleEl.textContent = `
+                        .achievement-notification {
+                            position: fixed;
+                            bottom: 20px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            z-index: 9999;
+                            background-color: rgba(0, 0, 0, 0.95);
+                            border: 1px solid #b28c34;
+                            padding: 20px;
+                            color: #e2c080;
+                            font-family: serif;
+                            max-width: 400px;
+                            animation: achievementFadeIn 0.5s forwards, achievementFadeOut 0.5s 4.5s forwards;
+                        }
+                        
+                        .achievement-content {
+                            display: flex;
+                            flex-direction: column;
+                        }
+                        
+                        .achievement-header h3 {
+                            text-align: center;
+                            font-size: 1.4rem;
+                            font-weight: bold;
+                            margin: 0 0 10px;
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                        }
+                        
+                        .achievement-divider {
+                            height: 1px;
+                            background: linear-gradient(to right, transparent, #b28c34, transparent);
+                            margin: 8px 0;
+                        }
+                        
+                        .achievement-body {
+                            display: flex;
+                            align-items: center;
+                            margin: 10px 0;
+                        }
+                        
+                        .achievement-icon {
+                            margin-right: 15px;
+                            color: #e2c080;
+                        }
+                        
+                        .achievement-text h4 {
+                            margin: 0 0 5px;
+                            font-size: 1.2rem;
+                            font-weight: bold;
+                        }
+                        
+                        .achievement-text p {
+                            margin: 0;
+                            font-size: 0.9rem;
+                            opacity: 0.9;
+                        }
+                        
+                        @keyframes achievementFadeIn {
+                            from { opacity: 0; transform: translate(-50%, 50px); }
+                            to { opacity: 1; transform: translate(-50%, 0); }
+                        }
+                        
+                        @keyframes achievementFadeOut {
+                            from { opacity: 1; transform: translate(-50%, 0); }
+                            to { opacity: 0; transform: translate(-50%, -50px); }
+                        }
+                    `;
+                    
+                    // Add to document
+                    document.head.appendChild(styleEl);
+                    document.body.appendChild(achievementEl);
+                    
+                    // Play sound
+                    try {
+                        if (window.createAchievementSound && typeof window.createAchievementSound === 'function') {
+                            const playSound = window.createAchievementSound();
+                            if (playSound) {
+                                playSound();
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Error playing achievement sound:", e);
+                    }
+                    
+                    // Remove after animation completes
+                    setTimeout(() => {
+                        achievementEl.remove();
+                        styleEl.remove();
+                    }, 5000);
+                }
+                
+                // Unlock nightmare achievement when page loads
+                setTimeout(() => {
+                    unlockAchievement('nightmare');
+                }, 2000); // Wait 2 seconds after loading
+            }
+
             // Initialize everything
             window.onload = function () {
                 // Apply performance optimizations
@@ -1184,6 +1361,9 @@
                 // Start all effects
                 createWhispers();
                 animateWhispers();
+                
+                // Setup achievement system
+                setupAchievementSystem();
                 createFlashes();
                 setupWakeUpButton();
                 setupBackgroundMusic();
