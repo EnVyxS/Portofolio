@@ -84,7 +84,7 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
         
         console.log("Showing success achievement before redirecting to:", url);
         
-        // Add a small delay for the achievement to show first
+        // Add a shorter delay for the achievement to show first (1.5 detik)
         setTimeout(() => {
           console.log("Achievement delay completed, opening URL:", url);
           
@@ -93,7 +93,7 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
           } else {
             window.open(url, '_blank', 'noopener,noreferrer');
           }
-        }, 3000); // 3 second delay to show achievement
+        }, 1500); // 1.5 detik delay untuk achievement
       } catch (error) {
         // If there's an error with achievement, still redirect
         console.error("Error unlocking achievement:", error);
