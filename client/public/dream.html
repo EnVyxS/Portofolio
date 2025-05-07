@@ -1225,31 +1225,17 @@
                         'nightmare': 'You discovered the creative side of this digital portfolio.'
                     };
                     
-                    // Create achievement element
+                    // Create achievement element - Dark Souls style minimalist
                     const achievementEl = document.createElement('div');
                     achievementEl.className = 'achievement-notification';
                     achievementEl.innerHTML = `
                         <div class="achievement-content">
-                            <div class="achievement-header">
-                                <h3>ACHIEVEMENT<span style="color: #FFC107; padding: 0 8px;">⚜</span>UNLOCKED</h3>
-                                <div class="achievement-divider"></div>
+                            <div class="achievement-title">
+                                <span>Achievement Unlocked</span>
                             </div>
-                            <div class="achievement-body">
-                                <div class="achievement-icon">
-                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 2l2.5 5 5.5.5-4 4 1 5.5-5-2.5-5 2.5 1-5.5-4-4 5.5-.5L12 2z" 
-                                            stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
-                                        <path d="M12 7v5M12 16v.1" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
-                                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1" strokeDasharray="1 1" />
-                                    </svg>
-                                </div>
-                                <div class="achievement-text">
-                                    <h4>${titles[type]}</h4>
-                                    <p>${descriptions[type]}</p>
-                                </div>
+                            <div class="achievement-name">
+                                ${titles[type]}
                             </div>
-                            <div class="achievement-divider"></div>
-                            <div class="achievement-footer">Press any key to continue</div>
                         </div>
                     `;
                     
@@ -1258,93 +1244,65 @@
                     styleEl.textContent = `
                         .achievement-notification {
                             position: fixed;
-                            bottom: 20px;
-                            left: 50%;
-                            transform: translateX(-50%);
+                            bottom: 24px;
+                            right: 24px;
                             z-index: 9999;
-                            background: linear-gradient(to bottom, #1c1c1c, #000000);
-                            border: 2px solid #FFC107;
-                            padding: 20px;
+                            background-color: rgba(0, 0, 0, 0.85);
+                            border: 1px solid rgba(255, 193, 7, 0.5);
+                            padding: 8px 12px;
                             color: #e2c080;
                             font-family: serif;
-                            max-width: 400px;
-                            animation: achievementFadeIn 0.5s forwards, achievementFadeOut 0.5s 4.5s forwards;
-                            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
-                            backdrop-filter: blur(5px);
+                            width: 240px;
+                            animation: achievementFadeIn 0.4s forwards, achievementFadeOut 0.4s 3.6s forwards;
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+                            overflow: hidden;
                         }
                         
                         .achievement-content {
                             display: flex;
                             flex-direction: column;
+                            position: relative;
                         }
                         
-                        .achievement-header h3 {
-                            text-align: center;
-                            font-size: 1.4rem;
-                            font-weight: bold;
-                            margin: 0 0 10px;
+                        .achievement-title {
+                            margin-bottom: 2px;
+                        }
+                        
+                        .achievement-title span {
+                            font-size: 10px;
+                            color: rgba(255, 193, 7, 0.7);
                             text-transform: uppercase;
                             letter-spacing: 1px;
-                            animation: pulse 2s infinite;
                         }
                         
-                        @keyframes pulse {
-                            0% { opacity: 0.9; }
-                            50% { opacity: 1; }
-                            100% { opacity: 0.9; }
+                        .achievement-name {
+                            font-size: 14px;
+                            color: #e2c080;
+                            text-transform: uppercase;
+                            font-weight: normal;
+                            letter-spacing: 0.5px;
+                            margin-top: 2px;
                         }
                         
-                        .achievement-divider {
-                            height: 2px;
-                            background: linear-gradient(to right, transparent, #FFC107, transparent);
-                            margin: 8px 0;
-                        }
-                        
-                        .achievement-body {
-                            display: flex;
-                            align-items: center;
-                            margin: 10px 0;
-                        }
-                        
-                        .achievement-icon {
-                            margin-right: 15px;
-                            color: #FFC107;
-                            padding: 8px;
-                            background: rgba(255, 193, 7, 0.1);
-                            border-radius: 8px;
-                            border: 1px solid rgba(255, 193, 7, 0.3);
-                        }
-                        
-                        .achievement-text h4 {
-                            margin: 0 0 5px;
-                            font-size: 1.2rem;
-                            font-weight: bold;
-                            color: #FFC107;
-                            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-                        }
-                        
-                        .achievement-text p {
-                            margin: 0;
-                            font-size: 0.9rem;
-                            opacity: 0.9;
-                            line-height: 1.4;
-                        }
-                        
-                        .achievement-footer {
-                            text-align: center;
-                            font-size: 0.8rem;
-                            color: rgba(255, 193, 7, 0.7);
-                            margin-top: 8px;
+                        /* Subtle line at the bottom */
+                        .achievement-content::after {
+                            content: '';
+                            position: absolute;
+                            bottom: -4px;
+                            left: 0;
+                            right: 0;
+                            height: 1px;
+                            background: linear-gradient(to right, transparent, rgba(255, 193, 7, 0.5), transparent);
                         }
                         
                         @keyframes achievementFadeIn {
-                            from { opacity: 0; transform: translate(-50%, 50px); }
-                            to { opacity: 1; transform: translate(-50%, 0); }
+                            from { opacity: 0; transform: translateY(20px); }
+                            to { opacity: 1; transform: translateY(0); }
                         }
                         
                         @keyframes achievementFadeOut {
-                            from { opacity: 1; transform: translate(-50%, 0); }
-                            to { opacity: 0; transform: translate(-50%, -50px); }
+                            from { opacity: 1; transform: translateY(0); }
+                            to { opacity: 0; transform: translateY(-20px); }
                         }
                     `;
                     

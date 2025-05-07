@@ -110,7 +110,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
       setTimeout(() => {
         if (onComplete) onComplete();
       }, 500); // Tunggu animasi exit selesai
-    }, 5000);
+    }, 4000); // Tampilkan selama 4 detik saja agar tidak terlalu lama
 
     return () => {
       clearTimeout(timer);
@@ -125,36 +125,40 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -50 }}
+          exit={{ opacity: 0, y: -30 }}
           transition={{ 
             type: "spring", 
             stiffness: 300, 
-            damping: 20,
-            duration: 0.5
+            damping: 25,
+            duration: 0.4
           }}
-          className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center p-6 
-                    bg-gradient-to-b from-zinc-900 to-black bg-opacity-95 border-2 border-amber-600 
-                    text-amber-100 rounded-sm shadow-2xl max-w-xl backdrop-blur-sm"
+          className="fixed bottom-6 right-6 z-50"
         >
-          <div className="w-full text-center mb-3">
-            <h3 className="text-2xl font-serif font-bold text-amber-300 uppercase tracking-wider animate-pulse">
-              ACHIEVEMENT<span className="text-amber-500 px-2">⚜</span>UNLOCKED
-            </h3>
-            <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent my-3"></div>
-          </div>
-          <div className="flex items-center w-full">
-            <div className="mr-6 text-amber-300 flex-shrink-0 p-2 bg-gradient-to-br from-amber-900/20 to-black/50 rounded-lg border border-amber-700/50 drop-shadow-lg">
-              {AchievementIcons[type]}
+          {/* Dark Souls style achievement - minimalis dan kecil di pojok kanan bawah */}
+          <div className="flex flex-col items-start">
+            {/* Achievement notification */}
+            <div className="px-4 py-2 bg-black/90 border border-amber-900/50 shadow-lg relative overflow-hidden w-64">
+              {/* Soft glow */}
+              <div className="absolute inset-0 opacity-10 bg-amber-500 blur-md"></div>
+              
+              {/* Title with subtle animation */}
+              <div className="mb-1 relative z-10">
+                <p className="text-[10px] text-amber-500/80 uppercase tracking-widest">Achievement Unlocked</p>
+              </div>
+              
+              {/* Achievement name */}
+              <div className="flex items-center gap-2 relative z-10">
+                <div className="text-amber-200 text-sm uppercase font-serif tracking-wider">
+                  {AchievementTitles[type]}
+                </div>
+              </div>
+              
+              {/* Souls-style line separator */}
+              <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-amber-900/70 to-transparent"></div>
             </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold text-amber-400 mb-2 font-serif tracking-wide drop-shadow-md">{AchievementTitles[type]}</h3>
-              <p className="text-sm text-amber-200 opacity-90 leading-relaxed">{AchievementDescriptions[type]}</p>
-            </div>
           </div>
-          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent mt-4"></div>
-          <div className="mt-2 text-xs text-amber-400/70 font-serif">Press any key to continue</div>
         </motion.div>
       )}
     </AnimatePresence>
