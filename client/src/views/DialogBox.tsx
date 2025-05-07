@@ -112,6 +112,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
   // Handle Continue sebagai useCallback untuk dapat digunakan dalam useEffect
   const handleContinue = useCallback(() => {
+    // Debug log untuk membantu tracking dialog state
+    console.log(`[DialogBox] Next dialog check - hasPendingHover: ${hoverDialogController.isTypingHoverDialog()}, dialogSource: ${dialogSource}`);
+    
     // Reset force show idle warning flag saat user menekan tombol continue
     try {
       // @ts-ignore - akses properti global dari window
@@ -231,13 +234,21 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         hoverDialogController.stopTyping();
         setIsComplete(true);
       } else {
-        // Jika dialog sudah selesai, user menekan NEXT
+        // Jika dialog sudah selesai, user menekan CLOSE
         // Reset hover state dan hilangkan dialog box
         hoverDialogController.resetHoverState();
         setIsDialogFinished(true);
-
-        // Jangan kembali ke dialog utama
-        // Ini perbaikan utama yang dilakukan
+        
+        // Periksa apakah ada dialog utama yang masih aktif
+        if (dialogController.getCurrentDialog() !== null) {
+          // Jika ada dialog utama yang masih aktif, kembalikan ke dialog utama
+          console.log('[DialogBox] Returning to main dialog after hover dialog closed');
+          setTimeout(() => {
+            setDialogSource(DialogSource.MAIN);
+            // Also show dialog box again for main dialog
+            setIsDialogFinished(false);
+          }, 100); // Slight delay for clean transition
+        }
       }
     }
   }, [
@@ -333,6 +344,17 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
           // Hilangkan dialog box
           setIsDialogFinished(true);
+          
+          // Periksa apakah ada dialog utama yang masih aktif
+          if (dialogController.getCurrentDialog() !== null) {
+            // Jika ada dialog utama yang masih aktif, kembalikan ke dialog utama setelah delay
+            console.log('[DialogBox] Auto-returning to main dialog after hover dialog auto-dismissed');
+            setTimeout(() => {
+              setDialogSource(DialogSource.MAIN);
+              // Also show dialog box again for main dialog
+              setIsDialogFinished(false);
+            }, 100); // Slight delay for clean transition
+          }
         }, dismissDelay);
       }
     }
@@ -431,10 +453,17 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         return;
       }
       
+      console.log(`[DialogBox] Setting dialog source to ${source}`);
       setDialogSource(source);
       if (source === DialogSource.MAIN) {
         setCharacterName("DIVA JUAN NUR TAQARRUB");
       }
+    };
+    
+    // Buat function untuk set isDialogFinished dari HoverDialogController
+    hoverDialogController.setIsDialogFinished = (value: boolean) => {
+      console.log(`[DialogBox] HoverDialogController setting isDialogFinished to ${value}`);
+      setIsDialogFinished(value);
     };
 
     // Periksa apakah hover dialog sedang aktif (typing)

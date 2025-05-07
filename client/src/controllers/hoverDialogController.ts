@@ -548,6 +548,12 @@ class HoverDialogController {
     // Hentikan dialog yang sedang berjalan jika ada
     this.dialogController.stopTyping();
     this.elevenlabsService.stopSpeaking();
+    
+    // Tambahan penting: force set isDialogFinished ke true untuk sembunyikan main dialog
+    if (this.setIsDialogFinished) {
+      console.log('[HoverDialogController] Force hiding main dialog box by setting isDialogFinished to true');
+      this.setIsDialogFinished(true);
+    }
 
     // Tandai bahwa user sudah berinteraksi dengan hover dialog
     this.hasInteractedWithHover = true;
