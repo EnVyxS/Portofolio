@@ -6,6 +6,7 @@ export type AchievementType =
   | 'approach'    // "Approach Him" ditekan
   | 'contract'    // Membuka kontrak
   | 'success'     // Berhasil membuat kontrak (link ditekan)
+  | 'document'    // Berhasil membuka dokumen kontrak
   | 'anger'       // Berhasil membuat marah
   | 'nightmare';  // Berhasil masuk ke nightmare
 
@@ -24,6 +25,15 @@ const AchievementIcons: Record<AchievementType, React.ReactNode> = {
         stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
       <path d="M7 7h10M7 11h10M7 15h6" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
       <path d="M15 19V5" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" strokeDasharray="1 2" />
+    </svg>
+  ),
+  document: (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" 
+        stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
+      <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2 10l3 3 3-3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" 
+        fill="none" fillOpacity="0.3" />
     </svg>
   ),
   success: (
@@ -58,6 +68,7 @@ const AchievementIcons: Record<AchievementType, React.ReactNode> = {
 const AchievementTitles: Record<AchievementType, string> = {
   approach: 'FIRST IMPRESSION',
   contract: 'PORTFOLIO EXPLORER',
+  document: 'DOCUMENT VIEWER',
   success: 'CONNECTION ESTABLISHED',
   anger: 'CHALLENGE ACCEPTED',
   nightmare: 'DIGITAL ODYSSEY'
@@ -67,6 +78,7 @@ const AchievementTitles: Record<AchievementType, string> = {
 const AchievementDescriptions: Record<AchievementType, string> = {
   approach: 'You took the first step to discover this unique portfolio.',
   contract: 'You explored the professional projects and credentials.',
+  document: 'You\'ve examined the detailed documents within the contract.',
   success: 'You\'ve successfully connected with the professional profile.',
   anger: 'You tested the limits of the interactive experience.',
   nightmare: 'You discovered the creative side of this digital portfolio.'

@@ -344,10 +344,21 @@ const ContractCard: React.FC = () => {
   const openImageInNewTab = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    // Langsung buka gambar kontrak di tab baru tanpa achievement
-    // Ini beda dengan kontrak "Success" yang terjadi saat link sosial diklik
-    window.open(CONTRACT_IMAGES[currentIndex], "_blank");
-    console.log("Opening contract image in new tab");
+    // Berikan achievement 'document' saat double-click pada gambar kontrak
+    try {
+      const achievementController = AchievementController.getInstance();
+      achievementController.unlockAchievement('document');
+      
+      // Buka gambar kontrak di tab baru setelah jeda singkat untuk melihat achievement
+      setTimeout(() => {
+        window.open(CONTRACT_IMAGES[currentIndex], "_blank");
+        console.log("Opening contract image in new tab after showing document achievement");
+      }, 1500); // 1.5 detik delay untuk melihat achievement
+    } catch (error) {
+      console.error("Failed to unlock document achievement:", error);
+      // Jika terjadi error, tetap buka gambar kontrak
+      window.open(CONTRACT_IMAGES[currentIndex], "_blank");
+    }
   };
 
   return (
