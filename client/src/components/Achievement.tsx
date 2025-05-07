@@ -54,20 +54,20 @@ const AchievementIcons: Record<AchievementType, React.ReactNode> = {
 
 // Definisi teks untuk setiap jenis achievement
 const AchievementTitles: Record<AchievementType, string> = {
-  approach: 'The First Step',
-  contract: 'Contract Revealed',
-  success: 'Soul Bound',
-  anger: 'Wrath Unleashed',
-  nightmare: 'Nightmare Descent'
+  approach: 'THE FIRST STEP',
+  contract: 'CONTRACT REVEALED',
+  success: 'SOUL BOUND',
+  anger: 'WRATH UNLEASHED',
+  nightmare: 'NIGHTMARE DESCENT'
 };
 
 // Deskripsi achievement
 const AchievementDescriptions: Record<AchievementType, string> = {
-  approach: 'You dared to approach him.',
-  contract: 'You uncovered the contract of souls.',
-  success: 'You have linked your soul to the contract.',
-  anger: 'You have provoked his wrath.',
-  nightmare: 'You have entered the realm of nightmares.'
+  approach: 'You dared to approach the demon.',
+  contract: 'You uncovered the contract of eternal damnation.',
+  success: 'Your soul is now bound to the eternal contract.',
+  anger: 'You have awakened the demon\'s wrath.',
+  nightmare: 'You have crossed into the realm of nightmares.'
 };
 
 interface AchievementProps {
@@ -132,17 +132,24 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
             damping: 20,
             duration: 0.5
           }}
-          className="fixed bottom-8 right-8 z-50 flex items-center p-4 
-                    bg-black bg-opacity-90 border border-amber-600 
-                    text-amber-100 rounded-lg shadow-lg max-w-sm"
+          className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center p-6 
+                    bg-black bg-opacity-95 border border-amber-700 
+                    text-amber-100 rounded-none shadow-xl max-w-xl"
         >
-          <div className="mr-4 text-amber-400 flex-shrink-0">
-            {AchievementIcons[type]}
+          <div className="w-full text-center mb-3">
+            <h3 className="text-2xl font-serif font-bold text-amber-400 uppercase tracking-wider">ACHIEVEMENT UNLOCKED</h3>
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-amber-600 to-transparent my-2"></div>
           </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-bold text-amber-400 mb-1">{AchievementTitles[type]}</h3>
-            <p className="text-sm text-amber-200">{AchievementDescriptions[type]}</p>
+          <div className="flex items-center w-full">
+            <div className="mr-6 text-amber-400 flex-shrink-0">
+              {AchievementIcons[type]}
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-amber-400 mb-2 font-serif tracking-wide">{AchievementTitles[type]}</h3>
+              <p className="text-sm text-amber-200 opacity-90">{AchievementDescriptions[type]}</p>
+            </div>
           </div>
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-amber-600 to-transparent mt-3"></div>
         </motion.div>
       )}
     </AnimatePresence>

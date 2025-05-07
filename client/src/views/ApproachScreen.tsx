@@ -115,10 +115,14 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     // Mainkan efek suara souls-like
     playSoulsSound();
     
-    // Unlock achievement 'approach'
+    // Unlock achievement 'approach' IMMEDIATELY
     try {
-      const achievementController = AchievementController.getInstance();
-      achievementController.unlockAchievement('approach');
+      // Execute with requestAnimationFrame to ensure it renders in the next frame
+      requestAnimationFrame(() => {
+        const achievementController = AchievementController.getInstance();
+        achievementController.unlockAchievement('approach');
+        console.log("Approach achievement unlocked immediately");
+      });
     } catch (error) {
       console.error("Failed to unlock achievement:", error);
     }
