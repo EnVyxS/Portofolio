@@ -410,38 +410,46 @@ const ContractCard: React.FC = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="contract-controls">
-                <button
-                  onClick={handleClose}
-                  className="control-button close-button"
-                >
-                  ×
-                </button>
-                <div className="zoom-controls">
-                  <button onClick={handleZoomIn} className="control-button">
-                    <FaSearchPlus />
-                  </button>
-                  <button onClick={handleZoomOut} className="control-button">
-                    <FaSearchMinus />
+                <div className="left-controls">
+                  <button
+                    onClick={handleClose}
+                    className="control-button close-button"
+                  >
+                    ×
                   </button>
                 </div>
-                <div className="navigation-controls">
-                  <button
-                    onClick={handlePrevDoc}
-                    className={`control-button ${currentIndex === 0 ? "disabled" : ""}`}
-                    disabled={currentIndex === 0}
-                  >
-                    <FaArrowLeft />
-                  </button>
-                  <span className="page-indicator">
-                    {currentIndex + 1}/{CONTRACT_IMAGES.length}
-                  </span>
-                  <button
-                    onClick={handleNextDoc}
-                    className={`control-button ${currentIndex === CONTRACT_IMAGES.length - 1 ? "disabled" : ""}`}
-                    disabled={currentIndex === CONTRACT_IMAGES.length - 1}
-                  >
-                    <FaArrowRight />
-                  </button>
+
+                <div className="center-controls">
+                  <div className="navigation-controls">
+                    <button
+                      onClick={handlePrevDoc}
+                      className={`control-button ${currentIndex === 0 ? "disabled" : ""}`}
+                      disabled={currentIndex === 0}
+                    >
+                      <FaArrowLeft />
+                    </button>
+                    <span className="page-indicator">
+                      {currentIndex + 1}/{CONTRACT_IMAGES.length}
+                    </span>
+                    <button
+                      onClick={handleNextDoc}
+                      className={`control-button ${currentIndex === CONTRACT_IMAGES.length - 1 ? "disabled" : ""}`}
+                      disabled={currentIndex === CONTRACT_IMAGES.length - 1}
+                    >
+                      <FaArrowRight />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="right-controls">
+                  <div className="zoom-controls">
+                    <button onClick={handleZoomIn} className="control-button">
+                      <FaSearchPlus />
+                    </button>
+                    <button onClick={handleZoomOut} className="control-button">
+                      <FaSearchMinus />
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -604,10 +612,27 @@ const ContractCard: React.FC = () => {
           padding: 14px 20px;
           background: rgba(35, 30, 25, 0.95);
           border-bottom: 2px solid rgba(170, 150, 120, 0.35);
-          flex-wrap: wrap;
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
           position: relative;
           z-index: 5;
+        }
+
+        .left-controls, .center-controls, .right-controls {
+          display: flex;
+          align-items: center;
+          flex: 1;
+        }
+
+        .left-controls {
+          justify-content: flex-start;
+        }
+
+        .center-controls {
+          justify-content: center;
+        }
+
+        .right-controls {
+          justify-content: flex-end;
         }
 
         .zoom-controls, .navigation-controls {
@@ -657,6 +682,11 @@ const ContractCard: React.FC = () => {
           color: #f0e6cc;
           background: rgba(60, 40, 30, 0.9);
           transition: all 0.25s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          line-height: 1;
+          padding-bottom: 2px; /* Sedikit penyesuaian untuk posisi vertikal tanda × */
         }
         
         .close-button:hover {
@@ -1029,12 +1059,13 @@ const ContractCard: React.FC = () => {
           }
           
           .contract-controls {
-            flex-direction: row;
-            justify-content: space-between;
-            gap: 10px;
             padding: 12px 15px;
           }
           
+          .left-controls, .center-controls, .right-controls {
+            flex: auto;
+          }
+
           .control-button {
             width: 32px;
             height: 32px;
