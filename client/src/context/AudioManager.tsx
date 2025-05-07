@@ -51,11 +51,11 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
     // Setup main music
     music.loop = true;
     music.volume = 0.4; // Meningkatkan default volume dari 0.15 menjadi 0.4 untuk mobile
-    
+
     // Setup ambient sound
     ambient.loop = true;
     ambient.volume = 0.2; // Meningkatkan ambient volume dari 0.06 menjadi 0.2 untuk mobile
-    
+
     // Cleanup on unmount
     return () => {
       if (interactionTimeout.current) {
@@ -94,46 +94,68 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
     };
   }, [music, ambient, isAudioPlaying]);
 
-  // Setup automatic play triggers
+  // Setup automatic play triggers with better user interaction handling
   useEffect(() => {
-    // Function to try auto play - will likely be blocked by browser without interaction
-    const tryAutoPlay = async () => {
+    // Function to try audio playback
+    const startAudioPlayback = async () => {
       if (!autoPlayAttempted.current && !isAudioPlaying) {
         autoPlayAttempted.current = true;
-        
-        // Add muted attribute to make autoplay more likely to work
-        music.muted = true;
-        ambient.muted = true;
-        
+
         try {
-          await music.play();
-          // If autoplay succeeds, unmute after 300ms
+          // Load audio first to prepare for playback
+          await Promise.all([
+            music.load(),
+            ambient.load()
+          ]);
+
+          // Start with very low volume and muted
+          music.volume = 0.001;
+          ambient.volume = 0.001;
+          music.muted = true;
+          ambient.muted = true;
+
+          // Try to play both tracks
+          const playPromises = [
+            music.play().catch(() => console.log("Music autoplay failed")),
+            ambient.play().catch(() => console.log("Ambient autoplay failed"))
+          ];
+
+          await Promise.all(playPromises);
+
+          // Gradually increase volume and unmute after successful play
           setTimeout(() => {
             music.muted = false;
             ambient.muted = false;
+
+            // Fade in volume smoothly
+            const fadeInterval = setInterval(() => {
+              if (music.volume < currentVolume) {
+                music.volume = Math.min(music.volume + 0.1, currentVolume);
+                ambient.volume = Math.min(ambient.volume + 0.05, currentAmbientVolume);
+              } else {
+                clearInterval(fadeInterval);
+              }
+            }, 100);
+
             setIsAudioPlaying(true);
-            console.log("Autoplay succeeded with muted approach");
-          }, 300);
-          
-          // Try to play ambient sound too, but don't worry if it fails
-          try {
-            await ambient.play();
-          } catch (error) {
-            console.log("Ambient autoplay failed, will try again with user interaction");
-          }
+            console.log("Audio playback started successfully");
+          }, 500);
+
         } catch (error) {
-          console.log("Autoplay blocked by browser, waiting for user interaction");
+          console.log("Audio playback failed, waiting for user interaction");
+          // Reset audio states
+          music.volume = currentVolume;
+          ambient.volume = currentAmbientVolume;
           music.muted = false;
           ambient.muted = false;
-          // If autoplay fails, we'll wait for interaction
         }
       }
     };
 
-    // Try autoplay after a short delay
+    // Try playback after a short delay
     interactionTimeout.current = setTimeout(() => {
-      tryAutoPlay();
-    }, 1000);
+      startAudioPlayback();
+    }, 1500);
 
     // Event handlers for user interaction
     const handleUserInteraction = () => {
@@ -148,7 +170,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
       'click', 'touchstart', 'mousedown', 'keydown', 
       'mousemove', 'scroll', 'touchmove'
     ];
-    
+
     interactionEvents.forEach(event => {
       document.addEventListener(event, handleUserInteraction, { once: true });
     });
@@ -158,30 +180,30 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
       if (interactionTimeout.current) {
         clearTimeout(interactionTimeout.current);
       }
-      
+
       interactionEvents.forEach(event => {
         document.removeEventListener(event, handleUserInteraction);
       });
     };
-  }, [isAudioPlaying]);
+  }, [isAudioPlaying, currentVolume, currentAmbientVolume]);
 
   // Play audio when hasInteracted changes to true
   useEffect(() => {
     if (hasInteracted) {
       playAudio();
     }
-  }, [hasInteracted]);
+  }, [hasInteracted, playAudio]);
 
   const playAudio = useCallback(async () => {
     if (!isAudioPlaying) {
       try {
         // Play main music first with proper promise handling
         console.log("Attempting to play audio...");
-        
+
         try {
           await music.play();
           console.log("Music started successfully");
-          
+
           // Only after music starts successfully, try ambient sound
           try {
             await ambient.play();
@@ -190,28 +212,28 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
             console.log("Failed to play ambient sound:", error.message || error);
             // But continue anyway - we can live without ambient sound
           }
-          
+
           // Mark as playing since at least music worked
           setIsAudioPlaying(true);
-          
+
         } catch (error: any) {
           console.log("Standard play attempt failed:", error.message || error);
-          
+
           // If music failed and user has interacted, try muted workaround
           if (!music.muted) {
             console.log("Attempting muted autoplay workaround...");
             music.muted = true;
-            
+
             try {
               await music.play();
               console.log("Muted play successful, will unmute shortly");
-              
+
               // If muted play worked, unmute after a short delay
               setTimeout(() => {
                 music.muted = false;
                 setIsAudioPlaying(true);
               }, 500);
-              
+
             } catch (error: any) {
               console.log("Even muted autoplay failed:", error.message || error);
               music.muted = false;
@@ -239,7 +261,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
       setCurrentVolume(volume);
     }
   }, [music]);
-  
+
   const setAmbientVolume = useCallback((volume: number) => {
     if (volume >= 0 && volume <= 1) {
       ambient.volume = volume;
