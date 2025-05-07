@@ -61,14 +61,16 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const [isDialogFinished, setIsDialogFinished] = useState<boolean>(false);
   const [dialogSource, setDialogSource] = useState<"main" | "hover">("main");
   const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
 
   const dialogController = DialogController.getInstance();
   const hoverDialogController = HoverDialogController.getInstance();
   const elevenLabsService = ElevenLabsService.getInstance();
   const idleTimeoutController = IdleTimeoutController.getInstance();
 
-  // Timer reference untuk auto-continue
+  // Timer reference untuk auto-continue dan button jeda
   const autoPlayTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const buttonTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   // Fungsi untuk toggle mute
   const toggleMute = useCallback(() => {
@@ -88,6 +90,23 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
   // Handle Continue sebagai useCallback untuk dapat digunakan dalam useEffect
   const handleContinue = useCallback(() => {
+    // Jika tombol sedang disabled, abaikan klik
+    if (isButtonDisabled) {
+      console.log("[DialogBox] Button is disabled, ignoring click");
+      return;
+    }
+    
+    // Nonaktifkan tombol setelah diklik (mencegah spam klik)
+    setIsButtonDisabled(true);
+    
+    // Aktifkan tombol kembali setelah delay tertentu (300ms)
+    if (buttonTimeoutRef.current) {
+      clearTimeout(buttonTimeoutRef.current);
+    }
+    buttonTimeoutRef.current = setTimeout(() => {
+      setIsButtonDisabled(false);
+    }, 300); // Jeda 300ms sebelum tombol dapat diklik lagi
+    
     // Reset force show idle warning flag saat user menekan tombol continue
     try {
       // @ts-ignore - akses properti global dari window
@@ -200,6 +219,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     setIsComplete,
     setIsDialogFinished,
     setCharacterName,
+    isButtonDisabled,
+    setIsButtonDisabled,
   ]);
 
   // Effect untuk auto-continue ketika dialog selesai - dimodifikasi untuk berjalan untuk semua dialog
@@ -360,6 +381,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       dialogController.stopTyping();
       if (autoPlayTimerRef.current) {
         clearTimeout(autoPlayTimerRef.current);
+      }
+      if (buttonTimeoutRef.current) {
+        clearTimeout(buttonTimeoutRef.current);
       }
       
       // Clean up global setter functions
@@ -539,16 +563,18 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
               // Untuk dialog lainnya, tampilkan tombol NEXT/SKIP seperti biasa
               return isComplete ? (
                 <button
-                  className="just-text-button next-button"
+                  className={`just-text-button next-button ${isButtonDisabled ? 'button-disabled' : ''}`}
                   onClick={handleContinue}
+                  disabled={isButtonDisabled}
                 >
                   <span className="button-icon">→</span>
                   <span className="button-text">NEXT</span>
                 </button>
               ) : (
                 <button
-                  className="just-text-button skip-button"
+                  className={`just-text-button skip-button ${isButtonDisabled ? 'button-disabled' : ''}`}
                   onClick={handleContinue}
+                  disabled={isButtonDisabled}
                 >
                   <span className="button-icon">▶</span>
                   <span className="button-text">SKIP</span>
@@ -902,6 +928,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           color: #fff;
           text-shadow: 0 0 5px rgba(255, 220, 150, 0.6);
           opacity: 1;
+        }
+        
+        /* Style untuk tombol yang disabled (dalam jeda) */
+        .button-disabled {
+          opacity: 0.5;
+          pointer-events: none;
+          cursor: not-allowed;
+          transition: opacity 0.3s ease;
         }
         
         /* Styling for pure text buttons (no box/border) */
