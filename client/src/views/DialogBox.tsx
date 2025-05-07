@@ -254,6 +254,10 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
   // Effect untuk auto-continue ketika dialog selesai - dimodifikasi untuk berjalan untuk semua dialog
   useEffect(() => {
+    // Important: Check for potential pending hover dialogs before processing auto-continue
+    // This helps ensure hover dialogs take priority when they should
+    const hasPendingHover = hoverDialogController.isTypingHoverDialog();
+    
     if (isComplete && dialogSource === DialogSource.MAIN) {
       // Clear any existing timer
       if (autoPlayTimerRef.current) {
@@ -264,6 +268,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       // Ini adalah perubahan penting untuk memastikan timer baru mulai setelah dialog selesai
       console.log("[DialogBox] Dialog model selesai berbicara, memulai timer IDLE_DIALOGS...");
       idleTimeoutController.startIdleTimerAfterDialogComplete();
+
+      // Skip auto-continue if there's a pending hover dialog
+      if (hasPendingHover) {
+        console.log("[DialogBox] Skipping auto-continue because a hover dialog is pending");
+        return;
+      }
 
       // Cek jika user sudah berinteraksi dengan hover dialog
       if (hoverDialogController.hasUserInteractedWithHover()) {

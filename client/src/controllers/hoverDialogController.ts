@@ -812,6 +812,19 @@ class HoverDialogController {
       if (!isAnnoyedLastLevel) {
         this.processedTexts.add(dialogText);
       }
+      
+      // Update internal state to track dialog source
+      this.currentDialogSource = DialogSource.HOVER;
+      console.log("[HoverDialogController] handleHoverDialogActual - Setting currentDialogSource to HOVER");
+      
+      // Ensure DialogBox knows this is a HOVER dialog
+      if (this.setDialogSource) {
+        try {
+          this.setDialogSource(DialogSource.HOVER);
+        } catch (e) {
+          console.error("[HoverDialogController] Error setting dialog source in handleHoverDialogActual:", e);
+        }
+      }
 
       // Mulai animasi typing untuk dialog hover
       this.typeHoverText(dialogText);
@@ -854,6 +867,19 @@ class HoverDialogController {
     this.isHandlingHover = false;
     this.stopTyping(); // Stop typing animation jika ada
     
+    // Set current dialog source back to MAIN
+    this.currentDialogSource = DialogSource.MAIN;
+    console.log("[HoverDialogController] resetHoverState - Setting currentDialogSource back to MAIN");
+    
+    // Update DialogBox's source if callback exists
+    if (this.setDialogSource) {
+      try {
+        this.setDialogSource(DialogSource.MAIN);
+      } catch (e) {
+        console.error("[HoverDialogController] Error setting dialog source in resetHoverState:", e);
+      }
+    }
+    
     // Reset text yang ditampilkan
     if (this.hoverTextCallback) {
       this.hoverTextCallback("", true);
@@ -872,6 +898,22 @@ class HoverDialogController {
     this.hasInteractedWithHover = false;
     this.processedTexts.clear(); // Clear set teks yang sudah ditampilkan
     this.stopTyping();
+    
+    // Reset dialog state
+    this.currentDialogSource = DialogSource.MAIN;
+    this.dialogCompleted = true;
+    this.currentText = "";
+    this.fullText = "";
+    console.log("[HoverDialogController] resetAllState - Full reset of dialog state");
+    
+    // Update DialogBox's source if callback exists
+    if (this.setDialogSource) {
+      try {
+        this.setDialogSource(DialogSource.MAIN);
+      } catch (e) {
+        console.error("[HoverDialogController] Error setting dialog source in resetAllState:", e);
+      }
+    }
 
     // Reset annoyance flags
     this.hasShownFirstLevelAnnoyance = false;
