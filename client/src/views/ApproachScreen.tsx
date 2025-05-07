@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { useAudio } from '../context/AudioManager';
+import { useAudio } from "../context/AudioManager";
+import { useAchievements } from "../context/AchievementManager";
+import { ACHIEVEMENTS } from "../components/Achievement";
 import gifPath from '/assets/darksouls.gif';
 
 interface ApproachScreenProps {
@@ -17,6 +19,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
   const itemSoundRef = useRef<HTMLAudioElement | null>(null);
   const hoverSoundRef = useRef<HTMLAudioElement | null>(null);
   const footstepsSoundRef = useRef<HTMLAudioElement | null>(null);
+  const { unlockAchievement } = useAchievements();
 
   // Efek fade-in untuk komponen setelah load
   useEffect(() => {
@@ -26,13 +29,13 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     itemSoundRef.current = new Audio('/assets/sounds/souls-item.mp3');
     hoverSoundRef.current = new Audio('/assets/sounds/souls-menu.mp3'); // Menggunakan menu sound juga untuk hover
     footstepsSoundRef.current = new Audio('/audio/effects/footsteps.m4a'); // Menggunakan file langkah kaki yang benar
-    
+
     // Set volume untuk sound effects (ditingkatkan untuk perangkat mobile)
     if (bonfireSoundRef.current) bonfireSoundRef.current.volume = 0.7; // Meningkatkan dari 0.3 menjadi 0.7
     if (menuSoundRef.current) menuSoundRef.current.volume = 0.8; // Meningkatkan dari 0.4 menjadi 0.8
     if (itemSoundRef.current) itemSoundRef.current.volume = 0.8; // Meningkatkan dari 0.4 menjadi 0.8
     if (hoverSoundRef.current) hoverSoundRef.current.volume = 0.5; // Meningkatkan dari 0.2 menjadi 0.5
-    
+
     // Konfigurasi khusus untuk footsteps sound
     if (footstepsSoundRef.current) {
       // Set volume to 0 initially as we'll increase it when actually playing
@@ -44,9 +47,9 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
       // Preload the audio to ensure it's ready
       footstepsSoundRef.current.preload = 'auto';
     }
-    
+
     setIsVisible(true);
-    
+
     // Cleanup
     return () => {
       if (bonfireSoundRef.current) {
@@ -110,10 +113,11 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
   const handleApproach = () => {
     setIsClicked(true);
     setHasInteracted(true); // Trigger audio to play with volume full
-    
+    unlockAchievement(ACHIEVEMENTS.APPROACH); // Unlock Approach achievement
+
     // Mainkan efek suara souls-like
     playSoulsSound();
-    
+
     // Memulai langkah kaki dengan jeda 1.5 detik setelah klik
     setTimeout(() => {
       console.log("Starting footsteps after 1.5 second delay");
@@ -134,7 +138,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
             });
         };
         playFootsteps();
-        
+
         // Output to console that we're playing footsteps
         console.log("🔊 Playing footsteps sound at volume:", footstepsSoundRef.current.volume);
       }
@@ -142,7 +146,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
       // Mulai zoom in effect pada background
       startZoomEffect();
     }, 1500); // Delay 1.5 detik sebelum memulai langkah kaki
-    
+
     // Transition total waktu 5 detik
     // (1.5 detik jeda + 3.5 detik berjalan)
     setTimeout(() => {
@@ -154,7 +158,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         // Create a smoother fade-out using more steps and exponential decay
         const fadeOutSteps = 25; // More steps for smoother fade
         let currentStep = 0;
-        
+
         // Fade out effect untuk suara langkah kaki
         const fadeOutInterval = setInterval(() => {
           if (footstepsSoundRef.current && currentStep < fadeOutSteps) {
@@ -170,7 +174,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
               footstepsSoundRef.current.pause();
             }
             clearInterval(fadeOutInterval);
-            
+
             // Lakukan transisi setelah suara langkah kaki fade out
             onApproach();
           }
@@ -181,18 +185,18 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
       }
     }, 5000); // Total waktu: 5 detik (1.5 detik jeda + 3.5 detik berjalan)
   };
-  
+
   // Fungsi untuk membuat efek zoom in yang halus dan realistis
   const startZoomEffect = () => {
     // Dapatkan elemen background
     const bgElement = document.querySelector('.distant-background') as HTMLElement;
     if (!bgElement) return;
-    
+
     // Posisi awal
     const startScale = 0.8;
     // Posisi akhir (zoom lebih kecil agar tidak terlalu dekat dengan DIVA JUAN)
     const endScale = 0.95;
-    
+
     // Variabel untuk efek pergerakan kamera dan parallax
     const startPositionY = -50; // Posisi awal di tengah
     const endPositionY = -49.5; // Sedikit pergeseran ke bawah untuk simulasi mendekati
@@ -200,30 +204,30 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     // Random offset untuk efek tidak sempurna seperti gerakan manusia
     const randomOffsetX = (Math.random() * 0.4) - 0.2; // -0.2 sampai +0.2
     const endPositionX = -50 + randomOffsetX;
-    
+
     // Durasi total efek dalam ms (diperlambat untuk efek yang lebih terasa)
     const duration = 5800; // Ditingkatkan dari 5000ms menjadi 5800ms untuk animasi lebih terlihat
     // Interval animasi
     const interval = 16; // 60fps untuk animasi yang lebih halus
     // Jumlah langkah
     const steps = duration / interval;
-    
+
     // Variabel untuk tracking state animasi
     let currentScale = startScale;
     let currentPositionX = startPositionX;
     let currentPositionY = startPositionY;
     let currentStep = 0;
-    
+
     // Matikan animasi breathe selama zoom in
     bgElement.style.animation = 'none';
-    
+
     // Fungsi untuk easing cubic yang lebih halus
     function cubicEaseInOut(p: number): number {
       return p < 0.5
         ? 4 * p * p * p
         : 1 - Math.pow(-2 * p + 2, 3) / 2;
     }
-    
+
     // Fungsi easing untuk transisi yang lembut
     function customEaseOut(p: number): number {
       // Kombinasi antara ease-out-quint dan ease-out-cubic
@@ -231,118 +235,118 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
       const p2 = 1 - p;
       return 1 - (p2 * p2 * p2 * p2 * p2 * 0.5 + p2 * p2 * p2 * 0.5);
     }
-    
+
     // Fungsi untuk membuat efek bobbing (gerakan naik-turun seperti langkah kaki)
     function getBobbingOffset(progress: number): number {
       // Frekuensi langkah kaki (meningkatkan menjadi 12 langkah selama durasi untuk gerakan yang lebih realistis)
       const frequency = 12; // Ditingkatkan dari 8 menjadi 12 untuk langkah yang lebih realistis
       // Amplitudo efek bobbing (seberapa tinggi/rendah)
       const amplitude = 0.35; // Ditingkatkan dari 0.2 menjadi 0.35 untuk gerakan lebih terlihat
-      
+
       // Membuat amplitude berubah mengikuti kecepatan berjalan
       // Multiplier untuk membuat amplitude lebih besar saat tengah gerakan (saat berjalan lebih cepat)
       const speedCurve = Math.sin(progress * Math.PI); // Perubahan kecepatan: lambat->cepat->lambat
       const amplitudeMultiplier = speedCurve * 0.7 + 0.3; // Memberikan range 0.3-1.0
-      
+
       // Perubahan fase untuk membuat gerakan lebih alamiah (gerakan manusia tidak sempurna)
       const phaseShift = progress * 0.3; // Memberikan perubahan fase progresif
-      
+
       // Sinusoidal function untuk gerakan naik-turun dengan amplitude yang bervariasi
       return Math.sin((progress + phaseShift) * Math.PI * frequency) * amplitude * amplitudeMultiplier;
     }
-    
+
     // Variabel waktu untuk animasi frame-based
     let lastTime = performance.now();
     let elapsedTime = 0;
-    
+
     // Fungsi animasi dengan easings yang lebih halus dan gerakan kamera realistis
     const animate = (currentTime: number) => {
       // Hitung delta time untuk animasi yang konsisten
       const deltaTime = currentTime - lastTime;
       lastTime = currentTime;
-      
+
       // Update elapsed time
       elapsedTime += deltaTime;
-      
+
       // Normalize progress (0 sampai 1)
       const progress = Math.min(elapsedTime / duration, 1);
-      
+
       if (progress < 1) {
         // Gunakan cubic easing untuk pergerakan halus
         const easedProgress = cubicEaseInOut(progress);
-          
+
         // Efek parallax: Scale meningkat (zoom in)
         currentScale = startScale + (endScale - startScale) * easedProgress;
-        
+
         // Efek parallax: Posisi X dan Y bergerak sesuai arah gerakan
         currentPositionX = startPositionX + (endPositionX - startPositionX) * easedProgress;
         currentPositionY = startPositionY + (endPositionY - startPositionY) * easedProgress;
-        
+
         // Efek bobbing (gerakan naik-turun) hanya mulai setelah 10% progress
         const bobOffset = progress > 0.1 ? getBobbingOffset(progress) : 0;
-        
+
         // Gunakan custom easing untuk efek blur yang lebih halus
         const blurEasedProgress = customEaseOut(easedProgress);
-        
+
         // Gunakan nilai minimum blur 1.4px untuk tetap mempertahankan kesan jarak
         const blurValue = Math.max(1.4, 2 - (blurEasedProgress * 0.6));
-        
+
         // Transisi brightness yang sangat halus dengan sine easing
         const brightnessBase = 0.6;
         const brightnessMaxVal = 0.68;
         const brightnessProgress = 0.5 - Math.cos(easedProgress * Math.PI) / 2;
         const brightnessValue = brightnessBase + 
                               (brightnessProgress * (brightnessMaxVal - brightnessBase));
-        
+
         // Tambahkan efek swaying horizontal yang lebih realistis untuk gerakan seperti berjalan
         // Gerakan horizontal yang lebih kecil dibanding vertikal dengan fase yang berbeda
         // Frequency ditingkatkan untuk menyelaraskan dengan efek bobbing yang sudah ditingkatkan
         const swayFrequency = 12; // Diselaraskan dengan frequensi bobbing
         const swayAmplitude = 0.20; // Ditingkatkan dari 0.1 menjadi 0.20 untuk lebih terlihat
-        
+
         // Perubahan fase dengan pengaturan tertentu untuk membuat gerakan horizontal/vertikal sesuai langkah kaki manusia
         // Otak manusia mendeteksi pola saat berjalan: naik turun dan sway kiri kanan harus selaras
         const phaseShift = Math.PI/3; // Shifting fase untuk membuat gerakan lebih natural
-        
+
         // Variasi kecepatan seperti pada bobbing
         const speedCurve = Math.sin(progress * Math.PI); // Perubahan kecepatan: lambat->cepat->lambat
         const swayMultiplier = speedCurve * 0.7 + 0.3; // Range 0.3-1.0
-        
+
         // Menambahkan sedikit randomisasi untuk kesan lebih manusiawi
         const noiseAmplitude = 0.03; // Amplitudo noise kecil
         const noise = Math.sin(progress * 100) * noiseAmplitude; // High-frequency noise
-        
+
         // Efek swaying dimulai setelah 10% progress seperti efek bobbing
         const swayOffset = progress > 0.1 ? 
                          Math.sin(progress * Math.PI * swayFrequency * 0.5 + phaseShift) * 
                          swayAmplitude * swayMultiplier + noise : 0;
-        
+
         // Terapkan semua efek transform dan filter
         bgElement.style.transform = `translate(${currentPositionX + swayOffset}%, ${currentPositionY + bobOffset}%) scale(${currentScale})`;
         bgElement.style.filter = `blur(${blurValue}px) brightness(${brightnessValue})`;
-        
+
         // Lanjutkan animasi
         requestAnimationFrame(animate);
       } else {
         // Saat animasi selesai, terapkan posisi akhir dengan presisi tepat
         // untuk menghindari pembulatan yang bisa membuat posisi sedikit bergeser
         bgElement.style.transform = `translate(${endPositionX}%, ${endPositionY}%) scale(${endScale})`;
-        
+
         // Konstanta untuk nilai akhir filter
         const brightnessBase = 0.6;
         const brightnessMaxVal = 0.68;
-        
+
         // Terapkan nilai akhir filter
         const finalBlurValue = Math.max(1.4, 2 - (1 * 0.6)); // fullProgress = 1
         const finalBrightnessValue = brightnessBase + (brightnessMaxVal - brightnessBase);
         bgElement.style.filter = `blur(${finalBlurValue}px) brightness(${finalBrightnessValue})`;
       }
     };
-    
+
     // Mulai animasi dengan timestamp saat ini
     requestAnimationFrame(animate);
   };
-  
+
   // Toggle audio play/pause
   const toggleAudio = useCallback(() => {
     if (isAudioPlaying) {
@@ -360,7 +364,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     <div className="approach-screen">
       {/* Background dari kejauhan dengan efek zoom */}
       <div className="distant-background"></div>
-      
+
       {/* Audio control button - visible from approach screen */}
       <button
         onClick={toggleAudio}
@@ -381,7 +385,7 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
           </svg>
         )}
       </button>
-      
+
       <motion.div 
         className="approach-container"
         initial={{ opacity: 0, y: 20 }}
@@ -559,20 +563,20 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
           text-shadow: 0 0 6px rgba(150, 130, 80, 0.4);
           transition: all 0.3s ease;
         }
-        
+
         .ornament.left {
           margin-right: 18px;
         }
-        
+
         .ornament.right {
           margin-left: 18px;
         }
-        
+
         .approach-button:hover .ornament {
           color: rgba(220, 200, 150, 0.8);
           text-shadow: 0 0 10px rgba(200, 180, 120, 0.6);
         }
-        
+
         .approach-button.clicked .ornament {
           opacity: 0;
           transform: scale(0);
@@ -585,16 +589,16 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
             font-size: 1.2rem;
             letter-spacing: 2px;
           }
-          
+
           .ornament {
             font-size: 1.2rem;
             margin: 0 8px;
           }
-          
+
           .ornament.left {
             margin-right: 12px;
           }
-          
+
           .ornament.right {
             margin-left: 12px;
           }

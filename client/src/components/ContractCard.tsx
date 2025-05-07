@@ -11,6 +11,8 @@ import {
 import DialogController from "../controllers/dialogController";
 import HoverDialogController from "../controllers/hoverDialogController";
 import { useAudio } from "../context/AudioManager";
+import { useAchievements } from "../context/AchievementManager";
+import { ACHIEVEMENTS } from "./Achievement"; // Added import
 
 // Responses for contract interactions - moved from DialogBox.tsx and made more natural
 export const CONTRACT_RESPONSES = [
@@ -77,6 +79,7 @@ const ContractCard: React.FC = () => {
   const [hasDragged, setHasDragged] = useState(false); // Track if user has already dragged
   const dialogController = DialogController.getInstance();
   const { setVolume, currentVolume } = useAudio();
+  const { showAchievement } = useAchievements(); // Added useAchievements hook
 
   // Audio references for sounds
   const swipeSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -129,6 +132,8 @@ const ContractCard: React.FC = () => {
   const [originalVolume, setOriginalVolume] = useState<number | null>(null);
 
   const handleContractClick = () => {
+    const { showAchievement } = useAchievements(); // Added useAchievements hook
+
     if (!isOpen) {
       // Saat kontrak dibuka, tidak perlu dialog yang menggangu
       // Setiap dialog yang saat ini berjalan harus dihentikan
@@ -149,6 +154,7 @@ const ContractCard: React.FC = () => {
       }
 
       setIsOpen(true);
+      showAchievement(ACHIEVEMENTS.CONTRACT_OPEN); // Trigger achievement
     }
   };
 
@@ -187,7 +193,7 @@ const ContractCard: React.FC = () => {
         setCurrentIndex((prev) => prev + 1);
         setScale(0.8); // Reset zoom ke 80%
         setPosition({ x: 0, y: 0 }); // Reset posisi saat ganti halaman
-        
+
         // Langsung reset animasi state
         setIsAnimating(false);
         setPageDirection(null);
@@ -616,7 +622,7 @@ const ContractCard: React.FC = () => {
           background: rgba(60, 40, 30, 0.9);
           transition: all 0.25s ease;
         }
-        
+
         .close-button:hover {
           background: rgba(80, 50, 40, 0.95);
           color: #fff;
@@ -645,12 +651,12 @@ const ContractCard: React.FC = () => {
           margin: 0 auto; /* Pastikan berada di tengah layar */
           position: relative;
         }
-        
+
         .document-content.dragging {
           transition: none; /* Hapus transisi saat melakukan drag untuk responsivitas langsung */
           cursor: grabbing !important;
         }
-        
+
         .document-content::before {
           content: '';
           position: absolute;
@@ -665,7 +671,7 @@ const ContractCard: React.FC = () => {
           border-radius: 8px;
           transition: opacity 0.2s ease;
         }
-        
+
         .document-content[style*="scale(1.2)"]::before,
         .document-content[style*="scale(1.4)"]::before,
         .document-content[style*="scale(1.6)"]::before,
@@ -695,17 +701,17 @@ const ContractCard: React.FC = () => {
           animation: pulseTip 2s infinite alternate ease-in-out;
           transform: translateY(-20px);
         }
-        
+
         @keyframes pulseTip {
           0% { opacity: 0.85; transform: translateY(-20px) scale(1); }
           100% { opacity: 0.95; transform: translateY(-20px) scale(1.05); }
         }
-        
+
         .document-content.dragging::before,
         .document-content.has-dragged::before {
           opacity: 0;
         }
-        
+
         .document-header {
           margin-bottom: 20px;
           text-align: center;
@@ -715,7 +721,7 @@ const ContractCard: React.FC = () => {
           border-bottom: 1px solid rgba(170, 150, 120, 0.3);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
-        
+
         .document-title {
           font-family: 'Trajan Pro', 'Cinzel', serif;
           color: #f0e6cc;
@@ -727,7 +733,7 @@ const ContractCard: React.FC = () => {
           padding-bottom: 8px;
           font-weight: 500;
         }
-        
+
         .document-title::after {
           content: '';
           position: absolute;
@@ -753,7 +759,7 @@ const ContractCard: React.FC = () => {
           filter: brightness(1.1) contrast(1.05);
           position: relative;
         }
-        
+
         .document-image::after {
           content: 'Double click to open in new tab';
           position: absolute;
@@ -766,18 +772,18 @@ const ContractCard: React.FC = () => {
           opacity: 0;
           transition: opacity 0.3s ease;
         }
-        
+
         .document-image:hover::after {
           opacity: 1;
         }
-        
+
         .document-image:hover {
           transform: scale(1.025) translateY(-2px);
           box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 12px rgba(255, 220, 150, 0.25);
           border-color: rgba(200, 180, 140, 0.8);
           filter: brightness(1.15) contrast(1.08);
         }
-        
+
         /* Animasi transisi buku */
         .book-container {
           position: relative;
@@ -794,19 +800,19 @@ const ContractCard: React.FC = () => {
           left: 50%;
           transform: translateX(-50%);
         }
-        
+
         .page-flip-next .book-container {
           animation: flipNext 0.1s ease-out;
           transform: translateX(-50%); /* Pertahankan posisi center saat animasi */
           perspective-origin: left center; /* Animasi dari kiri ke kanan */
         }
-        
+
         .page-flip-prev .book-container {
           animation: flipPrev 0.2s cubic-bezier(0.25, 0.1, 0.25, 1.0);
           transform: translateX(-50%); /* Pertahankan posisi center saat animasi */
           perspective-origin: right center; /* Animasi dari kanan ke kiri */
         }
-        
+
         .page-shadow {
           position: absolute;
           top: 0;
@@ -818,11 +824,11 @@ const ContractCard: React.FC = () => {
           z-index: -1;
           transform: translateZ(-10px);
         }
-        
+
         .page-shadow.active {
           opacity: 0.4;
         }
-        
+
         .page-fold {
           position: absolute;
           top: 0;
@@ -836,13 +842,13 @@ const ContractCard: React.FC = () => {
           transform-origin: left center;
           transform: skewX(2deg);
         }
-        
+
         .page-fold.active {
           opacity: 1;
           width: 40px; /* Lebar lipatan saat aktif */
           animation: foldPulse 0.35s ease-in-out;
         }
-        
+
         @keyframes foldPulse {
           0% { width: 0; opacity: 0; transform: skewX(0deg); }
           20% { width: 20px; opacity: 0.4; transform: skewX(3deg); }
@@ -850,13 +856,13 @@ const ContractCard: React.FC = () => {
           80% { width: 45px; opacity: 0.9; transform: skewX(2deg); }
           100% { width: 40px; opacity: 1; transform: skewX(2deg); }
         }
-        
+
         .page-fold.next {
           left: 0;
           transform-origin: left center;
           transform: skewX(2deg);
         }
-        
+
         .page-fold.prev {
           right: 0;
           transform-origin: right center;
@@ -864,7 +870,7 @@ const ContractCard: React.FC = () => {
           background: linear-gradient(to left, rgba(255,255,255,0.15), rgba(30,25,20,0.4));
           box-shadow: 5px 0 20px rgba(0,0,0,0.35);
         }
-        
+
         @keyframes flipNext {
           0% { 
             transform: translateX(-50%) rotateY(0deg);
@@ -879,7 +885,7 @@ const ContractCard: React.FC = () => {
             filter: brightness(1);
           }
         }
-        
+
         @keyframes flipPrev {
           0% { 
             transform: translateX(-50%) rotateY(0deg); 
@@ -984,70 +990,70 @@ const ContractCard: React.FC = () => {
             left: 22px; /* Konsisten dengan posisi desktop */
             padding: 11px 14px 11px 12px;
           }
-          
+
           .contract-label {
             font-size: 0.65rem;
             letter-spacing: 1.2px;
           }
-          
+
           .contract-modal {
             width: 95%;
             height: 88vh;
             margin-top: 15px;
           }
-          
+
           .contract-controls {
             flex-direction: row;
             justify-content: space-between;
             gap: 10px;
             padding: 12px 15px;
           }
-          
+
           .control-button {
             width: 32px;
             height: 32px;
           }
-          
+
           .zoom-controls, .navigation-controls {
             gap: 8px;
           }
-          
+
           .page-indicator {
             font-size: 0.7rem;
             min-width: 32px;
             letter-spacing: 0.5px;
           }
-          
+
           .document-title {
             font-size: 1.2rem;
             padding-bottom: 6px;
           }
-          
+
           .document-header {
             padding: 12px 8px 3px;
             margin-bottom: 15px;
           }
-          
+
           .document-title::after {
             width: 50px;
             height: 1.5px;
           }
-          
+
           .document-image {
             max-width: 95%;
             max-height: 82%;
           }
-          
+
           .pdf-preview {
             width: 85%;
             padding: 20px 15px;
           }
-          
+
           .pdf-icon {
             font-size: 48px;
             margin-bottom: 15px;
           }
-          
+
           .pdf-title {
             font-size: 1.1rem;
           }
