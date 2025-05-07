@@ -436,6 +436,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     >
       <div
         className={`dialog-box ${dialogSource === "hover" ? "hover-dialog" : ""}`}
+        data-angry={text.includes("fuck") || text.includes("ENOUGH") || text.includes("GET OUT") || text.includes("ASKED FOR THIS")}
       >
         <div
           className={`character-name ${dialogSource === "hover" ? "hover-character" : ""}`}
@@ -541,18 +542,38 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         }
         
         .dialog-box {
-          background: rgba(15, 12, 10, 0.7); /* Warna gelap khas Souls */
-          border: 1px solid rgba(150, 130, 100, 0.3); /* Border emas pudar */
+          background: rgba(15, 12, 10, 0.7);
+          border: 1px solid rgba(150, 130, 100, 0.3);
           box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
-          border-radius: 0; /* No rounded corners untuk Souls-like */
+          border-radius: 0;
           width: 100%;
           max-width: 800px;
           padding: 1.8rem 2rem;
           position: relative;
           pointer-events: auto;
           backdrop-filter: blur(5px);
-          /* Tambahkan dekorasi border tipis di dalamnya */
           box-sizing: border-box;
+          transition: all 0.3s ease;
+        }
+
+        /* Efek untuk dialog marah */
+        .dialog-box[data-angry="true"] {
+          background: rgba(20, 10, 8, 0.85);
+          border-color: rgba(200, 50, 30, 0.5);
+          box-shadow: 0 0 20px rgba(200, 30, 0, 0.3);
+          animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+          10%, 90% { transform: translate3d(-1px, 0, 0); }
+          20%, 80% { transform: translate3d(2px, 0, 0); }
+          30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+          40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .dialog-box[data-angry="true"] .dialog-text {
+          color: #ffebe6;
+          text-shadow: 0 0 3px rgba(255, 50, 0, 0.3);
         }
         
 
