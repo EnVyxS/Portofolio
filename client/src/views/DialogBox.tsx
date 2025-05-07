@@ -461,6 +461,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
                 !text.includes("ENOUGH") &&
                 !text.includes("GET OUT") &&
                 !text.includes("ASKED FOR THIS") &&
+                !text.includes("KEEP PUSHING") &&
                 !text.includes("Staring at me") &&
                 !text.includes("throw") &&
                 !text.includes("punch") &&
@@ -511,7 +512,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
               const isAngryDialog = text.includes("fuck") || 
                                   text.includes("ENOUGH") || 
                                   text.includes("GET OUT") || 
-                                  text.includes("ASKED FOR THIS");
+                                  text.includes("ASKED FOR THIS") ||
+                                  text.includes("KEEP PUSHING");
                                   
               // Jika dialog marah, tidak menampilkan tombol
               if (isAngryDialog) {
