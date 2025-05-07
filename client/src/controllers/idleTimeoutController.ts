@@ -16,7 +16,7 @@ export const IDLE_DIALOGS = {
   FINAL_WARNING:
     "[furious] You think this is funny?.. [enraged] Staring at me for nine damn minutes?.. [shouting] FUCK YOU!!",
 
-  // Dialog setelah user menekan APPROACH HIM lagi
+  // Dialog setelah user menekan APPROACH HIM lagi - pastikan teks SAMA PERSIS dengan dialogModel.ts
   RETURN_DIALOG: "[menacing] Now what, you little filth!?.. [threatening] Back for more punishment?",
 
   // Dialog setelah user melakukan hover
