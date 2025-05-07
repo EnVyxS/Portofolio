@@ -69,12 +69,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
   // Timer reference untuk auto-continue
   const autoPlayTimerRef = React.useRef<NodeJS.Timeout | null>(null);
-  
-  // Referensi untuk melacak apakah dialog sedang diproses (mencegah klik berlebihan)
-  const isProcessingRef = useRef<boolean>(false);
-  
-  // Timestamp klik terakhir untuk debounce secara manual
-  const lastClickTimeRef = useRef<number>(0);
 
   // Fungsi untuk toggle mute
   const toggleMute = useCallback(() => {
@@ -94,23 +88,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
   // Handle Continue sebagai useCallback untuk dapat digunakan dalam useEffect
   const handleContinue = useCallback(() => {
-    // Implementasi mekanisme debounce manual untuk mencegah klik berlebihan
-    const now = Date.now();
-    if (isProcessingRef.current) {
-      console.log("[DialogBox] Dialog sedang diproses, abaikan klik");
-      return; // Abaikan jika masih dalam proses
-    }
-    
-    // Cek jika klik terlalu cepat (dalam 300ms terakhir)
-    if (now - lastClickTimeRef.current < 300) {
-      console.log("[DialogBox] Klik terlalu cepat, abaikan untuk mencegah tumpang tindih");
-      return;
-    }
-    
-    // Set flag proses aktif dan perbarui timestamp
-    isProcessingRef.current = true;
-    lastClickTimeRef.current = now;
-    
     // Reset force show idle warning flag saat user menekan tombol continue
     try {
       // @ts-ignore - akses properti global dari window
@@ -130,11 +107,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       if (!isComplete) {
         // Hentikan dialog dan audio yang sedang berjalan
         dialogController.skipToFullText();
-        
-        // Reset processing flag setelah menampilkan full text
-        setTimeout(() => {
-          isProcessingRef.current = false;
-        }, 200);
 
         // Langsung lanjut ke dialog berikutnya tanpa menunggu user klik lagi
         // Gunakan setTimeout dengan delay singkat untuk memastikan UI diupdate
@@ -166,11 +138,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
                 onDialogComplete();
               }
             }
-            
-            // Reset processing flag setelah dialog berhasil diproses
-            setTimeout(() => {
-              isProcessingRef.current = false;
-            }, 300);
           });
         }, 50); // Delay kecil untuk memastikan UI diupdate dengan benar
       } else {
