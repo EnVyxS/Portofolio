@@ -1,3 +1,51 @@
+
+/* Achievement Styles */
+.achievement-notification {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  background: rgba(15, 12, 10, 0.95);
+  border: 1px solid rgba(255, 207, 97, 0.3);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 300px;
+  z-index: 100;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5),
+              inset 0 0 10px rgba(255, 207, 97, 0.1);
+  font-family: 'Trajan Pro', 'Cinzel', serif;
+  backdrop-filter: blur(5px);
+}
+
+.achievement-icon {
+  font-size: 2rem;
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  animation: achievement-glow 2s ease-in-out infinite;
+}
+
+.achievement-content h3 {
+  color: #ffd700;
+  font-size: 1rem;
+  margin: 0 0 0.3rem 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.achievement-content p {
+  color: #d4c9a8;
+  font-size: 0.8rem;
+  margin: 0;
+  opacity: 0.8;
+}
+
+@keyframes achievement-glow {
+  0%, 100% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+  50% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
 
 @tailwind base;
