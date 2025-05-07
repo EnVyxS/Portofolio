@@ -542,15 +542,46 @@ class IdleTimeoutController {
       this.hasInteractedAfterReset = true;
       
       console.log("[IdleTimeoutController] Menampilkan HOVER_AFTER_RESET karena ini interaksi pertama setelah reset");
-      this.showIdleWarning(IDLE_DIALOGS.HOVER_AFTER_RESET);
       
-      // Unlock hover achievement untuk hover setelah reset
+      // Gunakan dialog controller langsung untuk menampilkan hover dialog
       try {
-        const achievementController = AchievementController.getInstance();
-        achievementController.unlockAchievement('hover');
-        console.log("[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset");
-      } catch (error) {
-        console.error("Failed to unlock hover achievement:", error);
+        const dialogController = DialogController.getInstance();
+        if (dialogController) {
+          console.log("[IdleTimeoutController] Directly showing HOVER_AFTER_RESET dialog via DialogController");
+          
+          // Force reset dialog box visibility sehingga dialog box muncul
+          try {
+            // @ts-ignore
+            if (window.__dialogBoxIsFinishedSetter) {
+              // @ts-ignore
+              window.__dialogBoxIsFinishedSetter(false);
+              console.log("[IdleTimeoutController] Force reset dialog box visibility for HOVER_AFTER_RESET");
+            }
+          } catch (e) {
+            console.error("Failed to force reset dialog box visibility:", e);
+          }
+          
+          // Gunakan showCustomDialog untuk memastikan text muncul
+          dialogController.showCustomDialog(IDLE_DIALOGS.HOVER_AFTER_RESET, (text, isComplete) => {
+            if (isComplete) {
+              console.log("[IdleTimeoutController] HOVER_AFTER_RESET dialog completed");
+              
+              // Unlock achievement untuk hover setelah reset
+              try {
+                const achievementController = AchievementController.getInstance();
+                achievementController.unlockAchievement('hover');
+                console.log("[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset");
+              } catch (error) {
+                console.error("Failed to unlock hover achievement:", error);
+              }
+            }
+          });
+        }
+      } catch (e) {
+        console.error("Failed to show HOVER_AFTER_RESET dialog:", e);
+        
+        // Fallback ke metode lama
+        this.showIdleWarning(IDLE_DIALOGS.HOVER_AFTER_RESET);
       }
 
       // Mulai timer hover berlebihan

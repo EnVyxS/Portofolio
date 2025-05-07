@@ -8,6 +8,7 @@ import ApproachScreen from "./views/ApproachScreen";
 import { AudioProvider, useAudio } from "./context/AudioManager";
 import IdleTimeoutController from "./controllers/idleTimeoutController";
 import DialogController from "./controllers/dialogController";
+import HoverDialogController from "./controllers/hoverDialogController";
 import DramaticEffects, {
   dramaticEffectsStyles,
 } from "./components/DramaticEffects";
@@ -228,14 +229,43 @@ function MainApp() {
     // Selalu panggil handleApproach terlebih dahulu
     handleApproach();
 
+    console.log("[App] Post-reset approach triggered. Setting up return dialog sequence...");
+
     // Jika sudah pernah di-reset, kita akan mengatur agar menampilkan dialog khusus
     setTimeout(() => {
       // Setelah ElevenLabs setup ditutup, tampilkan dialog khusus untuk kasus post-reset
       const dialogController = DialogController.getInstance();
       if (dialogController) {
+        console.log("[App] Preparing to show return dialog, resetting dialog controller state...");
+        
+        // Dapatkan hoverDialogController untuk menonaktifkan hover sementara
+        try {
+          const hoverDialogController = HoverDialogController.getInstance();
+          if (hoverDialogController) {
+            hoverDialogController.setIdleTimeoutOccurred(false);
+            console.log("[App] Reset HoverDialogController idle timeout flag to false");
+          }
+        } catch (e) {
+          console.error("[App] Failed to reset hover controller:", e);
+        }
+        
+        // Force display dialog box dan hapus flag
+        try {
+          // @ts-ignore
+          window.__forceShowIdleWarning = false;
+          // @ts-ignore
+          if (window.__dialogBoxIsFinishedSetter) {
+            // @ts-ignore
+            window.__dialogBoxIsFinishedSetter(false);
+          }
+        } catch (e) {
+          console.error("[App] Error resetting dialog display flags:", e);
+        }
+        
         // Setup special post-reset dialog
         // Gunakan setTimeout untuk memastikan dialog box sudah siap menerima callback
         setTimeout(() => {
+          console.log("[App] Now showing return dialog...");
           dialogController.showReturnDialog(
             (text: string, isComplete: boolean) => {
               // Dialog post-reset displayed
@@ -253,7 +283,7 @@ function MainApp() {
               }
             },
           );
-        }, 500); // Berikan waktu 500ms untuk memastikan dialogBox siap
+        }, 1000); // Berikan waktu 1000ms untuk memastikan dialogBox siap
       }
     }, 2000); // Tunggu ElevenLabs setup selesai (sekitar 2 detik)
   };

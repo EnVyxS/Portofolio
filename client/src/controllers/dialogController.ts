@@ -345,22 +345,43 @@ class DialogController {
       // Tandai bahwa ini adalah dialog khusus setelah reset
       this.isPostResetDialog = true;
       
-      // Pastikan HoverDialogController tahu dialog utama sedang berjalan
+      // Pastikan dialog box visible dan HoverDialogController tahu dialog utama sedang berjalan
       try {
         const hoverDialogController = HoverDialogController.getInstance();
-        if (hoverDialogController && typeof hoverDialogController.setDialogSource === 'function') {
-          hoverDialogController.setDialogSource('main');
-          console.log("[DialogController] Set dialog source to 'main' for return dialog");
+        if (hoverDialogController) {
+          // Pastikan hover dialog dinonaktifkan selama dialog return
+          if (typeof hoverDialogController.setDialogSource === 'function') {
+            hoverDialogController.setDialogSource('main');
+            console.log("[DialogController] Set dialog source to 'main' for return dialog");
+          }
+          
+          // Reset flag hover interaction agar hover bekerja normal lagi setelah reset
+          if (typeof hoverDialogController.setHasInteractedWithHover === 'function') {
+            hoverDialogController.setHasInteractedWithHover(false);
+            console.log("[DialogController] Reset hover interaction flag to false");
+          }
         }
       } catch (e) {
-        console.error("[DialogController] Failed to set dialog source:", e);
+        console.error("[DialogController] Failed to reset hover controller state:", e);
+      }
+      
+      // Force reset dialog box visibility dari global properties
+      try {
+        // @ts-ignore
+        if (window.__dialogBoxIsFinishedSetter) {
+          // @ts-ignore
+          window.__dialogBoxIsFinishedSetter(false);
+          console.log("[DialogController] Force reset dialog box visibility to visible");
+        }
+      } catch (e) {
+        console.error("[DialogController] Failed to force reset dialog box visibility:", e);
       }
       
       // Log detail RETURN_DIALOG for debugging
       console.log("[DialogController] RETURN_DIALOG content:", JSON.stringify(RETURN_DIALOG));
       
-      // Tampilkan dialog return yang sudah didefinisikan
-      this.typeDialog(RETURN_DIALOG, (text, isComplete) => {
+      // Gunakan direct show custom dialog - lebih reliable
+      this.showCustomDialog(RETURN_DIALOG.text, (text, isComplete) => {
         // Forward the callback
         if (callback) callback(text, isComplete);
         
@@ -371,7 +392,7 @@ class DialogController {
       });
       
       console.log("[DialogController] Showing return dialog after reset:", RETURN_DIALOG.text);
-    }, 300); // Delay 300ms untuk menghindari tumpang tindih audio
+    }, 500); // Delay 500ms untuk menghindari tumpang tindih audio
   }
   
   // Getter untuk memeriksa apakah ini adalah dialog setelah reset
