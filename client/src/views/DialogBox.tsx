@@ -457,7 +457,10 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
               ) : // Only show auto-continue hint for main dialog and not for other types
               // Check if it's not a hover dialog, idle warning, or contract response
               dialogSource === "main" &&
-                !text.includes("fuck you") && // Idle timeout specific phrases
+                !text.includes("fuck") && // Idle timeout and angry dialog phrases
+                !text.includes("ENOUGH") &&
+                !text.includes("GET OUT") &&
+                !text.includes("ASKED FOR THIS") &&
                 !text.includes("Staring at me") &&
                 !text.includes("throw") &&
                 !text.includes("punch") &&
