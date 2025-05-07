@@ -780,6 +780,11 @@ class HoverDialogController {
     this.fullText = "";
     // tidak reset processedTexts agar dialog tidak diulang
   }
+  
+  // Check if any hover dialog is currently active
+  public isHoverActive(): boolean {
+    return this.isTypingHover || this.isHandlingHover || (this.currentText !== "" && this.fullText !== "");
+  }
 
   // Digunakan saat halaman di-refresh
   public resetAllState(): void {
