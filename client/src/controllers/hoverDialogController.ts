@@ -354,13 +354,37 @@ class HoverDialogController {
     | null = null;
   private isTypingHover: boolean = false;
 
-  // Method publik untuk mengecek status typing dari luar
+  // Method publik untuk mengecek status typing atau pending hover dialog dari luar
   public isTypingHoverDialog(): boolean {
-    return this.isTypingHover;
+    // Check if currently typing
+    if (this.isTypingHover) {
+      return true;
+    }
+    
+    // Check if there's a pending hover dialog that needs to be shown
+    try {
+      // If we're handling a hover right now but not actively typing yet
+      if (this.isHandlingHover && !this.isTypingHover) {
+        console.log("[HoverDialogController] Detected pending hover dialog being handled");
+        return true;
+      }
+      
+      // If there's text queued but not being displayed
+      if (this.fullText && this.fullText.length > 0 && !this.isTypingHover && this.hasInteractedWithHover) {
+        console.log("[HoverDialogController] Detected pending hover text:", this.fullText.substring(0, 30) + "...");
+        return true;
+      }
+    } catch (e) {
+      console.error("[HoverDialogController] Error checking for pending hover dialog:", e);
+    }
+    
+    return false;
   }
 
   // Method untuk mengatur dialogSource di DialogBox
   public setDialogSource: ((source: DialogSource) => void) | null = null;
+  // Track current dialog source for internal state management
+  private currentDialogSource: DialogSource = DialogSource.MAIN;
   private typingSpeed: number = 40; // Sedikit lebih cepat dari dialog utama
   private typingInterval: NodeJS.Timeout | null = null;
   private currentText: string = "";
@@ -372,6 +396,16 @@ class HoverDialogController {
     callback: (text: string, isComplete: boolean) => void,
   ): void {
     this.hoverTextCallback = callback;
+    
+    // Track the current dialog source as HOVER when this callback is being used
+    if (this.setDialogSource) {
+      try {
+        this.currentDialogSource = DialogSource.HOVER;
+        console.log("[HoverDialogController] Setting currentDialogSource to HOVER");
+      } catch (e) {
+        console.error("[HoverDialogController] Error setting dialog source:", e);
+      }
+    }
   }
 
   // Helper untuk mengecek apakah dialog perlu persistent

@@ -142,25 +142,37 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             return;
           }
 
+          // Check if there are pending hover dialogs before moving to the next main dialog
+          const hasPendingHover = hoverDialogController.isTypingHoverDialog();
+          console.log(`[DialogBox] Skip to full text - hasPendingHover: ${hasPendingHover}, dialogSource: ${dialogSource}`);
+
           // Move to the next dialog
           dialogController.nextDialog((text, complete) => {
-            setText(text);
-            setIsComplete(complete);
+            // Only update the UI if there's no pending hover dialog
+            if (!hasPendingHover) {
+              setText(text);
+              setIsComplete(complete);
+              setDialogSource(DialogSource.MAIN); // Ensure dialog source is set back to MAIN
 
-            // Get current dialog to display character name
-            const currentDialog = dialogController.getCurrentDialog();
-            if (currentDialog) {
-              setCharacterName(currentDialog.character);
-              // Update hover dialog controller with completion status
-              hoverDialogController.setDialogCompleted(complete);
-            } else {
-              // Tandai dialog sudah selesai untuk interaksi hover
-              hoverDialogController.setDialogCompleted(true);
-
-              // Tetap menjalankan onDialogComplete jika ada
-              if (onDialogComplete) {
-                onDialogComplete();
+              // Get current dialog to display character name
+              const currentDialog = dialogController.getCurrentDialog();
+              if (currentDialog) {
+                setCharacterName(currentDialog.character);
+                // Update hover dialog controller with completion status
+                hoverDialogController.setDialogCompleted(complete);
+              } else {
+                // Tandai dialog sudah selesai untuk interaksi hover
+                hoverDialogController.setDialogCompleted(true);
+  
+                // Tetap menjalankan onDialogComplete jika ada
+                if (onDialogComplete) {
+                  onDialogComplete();
+                }
               }
+            } else {
+              // If there's a hover dialog waiting, we should prioritize it
+              console.log('[DialogBox] Skipping main dialog update because a hover dialog is waiting');
+              hoverDialogController.setDialogCompleted(complete);
             }
           });
         }, 50); // Delay kecil untuk memastikan UI diupdate dengan benar
@@ -178,23 +190,37 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
         // Move to the next dialog
         dialogController.nextDialog((text, complete) => {
-          setText(text);
-          setIsComplete(complete);
-
-          // Get current dialog to display character name
-          const currentDialog = dialogController.getCurrentDialog();
-          if (currentDialog) {
-            setCharacterName(currentDialog.character);
-            // Update hover dialog controller with completion status
-            hoverDialogController.setDialogCompleted(complete);
-          } else {
-            // Tetap tandai dialog sebagai selesai untuk interaksi hover
-            hoverDialogController.setDialogCompleted(true);
-
-            // Jangan set isDialogFinished ke true agar tetap menampilkan dialog box
-            if (onDialogComplete) {
-              onDialogComplete();
+          // Check if there are any pending dialog sources that need to take priority
+          const hasPendingHover = hoverDialogController.isTypingHoverDialog();
+          
+          // Log for debugging
+          console.log(`[DialogBox] Next dialog check - hasPendingHover: ${hasPendingHover}, dialogSource: ${dialogSource}`);
+          
+          // Only update the main dialog if there's no higher priority dialog waiting
+          if (!hasPendingHover) {
+            setText(text);
+            setIsComplete(complete);
+            setDialogSource(DialogSource.MAIN); // Ensure dialog source is set back to MAIN
+            
+            // Get current dialog to display character name
+            const currentDialog = dialogController.getCurrentDialog();
+            if (currentDialog) {
+              setCharacterName(currentDialog.character);
+              // Update hover dialog controller with completion status
+              hoverDialogController.setDialogCompleted(complete);
+            } else {
+              // Tetap tandai dialog sebagai selesai untuk interaksi hover
+              hoverDialogController.setDialogCompleted(true);
+  
+              // Jangan set isDialogFinished ke true agar tetap menampilkan dialog box
+              if (onDialogComplete) {
+                onDialogComplete();
+              }
             }
+          } else {
+            // If there's a hover dialog waiting, we should prioritize it
+            console.log('[DialogBox] Skipping main dialog update because a hover dialog is waiting');
+            hoverDialogController.setDialogCompleted(complete);
           }
         });
       }
