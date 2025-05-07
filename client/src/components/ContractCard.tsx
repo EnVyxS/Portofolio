@@ -343,14 +343,21 @@ const ContractCard: React.FC = () => {
 
   const openImageInNewTab = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.open(CONTRACT_IMAGES[currentIndex], "_blank");
     
     // Unlock achievement for successful contract creation (link clicked)
     try {
       const achievementController = AchievementController.getInstance();
       achievementController.unlockAchievement('success');
+      
+      // Delay opening the image in a new tab until after showing achievement
+      setTimeout(() => {
+        window.open(CONTRACT_IMAGES[currentIndex], "_blank");
+        console.log("Opening contract image after achievement display");
+      }, 3000); // 3 second delay for achievement display
     } catch (error) {
       console.error("Failed to unlock success achievement:", error);
+      // If there's an error with achievement, still open the image
+      window.open(CONTRACT_IMAGES[currentIndex], "_blank");
     }
   };
 
