@@ -13,6 +13,8 @@ import DramaticEffects, {
 } from "./components/DramaticEffects";
 import { useIsMobile } from "./hooks/use-mobile";
 import ContractCard from "./components/ContractCard";
+import AchievementDisplay from "./components/AchievementDisplay";
+import AchievementController from "./controllers/achievementController";
 
 // Cookie functions for nightmare trap
 function getCookie(name: string) {
@@ -329,6 +331,7 @@ function App() {
   return (
     <AudioProvider>
       <MainApp />
+      <AchievementDisplay />
     </AudioProvider>
   );
 }

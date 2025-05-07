@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useAudio } from '../context/AudioManager';
+import AchievementController from '../controllers/achievementController';
 import gifPath from '/assets/darksouls.gif';
 
 interface ApproachScreenProps {
@@ -113,6 +114,14 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     
     // Mainkan efek suara souls-like
     playSoulsSound();
+    
+    // Unlock achievement 'approach'
+    try {
+      const achievementController = AchievementController.getInstance();
+      achievementController.unlockAchievement('approach');
+    } catch (error) {
+      console.error("Failed to unlock achievement:", error);
+    }
     
     // Memulai langkah kaki dengan jeda 1.5 detik setelah klik
     setTimeout(() => {

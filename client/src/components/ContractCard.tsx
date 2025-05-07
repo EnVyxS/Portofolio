@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import DialogController from "../controllers/dialogController";
 import HoverDialogController from "../controllers/hoverDialogController";
+import AchievementController from "../controllers/achievementController";
 import { useAudio } from "../context/AudioManager";
 
 // Responses for contract interactions - moved from DialogBox.tsx and made more natural
@@ -146,6 +147,14 @@ const ContractCard: React.FC = () => {
       // Kurangi volume musik ambient
       if (currentVolume) {
         setVolume(currentVolume * 0.5); // Kurangi volume menjadi 50% dari volume saat ini
+      }
+
+      // Unlock achievement for opening contract
+      try {
+        const achievementController = AchievementController.getInstance();
+        achievementController.unlockAchievement('contract');
+      } catch (error) {
+        console.error("Failed to unlock contract achievement:", error);
       }
 
       setIsOpen(true);
@@ -335,6 +344,14 @@ const ContractCard: React.FC = () => {
   const openImageInNewTab = (e: React.MouseEvent) => {
     e.stopPropagation();
     window.open(CONTRACT_IMAGES[currentIndex], "_blank");
+    
+    // Unlock achievement for successful contract creation (link clicked)
+    try {
+      const achievementController = AchievementController.getInstance();
+      achievementController.unlockAchievement('success');
+    } catch (error) {
+      console.error("Failed to unlock success achievement:", error);
+    }
   };
 
   return (
