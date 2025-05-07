@@ -3,6 +3,7 @@ import ElevenLabsService from '../services/elevenlabsService';
 import HoverDialogController from './hoverDialogController';
 import { CONTRACT_RESPONSES } from '../components/ContractCard';
 import AchievementController from './achievementController';
+import { DialogSource } from '../views/DialogBox';
 
 class DialogController {
   private static instance: DialogController;
@@ -301,9 +302,9 @@ class DialogController {
           // Semua dialog khusus (CONTRACT_RESPONSES, IDLE_DIALOGS, punchText, throwText)
           // harus selalu ditampilkan di dialogBox utama sebagai 'main'
           if (hoverDialogController.setDialogSource) {
-            // Semua dialog khusus ditampilkan sebagai 'main' untuk memastikan muncul di dialog box utama
-            console.log("[DialogController] Setting dialog source to 'main' for custom dialog");
-            hoverDialogController.setDialogSource('main');
+            // Semua dialog khusus ditampilkan sebagai DialogSource.MAIN untuk memastikan muncul di dialog box utama
+            console.log("[DialogController] Setting dialog source to DialogSource.MAIN for custom dialog");
+            hoverDialogController.setDialogSource(DialogSource.MAIN);
             
             // Reset status dialog interaksi untuk hover controller
             hoverDialogController.setHasInteractedWithHover(false);

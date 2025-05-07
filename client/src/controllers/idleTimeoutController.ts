@@ -2,6 +2,7 @@ import DialogController from "./dialogController";
 import HoverDialogController from "./hoverDialogController";
 import AchievementController from "./achievementController";
 import ElevenLabsService from "../services/elevenlabsService";
+import { DialogSource } from "../views/DialogBox";
 
 // Dialog yang akan ditampilkan pada timeout tertentu
 export const IDLE_DIALOGS = {
