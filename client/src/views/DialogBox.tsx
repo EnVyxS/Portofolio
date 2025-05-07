@@ -20,12 +20,36 @@ function generateSimpleHash(text: string): string {
   return Math.abs(hash).toString();
 }
 
+// Enum untuk menyimpan sumber dialog
+enum DialogSource {
+  MAIN = "main",
+  HOVER = "hover",
+  IDLE_WARNING = "idle_warning",
+  POST_RESET = "post_reset",
+  CONTRACT = "contract"
+}
+
 // Helper untuk menentukan apakah dialog perlu persistensi (tetap terbuka)
 // Versi sederhana: semua dialog autoplay kecuali yang memiliki pola tertentu
-function isDialogPersistent(text: string): boolean {
-  // Dialog dari dialogModel.ts hampir semua non-persistent
-  // kita menggunakan pola false secara default
-
+function isDialogPersistent(text: string, source: DialogSource): boolean {
+  // Berdasarkan sumber dialog
+  if (source === DialogSource.POST_RESET) {
+    // Dialog post-reset selalu persistent
+    return true;
+  }
+  
+  if (source === DialogSource.IDLE_WARNING) {
+    // Dialog idle warning selalu persistent
+    return true;
+  }
+  
+  if (source === DialogSource.CONTRACT) {
+    // Dialog kontrak selalu persistent
+    return true;
+  }
+  
+  // Untuk dialog dari sumber lain, periksa konten teks
+  
   // Khusus untuk RETURN_DIALOG dan HOVER_AFTER_RESET - selalu persistent
   if (
     (text.includes("Now what, you little filth") || text.includes("Back for more punishment")) ||
@@ -59,7 +83,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const [characterName, setCharacterName] = useState<string>("");
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [isDialogFinished, setIsDialogFinished] = useState<boolean>(false);
-  const [dialogSource, setDialogSource] = useState<"main" | "hover">("main");
+  const [dialogSource, setDialogSource] = useState<DialogSource>(DialogSource.MAIN);
   const [isMuted, setIsMuted] = useState<boolean>(false);
 
   const dialogController = DialogController.getInstance();
@@ -229,7 +253,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       const currentDialog = dialogController.getCurrentDialog();
       if (currentDialog) {
         // Periksa apakah dialog ini adalah dialog yang membutuhkan respons (persistent)
-        const shouldPersist = isDialogPersistent(currentDialog.text);
+        const shouldPersist = isDialogPersistent(currentDialog.text, dialogSource);
 
         if (!shouldPersist) {
           // Untuk dialog yang tidak perlu persistent, auto-dismiss lebih cepat
@@ -261,9 +285,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           }
         }
       }
-    } else if (isComplete && dialogSource === "hover") {
+    } else if (isComplete && dialogSource === DialogSource.HOVER) {
       // Untuk hover dialog, periksa juga persistensi
-      if (!isDialogPersistent(text)) {
+      if (!isDialogPersistent(text, dialogSource)) {
         // Hover dialog yang tidak memerlukan respons
         const dismissDelay = 3000; // 3 detik untuk membaca pesan
 
@@ -359,12 +383,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       
       setText(text);
       setIsComplete(complete);
-      setDialogSource("hover");
+      setDialogSource(DialogSource.HOVER);
       setCharacterName("DIVA JUAN NUR TAQARRUB"); // Dialog hover dari DIVA JUAN (idle warnings juga)
     });
 
     // Buat function untuk set dialogSource dari luar komponen
-    hoverDialogController.setDialogSource = (source: "main" | "hover") => {
+    hoverDialogController.setDialogSource = (source: DialogSource) => {
       // Tambahkan pemeriksaan prioritas dialog untuk mencegah bentrok
       if (dialogController.isShowingPostResetDialog() || idleTimeoutController.isAnyIdleWarningActive()) {
         console.log(`[DialogBox] Dialog prioritas aktif, mengabaikan set dialog source`);
@@ -372,7 +396,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       }
       
       setDialogSource(source);
-      if (source === "main") {
+      if (source === DialogSource.MAIN) {
         setCharacterName("DIVA JUAN NUR TAQARRUB");
       }
     };
@@ -389,7 +413,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       dialogController.startDialog((text, complete) => {
         setText(text);
         setIsComplete(complete);
-        setDialogSource("main");
+        setDialogSource(DialogSource.MAIN);
 
         // Get current dialog to display character name
         const currentDialog = dialogController.getCurrentDialog();
