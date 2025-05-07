@@ -101,38 +101,44 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
       if (!autoPlayAttempted.current && !isAudioPlaying) {
         autoPlayAttempted.current = true;
         
-        // Add muted attribute to make autoplay more likely to work
-        music.muted = true;
-        ambient.muted = true;
-        
-        try {
-          await music.play();
-          // If autoplay succeeds, unmute after 300ms
-          setTimeout(() => {
-            music.muted = false;
-            ambient.muted = false;
-            setIsAudioPlaying(true);
-            console.log("Autoplay succeeded with muted approach");
-          }, 300);
+        const attemptPlay = async () => {
+          // Add muted attribute to make autoplay more likely to work
+          music.muted = true;
+          ambient.muted = true;
           
-          // Try to play ambient sound too, but don't worry if it fails
           try {
-            await ambient.play();
+            // Play both audio elements at once
+            await Promise.all([
+              music.play().catch(() => console.log("Music autoplay failed")),
+              ambient.play().catch(() => console.log("Ambient autoplay failed"))
+            ]);
+            
+            // If autoplay succeeds, unmute after short delay
+            setTimeout(() => {
+              music.muted = false;
+              ambient.muted = false;
+              setIsAudioPlaying(true);
+              console.log("Autoplay succeeded with muted approach");
+            }, 100);
+            
           } catch (error) {
-            console.log("Ambient autoplay failed, will try again with user interaction");
+            console.log("Initial autoplay attempt failed, retrying...");
+            // If first attempt fails, try again after a short delay
+            setTimeout(attemptPlay, 500);
           }
-        } catch (error) {
-          console.log("Autoplay blocked by browser, waiting for user interaction");
-          music.muted = false;
-          ambient.muted = false;
-          // If autoplay fails, we'll wait for interaction
-        }
+        };
+        
+        // Start first attempt
+        attemptPlay();
       }
     };
 
-    // Try autoplay after a short delay
+    // Try autoplay immediately and then again after a delay if needed
+    tryAutoPlay();
     interactionTimeout.current = setTimeout(() => {
-      tryAutoPlay();
+      if (!isAudioPlaying) {
+        tryAutoPlay();
+      }
     }, 1000);
 
     // Event handlers for user interaction
@@ -140,13 +146,26 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
       if (!hasInteracted) {
         console.log("User interaction detected, enabling audio");
         setHasInteracted(true);
+        
+        // Try to play audio immediately after interaction
+        if (!isAudioPlaying) {
+          music.muted = false;
+          ambient.muted = false;
+          Promise.all([
+            music.play().catch(() => console.log("Music play failed after interaction")),
+            ambient.play().catch(() => console.log("Ambient play failed after interaction"))
+          ]).then(() => {
+            setIsAudioPlaying(true);
+            console.log("Audio started after user interaction");
+          });
+        }
       }
     };
 
     // Add multiple interaction event listeners to improve chances of catching interaction
     const interactionEvents = [
       'click', 'touchstart', 'mousedown', 'keydown', 
-      'mousemove', 'scroll', 'touchmove'
+      'mousemove', 'scroll', 'touchmove', 'pointerdown'
     ];
     
     interactionEvents.forEach(event => {
