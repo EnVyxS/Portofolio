@@ -752,6 +752,18 @@ class HoverDialogController {
     this.isHandlingHover = false;
   }
 
+  // Method untuk menangani klik pada link dari hover dialog
+  public handleLinkClick(linkType: HoverLinkType): void {
+    try {
+      // Trigger achievement 'success' saat link dari hover dialog diklik
+      const achievementController = AchievementController.getInstance();
+      achievementController.unlockAchievement('success');
+      console.log(`Link dari hover dialog diklik (${linkType}), menampilkan achievement success`);
+    } catch (error) {
+      console.error("Gagal menampilkan achievement saat klik link hover dialog:", error);
+    }
+  }
+
   // Reset hover state (misalnya saat user meninggalkan halaman)
   public resetHoverState(): void {
     this.lastHoveredLink = "none";

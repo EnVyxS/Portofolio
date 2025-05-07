@@ -54,8 +54,14 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
     // Trigger the glitch effect immediately
     triggerGlitch();
     
-    // Show a message that we're waiting for character to finish talking
+    // Peta ID ke HoverLinkType
     const hoverType = mapIdToLinkType(id);
+    
+    // Notifikasi HoverDialogController bahwa link telah diklik
+    // Ini baru, untuk menampilkan achievement dari hover dialog
+    hoverController.handleLinkClick(hoverType);
+    
+    // Tampilkan dialog hover terakhir
     hoverController.handleHoverDialog(hoverType);
     
     // Check if audio is currently playing
@@ -76,15 +82,12 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
         }
       }, redirectDelay);
     } else {
-      // Unlock success achievement for social links
+      // Tampilkan achievement success
       try {
-        // Langsung gunakan achievement controller yang sudah di-import
-        const achievementController = AchievementController.getInstance();
-        achievementController.unlockAchievement('success');
-        
+        // Delay untuk melihat achievement
+        const redirectDelay = 1500; // 1.5 seconds
         console.log("Showing success achievement before redirecting to:", url);
         
-        // Add a shorter delay for the achievement to show first (1.5 detik)
         setTimeout(() => {
           console.log("Achievement delay completed, opening URL:", url);
           
@@ -93,10 +96,10 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
           } else {
             window.open(url, '_blank', 'noopener,noreferrer');
           }
-        }, 1500); // 1.5 detik delay untuk achievement
+        }, redirectDelay);
       } catch (error) {
         // If there's an error with achievement, still redirect
-        console.error("Error unlocking achievement:", error);
+        console.error("Error with achievement handling:", error);
         console.log("Redirecting immediately to:", url);
         
         if (url.startsWith('mailto:')) {
