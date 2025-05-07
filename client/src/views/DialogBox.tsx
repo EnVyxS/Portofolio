@@ -172,11 +172,6 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
               onDialogComplete();
             }
           }
-          
-          // Reset processing flag setelah dialog berhasil diproses
-          setTimeout(() => {
-            isProcessingRef.current = false;
-          }, 300);
         });
       }
     } else if (dialogSource === "hover") {
@@ -185,21 +180,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         // Jika dialog masih dalam proses typing, langsung tampilkan full text
         hoverDialogController.stopTyping();
         setIsComplete(true);
-        
-        // Reset processing flag setelah menampilkan full text
-        setTimeout(() => {
-          isProcessingRef.current = false;
-        }, 200);
       } else {
         // Jika dialog sudah selesai, user menekan NEXT
         // Reset hover state dan hilangkan dialog box
         hoverDialogController.resetHoverState();
         setIsDialogFinished(true);
-
-        // Reset processing flag setelah dialog hover selesai
-        setTimeout(() => {
-          isProcessingRef.current = false;
-        }, 300);
         
         // Jangan kembali ke dialog utama
         // Ini perbaikan utama yang dilakukan
