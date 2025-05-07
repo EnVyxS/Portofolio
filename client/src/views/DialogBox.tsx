@@ -439,10 +439,30 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         return;
       }
       
-      setText(text);
-      setIsComplete(complete);
-      setDialogSource(DialogSource.HOVER);
-      setCharacterName("DIVA JUAN NUR TAQARRUB"); // Dialog hover dari DIVA JUAN (idle warnings juga)
+      // CRITICAL FIX: Pastikan dialog utama disembunyikan terlebih dahulu
+      // dengan set isDialogFinished = true sebelum menampilkan hover dialog
+      if (dialogSource === DialogSource.MAIN) {
+        console.log('[DialogBox] Hiding main dialog before showing hover dialog');
+        setIsDialogFinished(true);
+        
+        // Beri sedikit delay sebelum mengubah teks untuk memastikan dialog utama sudah hilang dulu
+        setTimeout(() => {
+          setText(text);
+          setIsComplete(complete);
+          setDialogSource(DialogSource.HOVER);
+          setCharacterName("DIVA JUAN NUR TAQARRUB"); // Dialog hover dari DIVA JUAN (idle warnings juga)
+          
+          // Reset flag untuk memungkinkan hover dialog muncul
+          if (text !== "") {
+            setIsDialogFinished(false);
+          }
+        }, 50);
+      } else {
+        setText(text);
+        setIsComplete(complete);
+        setDialogSource(DialogSource.HOVER);
+        setCharacterName("DIVA JUAN NUR TAQARRUB"); // Dialog hover dari DIVA JUAN (idle warnings juga)
+      }
     });
 
     // Buat function untuk set dialogSource dari luar komponen
@@ -556,11 +576,19 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // Sembunyikan dialog box jika salah satu kondisi ini terpenuhi:
   // 1. Dialog selesai, tidak ada teks, bukan kontrak dialog dan tidak ada force show
   // 2. Dialog source MAIN, tapi ada hover dialog yang sedang menunggu dan source saat ini adalah MAIN
+  // 3. Dialog source tidak sama dengan yang sedang aktif (MAIN vs HOVER)
   if ((isDialogFinished && text === "" && !isContractDialogActive && !forceShowIdleWarning) || 
-      (hasPendingHover && dialogSource === DialogSource.MAIN)) {
+      (hasPendingHover && dialogSource === DialogSource.MAIN) || 
+      (dialogSource === DialogSource.MAIN && hoverDialogController.isTypingHoverDialog())) {
     // Debug untuk membantu melihat status dialog
     console.log("[DialogBox] Hiding dialog box - finished empty dialog or pending hover dialog");
     return null; 
+  }
+  
+  // JANGAN tampilkan dialog box jika dialog source adalah MAIN tapi ada hover dialog yang aktif
+  if (dialogSource === DialogSource.MAIN && hoverDialogController.isTypingHoverDialog()) {
+    console.log("[DialogBox] Hiding MAIN dialog because hover dialog is active");
+    return null;
   }
   
   // Periksa apakah ini adalah dialog kontrak (CONTRACT_RESPONSES) berdasarkan teks

@@ -431,16 +431,32 @@ class HoverDialogController {
     // Stop any ongoing typing first
     this.stopTyping();
 
+    // CRITICAL FIX: Set isDialogFinished to true for main dialog
+    // This explicitly hides the main dialog box before showing hover dialog
+    if (this.setIsDialogFinished) {
+      console.log('[HoverDialogController] Hiding main dialog before showing hover dialog');
+      this.setIsDialogFinished(true);  
+      
+      // Also set dialog source to HOVER
+      if (this.setDialogSource) {
+        console.log('[HoverDialogController] Setting dialog source to HOVER');
+        this.setDialogSource(DialogSource.HOVER);
+      }
+    }
+
     // Set up typing variables
     this.fullText = text;
     this.currentText = "";
     this.charIndex = 0;
     this.isTypingHover = true;
 
-    // Panggil callback di awal dengan teks kosong untuk memastikan dialog box muncul
-    if (this.hoverTextCallback) {
-      this.hoverTextCallback("", false);
-    }
+    // Delay hover callback slightly to ensure main dialog is hidden first
+    setTimeout(() => {
+      // Panggil callback dengan teks kosong untuk memastikan dialog box muncul
+      if (this.hoverTextCallback) {
+        this.hoverTextCallback("", false);
+      }
+    }, 50);
 
     // Start typewriter effect
     this.typingInterval = setInterval(() => {
