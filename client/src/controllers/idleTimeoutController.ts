@@ -6,22 +6,22 @@ import ElevenLabsService from "../services/elevenlabsService";
 // Dialog yang akan ditampilkan pada timeout tertentu
 export const IDLE_DIALOGS = {
   // Dialog setelah 2 menit tidak ada interaksi
-  FIRST_WARNING: "What the hell are you staring at?.. Got something to say!?",
+  FIRST_WARNING: "[annoyed] What the hell are you staring at?.. [angry] Got something to say!?",
 
   // Dialog setelah 5 menit tidak ada interaksi
   SECOND_WARNING:
-    "You really gonna keep ignoring me? I'm not in the mood for this.",
+    "[irritated] You really gonna keep ignoring me? [threatening] I'm not in the mood for this.",
 
   // Dialog setelah 9 menit tidak ada interaksi
   FINAL_WARNING:
-    "You think this is funny?.. Staring at me for nine damn minutes?.. Fuck you!!",
+    "[furious] You think this is funny?.. [enraged] Staring at me for nine damn minutes?.. [shouting] FUCK YOU!!",
 
   // Dialog setelah user menekan APPROACH HIM lagi
-  RETURN_DIALOG: "Now what, you little filth!?..",
+  RETURN_DIALOG: "[menacing] Now what, you little filth!?.. [threatening] Back for more punishment?",
 
   // Dialog setelah user melakukan hover
   HOVER_AFTER_RESET:
-    "Hmph... Finally, you decide to move... Suit yourself. You want to check it or just get on with signing the damn contract?",
+    "[scornful] Hmph... Finally, you decide to move... [indifferent] Suit yourself. [questioning] You want to check it or just get on with signing the damn contract?",
 
   // Dialog untuk hover berlebihan
   EXCESSIVE_HOVER_WARNING: "KEEP PUSHING, AND YOU’LL REGRET IT.",
