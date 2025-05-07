@@ -1253,18 +1253,18 @@
                     styleEl.textContent = `
                         .achievement-notification {
                             position: fixed;
-                            bottom: 26vh; /* Ditinggikan agar tidak menutupi tombol escape */
-                            right: max(5vw, 24px); /* Sedikit lebih jauh dari tepi untuk konsistensi */
+                            bottom: max(20vh, 120px); /* Responsif di berbagai ukuran perangkat mobile */
+                            right: max(3vw, 12px); /* Penyesuaian posisi horizontal */
                             left: auto; /* Pastikan tidak menggunakan left */
                             z-index: 40; /* Same z-index as main app achievement */
                             background-color: rgba(0, 0, 0, 0.9);
                             border: 2px solid rgba(255, 180, 30, 0.5); /* Amber gold border */
-                            padding: 12px 16px;
+                            padding: min(3vw, 12px) min(4vw, 16px); /* Padding responsif */
                             color: #e2c080;
                             font-family: "EB Garamond", serif;
                             width: min(280px, 85vw); /* Responsive with max width */
                             max-width: 280px; /* Tetapkan max-width untuk konsistensi */
-                            min-width: 240px; /* Min-width untuk mencegah konten terpotong */
+                            min-width: min(240px, 80vw); /* Min-width responsif */
                             animation: achievementFadeIn 0.5s forwards, achievementFadeOut 0.5s 4.5s forwards;
                             box-shadow: 
                                 0 4px 12px rgba(0, 0, 0, 0.6), 
@@ -1351,9 +1351,9 @@
                         .achievement-icon {
                             flex-shrink: 0;
                             position: relative;
-                            width: 40px;
-                            height: 40px;
-                            margin-right: 12px;
+                            width: min(40px, 10vw);
+                            height: min(40px, 10vw);
+                            margin-right: min(12px, 3vw);
                             background: rgba(0, 0, 0, 0.7);
                             border: 1px solid rgba(255, 180, 30, 0.4);
                             display: flex;
@@ -1361,10 +1361,12 @@
                             justify-content: center;
                             border-radius: 1px;
                             z-index: 2;
+                            min-width: 32px;
+                            min-height: 32px;
                         }
                         
                         .icon-star {
-                            font-size: 18px;
+                            font-size: clamp(16px, 4.5vw, 18px);
                             color: rgba(255, 180, 30, 0.9);
                             text-shadow: 0 0 6px rgba(255, 180, 30, 0.5);
                             animation: starPulse 2s infinite alternate;
@@ -1383,13 +1385,18 @@
                         }
                         
                         .achievement-desc {
-                            font-size: 10px;
+                            font-size: clamp(8px, 2.5vw, 10px);
                             color: rgba(255, 180, 30, 0.7);
-                            margin-top: 2px;
+                            margin-top: min(2px, 0.6vw);
                             line-height: 1.4;
                             max-width: 100%;
                             z-index: 2;
                             position: relative;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            display: -webkit-box;
+                            -webkit-line-clamp: 2;
+                            -webkit-box-orient: vertical;
                         }
                         
                         .achievement-title {
@@ -1397,14 +1404,16 @@
                         }
                         
                         .achievement-title span {
-                            font-size: 11px;
+                            font-size: clamp(9px, 2.5vw, 11px);
                             color: rgba(255, 180, 30, 0.85);
                             text-transform: uppercase;
-                            letter-spacing: 1.2px;
+                            letter-spacing: 1px;
                             position: relative;
                             z-index: 2;
                             font-weight: 500;
                             text-shadow: 0 0 4px rgba(255, 180, 30, 0.3);
+                            display: block;
+                            white-space: nowrap;
                         }
                         
                         /* Removed extra star before title as we have icon separately */
@@ -1416,16 +1425,17 @@
                         }
                         
                         .achievement-name {
-                            font-size: 14px;
+                            font-size: clamp(12px, 3.5vw, 14px);
                             color: #e2c080;
                             text-transform: uppercase;
                             font-weight: 500;
                             letter-spacing: 0.7px;
-                            margin-top: 3px;
+                            margin-top: min(3px, 0.8vw);
                             position: relative;
                             z-index: 2;
                             text-shadow: 0 0 6px rgba(226, 192, 128, 0.25);
                             padding-bottom: 1px;
+                            white-space: nowrap;
                         }
                         
                         /* Subtle decorative elements and divider */
