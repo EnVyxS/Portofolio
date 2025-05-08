@@ -24,16 +24,18 @@ export const CONTRACT_RESPONSES = [
 import swipeSoundSrc from "@assets/Screen swipe sound effect (mp3cut.net).m4a";
 import footstepSoundSrc from "@assets/footsteps sound effect - walking sound effect - copyright free sound effects (mp3cut.net) (1).m4a";
 
-// Import gambar sertifikat
-import ijazah from "@assets/Ijazah.jpg";
-import transkrip1 from "@assets/Transkrip Nilai_page-0001.jpg";
-import transkrip2 from "@assets/Transkrip Nilai_page-0002.jpg";
-import tofl from "@assets/111202012560mhs.dinus.ac.id_page-0001.jpg";
-import bnsp1 from "@assets/BNSP_page-0001.jpg";
-import bnsp2 from "@assets/BNSP_page-0002.jpg";
-import kampusMerdeka from "@assets/Backend Java MSIB_page-0001.jpg";
-import studentReport1 from "@assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0001.jpg";
-import studentReport2 from "@assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0002.jpg";
+// Import gambar sertifikat yang telah dioptimasi
+// Menggunakan gambar yang sudah dioptimasi dari folder public/optimized_assets
+const basePath = "/optimized_assets/";
+const ijazah = `${basePath}Ijazah.jpg`;
+const transkrip1 = `${basePath}Transkrip Nilai_page-0001.jpg`;
+const transkrip2 = `${basePath}Transkrip Nilai_page-0002.jpg`;
+const tofl = `${basePath}111202012560mhs.dinus.ac.id_page-0001.jpg`;
+const bnsp1 = `${basePath}BNSP_page-0001.jpg`;
+const bnsp2 = `${basePath}BNSP_page-0002.jpg`;
+const kampusMerdeka = `${basePath}Backend Java MSIB_page-0001.jpg`;
+const studentReport1 = `${basePath}KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0001.jpg`;
+const studentReport2 = `${basePath}KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0002.jpg`;
 
 // Path ke file dokumen
 const CONTRACT_IMAGES = [
@@ -76,12 +78,40 @@ const ContractCard: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [hasDragged, setHasDragged] = useState(false); // Track if user has already dragged
+  const [imagesLoaded, setImagesLoaded] = useState(false); // Track gambar sudah dimuat
   const dialogController = DialogController.getInstance();
   const { setVolume, currentVolume } = useAudio();
 
   // Audio references for sounds
   const swipeSoundRef = useRef<HTMLAudioElement | null>(null);
   const footstepSoundRef = useRef<HTMLAudioElement | null>(null);
+
+  // Preload all images as soon as component mounts
+  useEffect(() => {
+    let loadedCount = 0;
+    const totalImages = CONTRACT_IMAGES.length;
+    
+    // Untuk setiap gambar, buat objek Image dan muat
+    CONTRACT_IMAGES.forEach((src) => {
+      const img = new Image();
+      img.onload = () => {
+        loadedCount++;
+        if (loadedCount === totalImages) {
+          setImagesLoaded(true);
+          console.log("[ContractCard] All contract images preloaded successfully");
+        }
+      };
+      img.onerror = (err) => {
+        console.error(`[ContractCard] Failed to preload image: ${src}`, err);
+        // Tetap tandai sebagai loaded agar user bisa melanjutkan
+        loadedCount++;
+        if (loadedCount === totalImages) {
+          setImagesLoaded(true);
+        }
+      };
+      img.src = src;
+    });
+  }, []);
 
   // Initialize audio elements on component mount
   useEffect(() => {
@@ -526,14 +556,21 @@ const ContractCard: React.FC = () => {
                     <div
                       className={`page-shadow ${pageDirection ? "active" : ""}`}
                     ></div>
-                    <img
-                      src={CONTRACT_IMAGES[currentIndex]}
-                      alt={IMAGE_TITLES[currentIndex]}
-                      className="document-image"
-                      onDoubleClick={openImageInNewTab}
-                      title="Double-click to open in new tab"
-                      draggable="false" // Cegah drag default image
-                    />
+                    {imagesLoaded ? (
+                      <img
+                        src={CONTRACT_IMAGES[currentIndex]}
+                        alt={IMAGE_TITLES[currentIndex]}
+                        className="document-image"
+                        onDoubleClick={openImageInNewTab}
+                        title="Double-click to open in new tab"
+                        draggable="false" // Cegah drag default image
+                      />
+                    ) : (
+                      <div className="document-image loading-placeholder">
+                        <div className="loading-spinner"></div>
+                        <p>Loading document...</p>
+                      </div>
+                    )}
                     <div
                       className={`page-fold ${pageDirection ? "active" : ""} ${pageDirection || ""}`}
                     ></div>
@@ -852,6 +889,40 @@ const ContractCard: React.FC = () => {
           box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 12px rgba(255, 220, 150, 0.25);
           border-color: rgba(200, 180, 140, 0.8);
           filter: brightness(1.15) contrast(1.08);
+        }
+        
+        /* Loading Placeholder Styles */
+        .loading-placeholder {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          background: rgba(20, 16, 14, 0.6);
+          border: 2px solid rgba(170, 150, 120, 0.4);
+          padding: 30px;
+          text-align: center;
+          min-height: 300px;
+          color: #e5d9b8;
+        }
+        
+        .loading-placeholder p {
+          margin-top: 20px;
+          font-family: 'Trajan Pro', 'Cinzel', serif;
+          letter-spacing: 1px;
+        }
+        
+        .loading-spinner {
+          width: 48px;
+          height: 48px;
+          border: 3px solid rgba(170, 150, 120, 0.3);
+          border-radius: 50%;
+          border-top-color: rgba(200, 180, 140, 0.9);
+          animation: spin 1s linear infinite;
+          box-shadow: 0 0 10px rgba(255, 220, 150, 0.2);
+        }
+        
+        @keyframes spin {
+          to { transform: rotate(360deg); }
         }
         
         /* Animasi transisi buku */
