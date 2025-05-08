@@ -463,6 +463,17 @@ function App() {
               Reset All
             </button>
             <button 
+              className="bg-blue-800/70 text-white px-2 py-1 rounded text-[10px]"
+              onClick={() => {
+                const ac = AchievementController.getInstance();
+                const achievements = ac.getUnlockedAchievements();
+                console.log('[Debug] Current achievements:', achievements);
+                alert(`Current achievements: ${achievements.join(', ')}`);
+              }}
+            >
+              Debug
+            </button>
+            <button 
               className="bg-green-800/70 text-white px-2 py-1 rounded text-[10px]"
               onClick={() => {
                 window.location.reload();
