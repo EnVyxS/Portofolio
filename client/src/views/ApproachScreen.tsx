@@ -451,6 +451,10 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
           <span className="ornament right">•</span>
         </motion.button>
       </motion.div>
+
+      {/* Achievement Progress Indicator */}
+      <AchievementProgress />
+      
       <style>{`
         .approach-screen {
           position: fixed;
