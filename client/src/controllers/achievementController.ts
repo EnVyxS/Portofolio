@@ -58,18 +58,21 @@ class AchievementController {
   }
   
   // Unlock achievement baru
-  public unlockAchievement(type: AchievementType): void {
+  public unlockAchievement(type: AchievementType, forceNotification: boolean = false): void {
     // Jika achievement 'nightmare' dan tidak pada halaman dream.html, abaikan
     if (type === 'nightmare' && !this.isDreamPage) {
       console.log('Nightmare achievement will only be shown on dream.html page');
       return;
     }
     
-    console.log(`Showing achievement: ${type}`);
+    console.log(`Showing achievement: ${type}, forceNotification: ${forceNotification}`);
     
-    // Jika achievement belum di-unlock dalam sesi ini (untuk testing)
-    if (!this.unlockedAchievements.has(type)) {
-      // Tambahkan ke daftar achievements yang unlocked (hanya di memori)
+    // Cek apakah achievement sudah ada, baru memunculkan notifikasi jika belum ada atau forceNotification=true
+    const isNewAchievement = !this.unlockedAchievements.has(type);
+    
+    // Tambahkan achievement ke daftar (jika belum ada)
+    if (isNewAchievement) {
+      // Tambahkan ke daftar achievements yang unlocked
       this.unlockedAchievements.add(type);
       
       // Simpan ke localStorage untuk penyimpanan permanen
@@ -79,11 +82,13 @@ class AchievementController {
       } catch (e) {
         console.error('Failed to save achievement to localStorage:', e);
       }
-      
-      // Panggil callback untuk menampilkan notifikasi achievement
-      if (this.achievementCallback) {
-        this.achievementCallback(type);
-      }
+    }
+    
+    // Panggil callback untuk menampilkan notifikasi achievement jika:
+    // 1. Achievement baru unlock, atau
+    // 2. Force notification dinyalakan
+    if ((isNewAchievement || forceNotification) && this.achievementCallback) {
+      this.achievementCallback(type);
     }
   }
   
