@@ -57,6 +57,19 @@ class AchievementController {
     );
   }
   
+  // Dispatch custom event untuk achievement unlocked
+  private dispatchAchievementEvent(type: AchievementType): void {
+    try {
+      const event = new CustomEvent('achievementUnlocked', {
+        detail: { achievement: type }
+      });
+      window.dispatchEvent(event);
+      console.log(`[AchievementController] Dispatched achievementUnlocked event for: ${type}`);
+    } catch (e) {
+      console.error('[AchievementController] Failed to dispatch achievement event:', e);
+    }
+  }
+
   // Unlock achievement baru
   public unlockAchievement(type: AchievementType): void {
     // Jika achievement 'nightmare' dan tidak pada halaman dream.html, abaikan
@@ -80,7 +93,10 @@ class AchievementController {
         console.error('Failed to save achievement to localStorage:', e);
       }
       
-      // Panggil callback untuk menampilkan notifikasi achievement
+      // Dispatch event untuk accessible notification system
+      this.dispatchAchievementEvent(type);
+      
+      // Panggil callback untuk menampilkan notifikasi achievement (legacy method)
       if (this.achievementCallback) {
         this.achievementCallback(type);
       }

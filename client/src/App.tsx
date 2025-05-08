@@ -16,6 +16,8 @@ import { useIsMobile } from "./hooks/use-mobile";
 import ContractCard from "./components/ContractCard";
 import AchievementDisplay from "./components/AchievementDisplay";
 import AchievementController from "./controllers/achievementController";
+import AccessibleAchievementNotification from "./components/AccessibleAchievementNotification";
+import { AchievementType } from "./constants/achievementConstants";
 
 // Cookie functions for nightmare trap
 function getCookie(name: string) {
@@ -44,6 +46,7 @@ function MainApp() {
     "throw" | "punch" | "none"
   >("none");
   const [wasReset, setWasReset] = useState<boolean>(false); // Untuk menandai jika user telah dilempar oleh DIVA JUAN
+  const [newAchievements, setNewAchievements] = useState<AchievementType[]>([]); // Track new achievements for notifications
   const {
     isAudioPlaying,
     playAudio,
@@ -397,11 +400,77 @@ function MainApp() {
   );
 }
 
+// Monitor untuk achievement baru
+function useMonitorAchievements() {
+  const [newAchievements, setNewAchievements] = useState<AchievementType[]>([]);
+  
+  useEffect(() => {
+    // Listener untuk event achievement baru
+    const handleNewAchievement = (event: CustomEvent) => {
+      const achievement = event.detail?.achievement as AchievementType;
+      if (achievement) {
+        console.log(`[AchievementMonitor] New achievement unlocked: ${achievement}`);
+        setNewAchievements(prev => [...prev, achievement]);
+      }
+    };
+
+    // Register listener untuk custom event
+    window.addEventListener('achievementUnlocked', handleNewAchievement as EventListener);
+    
+    // Clean up listener
+    return () => {
+      window.removeEventListener('achievementUnlocked', handleNewAchievement as EventListener);
+    };
+  }, []);
+
+  // Handler untuk acknowledge achievement
+  const handleAcknowledge = (achievement: AchievementType) => {
+    console.log(`[AchievementMonitor] User acknowledged achievement: ${achievement}`);
+    setNewAchievements(prev => prev.filter(a => a !== achievement));
+  };
+
+  return { newAchievements, handleAcknowledge };
+}
+
 function App() {
+  const { newAchievements, handleAcknowledge } = useMonitorAchievements();
+  
   return (
     <AudioProvider>
       <MainApp />
       <AchievementDisplay />
+      
+      {/* Accessible achievement notifications */}
+      <AccessibleAchievementNotification 
+        achievements={newAchievements}
+        onAcknowledge={handleAcknowledge}
+        autoHideDuration={10000}
+      />
+      
+      {/* Test buttons for achievement functionality - remove in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-4 left-4 flex gap-2 z-50">
+          <button 
+            className="bg-black/50 text-amber-400 px-3 py-1 rounded border border-amber-500 text-xs"
+            onClick={() => {
+              const ac = AchievementController.getInstance();
+              ac.unlockAchievement('patience');
+            }}
+          >
+            Test Achievement
+          </button>
+          
+          <button 
+            className="bg-black/50 text-amber-400 px-3 py-1 rounded border border-amber-500 text-xs"
+            onClick={() => {
+              const ac = AchievementController.getInstance();
+              ac.unlockAchievement('escape');
+            }}
+          >
+            Test Another
+          </button>
+        </div>
+      )}
     </AudioProvider>
   );
 }
