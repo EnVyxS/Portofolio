@@ -9,6 +9,7 @@ import {
 } from "../constants/achievementConstants";
 import AchievementController from "../controllers/achievementController";
 import AchievementSharing from "./AchievementSharing";
+import AchievementSparkline from "./AchievementSparkline";
 
 // Easter egg yang muncul ketika semua achievement terbuka
 const EASTER_EGG_MESSAGE = "You have conquered all the Diva Juan challenges!";
@@ -205,7 +206,7 @@ const AchievementGallery: React.FC = () => {
       )}
 
       {/* Progress bar */}
-      <motion.div className="achievement-progress mb-6">
+      <motion.div className="achievement-progress mb-3">
         <div className="progress-label">
           <span className="progress-title">Achievement Progress</span>
           <span className="progress-count">{unlockedAchievements.length} / {allAchievements.length}</span>
@@ -223,6 +224,16 @@ const AchievementGallery: React.FC = () => {
         <div className="progress-percentage">
           {Math.round((unlockedAchievements.length / allAchievements.length) * 100)}% Complete
         </div>
+      </motion.div>
+      
+      {/* Achievement Progress Sparkline */}
+      <motion.div 
+        className="mb-6"
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+      >
+        <AchievementSparkline />
       </motion.div>
 
       {/* Grid achievement */}

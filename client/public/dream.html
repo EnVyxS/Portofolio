@@ -1217,8 +1217,9 @@
 
             // Achievement System for Dream Page
             function setupAchievementSystem() {
-                // Achievement definitions
-                const ACHIEVEMENTS_KEY = "portfolio_achievements";
+                // Achievement definitions - match the key used in main app
+                const ACHIEVEMENTS_KEY = "diva-juan-achievements";
+                const ACHIEVEMENT_TIMESTAMPS_KEY = "diva-juan-achievement-timestamps";
                 
                 // Function to load existing achievements
                 function loadAchievements() {
@@ -1233,10 +1234,46 @@
                     return new Set();
                 }
                 
-                // Function to save achievements - DISABLED FOR TESTING
+                // Function to load achievement timestamps
+                function loadAchievementTimestamps() {
+                    const savedData = localStorage.getItem(ACHIEVEMENT_TIMESTAMPS_KEY);
+                    if (savedData) {
+                        try {
+                            return JSON.parse(savedData);
+                        } catch (e) {
+                            console.error('Error parsing achievement timestamps data:', e);
+                        }
+                    }
+                    return [];
+                }
+                
+                // Function to save achievements
                 function saveAchievements(achievements) {
                     localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify([...achievements]));
                     console.log('Achievement saved to localStorage:', [...achievements]);
+                }
+                
+                // Function to save achievement timestamp
+                function saveAchievementTimestamp(achievementType) {
+                    try {
+                        // Load existing timestamps
+                        const timestamps = loadAchievementTimestamps() || [];
+                        
+                        // Add new timestamp
+                        timestamps.push({
+                            achievement: achievementType,
+                            timestamp: Date.now()
+                        });
+                        
+                        // Save back to localStorage
+                        localStorage.setItem(
+                            ACHIEVEMENT_TIMESTAMPS_KEY,
+                            JSON.stringify(timestamps)
+                        );
+                        console.log(`Timestamp recorded for achievement ${achievementType}:`, new Date().toLocaleString());
+                    } catch (e) {
+                        console.error('Error saving achievement timestamp:', e);
+                    }
                 }
                 
                 // Function to unlock an achievement
@@ -1249,6 +1286,9 @@
                     if (isNewAchievement) {
                         achievements.add(type);
                         saveAchievements(achievements);
+                        
+                        // Record timestamp for new achievement
+                        saveAchievementTimestamp(type);
                     }
                     
                     // Selalu tampilkan notifikasi achievement
