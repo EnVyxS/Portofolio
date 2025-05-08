@@ -107,18 +107,34 @@ const AchievementGallery: React.FC = () => {
   
   return (
     <div className="achievement-gallery-container">
-      <h2 className="text-amber-100 text-lg font-bold mb-3 text-center">Achievements</h2>
+      <h2 className="text-amber-100 text-lg font-bold mb-4 text-center">
+        Achievements
+        <div className="achievement-title-underline"></div>
+      </h2>
       
       {/* Tampilkan easter egg jika semua achievement terbuka */}
       {showEasterEgg && (
         <motion.div 
           className="easter-egg-message"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
+          initial={{ opacity: 0, y: -10, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ 
+            duration: 0.8, 
+            delay: 0.5, 
+            type: "spring", 
+            stiffness: 100 
+          }}
         >
           <p className="text-amber-400 text-sm font-semibold text-center my-2">{EASTER_EGG_MESSAGE}</p>
           <div className="easter-egg-glow"></div>
+          <motion.div 
+            className="easter-egg-crown"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.5 }}
+          >
+            👑
+          </motion.div>
         </motion.div>
       )}
       
@@ -318,6 +334,133 @@ const AchievementGallery: React.FC = () => {
             color: rgba(255, 193, 7, 0.8);
             text-shadow: 0 0 6px rgba(255, 193, 7, 0.5);
           }
+        }
+        
+        /* Achievement light effects */
+        .achievement-item.unlocked::before {
+          content: '';
+          position: absolute;
+          top: -30%;
+          left: -30%;
+          width: 160%;
+          height: 160%;
+          background: radial-gradient(ellipse at center, rgba(255, 193, 7, 0.15) 0%, rgba(255, 193, 7, 0) 70%);
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.5s ease;
+        }
+        
+        .achievement-item.unlocked:hover::before {
+          opacity: 1;
+        }
+        
+        .achievement-item.unlocked::after {
+          content: '';
+          position: absolute;
+          top: -1px;
+          left: -1px;
+          right: -1px;
+          bottom: -1px;
+          border-radius: 4px;
+          background: linear-gradient(135deg, rgba(255, 193, 7, 0.4) 0%, rgba(255, 193, 7, 0) 60%);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          pointer-events: none;
+        }
+        
+        .achievement-item.unlocked:hover::after {
+          opacity: 0.5;
+        }
+        
+        /* Easter egg styling */
+        .easter-egg-message {
+          position: relative;
+          background: rgba(40, 35, 15, 0.7);
+          border: 1px solid rgba(255, 193, 7, 0.5);
+          border-radius: 4px;
+          padding: 16px;
+          margin: 0 auto 20px;
+          max-width: 90%;
+          box-shadow: 0 0 15px rgba(255, 193, 7, 0.2);
+          overflow: hidden;
+        }
+        
+        .easter-egg-message::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: 
+            radial-gradient(
+              circle at top right, 
+              rgba(255, 215, 0, 0.1) 0%, 
+              transparent 60%
+            ),
+            radial-gradient(
+              circle at bottom left, 
+              rgba(255, 215, 0, 0.1) 0%, 
+              transparent 60%
+            );
+          z-index: -1;
+        }
+        
+        .easter-egg-crown {
+          font-size: 24px;
+          display: block;
+          text-align: center;
+          margin-top: 5px;
+          filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.6));
+          animation: crownFloat 3s ease-in-out infinite;
+        }
+        
+        @keyframes crownFloat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+        
+        .easter-egg-glow {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
+          z-index: -1;
+          opacity: 0.7;
+          animation: glowPulseEgg 4s infinite alternate;
+        }
+        
+        @keyframes glowPulseEgg {
+          0% { opacity: 0.5; transform: scale(0.98); }
+          100% { opacity: 0.7; transform: scale(1.02); }
+        }
+        
+        /* Progress bar pulse animation */
+        .progress-bar {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .progress-bar::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, 
+            rgba(255, 255, 255, 0) 0%, 
+            rgba(255, 255, 255, 0.2) 50%, 
+            rgba(255, 255, 255, 0) 100%
+          );
+          animation: progressShine 3s infinite;
+        }
+        
+        @keyframes progressShine {
+          0% { left: -100%; }
+          100% { left: 100%; }
         }
       `}} />
     </div>
