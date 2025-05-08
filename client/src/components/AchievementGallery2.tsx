@@ -37,6 +37,8 @@ const AchievementGallery: React.FC = () => {
     "patience",
     "return",
     "hover",
+    "escape",
+    "social",
   ];
 
   // Load achievement saat komponen dimuat

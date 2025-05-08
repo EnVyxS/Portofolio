@@ -10,7 +10,7 @@ interface AchievementProgressProps {
 
 const AchievementProgress: React.FC<AchievementProgressProps> = ({ className }) => {
   const [unlockedCount, setUnlockedCount] = useState(0);
-  const [totalCount, setTotalCount] = useState(10); // Total adalah 10 achievement
+  const [totalCount, setTotalCount] = useState(12); // Total sekarang 12 achievement setelah penambahan "escape" dan "social"
   const [isVisible, setIsVisible] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
   
@@ -30,7 +30,7 @@ const AchievementProgress: React.FC<AchievementProgressProps> = ({ className }) 
   const allAchievements: AchievementType[] = [
     'approach', 'contract', 'document', 'success',
     'anger', 'nightmare', 'listener', 'patience',
-    'return', 'hover'
+    'return', 'hover', 'escape', 'social'
   ];
   
   // Load achievement saat komponen dimuat
