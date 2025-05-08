@@ -12,21 +12,15 @@ const ElevenLabsSetup: React.FC<ElevenLabsSetupProps> = ({ onClose }) => {
   // Auto-initialize with API key from environment variables or predefined key
   useEffect(() => {
     const initializeWithAPIKey = () => {
-      // Mencoba beberapa sumber API key dengan prioritas:
-      // 1. Environment variable
-      // 2. Hardcoded key provided by user (as fallback)
-      // 3. Default to using local audio
+      // Menggunakan ElevenLabs API key dari environment variable
+      // Jika tidak tersedia, jalankan dengan mode "using_local_audio"
       const envApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
-      const userProvidedKey = 'sk_4b8b0d124618ba1dc624db8081859a5ab3684b0304c1b27e'; // Key yang diberikan pengguna
       
       if (envApiKey) {
         console.log("Using ElevenLabs API key from environment");
         dialogController.setElevenLabsApiKey(envApiKey);
-      } else if (userProvidedKey) {
-        console.log("Using user-provided ElevenLabs API key");
-        dialogController.setElevenLabsApiKey(userProvidedKey);
       } else {
-        console.log("No API key found, using local audio files");
+        console.log("No API key found in environment variables, defaulting to local audio files");
         dialogController.setElevenLabsApiKey("using_local_audio");
       }
       

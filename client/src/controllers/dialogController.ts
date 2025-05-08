@@ -328,7 +328,7 @@ class DialogController {
   }
   
   // Method khusus untuk menampilkan dialog setelah user dilempar dan kemudian kembali
-  public showReturnDialog(callback: (text: string, isComplete: boolean) => void): void {
+  public async showReturnDialog(callback: (text: string, isComplete: boolean) => void): Promise<void> {
     // Hentikan dialog yang sedang berjalan
     this.stopTyping();
     
@@ -416,7 +416,32 @@ class DialogController {
       let currentText = "";
       
       // Coba gunakan elevenlabs untuk mengucapkan dialog
-      this.elevenlabsService.speakText(dialogText);
+      console.log("[DialogController] Attempting to play audio for return dialog");
+      this.elevenlabsService.speakText(dialogText)
+        .then(audioStarted => {
+          if (!audioStarted) {
+            console.log("[DialogController] First attempt to play audio failed, retrying...");
+            // Retry setelah delay kecil
+            setTimeout(() => {
+              this.elevenlabsService.speakText(dialogText)
+                .then(retrySuccess => {
+                  if (retrySuccess) {
+                    console.log("[DialogController] Retry audio playback successful");
+                  } else {
+                    console.log("[DialogController] Retry audio playback failed");
+                  }
+                })
+                .catch(e => {
+                  console.error("[DialogController] Retry audio playback failed with error:", e);
+                });
+            }, 500);
+          } else {
+            console.log("[DialogController] Audio playback started successfully");
+          }
+        })
+        .catch(e => {
+          console.error("[DialogController] Error starting audio playback:", e);
+        });
       
       // Fungsi rekursif untuk simulasi typing
       const typeNextChar = () => {

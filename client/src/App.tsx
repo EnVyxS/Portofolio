@@ -111,12 +111,10 @@ function MainApp() {
   };
 
   // Function untuk menutup ElevenLabs setup
-  const handleElevenLabsSetupClose = () => {
+  const handleElevenLabsSetupClose = useCallback(() => {
+    console.log("[App] Closing ElevenLabs setup");
     setShowElevenLabsSetup(false);
-  };
-  
-  // Mutable reference untuk handler
-  const handleCloseElevenLabsSetupRef = useRef(handleElevenLabsSetupClose);
+  }, []);
 
   // Toggle audio play/pause
   const toggleAudio = () => {
@@ -290,39 +288,32 @@ function MainApp() {
       }
     };
 
-    // Variable untuk melacak status elevenlabs setup
-    let setupComplete = false;
-    
-    // Override elevenlabs onClose handler untuk memicu return dialog
-    const originalHandleClose = handleCloseElevenLabsSetup;
-    const enhancedHandleClose = () => {
-      // Panggil original handler
-      originalHandleClose();
-      
-      // Tandai setup telah selesai
-      setupComplete = true;
-      
-      // Berikan waktu untuk sistem mengatur ulang state
-      setTimeout(setupReturnDialog, 500);
-    };
-    
-    // Temporarily replace the handler
-    const tempHandleCloseElevenLabsSetup = handleCloseElevenLabsSetup;
-    handleCloseElevenLabsSetup = enhancedHandleClose;
-    
-    // Panggil handleApproach
+    // Panggil handleApproach terlebih dahulu
     handleApproach();
     
-    // Fallback jika setup tidak ditutup dalam 5 detik
+    // Tunggu sebentar untuk memastikan setup screen sudah muncul
     setTimeout(() => {
-      if (!setupComplete) {
-        console.log("[App] ElevenLabs setup timeout - triggering return dialog sequence");
+      // Setup callback yang akan dipanggil saat ElevenLabs setup ditutup
+      const onSetupClosed = () => {
+        console.log("[App] ElevenLabs setup closed, triggering return dialog");
         setupReturnDialog();
-      }
+      };
       
-      // Restore original handler
-      handleCloseElevenLabsSetup = tempHandleCloseElevenLabsSetup;
-    }, 5000);
+      // Buat listener untuk deteksi saat setup ditutup
+      const checkInterval = setInterval(() => {
+        if (!showElevenLabsSetup) {
+          clearInterval(checkInterval);
+          onSetupClosed();
+        }
+      }, 500); // Check setiap 500ms
+      
+      // Fallback jika setup tidak ditutup dalam 5 detik
+      setTimeout(() => {
+        clearInterval(checkInterval);
+        console.log("[App] ElevenLabs setup timeout - forcing return dialog sequence");
+        setupReturnDialog();
+      }, 5000);
+    }, 1500); // Berikan waktu yang cukup untuk handleApproach menampilkan setup
   };
 
   // If user hasn't approached yet, show the approach screen
@@ -390,7 +381,7 @@ function MainApp() {
 
         {/* ElevenLabs setup modal */}
         {showElevenLabsSetup && (
-          <ElevenLabsSetup onClose={handleCloseElevenLabsSetup} />
+          <ElevenLabsSetup onClose={handleElevenLabsSetupClose} />
         )}
 
         {/* Dramatic effects for throw/punch animations */}
