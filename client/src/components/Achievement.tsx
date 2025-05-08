@@ -450,12 +450,27 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                 
                 {/* Achievement text content - responsive for mobile */}
                 <div className="flex flex-col mt-1">
-                  {/* Achievement title with Dark Souls style - uppercase, letterSpacing */}
+                  {/* Achievement UNLOCKED text dengan style Dark Souls seperti di gambar */}
                   <motion.p
-                    className="text-[10px] sm:text-xs md:text-sm text-amber-100 font-semibold tracking-wide uppercase"
+                    className="text-[12px] sm:text-lg md:text-xl text-yellow-400 font-bold tracking-widest uppercase"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
+                    style={{ 
+                      textShadow: '0 0 10px rgba(255, 215, 0, 0.7), 0 0 15px rgba(255, 215, 0, 0.5)', 
+                      letterSpacing: '2px',
+                      fontFamily: 'serif'
+                    }}
+                  >
+                    ACHIEVEMENT UNLOCKED
+                  </motion.p>
+                  
+                  {/* Achievement title - nama achievement */}
+                  <motion.p
+                    className="text-[10px] sm:text-xs md:text-sm text-amber-100 font-semibold tracking-wide uppercase mt-1"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
                     style={{ textShadow: '0 0 5px rgba(255, 180, 30, 0.3)' }}
                   >
                     {AchievementTitles[type]}
