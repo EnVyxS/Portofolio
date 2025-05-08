@@ -14,7 +14,10 @@ class AchievementController {
     this.unlockedAchievements = this.loadAchievements();
     
     // Cek apakah kita berada di halaman dream.html
-    this.isDreamPage = window.location.pathname.includes('dream.html');
+    // Perbarui checking untuk lebih akurat di development dan production
+    const pathname = window.location.pathname;
+    this.isDreamPage = pathname.includes('dream.html') || pathname.includes('dream') || pathname === '/dream';
+    console.log('[AchievementController] Page detection: isDreamPage =', this.isDreamPage, 'pathname =', pathname);
   }
   
   // Singleton pattern

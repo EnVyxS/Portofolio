@@ -382,22 +382,10 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                       {/* Icon background glow */}
                       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-amber-900/20 rounded-sm"></div>
                       
-                      {/* Achievement type specific icon */}
-                      {type === 'approach' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M19 8l-7-7-7 7v11a2 2 0 002 2h10a2 2 0 002-2V8z" 
-                            stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
-                          <path d="M9 15l2 2 4-4" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      )}
-                      
-                      {type === 'contract' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" 
-                            stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
-                          <path d="M7 7h10M7 11h10M7 15h6" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
-                        </svg>
-                      )}
+                      {/* Achievement type specific icon - use shared AchievementIcons */}
+                      <div className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-amber-500/90">
+                        {AchievementIcons[type]}
+                      </div>
                       
                       {type === 'document' && (
                         <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
