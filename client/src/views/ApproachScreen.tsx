@@ -189,13 +189,16 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
             // Pertama, mulai transisi ke scene berikutnya
             onApproach();
             
-            // Langsung unlock achievement saat percakapan dimulai, tanpa delay
+            // Langsung daftarkan achievement tapi tanpa notifikasi
             setTimeout(() => {
               try {
-                // Unlock achievement 'approach' tanpa delay
+                // Catatan: kita tetap menyimpan 'approach' unlock status, tapi tanpa notifikasi
+                // Gunakan parameter kedua 'false' untuk tidak menampilkan notifikasi
                 const achievementController = AchievementController.getInstance();
-                achievementController.unlockAchievement('approach');
-                console.log("Approach achievement unlocked immediately after conversation started");
+                // unlockAchievement dengan parameter false untuk mematikan notifikasi
+                // tetapi tetap menyimpan unlock status untuk achievement tracking
+                achievementController.unlockAchievement('approach', false);
+                console.log("Approach achievement unlocked silently (without notification)");
               } catch (error) {
                 console.error("Failed to unlock achievement:", error);
               }
@@ -206,13 +209,16 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         // Jika tidak ada footsteps sound, tetap lakukan transisi
         onApproach();
         
-        // Langsung unlock achievement saat percakapan dimulai, tanpa delay
+        // Langsung daftarkan achievement tapi tanpa notifikasi
         setTimeout(() => {
           try {
-            // Unlock achievement 'approach' tanpa delay
+            // Catatan: kita tetap menyimpan 'approach' unlock status, tapi tanpa notifikasi
+            // Gunakan parameter kedua 'false' untuk tidak menampilkan notifikasi
             const achievementController = AchievementController.getInstance();
-            achievementController.unlockAchievement('approach');
-            console.log("Approach achievement unlocked immediately after conversation started");
+            // unlockAchievement dengan parameter false untuk mematikan notifikasi
+            // tetapi tetap menyimpan unlock status untuk achievement tracking
+            achievementController.unlockAchievement('approach', false);
+            console.log("Approach achievement unlocked silently (without notification)");
           } catch (error) {
             console.error("Failed to unlock achievement:", error);
           }
