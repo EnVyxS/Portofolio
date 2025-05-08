@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { FaGithub, FaLinkedin, FaWhatsapp, FaEnvelope, FaTiktok, FaYoutube } from "react-icons/fa";
 import { motion } from "framer-motion";
 import SocialLink from "../components/SocialLink";
+import ShareButton from "../components/ShareButton";
 
 interface SocialLink {
   id: string;

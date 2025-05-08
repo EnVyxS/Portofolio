@@ -11,7 +11,9 @@ export type AchievementType =
   | 'listener'    // Mendengar semua dialog tanpa interupsi
   | 'patience'    // Diaktifkan setelah 9 menit tidak ada interaksi (FINAL_WARNING)
   | 'return'      // Setelah reset, user menekan APPROACH HIM lagi (RETURN_DIALOG)
-  | 'hover';      // Setelah reset, user melakukan hover (HOVER_AFTER_RESET)
+  | 'hover'       // Setelah reset, user melakukan hover (HOVER_AFTER_RESET)
+  | 'escape'      // Berhasil keluar dari dream.html
+  | 'social';     // Membagikan portfolio ke media sosial
 
 // Icon SVG untuk setiap jenis achievement
 export const AchievementIcons: Record<AchievementType, React.ReactNode> = {
@@ -103,6 +105,24 @@ export const AchievementIcons: Record<AchievementType, React.ReactNode> = {
       <path d="M17 16l2 2M5 16l-2 2M17 8l2-2M5 8L3 6" 
         stroke="#FFC107" strokeWidth="1" strokeLinecap="round" />
     </svg>
+  ),
+  escape: (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 8l9-5 9 5v8l-9 5-9-5V8z" 
+        stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
+      <path d="M12 3v9M12 12l9-4M12 12l-9-4" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M15 16l-3 3-3-3M12 12v7" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M7 8l5 4 5-4" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="0.5 1.5" />
+    </svg>
+  ),
+  social: (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="18" cy="5" r="3" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
+      <circle cx="6" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
+      <circle cx="18" cy="19" r="3" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
+      <path d="M9 10.5l7.5-3.5M9 13.5l7.5 3.5" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M17 8l1 1M5 15l1 1M17 16l1-1" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   )
 };
 
@@ -117,7 +137,9 @@ export const AchievementTitles: Record<AchievementType, string> = {
   listener: 'PATIENT LISTENER',
   patience: 'TIME GAZER',
   return: 'UNDETERRED SEEKER',
-  hover: 'CURIOUS OBSERVER'
+  hover: 'CURIOUS OBSERVER',
+  escape: 'DREAM ESCAPIST',
+  social: 'SOCIAL CONNECTOR'
 };
 
 // Deskripsi achievement
@@ -131,5 +153,7 @@ export const AchievementDescriptions: Record<AchievementType, string> = {
   listener: 'You\'ve listened to the full story without interruption.',
   patience: 'You\'ve spent significant time contemplating the possibilities.',
   return: 'Despite challenges, you returned to continue exploring.',
-  hover: 'You\'ve shown curiosity in exploring interactive elements.'
+  hover: 'You\'ve shown curiosity in exploring interactive elements.',
+  escape: 'You\'ve found your way out of the dream world and returned to reality.',
+  social: 'You\'ve shared this interactive experience with your network.'
 };
