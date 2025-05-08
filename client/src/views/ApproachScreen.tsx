@@ -109,9 +109,18 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     }
   };
 
+  // Referensi ke AchievementProgress component
+  const achievementProgressRef = useRef<HTMLDivElement | null>(null);
+
   const handleApproach = () => {
     setIsClicked(true);
     setHasInteracted(true); // Trigger audio to play with volume full
+    
+    // Sembunyikan achievement progress
+    const achievementElement = document.querySelector('.achievement-progress-indicator');
+    if (achievementElement) {
+      achievementElement.classList.add('hidden');
+    }
     
     // Mainkan efek suara souls-like
     playSoulsSound();
