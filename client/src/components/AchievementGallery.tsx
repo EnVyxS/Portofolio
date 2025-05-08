@@ -58,10 +58,18 @@ const AchievementGallery: React.FC = () => {
       return (
         <div className="achievement-icon-container locked">
           <svg viewBox="0 0 24 24" fill="none" className="mysterious-icon" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.1" />
-            <path d="M12 17v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            <path d="M12 14c0-1 .6-1.5 1.2-2 .6-.5 1.2-1 1.2-2 0-1.1-.9-2-2-2s-2 .9-2 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            <path className="mysterious-glow" d="M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0" strokeOpacity="0.6" strokeWidth="0.5" strokeDasharray="1 2" />
+            <rect x="2" y="2" width="20" height="20" rx="3" 
+                  stroke="rgba(255, 193, 7, 0.4)" strokeWidth="1.5" 
+                  fill="rgba(30, 30, 30, 0.6)" />
+            <circle cx="12" cy="12" r="7" 
+                    stroke="rgba(255, 193, 7, 0.5)" strokeWidth="1" 
+                    fill="rgba(20, 20, 20, 0.4)" />
+            <text x="12" y="16" 
+                  fontSize="10" fontWeight="bold" textAnchor="middle" 
+                  fill="rgba(255, 193, 7, 0.7)" className="question-mark">?</text>
+            <path className="mysterious-glow" d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" 
+                  stroke="rgba(255, 193, 7, 0.4)" strokeOpacity="0.6" 
+                  strokeWidth="0.5" strokeDasharray="1 2" />
           </svg>
         </div>
       );
@@ -151,23 +159,74 @@ const AchievementGallery: React.FC = () => {
       
       {/* Custom styling for mysterious achievements */}
       <style dangerouslySetInnerHTML={{ __html: `
+        /* General styling for achievement grid */
+        .achievement-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+          gap: 12px;
+          margin-bottom: 16px;
+        }
+        
+        .achievement-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          background: rgba(30, 30, 30, 0.6);
+          padding: 12px 8px;
+          border-radius: 4px;
+          transition: all 0.3s ease;
+          cursor: pointer;
+          border: 1px solid rgba(255, 193, 7, 0.2);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .achievement-item.unlocked {
+          border-color: rgba(255, 193, 7, 0.5);
+          box-shadow: 0 0 10px rgba(255, 193, 7, 0.15);
+        }
+        
+        .achievement-item.unlocked:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2);
+        }
+        
+        .achievement-name {
+          margin-top: 8px;
+          font-size: 12px;
+          text-align: center;
+          color: rgba(255, 193, 7, 0.9);
+          font-weight: 500;
+        }
+        
+        .achievement-icon-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 64px;
+          height: 64px;
+        }
+        
         /* Styling untuk achievement yang misterius */
         .achievement-item.locked {
           opacity: 0.7;
           filter: brightness(0.7) blur(0.5px);
-          transition: all 0.3s ease;
-          cursor: pointer;
+          border: 1px dashed rgba(255, 193, 7, 0.25);
+          background: rgba(20, 20, 20, 0.6);
+          box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
         }
         
         .achievement-item.locked:hover {
           opacity: 0.85;
           filter: brightness(0.85) blur(0px);
           transform: translateY(-2px);
+          border-color: rgba(255, 193, 7, 0.4);
         }
         
         .achievement-item.locked .achievement-name {
           color: rgba(255, 193, 7, 0.5);
           text-shadow: 0 0 5px rgba(255, 193, 7, 0.3);
+          font-style: italic;
         }
         
         .mysterious-icon {
@@ -186,6 +245,22 @@ const AchievementGallery: React.FC = () => {
           100% {
             opacity: 0.7;
             transform: scale(1.03);
+          }
+        }
+        
+        .question-mark {
+          animation: questionPulse 2s infinite alternate;
+          opacity: 0.8;
+        }
+        
+        @keyframes questionPulse {
+          0% {
+            fill: rgba(255, 193, 7, 0.5);
+            font-size: 9px;
+          }
+          100% {
+            fill: rgba(255, 193, 7, 0.8);
+            font-size: 11px;
           }
         }
         
