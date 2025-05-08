@@ -19,12 +19,10 @@ const AchievementProgress: React.FC<AchievementProgressProps> = ({ className }) 
   const trophyAnimationControls = useAnimation();
   const progressBarControls = useAnimation();
   
-  // Randomizing position effects
-  const posVariation = useRef(Math.floor(Math.random() * 4));
+  // Always show on the left side
+  const posVariation = useRef(Math.floor(Math.random() * 2));
   const positionStyles = [
-    { right: '20px', bottom: '20px', left: 'auto', transform: 'none' }, // Bottom right
     { left: '20px', bottom: '20px', right: 'auto', transform: 'none' }, // Bottom left
-    { right: '20px', top: '20px', left: 'auto', transform: 'none' }, // Top right
     { left: '20px', top: '20px', right: 'auto', transform: 'none' }, // Top left
   ];
   
