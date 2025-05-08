@@ -30,24 +30,23 @@ class AchievementController {
     this.achievementCallback = callback;
   }
   
-  // Load achievements dari localStorage - Disabled for testing
+  // Load achievements dari localStorage
   private loadAchievements(): Set<AchievementType> {
-    // Untuk testing, selalu kembalikan Set kosong agar achievement bisa dilihat berulang kali
-    return new Set<AchievementType>();
-    
-    // Kode asli (dinonaktifkan)
-    /*
-    const savedData = localStorage.getItem(ACHIEVEMENTS_KEY);
-    if (savedData) {
-      try {
-        const achievements = JSON.parse(savedData) as AchievementType[];
-        return new Set(achievements);
-      } catch (e) {
-        console.error('Error parsing achievements data:', e);
+    try {
+      const savedData = localStorage.getItem(ACHIEVEMENTS_KEY);
+      if (savedData) {
+        try {
+          const achievements = JSON.parse(savedData) as AchievementType[];
+          console.log('Loaded achievements from localStorage:', achievements);
+          return new Set(achievements);
+        } catch (e) {
+          console.error('Error parsing achievements data:', e);
+        }
       }
+    } catch (e) {
+      console.error('Error accessing localStorage:', e);
     }
     return new Set<AchievementType>();
-    */
   }
   
   // Simpan achievements ke localStorage
@@ -73,8 +72,13 @@ class AchievementController {
       // Tambahkan ke daftar achievements yang unlocked (hanya di memori)
       this.unlockedAchievements.add(type);
       
-      // DISABLED: Simpan ke localStorage 
-      // this.saveAchievements();
+      // Simpan ke localStorage untuk penyimpanan permanen
+      try {
+        this.saveAchievements();
+        console.log(`Achievement "${type}" saved to localStorage`);
+      } catch (e) {
+        console.error('Failed to save achievement to localStorage:', e);
+      }
       
       // Panggil callback untuk menampilkan notifikasi achievement
       if (this.achievementCallback) {
