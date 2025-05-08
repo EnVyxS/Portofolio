@@ -29,7 +29,9 @@ const AudioContextValue = createContext<AudioContextProps>({
 });
 
 // Hook untuk menggunakan konteks audio
-export const useAudio = () => useContext(AudioContextValue);
+export function useAudio() {
+  return useContext(AudioContextValue);
+}
 
 interface AudioProviderProps {
   children: React.ReactNode;
@@ -106,18 +108,41 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
         ambient.muted = true;
         
         try {
+          // Mencoba dengan durasi super pendek untuk meningkatkan peluang autoplay
+          music.volume = 0.001;  // Volume super kecil
+          music.currentTime = 0.1; // Mulai dari 0.1 detik
           await music.play();
-          // If autoplay succeeds, unmute after 300ms
+          
+          // If autoplay succeeds, gradually increase volume after 300ms
           setTimeout(() => {
+            // Unmute dan secara bertahap naikkan volume
             music.muted = false;
             ambient.muted = false;
+            
+            // Transisi volume kembali ke nilai semula
+            const originalVolume = currentVolume;
+            music.volume = 0.05;
+            
+            setTimeout(() => {
+              music.volume = 0.15;
+              setTimeout(() => {
+                music.volume = originalVolume;
+              }, 500);
+            }, 300);
+            
             setIsAudioPlaying(true);
             console.log("Autoplay succeeded with muted approach");
           }, 300);
           
           // Try to play ambient sound too, but don't worry if it fails
           try {
+            ambient.volume = 0.001;  // Super low volume
             await ambient.play();
+            
+            // Secara bertahap naikkan volume ambient juga
+            setTimeout(() => {
+              ambient.volume = currentAmbientVolume;
+            }, 800);
           } catch (error) {
             console.log("Ambient autoplay failed, will try again with user interaction");
           }
@@ -125,14 +150,24 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
           console.log("Autoplay blocked by browser, waiting for user interaction");
           music.muted = false;
           ambient.muted = false;
+          music.volume = currentVolume;
+          ambient.volume = currentAmbientVolume;
           // If autoplay fails, we'll wait for interaction
         }
       }
     };
 
-    // Try autoplay after a short delay
+    // Try autoplay multiple times with different strategies
     interactionTimeout.current = setTimeout(() => {
       tryAutoPlay();
+      
+      // Try again in 2 seconds if first attempt fails
+      setTimeout(() => {
+        if (!isAudioPlaying) {
+          console.log("Retrying autoplay with different strategy...");
+          tryAutoPlay();
+        }
+      }, 2000);
     }, 1000);
 
     // Event handlers for user interaction
