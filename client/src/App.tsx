@@ -91,24 +91,15 @@ function MainApp() {
     setShowContactCard(true);
   };
 
-  // Saat approach, mulai dan naikkan volume musik secara bertahap
+  // Saat approach, naikkan volume musik secara bertahap
   useEffect(() => {
     if (approachClicked && isTransitioning) {
-      // Mulai dari volume sangat rendah dan naikkan secara bertahap
-      // Mulai volume dari 0 karena musik akan dimulai saat approach
-      let currentVolume = 0.01; // Volume awal sangat rendah untuk memulai
+      // Mulai dari volume rendah dan naikkan secara bertahap
+      let currentVolume = 0.15; // Volume awal (saat dari jauh)
       const targetVolume = 0.3; // Volume target (saat sudah dekat)
       const step = 0.01; // Kenaikan volume per langkah
       const interval = 50; // Interval waktu antara langkah (ms)
 
-      // Pastikan audio diputar jika belum
-      if (!isAudioPlaying) {
-        console.log("Starting background music on approach");
-        playAudio();
-        setVolume(currentVolume); // Set volume awal sangat rendah
-      }
-
-      // Fade in volume dari rendah ke target
       const fadeInterval = setInterval(() => {
         if (currentVolume < targetVolume) {
           currentVolume += step;
@@ -123,7 +114,7 @@ function MainApp() {
         clearInterval(fadeInterval);
       };
     }
-  }, [approachClicked, isTransitioning, setVolume, playAudio, isAudioPlaying]);
+  }, [approachClicked, isTransitioning, setVolume]);
 
   const handleApproach = () => {
     setIsTransitioning(true);

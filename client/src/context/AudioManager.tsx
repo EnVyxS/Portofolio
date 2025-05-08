@@ -94,15 +94,46 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
     };
   }, [music, ambient, isAudioPlaying]);
 
-  // No longer attempt automatic play on load
-  // Now we'll only start music when user clicks "approach him"
+  // Setup automatic play triggers
   useEffect(() => {
-    // Just mark that we've considered autoplay already
-    autoPlayAttempted.current = true;
-    
-    // We will no longer attempt autoplay on initial load
-    // Music will be triggered by the approach button click
-    console.log("Audio will start only when user clicks 'approach him'");
+    // Function to try auto play - will likely be blocked by browser without interaction
+    const tryAutoPlay = async () => {
+      if (!autoPlayAttempted.current && !isAudioPlaying) {
+        autoPlayAttempted.current = true;
+        
+        // Add muted attribute to make autoplay more likely to work
+        music.muted = true;
+        ambient.muted = true;
+        
+        try {
+          await music.play();
+          // If autoplay succeeds, unmute after 300ms
+          setTimeout(() => {
+            music.muted = false;
+            ambient.muted = false;
+            setIsAudioPlaying(true);
+            console.log("Autoplay succeeded with muted approach");
+          }, 300);
+          
+          // Try to play ambient sound too, but don't worry if it fails
+          try {
+            await ambient.play();
+          } catch (error) {
+            console.log("Ambient autoplay failed, will try again with user interaction");
+          }
+        } catch (error) {
+          console.log("Autoplay blocked by browser, waiting for user interaction");
+          music.muted = false;
+          ambient.muted = false;
+          // If autoplay fails, we'll wait for interaction
+        }
+      }
+    };
+
+    // Try autoplay after a short delay
+    interactionTimeout.current = setTimeout(() => {
+      tryAutoPlay();
+    }, 1000);
 
     // Event handlers for user interaction
     const handleUserInteraction = () => {

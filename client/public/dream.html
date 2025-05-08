@@ -1047,75 +1047,32 @@
                     }
                 });
 
-                // Now music will start only when user interacts with the "approachBtn" element
-                const approachBtn = document.getElementById("approachBtn");
-                if (approachBtn) {
-                    approachBtn.addEventListener("click", function startMusicOnApproach() {
-                        console.log("Attempting to play music after 'approach him' click");
-                        // Start with muted audio (browser policy workaround)
-                        backgroundMusic.volume = 0.01;
-                        pinkNoiseAudio.volume = 0.001;
-                        
-                        // Try to play with very low volume first (to accommodate browsers' autoplay policies)
-                        backgroundMusic.play()
-                            .then(() => {
-                                console.log("Music autoplay initially succeeded with muted approach");
-                                isMusicPlaying = true;
-                                pinkNoiseAudio.play()
-                                    .catch(e => console.error("Couldn't play pink noise:", e));
-                                
-                                // Fade in the volume gradually over 2 seconds
-                                let currentVolume = 0.01;
-                                const targetVolume = 0.15;
-                                const fadeInterval = setInterval(() => {
-                                    currentVolume = Math.min(currentVolume + 0.01, targetVolume);
-                                    backgroundMusic.volume = currentVolume;
-                                    pinkNoiseAudio.volume = currentVolume / 30; // Keep pink noise proportionally quieter
-                                    
-                                    if (currentVolume >= targetVolume) {
-                                        clearInterval(fadeInterval);
-                                        console.log("Music volume faded in to final value");
-                                    }
-                                }, 100);
-                                
-                                // Remove this listener after successfully playing
-                                approachBtn.removeEventListener("click", startMusicOnApproach);
-                            })
-                            .catch((error) => {
-                                console.error("Music autoplay failed:", error);
-                                console.log("Retrying autoplay with different strategy...");
-                                
-                                // Add a general click handler as a fallback
-                                document.addEventListener('click', function musicClickHandler() {
-                                    console.log("User interaction detected, enabling audio");
-                                    backgroundMusic.volume = 0.01; // Start very quiet
-                                    backgroundMusic.play()
-                                        .then(() => {
-                                            isMusicPlaying = true;
-                                            pinkNoiseAudio.volume = 0.001;
-                                            pinkNoiseAudio.play().catch(e => console.error("Couldn't play pink noise:", e));
-                                            
-                                            // Fade in gradually
-                                            let currentVolume = 0.01;
-                                            const targetVolume = 0.15;
-                                            const fadeInterval = setInterval(() => {
-                                                currentVolume = Math.min(currentVolume + 0.01, targetVolume);
-                                                backgroundMusic.volume = currentVolume;
-                                                pinkNoiseAudio.volume = currentVolume / 30;
-                                                
-                                                if (currentVolume >= targetVolume) {
-                                                    clearInterval(fadeInterval);
-                                                }
-                                            }, 100);
-                                            
-                                            // Remove listener after success
-                                            document.removeEventListener('click', musicClickHandler);
-                                        })
-                                        .catch((err) => console.error("Still can't play music:", err));
-                                });
+                // Auto-play music after a few seconds
+                setTimeout(() => {
+                    // Start music box
+                    backgroundMusic
+                        .play()
+                        .then(() => {
+                            isMusicPlaying = true;
+                            // After music box successfully plays, start pink noise
+                            return pinkNoiseAudio.play();
+                        })
+                        .catch((error) => {
+                            console.error("Music couldn't auto-play:", error);
+                            // We won't make the music control button visible even if autoplay fails
+                            // Force user to hear music when they interact with the page
+                            document.addEventListener('click', function musicClickHandler() {
+                                backgroundMusic.play()
+                                    .then(() => {
+                                        isMusicPlaying = true;
+                                        pinkNoiseAudio.play();
+                                        // Remove this listener after successfully playing
+                                        document.removeEventListener('click', musicClickHandler);
+                                    })
+                                    .catch((err) => console.error("Still can't play music:", err));
                             });
-                    });
-                }
+                        });
+                }, 1500);
             }
 
             // Page performance optimizations
