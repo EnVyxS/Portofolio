@@ -130,11 +130,13 @@ class AchievementController {
       }
     }
     
-    // Panggil callback untuk menampilkan notifikasi achievement jika:
-    // 1. Achievement baru unlock, atau
-    // 2. Force notification dinyalakan
-    if ((isNewAchievement || forceNotification) && this.achievementCallback) {
+    // PERBAIKAN: Selalu tampilkan notifikasi achievement, terlepas dari status sebelumnya
+    // Ini memastikan bahwa achievement notification selalu muncul, baik itu baru atau tidak
+    if (this.achievementCallback) {
+      console.log(`Triggering achievement notification for: ${type}`);
       this.achievementCallback(type);
+    } else {
+      console.warn(`Cannot show achievement notification for ${type}: callback not set`);
     }
   }
   
