@@ -49,7 +49,7 @@ const AchievementGallery: React.FC = () => {
   const renderAchievementIcon = (type: AchievementType) => {
     if (isUnlocked(type)) {
       return (
-        <div className="achievement-icon-container">
+        <div className="achievement-icon-container unlocked">
           {AchievementIcons[type]}
         </div>
       );
@@ -106,33 +106,15 @@ const AchievementGallery: React.FC = () => {
   };
   
   return (
-    <motion.div 
-      className="achievement-gallery-container"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ 
-        duration: 0.5, 
-        type: "spring", 
-        stiffness: 120, 
-        damping: 15 
-      }}
-    >
-      <motion.h2 
-        className="text-amber-100 text-lg font-bold mb-4 text-center"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-      >
-        Achievements
-        <div className="achievement-title-underline"></div>
-      </motion.h2>
+    <div className="achievement-gallery-container">
+      <h2 className="text-amber-100 text-lg font-bold mb-3 text-center">Achievements</h2>
       
       {/* Tampilkan easter egg jika semua achievement terbuka */}
       {showEasterEgg && (
         <motion.div 
           className="easter-egg-message"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.5 }}
         >
           <p className="text-amber-400 text-sm font-semibold text-center my-2">{EASTER_EGG_MESSAGE}</p>
@@ -140,52 +122,32 @@ const AchievementGallery: React.FC = () => {
         </motion.div>
       )}
       
-      {/* Progress bar dengan animasi */}
-      <motion.div 
-        className="achievement-progress mb-5"
-        initial={{ opacity: 0, width: "0%" }}
-        animate={{ opacity: 1, width: "100%" }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-      >
+      {/* Progress bar */}
+      <motion.div className="achievement-progress mb-4">
         <div className="progress-bar-container">
           <motion.div 
             className="progress-bar" 
             initial={{ width: 0 }}
             animate={{ width: `${(unlockedAchievements.length / allAchievements.length) * 100}%` }}
-            transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 1, ease: "easeOut" }}
           ></motion.div>
         </div>
-        <motion.div 
-          className="text-amber-200 text-xs mt-2 text-center progress-counter"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9, duration: 0.4 }}
-        >
+        <div className="text-amber-200 text-xs mt-1 text-center">
           {unlockedAchievements.length} / {allAchievements.length}
-        </motion.div>
+        </div>
       </motion.div>
       
-      {/* Grid achievement dengan staggered animation */}
+      {/* Grid achievement */}
       <div className="achievement-grid">
         {allAchievements.map((achievement, index) => (
           <motion.div 
             key={achievement}
             className={`achievement-item ${isUnlocked(achievement) ? 'unlocked' : 'locked'}`}
             onClick={() => handleAchievementClick(achievement)}
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ 
-              delay: 0.1 * (index % 5) + 0.5, 
-              duration: 0.4,
-              type: "spring",
-              stiffness: 100,
-              damping: 15
-            }}
-            whileHover={{
-              y: -5,
-              boxShadow: `0 10px 20px rgba(255, 193, 7, ${isUnlocked(achievement) ? '0.2' : '0.1'})`,
-              transition: { duration: 0.2 }
-            }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05, duration: 0.3 }}
+            whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
             whileTap={{ scale: 0.95 }}
           >
             {renderAchievementIcon(achievement)}
@@ -195,14 +157,6 @@ const AchievementGallery: React.FC = () => {
                 : MYSTERIOUS_TITLE
               }
             </div>
-            {isUnlocked(achievement) && (
-              <motion.div 
-                className="achievement-unlocked-indicator"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.2 }}
-              />
-            )}
           </motion.div>
         ))}
       </div>
@@ -282,6 +236,14 @@ const AchievementGallery: React.FC = () => {
           font-style: italic;
         }
         
+        .achievement-title-underline {
+          margin: 5px auto 0;
+          height: 2px;
+          width: 100px;
+          background: linear-gradient(90deg, transparent, rgba(255, 193, 7, 0.6), transparent);
+          border-radius: 2px;
+        }
+        
         .mysterious-icon {
           height: 48px;
           width: 48px;
@@ -358,7 +320,7 @@ const AchievementGallery: React.FC = () => {
           }
         }
       `}} />
-    </motion.div>
+    </div>
   );
 };
 

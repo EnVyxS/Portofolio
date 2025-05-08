@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AchievementType } from '../constants/achievementConstants';
 import AchievementController from '../controllers/achievementController';
-import AchievementGallery from './AchievementGallery';
+import AchievementGallery from './AchievementGallery2';
 
 interface AchievementProgressProps {
   className?: string;
