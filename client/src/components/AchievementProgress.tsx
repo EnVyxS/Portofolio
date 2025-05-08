@@ -157,24 +157,19 @@ const AchievementProgress: React.FC<AchievementProgressProps> = ({ className }) 
               />
             </div>
             
-            {/* Badge for new achievements if any */}
+            {/* Glow indicator instead of numeric badge */}
             {unlockedCount > 0 && (
               <motion.div 
-                className="achievement-badge"
-                initial={{ scale: 0, opacity: 0 }}
+                className="achievement-glow-indicator"
+                initial={{ opacity: 0 }}
                 animate={{ 
-                  scale: 1, 
                   opacity: 1,
                   transition: {
-                    type: "spring",
-                    stiffness: 500,
-                    damping: 15,
+                    duration: 1.2,
                     delay: 0.3
                   }
                 }}
-              >
-                {unlockedCount}
-              </motion.div>
+              />
             )}
           </motion.div>
         )}
@@ -361,23 +356,31 @@ const AchievementProgress: React.FC<AchievementProgressProps> = ({ className }) 
           100% { left: 150%; }
         }
         
-        /* Badge notification */
-        .achievement-badge {
+        /* Glow indicator instead of numbered badge */
+        .achievement-glow-indicator {
           position: absolute;
-          top: -8px;
-          right: -8px;
-          background: #ff5722;
-          color: white;
-          font-size: 0.7rem;
-          font-weight: bold;
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-          border: 2px solid rgba(255, 255, 255, 0.8);
+          top: 0;
+          right: 0;
+          left: 0;
+          bottom: 0;
+          border-radius: 8px;
+          background: none;
+          pointer-events: none;
+          z-index: 5;
+          box-shadow: 0 0 15px rgba(255, 215, 0, 0.5), inset 0 0 10px rgba(255, 215, 0, 0.3);
+          border: 1px solid rgba(255, 215, 0, 0.7);
+          animation: pulseGlow 2s infinite alternate ease-in-out;
+        }
+        
+        @keyframes pulseGlow {
+          0% {
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3), inset 0 0 5px rgba(255, 215, 0, 0.2);
+            border-color: rgba(255, 215, 0, 0.5);
+          }
+          100% {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), inset 0 0 15px rgba(255, 215, 0, 0.4);
+            border-color: rgba(255, 215, 0, 0.9);
+          }
         }
         
         /* Class untuk menyembunyikan achievement progress */
