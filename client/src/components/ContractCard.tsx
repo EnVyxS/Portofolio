@@ -85,29 +85,29 @@ const ContractCard: React.FC = () => {
   const swipeSoundRef = useRef<HTMLAudioElement | null>(null);
   const footstepSoundRef = useRef<HTMLAudioElement | null>(null);
 
-  // Preload all images as soon as component mounts
+  // Preload all images saat component mounts dan set langsung imagesLoaded=true
   useEffect(() => {
+    // Langsung tandai sebagai loaded agar tidak ada jeda saat buka
+    setImagesLoaded(true);
+    
+    // Lalu preload all images in background
     let loadedCount = 0;
     const totalImages = CONTRACT_IMAGES.length;
     
-    // Untuk setiap gambar, buat objek Image dan muat
+    // Untuk setiap gambar, buat objek Image dan muat di background
     CONTRACT_IMAGES.forEach((src) => {
       const img = new Image();
       img.onload = () => {
         loadedCount++;
         if (loadedCount === totalImages) {
-          setImagesLoaded(true);
           console.log("[ContractCard] All contract images preloaded successfully");
         }
       };
       img.onerror = (err) => {
         console.error(`[ContractCard] Failed to preload image: ${src}`, err);
-        // Tetap tandai sebagai loaded agar user bisa melanjutkan
         loadedCount++;
-        if (loadedCount === totalImages) {
-          setImagesLoaded(true);
-        }
       };
+      // Load di background
       img.src = src;
     });
   }, []);
@@ -224,45 +224,46 @@ const ContractCard: React.FC = () => {
   const handleNextDoc = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (currentIndex < CONTRACT_IMAGES.length - 1 && !isAnimating) {
-      // Mulai animasi dan putar suara
+      // Putar suara
+      playSwipeSound();
+      
+      // Langsung update index tanpa delay
+      setCurrentIndex((prev) => prev + 1);
+      setScale(0.8); // Reset zoom ke 80%
+      setPosition({ x: 0, y: 0 }); // Reset posisi saat ganti halaman
+      
+      // Efek visual saja (tidak mempengaruhi perubahan gambar)
       setIsAnimating(true);
       setPageDirection("next");
-      playSwipeSound();
-
-      // Tunggu animasi selesai sebelum update index - dipercepat ke 30ms
+      
+      // Reset animasi setelah efek visual (tidak mempengaruhi loading gambar)
       setTimeout(() => {
-        setCurrentIndex((prev) => prev + 1);
-        setScale(0.8); // Reset zoom ke 80%
-        setPosition({ x: 0, y: 0 }); // Reset posisi saat ganti halaman
-
-        // Langsung reset animasi state
         setIsAnimating(false);
         setPageDirection(null);
-      }, 30); // Dipercepat dari 50ms menjadi 30ms
+      }, 30);
     }
   };
 
   const handlePrevDoc = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (currentIndex > 0 && !isAnimating) {
-      // Mulai animasi dan putar suara
+      // Putar suara
+      playSwipeSound();
+      
+      // Langsung update index tanpa delay
+      setCurrentIndex((prev) => prev - 1);
+      setScale(0.8); // Reset zoom ke 80%
+      setPosition({ x: 0, y: 0 }); // Reset posisi saat ganti halaman
+      
+      // Efek visual saja (tidak mempengaruhi perubahan gambar)
       setIsAnimating(true);
       setPageDirection("prev");
-      playSwipeSound();
-
-      // Tunggu animasi selesai sebelum update index - dipercepat ke 30ms
+      
+      // Reset animasi setelah efek visual (tidak mempengaruhi loading gambar)
       setTimeout(() => {
-        setCurrentIndex((prev) => prev - 1);
-        setScale(0.8); // Reset zoom ke 80%
-        setPosition({ x: 0, y: 0 }); // Reset posisi saat ganti halaman
-        // Tidak mereset hasDragged sehingga tooltip tetap tersembunyi jika pernah digunakan
-
-        // Beri jeda sedikit sebelum mengizinkan animasi lagi - dipercepat ke 30ms
-        setTimeout(() => {
-          setIsAnimating(false);
-          setPageDirection(null);
-        }, 30); // Dipercepat dari 50ms menjadi 30ms
-      }, 30); // Dipercepat dari 100ms menjadi 30ms untuk animasi flip
+        setIsAnimating(false);
+        setPageDirection(null);
+      }, 30);
     }
   };
 
