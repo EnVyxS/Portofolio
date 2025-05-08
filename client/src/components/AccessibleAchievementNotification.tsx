@@ -146,14 +146,14 @@ const AccessibleAchievementNotification: React.FC<AccessibleAchievementNotificat
             aria-label={`Achievement unlocked: ${AchievementTitles[currentAchievement]}`}
             aria-modal="true"
             aria-describedby="achievement-description"
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.9 }}
+            exit={{ opacity: 0, y: 10, scale: 0.9 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
             onKeyDown={handleKeyDown}
           >
             <div className="achievement-notification-content">
-              <div className="achievement-icon">
+              <div className="achievement-icon achievement-icon-color">
                 {AchievementIcons[currentAchievement]}
               </div>
               
@@ -204,7 +204,7 @@ const AccessibleAchievementNotification: React.FC<AccessibleAchievementNotificat
         <style dangerouslySetInnerHTML={{ __html: `
           .achievement-notification {
             position: fixed;
-            top: 20px;
+            bottom: 20px;
             right: 20px;
             width: 350px;
             background: rgba(20, 20, 20, 0.9);
@@ -240,6 +240,15 @@ const AccessibleAchievementNotification: React.FC<AccessibleAchievementNotificat
             justify-content: center;
             border: 1px solid rgba(255, 215, 0, 0.6);
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+          }
+          
+          .achievement-icon-color {
+            color: rgba(255, 215, 0, 0.9); /* Gold color for the icons */
+          }
+          
+          .achievement-icon-color svg {
+            width: 32px;
+            height: 32px;
           }
           
           .achievement-text {
