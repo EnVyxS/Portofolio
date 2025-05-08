@@ -449,26 +449,44 @@ function App() {
       
       {/* Test buttons for achievement functionality - remove in production */}
       {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-4 left-4 flex gap-2 z-50">
-          <button 
-            className="bg-black/50 text-amber-400 px-3 py-1 rounded border border-amber-500 text-xs"
-            onClick={() => {
-              const ac = AchievementController.getInstance();
-              ac.unlockAchievement('patience');
-            }}
-          >
-            Test Achievement
-          </button>
-          
-          <button 
-            className="bg-black/50 text-amber-400 px-3 py-1 rounded border border-amber-500 text-xs"
-            onClick={() => {
-              const ac = AchievementController.getInstance();
-              ac.unlockAchievement('escape');
-            }}
-          >
-            Test Another
-          </button>
+        <div className="fixed bottom-4 left-4 flex flex-col gap-2 z-50 bg-black/30 p-2 rounded-lg">
+          <h3 className="text-amber-400 text-xs font-bold">Test Achievement Buttons</h3>
+          <div className="flex justify-between mb-2">
+            <button 
+              className="bg-red-800/70 text-white px-2 py-1 rounded text-[10px]"
+              onClick={() => {
+                const ac = AchievementController.getInstance();
+                ac.resetAchievements();
+                window.location.reload();
+              }}
+            >
+              Reset All
+            </button>
+            <button 
+              className="bg-green-800/70 text-white px-2 py-1 rounded text-[10px]"
+              onClick={() => {
+                window.location.reload();
+              }}
+            >
+              Refresh
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {['approach', 'contract', 'success', 'document', 'anger', 
+              'nightmare', 'listener', 'patience', 'return', 'hover', 
+              'escape', 'social'].map((achievement) => (
+              <button 
+                key={achievement}
+                className="bg-black/50 text-amber-400 px-2 py-1 rounded border border-amber-500 text-[10px]"
+                onClick={() => {
+                  const ac = AchievementController.getInstance();
+                  ac.unlockAchievement(achievement as AchievementType);
+                }}
+              >
+                {achievement}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </AudioProvider>
