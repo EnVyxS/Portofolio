@@ -1,50 +1,66 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { AchievementType, AchievementDescriptions, AchievementTitles, AchievementIcons } from '../constants/achievementConstants';
-import AchievementController from '../controllers/achievementController';
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import {
+  AchievementType,
+  AchievementDescriptions,
+  AchievementTitles,
+  AchievementIcons,
+} from "../constants/achievementConstants";
+import AchievementController from "../controllers/achievementController";
 
 // Easter egg yang muncul ketika semua achievement terbuka
-const EASTER_EGG_MESSAGE = 'Kamu telah menaklukkan semua tantangan Diva Juan!';
+const EASTER_EGG_MESSAGE = "You have conquered all the Diva Juan challenges!";
 
 // Teks misterius untuk achievement yang belum terbuka
-const MYSTERIOUS_TITLE = '???';
-const MYSTERIOUS_DESCRIPTION = 'Achievement ini masih tersembunyi. Teruslah menjelajahi untuk menemukannya...';
+const MYSTERIOUS_TITLE = "???";
+const MYSTERIOUS_DESCRIPTION =
+  "This achievement is still hidden. Keep exploring to find it...";
 
 const AchievementGallery: React.FC = () => {
   // State untuk menyimpan achievement yang terbuka
-  const [unlockedAchievements, setUnlockedAchievements] = useState<AchievementType[]>([]);
-  const [selectedAchievement, setSelectedAchievement] = useState<AchievementType | null>(null);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<
+    AchievementType[]
+  >([]);
+  const [selectedAchievement, setSelectedAchievement] =
+    useState<AchievementType | null>(null);
   const [showEasterEgg, setShowEasterEgg] = useState(false);
-  
+
   // Daftar semua achievement yang mungkin
   const allAchievements: AchievementType[] = [
-    'approach', 'contract', 'document', 'success',
-    'anger', 'nightmare', 'listener', 'patience',
-    'return', 'hover'
+    "approach",
+    "contract",
+    "document",
+    "success",
+    "anger",
+    "nightmare",
+    "listener",
+    "patience",
+    "return",
+    "hover",
   ];
-  
+
   // Load achievement saat komponen dimuat
   useEffect(() => {
     const achievementController = AchievementController.getInstance();
     // Load achievement yang sudah terbuka
     const unlocked = achievementController.getUnlockedAchievements();
     setUnlockedAchievements(unlocked);
-    
+
     // Cek apakah semua achievement sudah terbuka
-    const allUnlocked = allAchievements.every(achievement => 
-      unlocked.includes(achievement)
+    const allUnlocked = allAchievements.every((achievement) =>
+      unlocked.includes(achievement),
     );
-    
+
     if (allUnlocked && unlocked.length === allAchievements.length) {
       setShowEasterEgg(true);
     }
   }, []);
-  
+
   // Mengecek apakah achievement sudah di-unlock
   const isUnlocked = (type: AchievementType): boolean => {
     return unlockedAchievements.includes(type);
   };
-  
+
   // Render ikon achievement - yang terbuka atau misterius
   const renderAchievementIcon = (type: AchievementType) => {
     if (isUnlocked(type)) {
@@ -57,77 +73,113 @@ const AchievementGallery: React.FC = () => {
       // Ikon misterius untuk achievement yang belum terbuka
       return (
         <div className="achievement-icon-container locked">
-          <svg viewBox="0 0 24 24" fill="none" className="mysterious-icon" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="2" width="20" height="20" rx="3" 
-                  stroke="rgba(255, 193, 7, 0.4)" strokeWidth="1.5" 
-                  fill="rgba(30, 30, 30, 0.6)" />
-            <circle cx="12" cy="12" r="7" 
-                    stroke="rgba(255, 193, 7, 0.5)" strokeWidth="1" 
-                    fill="rgba(20, 20, 20, 0.4)" />
-            <text x="12" y="16" 
-                  fontSize="10" fontWeight="bold" textAnchor="middle" 
-                  fill="rgba(255, 193, 7, 0.7)" className="question-mark">?</text>
-            <path className="mysterious-glow" d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" 
-                  stroke="rgba(255, 193, 7, 0.4)" strokeOpacity="0.6" 
-                  strokeWidth="0.5" strokeDasharray="1 2" />
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            className="mysterious-icon"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              x="2"
+              y="2"
+              width="20"
+              height="20"
+              rx="3"
+              stroke="rgba(255, 193, 7, 0.4)"
+              strokeWidth="1.5"
+              fill="rgba(30, 30, 30, 0.6)"
+            />
+            <circle
+              cx="12"
+              cy="12"
+              r="7"
+              stroke="rgba(255, 193, 7, 0.5)"
+              strokeWidth="1"
+              fill="rgba(20, 20, 20, 0.4)"
+            />
+            <text
+              x="12"
+              y="16"
+              fontSize="10"
+              fontWeight="bold"
+              textAnchor="middle"
+              fill="rgba(255, 193, 7, 0.7)"
+              className="question-mark"
+            >
+              ?
+            </text>
+            <path
+              className="mysterious-glow"
+              d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"
+              stroke="rgba(255, 193, 7, 0.4)"
+              strokeOpacity="0.6"
+              strokeWidth="0.5"
+              strokeDasharray="1 2"
+            />
           </svg>
         </div>
       );
     }
   };
-  
+
   // Menangani klik pada achievement
   const handleAchievementClick = (type: AchievementType) => {
     // Selalu set selected achievement, apakah terbuka atau tidak
     setSelectedAchievement(type);
   };
-  
+
   // Menampilkan detail achievement yang dipilih
   const renderAchievementDetail = () => {
     if (!selectedAchievement) return null;
-    
+
     const isUnlocked = unlockedAchievements.includes(selectedAchievement);
-    
+
     return (
-      <motion.div 
-        className={`achievement-detail ${isUnlocked ? 'unlocked' : 'mysterious'}`}
+      <motion.div
+        className={`achievement-detail ${isUnlocked ? "unlocked" : "mysterious"}`}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
         <h3 className="text-amber-100 text-sm font-semibold mb-1">
-          {isUnlocked ? AchievementTitles[selectedAchievement] : MYSTERIOUS_TITLE}
+          {isUnlocked
+            ? AchievementTitles[selectedAchievement]
+            : MYSTERIOUS_TITLE}
         </h3>
         <p className="text-amber-300/70 text-xs">
-          {isUnlocked ? AchievementDescriptions[selectedAchievement] : MYSTERIOUS_DESCRIPTION}
+          {isUnlocked
+            ? AchievementDescriptions[selectedAchievement]
+            : MYSTERIOUS_DESCRIPTION}
         </p>
       </motion.div>
     );
   };
-  
+
   return (
     <div className="achievement-gallery-container">
       <h2 className="text-amber-100 text-lg font-bold mb-4 text-center">
         Achievements
         <div className="achievement-title-underline"></div>
       </h2>
-      
+
       {/* Tampilkan easter egg jika semua achievement terbuka */}
       {showEasterEgg && (
-        <motion.div 
+        <motion.div
           className="easter-egg-message"
           initial={{ opacity: 0, y: -10, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ 
-            duration: 0.8, 
-            delay: 0.5, 
-            type: "spring", 
-            stiffness: 100 
+          transition={{
+            duration: 0.8,
+            delay: 0.5,
+            type: "spring",
+            stiffness: 100,
           }}
         >
-          <p className="text-amber-400 text-sm font-semibold text-center my-2">{EASTER_EGG_MESSAGE}</p>
+          <p className="text-amber-400 text-sm font-semibold text-center my-2">
+            {EASTER_EGG_MESSAGE}
+          </p>
           <div className="easter-egg-glow"></div>
-          <motion.div 
+          <motion.div
             className="easter-egg-crown"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -137,28 +189,34 @@ const AchievementGallery: React.FC = () => {
           </motion.div>
         </motion.div>
       )}
-      
+
       {/* Progress bar */}
-      <motion.div className="achievement-progress mb-4">
+      <motion.div className="achievement-progress mb-6">
+        <div className="progress-label">
+          <span className="progress-title">Achievement Progress</span>
+          <span className="progress-count">{unlockedAchievements.length} / {allAchievements.length}</span>
+        </div>
         <div className="progress-bar-container">
-          <motion.div 
-            className="progress-bar" 
+          <motion.div
+            className="progress-bar"
             initial={{ width: 0 }}
-            animate={{ width: `${(unlockedAchievements.length / allAchievements.length) * 100}%` }}
+            animate={{
+              width: `${(unlockedAchievements.length / allAchievements.length) * 100}%`,
+            }}
             transition={{ duration: 1, ease: "easeOut" }}
           ></motion.div>
         </div>
-        <div className="text-amber-200 text-xs mt-1 text-center">
-          {unlockedAchievements.length} / {allAchievements.length}
+        <div className="progress-percentage">
+          {Math.round((unlockedAchievements.length / allAchievements.length) * 100)}% Complete
         </div>
       </motion.div>
-      
+
       {/* Grid achievement */}
       <div className="achievement-grid">
         {allAchievements.map((achievement, index) => (
-          <motion.div 
+          <motion.div
             key={achievement}
-            className={`achievement-item ${isUnlocked(achievement) ? 'unlocked' : 'locked'}`}
+            className={`achievement-item ${isUnlocked(achievement) ? "unlocked" : "locked"}`}
             onClick={() => handleAchievementClick(achievement)}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -168,24 +226,25 @@ const AchievementGallery: React.FC = () => {
           >
             {renderAchievementIcon(achievement)}
             <div className="achievement-name">
-              {isUnlocked(achievement) 
+              {isUnlocked(achievement)
                 ? AchievementTitles[achievement]
-                : MYSTERIOUS_TITLE
-              }
+                : MYSTERIOUS_TITLE}
             </div>
           </motion.div>
         ))}
       </div>
-      
+
       {/* Detail achievement yang dipilih */}
       {renderAchievementDetail()}
-      
+
       {/* Custom styling for mysterious achievements */}
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         /* General styling for achievement grid */
         .achievement-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
           gap: 12px;
           margin-bottom: 16px;
         }
@@ -196,46 +255,53 @@ const AchievementGallery: React.FC = () => {
           align-items: center;
           background: rgba(30, 30, 30, 0.6);
           padding: 12px 8px;
-          border-radius: 4px;
+          border-radius: 8px;
           transition: all 0.3s ease;
           cursor: pointer;
-          border: 1px solid rgba(255, 193, 7, 0.2);
+          border: 1px solid rgba(255, 193, 7, 0.3);
           position: relative;
           overflow: hidden;
         }
         
         .achievement-item.unlocked {
-          border-color: rgba(255, 193, 7, 0.5);
-          box-shadow: 0 0 10px rgba(255, 193, 7, 0.15);
+          border-color: rgba(255, 193, 7, 0.6);
+          box-shadow: 0 0 15px rgba(255, 193, 7, 0.25);
         }
         
         .achievement-item.unlocked:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2);
+          transform: translateY(-3px) scale(1.03);
+          box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
         }
         
         .achievement-name {
-          margin-top: 8px;
+          margin-top: 10px;
           font-size: 12px;
           text-align: center;
-          color: rgba(255, 193, 7, 0.9);
-          font-weight: 500;
+          color: rgba(255, 215, 0, 0.95);
+          font-weight: 600;
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+          max-width: 100%;
+          padding: 0 5px;
         }
         
         .achievement-icon-container {
           display: flex;
           justify-content: center;
           align-items: center;
-          width: 64px;
-          height: 64px;
+          width: 70px;
+          height: 70px;
+          padding: 10px;
+          border-radius: 50%;
+          background: rgba(20, 20, 20, 0.4);
+          box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
         }
         
         /* Styling untuk achievement yang misterius */
         .achievement-item.locked {
           opacity: 0.7;
-          filter: brightness(0.7) blur(0.5px);
+          filter: brightness(0.7) blur(0.3px);
           border: 1px dashed rgba(255, 193, 7, 0.25);
-          background: rgba(20, 20, 20, 0.6);
+          background: rgba(20, 20, 20, 0.7);
           box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
         }
         
@@ -437,10 +503,59 @@ const AchievementGallery: React.FC = () => {
           100% { opacity: 0.7; transform: scale(1.02); }
         }
         
-        /* Progress bar pulse animation */
+        /* Progress bar styling */
+        .achievement-progress {
+          margin-bottom: 24px;
+        }
+        
+        .progress-label {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 6px;
+        }
+        
+        .progress-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: rgba(255, 215, 0, 0.9);
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .progress-count {
+          font-size: 14px;
+          font-weight: 700;
+          color: rgba(255, 215, 0, 0.8);
+          background: linear-gradient(to bottom, rgba(255, 215, 0, 0.9), rgba(255, 180, 0, 0.7));
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+        }
+        
+        .progress-bar-container {
+          height: 10px;
+          background: rgba(30, 25, 15, 0.6);
+          border-radius: 5px;
+          overflow: hidden;
+          box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+          border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
         .progress-bar {
+          height: 100%;
+          background: linear-gradient(to right, rgba(255, 193, 7, 0.8), rgba(255, 215, 0, 1));
+          box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+          border-radius: 5px;
           position: relative;
           overflow: hidden;
+        }
+        
+        .progress-percentage {
+          text-align: center;
+          font-size: 12px;
+          color: rgba(255, 215, 0, 0.7);
+          margin-top: 5px;
+          font-weight: 500;
         }
         
         .progress-bar::after {
@@ -452,7 +567,7 @@ const AchievementGallery: React.FC = () => {
           height: 100%;
           background: linear-gradient(90deg, 
             rgba(255, 255, 255, 0) 0%, 
-            rgba(255, 255, 255, 0.2) 50%, 
+            rgba(255, 255, 255, 0.3) 50%, 
             rgba(255, 255, 255, 0) 100%
           );
           animation: progressShine 3s infinite;
@@ -462,7 +577,9 @@ const AchievementGallery: React.FC = () => {
           0% { left: -100%; }
           100% { left: 100%; }
         }
-      `}} />
+      `,
+        }}
+      />
     </div>
   );
 };
