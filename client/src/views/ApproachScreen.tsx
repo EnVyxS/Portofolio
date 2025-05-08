@@ -114,7 +114,6 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
 
   const handleApproach = () => {
     setIsClicked(true);
-    setHasInteracted(true); // Trigger audio to play with volume full
     
     // Sembunyikan achievement progress
     const achievementElement = document.querySelector('.achievement-progress-indicator');
@@ -124,6 +123,12 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     
     // Mainkan efek suara souls-like
     playSoulsSound();
+    
+    // Langsung mainkan audio background dengan playAudio() 
+    // dan tandai interaksi user untuk menghindari masalah autoplay
+    console.log("Forcing audio playback from handleApproach");
+    setHasInteracted(true); // Set has interacted terlebih dahulu
+    playAudio(); // Panggil playAudio langsung untuk memastikan audio diputar
     
     // REMOVED: We no longer unlock achievement immediately
     // Instead we'll unlock it after the transition completes
