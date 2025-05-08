@@ -1550,10 +1550,21 @@
                     }, 5000);
                 }
                 
-                // Unlock nightmare achievement when page loads
-                setTimeout(() => {
-                    unlockAchievement('nightmare');
-                }, 2000); // Wait 2 seconds after loading
+                // Cek cookie untuk memastikan notification hanya muncul sekali
+                const hasShownNightmareAchievement = document.cookie.indexOf('nightmareAchievementShown=true') !== -1;
+                
+                // Unlock nightmare achievement when page loads only if not shown before
+                if (!hasShownNightmareAchievement) {
+                    // Set cookie bahwa notifikasi sudah ditampilkan (hanya sekali)
+                    document.cookie = "nightmareAchievementShown=true; path=/; max-age=86400"; // 24 jam
+                    
+                    setTimeout(() => {
+                        console.log("Showing nightmare achievement with delay");
+                        unlockAchievement('nightmare');
+                    }, 3000); // Wait 3 seconds after loading
+                } else {
+                    console.log("Nightmare achievement notification already shown once, skipping");
+                }
             }
 
             // Initialize everything

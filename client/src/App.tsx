@@ -68,17 +68,22 @@ function MainApp() {
       console.log("User is trapped in nightmare, redirecting to dream.html");
       window.location.href = "/dream.html";
     } 
-    // Check if user just escaped from nightmare
-    else if (getCookie("nightmareEscaped") === "true") {
-      // Unlock achievement with forced notification
-      try {
-        console.log("[App] User escaped from nightmare, unlocking achievement");
-        const achievementController = AchievementController.getInstance();
-        // Force notification even if achievement was already earned
-        achievementController.unlockAchievement('escape', true);
-      } catch (error) {
-        console.error("[App] Failed to unlock escape achievement:", error);
-      }
+    // Check if user just escaped from nightmare - Menggunakan cookie khusus untuk sekali notifikasi
+    else if (getCookie("nightmareEscaped") === "true" && getCookie("escapeAchievementShown") !== "true") {
+      // Set cookie bahwa notifikasi sudah ditampilkan (hanya sekali)
+      document.cookie = "escapeAchievementShown=true; path=/; max-age=86400"; // 24 jam
+      
+      // Unlock achievement dengan timeout agar tidak langsung muncul saat halaman dimuat
+      setTimeout(() => {
+        try {
+          console.log("[App] User escaped from nightmare, unlocking achievement with delay");
+          const achievementController = AchievementController.getInstance();
+          // Force notification hanya jika belum pernah ditampilkan
+          achievementController.unlockAchievement('escape', true);
+        } catch (error) {
+          console.error("[App] Failed to unlock escape achievement:", error);
+        }
+      }, 2000); // Delay 2 detik
     }
   }, []);
 
