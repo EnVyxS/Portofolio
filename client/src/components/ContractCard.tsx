@@ -24,18 +24,17 @@ export const CONTRACT_RESPONSES = [
 import swipeSoundSrc from "@assets/Screen swipe sound effect (mp3cut.net).m4a";
 import footstepSoundSrc from "@assets/footsteps sound effect - walking sound effect - copyright free sound effects (mp3cut.net) (1).m4a";
 
-// Import gambar sertifikat yang telah dioptimasi
-// Menggunakan gambar yang sudah dioptimasi dari folder public/optimized_assets
-const basePath = "/optimized_assets/";
-const ijazah = `${basePath}Ijazah.jpg`;
-const transkrip1 = `${basePath}Transkrip Nilai_page-0001.jpg`;
-const transkrip2 = `${basePath}Transkrip Nilai_page-0002.jpg`;
-const tofl = `${basePath}111202012560mhs.dinus.ac.id_page-0001.jpg`;
-const bnsp1 = `${basePath}BNSP_page-0001.jpg`;
-const bnsp2 = `${basePath}BNSP_page-0002.jpg`;
-const kampusMerdeka = `${basePath}Backend Java MSIB_page-0001.jpg`;
-const studentReport1 = `${basePath}KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0001.jpg`;
-const studentReport2 = `${basePath}KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0002.jpg`;
+// Import gambar sertifikat dari original assets
+// Ini adalah file asli yang akan kita gunakan karena path optimized mungkin tidak bekerja
+import ijazah from "@assets/Ijazah.jpg";
+import transkrip1 from "@assets/Transkrip Nilai_page-0001.jpg";
+import transkrip2 from "@assets/Transkrip Nilai_page-0002.jpg";
+import tofl from "@assets/111202012560mhs.dinus.ac.id_page-0001.jpg";
+import bnsp1 from "@assets/BNSP_page-0001.jpg";
+import bnsp2 from "@assets/BNSP_page-0002.jpg";
+import kampusMerdeka from "@assets/Backend Java MSIB_page-0001.jpg";
+import studentReport1 from "@assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0001.jpg";
+import studentReport2 from "@assets/KM 4_SR_BEJ2302KM4009_DIVA JUAN NUR TAQARRUB_2_page-0002.jpg";
 
 // Path ke file dokumen
 const CONTRACT_IMAGES = [
@@ -564,6 +563,10 @@ const ContractCard: React.FC = () => {
                         onDoubleClick={openImageInNewTab}
                         title="Double-click to open in new tab"
                         draggable="false" // Cegah drag default image
+                        width="800" // Set width maksimum
+                        height="auto" // Biarkan tinggi menyesuaikan
+                        loading="eager" // Prioritaskan loading
+                        decoding="async" // Dekode secara async
                       />
                     ) : (
                       <div className="document-image loading-placeholder">
@@ -865,6 +868,8 @@ const ContractCard: React.FC = () => {
           border-radius: 2px;
           filter: brightness(1.1) contrast(1.05);
           position: relative;
+          will-change: transform; /* Membantu kinerja rendering */
+          transform: translateZ(0); /* Memaksa akselerasi hardware */
         }
         
         .document-image::after {
