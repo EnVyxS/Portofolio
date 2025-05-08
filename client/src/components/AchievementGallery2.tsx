@@ -231,6 +231,7 @@ const AchievementGallery: React.FC = () => {
           <motion.div
             key={achievement}
             className={`achievement-item ${isUnlocked(achievement) ? "unlocked" : "locked"}`}
+            data-achievement={achievement}
             onClick={() => handleAchievementClick(achievement)}
             onMouseEnter={() => setHoveredAchievement(achievement)}
             onMouseLeave={() => setHoveredAchievement(null)}
