@@ -345,6 +345,39 @@ const AchievementGallery: React.FC = () => {
           box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
         }
         
+        /* Fix untuk icon achievement yang bermasalah */
+        .achievement-icon-container svg {
+          width: 48px;
+          height: 48px;
+          color: rgba(255, 215, 0, 0.7);
+        }
+        
+        .achievement-icon-container.unlocked svg path,
+        .achievement-icon-container.unlocked svg rect,
+        .achievement-icon-container.unlocked svg circle {
+          fill: rgba(255, 215, 0, 0.2);
+          stroke: rgba(255, 215, 0, 0.8);
+        }
+        
+        /* Spesifik untuk achievement yang bermasalah */
+        .achievement-item.unlocked .achievement-icon-container svg {
+          filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.5));
+        }
+        
+        /* Fixes khusus untuk tiap achievement yang bermasalah */
+        .achievement-item[data-achievement="patience"] .achievement-icon-container svg path,
+        .achievement-item[data-achievement="patience"] .achievement-icon-container svg circle,
+        .achievement-item[data-achievement="return"] .achievement-icon-container svg path,
+        .achievement-item[data-achievement="hover"] .achievement-icon-container svg path,
+        .achievement-item[data-achievement="hover"] .achievement-icon-container svg rect,
+        .achievement-item[data-achievement="escape"] .achievement-icon-container svg path,
+        .achievement-item[data-achievement="social"] .achievement-icon-container svg path,
+        .achievement-item[data-achievement="social"] .achievement-icon-container svg circle {
+          fill: rgba(255, 215, 0, 0.2) !important;
+          stroke: #FFC107 !important;
+          stroke-width: 1.5 !important;
+        }
+        
         /* Styling untuk achievement yang misterius */
         .achievement-item.locked {
           opacity: 0.7;
