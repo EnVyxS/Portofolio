@@ -1235,8 +1235,8 @@
                 
                 // Function to save achievements - DISABLED FOR TESTING
                 function saveAchievements(achievements) {
-                    // localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify([...achievements]));
-                    console.log('Achievement saving disabled for testing');
+                    localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify([...achievements]));
+                    console.log('Achievement saved to localStorage:', [...achievements]);
                 }
                 
                 // Function to unlock an achievement
