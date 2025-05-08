@@ -8,6 +8,7 @@ import {
   AchievementCriteria,
 } from "../constants/achievementConstants";
 import AchievementController from "../controllers/achievementController";
+import AchievementSharing from "./AchievementSharing";
 
 // Easter egg yang muncul ketika semua achievement terbuka
 const EASTER_EGG_MESSAGE = "You have conquered all the Diva Juan challenges!";
@@ -269,6 +270,21 @@ const AchievementGallery: React.FC = () => {
 
       {/* Detail achievement yang dipilih */}
       {renderAchievementDetail()}
+      
+      {/* Achievement Sharing Section */}
+      {unlockedAchievements.length > 0 && (
+        <motion.div
+          className="achievement-sharing-section"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+        >
+          <div className="section-divider">
+            <span className="divider-text">Share Your Achievements</span>
+          </div>
+          <AchievementSharing />
+        </motion.div>
+      )}
 
       {/* Custom styling for mysterious achievements */}
       <style
@@ -678,6 +694,44 @@ const AchievementGallery: React.FC = () => {
           color: rgba(255, 255, 255, 0.85);
           line-height: 1.4;
           font-style: italic;
+        }
+        
+        /* Achievement Sharing Section */
+        .achievement-sharing-section {
+          margin-top: 30px;
+        }
+        
+        .section-divider {
+          position: relative;
+          text-align: center;
+          margin-bottom: 20px;
+          height: 20px;
+        }
+        
+        .section-divider::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, 
+            rgba(255, 215, 0, 0.1), 
+            rgba(255, 215, 0, 0.5) 50%, 
+            rgba(255, 215, 0, 0.1)
+          );
+          z-index: 1;
+        }
+        
+        .divider-text {
+          position: relative;
+          z-index: 2;
+          background: rgba(30, 30, 30, 0.95);
+          padding: 0 15px;
+          font-size: 14px;
+          font-weight: 600;
+          color: rgba(255, 215, 0, 0.8);
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .progress-bar::after {
