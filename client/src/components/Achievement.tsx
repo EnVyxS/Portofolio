@@ -525,7 +525,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                       )}
                       
                       {type === 'contract' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 sm:h-7 sm:w-7" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
                           <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" 
                             stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
                           <path d="M7 7h10M7 11h10M7 15h6" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
@@ -533,7 +533,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                       )}
                       
                       {type === 'document' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 sm:h-7 sm:w-7" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
                           <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" 
                             stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
                           <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -543,7 +543,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                       )}
                       
                       {type === 'success' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 sm:h-7 sm:w-7" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
                           <path d="M22 12h-4l-3 9L9 3l-3 9H2" 
                             stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                           <circle cx="12" cy="12" r="3" stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
@@ -551,7 +551,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                       )}
                       
                       {type === 'anger' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 sm:h-7 sm:w-7" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
                           <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" 
                             stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.2)" />
                           <path d="M12 8v8M8 12h8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
@@ -559,7 +559,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                       )}
                       
                       {type === 'nightmare' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 sm:h-7 sm:w-7" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
                           <path d="M12 2l2.5 5 5.5.5-4 4 1 5.5-5-2.5-5 2.5 1-5.5-4-4 5.5-.5L12 2z" 
                             stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
                           <path d="M12 7v5M12 16v.1" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
@@ -567,7 +567,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                       )}
                       
                       {type === 'listener' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 sm:h-7 sm:w-7" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
                           <path d="M12 1C7.03 1 3 5.03 3 10v7c0 1.66 1.34 3 3 3h5c1.66 0 3-1.34 3-3v-4c0-1.66-1.34-3-3-3H5V10c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-1c-1.66 0-3 1.34-3 3v4c0 1.66 1.34 3 3 3h5c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z"
                             stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
                           <path d="M7 15c1.5-1 3.5-1 5 0" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
@@ -585,7 +585,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                 <div className="flex flex-col mt-1">
                   {/* Achievement title with Dark Souls style - uppercase, letterSpacing */}
                   <motion.p
-                    className="text-xs sm:text-sm text-amber-100 font-semibold tracking-wide uppercase"
+                    className="text-[10px] sm:text-xs md:text-sm text-amber-100 font-semibold tracking-wide uppercase"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
@@ -599,7 +599,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                   
                   {/* Achievement description - smaller text with subtle color */}
                   <motion.p
-                    className="text-[10px] sm:text-xs text-amber-400/70 leading-snug"
+                    className="text-[9px] sm:text-[10px] md:text-xs text-amber-400/70 leading-snug"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.9 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
