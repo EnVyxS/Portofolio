@@ -14,18 +14,7 @@ class AchievementController {
     this.unlockedAchievements = this.loadAchievements();
     
     // Cek apakah kita berada di halaman dream.html
-    // Perbarui checking untuk lebih akurat di development dan production
-    const pathname = window.location.pathname;
-    const href = window.location.href;
-    
-    // Cek lebih menyeluruh - URL bisa berbagai format
-    this.isDreamPage = pathname.includes('dream.html') || 
-                        pathname.includes('dream') || 
-                        pathname === '/dream' || 
-                        href.includes('dream') || 
-                        document.title.toLowerCase().includes('dream');
-                        
-    console.log('[AchievementController] Page detection: isDreamPage =', this.isDreamPage, 'pathname =', pathname, 'href =', href);
+    this.isDreamPage = window.location.pathname.includes('dream.html');
   }
   
   // Singleton pattern
@@ -68,29 +57,12 @@ class AchievementController {
     );
   }
   
-  // Dispatch custom event untuk achievement unlocked
-  private dispatchAchievementEvent(type: AchievementType): void {
-    try {
-      const event = new CustomEvent('achievementUnlocked', {
-        detail: { achievement: type }
-      });
-      window.dispatchEvent(event);
-      console.log(`[AchievementController] Dispatched achievementUnlocked event for: ${type}`);
-    } catch (e) {
-      console.error('[AchievementController] Failed to dispatch achievement event:', e);
-    }
-  }
-
   // Unlock achievement baru
   public unlockAchievement(type: AchievementType): void {
-    // Jika achievement 'nightmare', pastikan kita handle dengan benar
-    if (type === 'nightmare') {
-      if (!this.isDreamPage) {
-        console.log('Nightmare achievement will only be shown on dream.html page');
-        return;
-      } else {
-        console.log('Unlocking nightmare achievement on dream page');
-      }
+    // Jika achievement 'nightmare' dan tidak pada halaman dream.html, abaikan
+    if (type === 'nightmare' && !this.isDreamPage) {
+      console.log('Nightmare achievement will only be shown on dream.html page');
+      return;
     }
     
     console.log(`Showing achievement: ${type}`);
@@ -108,15 +80,10 @@ class AchievementController {
         console.error('Failed to save achievement to localStorage:', e);
       }
       
-      // Dispatch event untuk accessible notification system
-      this.dispatchAchievementEvent(type);
-      
-      // Panggil callback untuk menampilkan notifikasi achievement (legacy method)
+      // Panggil callback untuk menampilkan notifikasi achievement
       if (this.achievementCallback) {
         this.achievementCallback(type);
       }
-    } else {
-      console.log(`Achievement "${type}" already unlocked, not showing notification`);
     }
   }
   
