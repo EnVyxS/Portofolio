@@ -453,6 +453,22 @@ class DialogController {
     this.isPostResetDialog = false;
   }
   
+  // Method tambahan untuk mereset status dialog sebelum return dialog
+  public resetDialogState(): void {
+    // Hentikan typewriter dan audio
+    this.stopTyping();
+    this.elevenlabsService.stopSpeaking();
+    
+    // Reset status post-reset
+    this.isPostResetDialog = false;
+    
+    // Reset interupsi
+    this.dialogInterrupted = false;
+    
+    // Log aksi
+    console.log("[DialogController] Reset dialog state completed");
+  }
+  
   // Method untuk mengakses dialog model
   public getDialogModel(): DialogModel {
     return this.dialogModel;

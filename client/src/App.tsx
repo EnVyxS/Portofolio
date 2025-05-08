@@ -110,9 +110,13 @@ function MainApp() {
     }, 1500);
   };
 
-  const handleCloseElevenLabsSetup = () => {
+  // Function untuk menutup ElevenLabs setup
+  const handleElevenLabsSetupClose = () => {
     setShowElevenLabsSetup(false);
   };
+  
+  // Mutable reference untuk handler
+  const handleCloseElevenLabsSetupRef = useRef(handleElevenLabsSetupClose);
 
   // Toggle audio play/pause
   const toggleAudio = () => {
@@ -226,30 +230,27 @@ function MainApp() {
 
   // Update approach handler untuk kasus re-approach setelah dilempar
   const handlePostResetApproach = () => {
-    // Selalu panggil handleApproach terlebih dahulu
-    handleApproach();
-
-    console.log("[App] Post-reset approach triggered. Setting up return dialog sequence...");
-
-    // Jika sudah pernah di-reset, kita akan mengatur agar menampilkan dialog khusus
-    setTimeout(() => {
-      // Setelah ElevenLabs setup ditutup, tampilkan dialog khusus untuk kasus post-reset
+    // Siapkan proses yang akan terjadi setelah ElevenLabs setup ditutup
+    const setupReturnDialog = () => {
+      console.log("[App] Post-reset approach triggered. Setting up return dialog sequence...");
       const dialogController = DialogController.getInstance();
+      
       if (dialogController) {
         console.log("[App] Preparing to show return dialog, resetting dialog controller state...");
         
-        // Dapatkan hoverDialogController untuk menonaktifkan hover sementara
+        // Reset HoverDialogController
         try {
           const hoverDialogController = HoverDialogController.getInstance();
           if (hoverDialogController) {
             hoverDialogController.setIdleTimeoutOccurred(false);
-            console.log("[App] Reset HoverDialogController idle timeout flag to false");
+            hoverDialogController.setHasInteractedWithHover(false);
+            console.log("[App] Reset HoverDialogController flags to false");
           }
         } catch (e) {
           console.error("[App] Failed to reset hover controller:", e);
         }
         
-        // Force display dialog box dan hapus flag
+        // Reset dialog flags
         try {
           // @ts-ignore
           window.__forceShowIdleWarning = false;
@@ -262,30 +263,66 @@ function MainApp() {
           console.error("[App] Error resetting dialog display flags:", e);
         }
         
-        // Setup special post-reset dialog
-        // Gunakan setTimeout untuk memastikan dialog box sudah siap menerima callback
+        // Buat reference untuk callback
+        const returnDialogCallback = (text: string, isComplete: boolean) => {
+          console.log("[App] Return dialog being displayed:", text, "isComplete:", isComplete);
+          
+          // Unlock achievement for returning after punishment
+          if (isComplete) {
+            try {
+              const achievementController = AchievementController.getInstance();
+              achievementController.unlockAchievement('return');
+              console.log("[App] Unlocked 'return' achievement for returning after being thrown");
+            } catch (error) {
+              console.error("Failed to unlock return achievement:", error);
+            }
+          }
+        };
+        
+        // Force reset dialog state before showing return dialog
+        dialogController.resetDialogState();
+        
+        // Show return dialog with a small delay to ensure all components are ready
         setTimeout(() => {
           console.log("[App] Now showing return dialog...");
-          dialogController.showReturnDialog(
-            (text: string, isComplete: boolean) => {
-              // Dialog post-reset displayed
-              console.log("[App] Return dialog being displayed:", text, "isComplete:", isComplete);
-              
-              // Unlock achievement for returning after punishment
-              if (isComplete) {
-                try {
-                  const achievementController = AchievementController.getInstance();
-                  achievementController.unlockAchievement('return');
-                  console.log("[App] Unlocked 'return' achievement for returning after being thrown");
-                } catch (error) {
-                  console.error("Failed to unlock return achievement:", error);
-                }
-              }
-            },
-          );
-        }, 1000); // Berikan waktu 1000ms untuk memastikan dialogBox siap
+          dialogController.showReturnDialog(returnDialogCallback);
+        }, 500);
       }
-    }, 2000); // Tunggu ElevenLabs setup selesai (sekitar 2 detik)
+    };
+
+    // Variable untuk melacak status elevenlabs setup
+    let setupComplete = false;
+    
+    // Override elevenlabs onClose handler untuk memicu return dialog
+    const originalHandleClose = handleCloseElevenLabsSetup;
+    const enhancedHandleClose = () => {
+      // Panggil original handler
+      originalHandleClose();
+      
+      // Tandai setup telah selesai
+      setupComplete = true;
+      
+      // Berikan waktu untuk sistem mengatur ulang state
+      setTimeout(setupReturnDialog, 500);
+    };
+    
+    // Temporarily replace the handler
+    const tempHandleCloseElevenLabsSetup = handleCloseElevenLabsSetup;
+    handleCloseElevenLabsSetup = enhancedHandleClose;
+    
+    // Panggil handleApproach
+    handleApproach();
+    
+    // Fallback jika setup tidak ditutup dalam 5 detik
+    setTimeout(() => {
+      if (!setupComplete) {
+        console.log("[App] ElevenLabs setup timeout - triggering return dialog sequence");
+        setupReturnDialog();
+      }
+      
+      // Restore original handler
+      handleCloseElevenLabsSetup = tempHandleCloseElevenLabsSetup;
+    }, 5000);
   };
 
   // If user hasn't approached yet, show the approach screen
