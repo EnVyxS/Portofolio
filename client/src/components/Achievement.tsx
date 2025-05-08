@@ -255,8 +255,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
             damping: 25,
             duration: 0.4
           }}
-          className={`fixed top-4 sm:top-5 md:top-6 lg:top-8 right-3 sm:right-4 md:right-6 lg:right-8 max-w-[85vw] sm:max-w-[340px] 
-            ${type === 'escape' ? 'z-50' : 'z-40'}`} // Perbaikan: Dream Escapist (escape) diberi z-index lebih tinggi untuk muncul di depan
+          className="fixed top-4 sm:top-5 md:top-6 lg:top-8 right-3 sm:right-4 md:right-6 lg:right-8 z-40 max-w-[85vw] sm:max-w-[340px]"
         >
           {/* Dark Souls style achievement - compact design like the screenshot */}
           <motion.div 
@@ -383,17 +382,32 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                       {/* Icon background glow */}
                       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-amber-900/20 rounded-sm"></div>
                       
-                      {/* Achievement type specific icon - Perbaikan untuk menampilkan semua ikon */}
-                      <div className="achievement-icon-wrapper text-amber-500">
-                        {/* Gunakan AchievementIcons dari constants untuk konsistensi */}
-                        {AchievementIcons[type] || (
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7">
-                            <path d="M12 2l2.5 5 5.5.5-4 4 1 5.5-5-2.5-5 2.5 1-5.5-4-4 5.5-.5L12 2z" 
-                              stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
-                            <circle cx="12" cy="12" r="10" stroke="#FFC107" strokeWidth="1" strokeDasharray="1 1" />
-                          </svg>
-                        )}
-                      </div>
+                      {/* Achievement type specific icon */}
+                      {type === 'approach' && (
+                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M19 8l-7-7-7 7v11a2 2 0 002 2h10a2 2 0 002-2V8z" 
+                            stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
+                          <path d="M9 15l2 2 4-4" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                      
+                      {type === 'contract' && (
+                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" 
+                            stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
+                          <path d="M7 7h10M7 11h10M7 15h6" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      )}
+                      
+                      {type === 'document' && (
+                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" 
+                            stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
+                          <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          <circle cx="18" cy="20" r="2" stroke="#FFC107" strokeWidth="1.5" fill="none" />
+                          <path d="M15 17l2 2" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
                       
                       {type === 'success' && (
                         <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">

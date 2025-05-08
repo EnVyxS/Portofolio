@@ -1049,68 +1049,22 @@
 
                 // Auto-play music after a few seconds
                 setTimeout(() => {
-                    // Mulai dengan volume kecil dan dimatikan untuk meningkatkan peluang autoplay
-                    backgroundMusic.volume = 0.001;
-                    backgroundMusic.muted = true;
-                    pinkNoiseAudio.volume = 0.0001;
-                    pinkNoiseAudio.muted = true;
-                    
-                    // Coba putar musik dengan suara kecil
+                    // Start music box
                     backgroundMusic
                         .play()
                         .then(() => {
-                            console.log("Music autoplay initially succeeded with muted approach");
-                            
-                            // Secara bertahap aktifkan suara setelah berhasil memutar
-                            setTimeout(() => {
-                                // Unmute dan secara bertahap naikkan volume
-                                backgroundMusic.muted = false;
-                                pinkNoiseAudio.muted = false;
-                                
-                                // Terapkan volume secara bertahap
-                                function fadeInVolume(currentVolume) {
-                                    if (currentVolume < 0.15) {
-                                        currentVolume += 0.01;
-                                        backgroundMusic.volume = currentVolume;
-                                        setTimeout(() => fadeInVolume(currentVolume), 50);
-                                    } else {
-                                        // Volume final
-                                        backgroundMusic.volume = 0.15;
-                                        isMusicPlaying = true;
-                                        console.log("Music volume faded in to final value");
-                                    }
-                                }
-                                
-                                // Mulai fade-in volume
-                                fadeInVolume(0.001);
-                                
-                                // Putar pink noise setelah music box berhasil diputar
-                                pinkNoiseAudio
-                                    .play()
-                                    .then(() => {
-                                        // Secara bertahap naikkan volume pink noise
-                                        setTimeout(() => {
-                                            pinkNoiseAudio.volume = 0.005;
-                                        }, 800);
-                                    })
-                                    .catch((err) => console.log("Pink noise failed to play:", err));
-                            }, 300);
+                            isMusicPlaying = true;
+                            // After music box successfully plays, start pink noise
+                            return pinkNoiseAudio.play();
                         })
                         .catch((error) => {
                             console.error("Music couldn't auto-play:", error);
-                            // Reset volume dan muted states
-                            backgroundMusic.volume = 0.15;
-                            backgroundMusic.muted = false;
-                            pinkNoiseAudio.volume = 0.005;
-                            pinkNoiseAudio.muted = false;
-                            
+                            // We won't make the music control button visible even if autoplay fails
                             // Force user to hear music when they interact with the page
                             document.addEventListener('click', function musicClickHandler() {
                                 backgroundMusic.play()
                                     .then(() => {
                                         isMusicPlaying = true;
-                                        // Langsung putar dengan volume penuh
-                                        backgroundMusic.volume = 0.15;
                                         pinkNoiseAudio.play();
                                         // Remove this listener after successfully playing
                                         document.removeEventListener('click', musicClickHandler);
