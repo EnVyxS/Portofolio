@@ -201,7 +201,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
       </AnimatePresence>
       
       {/* CSS styles */}
-      <style jsx>{`
+      <style>{`
         .share-button {
           display: flex;
           align-items: center;

@@ -152,6 +152,21 @@ const GameContactCard: React.FC = () => {
             ))}
           </motion.div>
           
+          {/* Share Button beneath social links */}
+          <motion.div 
+            className="share-button-container"
+            variants={itemVariants}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1, duration: 0.5 }}
+          >
+            <ShareButton 
+              className="card-share-button"
+              title="DIVA JUAN | Interactive Portfolio"
+              text="Check out this immersive interactive portfolio by DIVA JUAN - an experience you won't forget!"
+            />
+          </motion.div>
+          
           {/* Card corner decorations for Dark Souls aesthetic */}
           <div className="card-corner top-left"></div>
           <div className="card-corner top-right"></div>
@@ -278,6 +293,36 @@ const GameContactCard: React.FC = () => {
           gap: 0.4rem; /* Minimal spacing between links */
           width: 100%;
           margin-bottom: 0.4rem; /* Minimal bottom margin */
+        }
+        
+        .share-button-container {
+          width: 100%;
+          margin-top: 0.5rem;
+          margin-bottom: 0.3rem;
+        }
+        
+        .card-share-button {
+          width: 100%;
+          font-size: 0.6rem !important;
+          padding: 4px 8px !important;
+          background: rgba(30, 25, 20, 0.7) !important;
+          border: 1px solid rgba(150, 130, 100, 0.4) !important;
+          color: rgba(150, 130, 100, 0.9) !important;
+          border-radius: 0 !important;
+          justify-content: center;
+          box-shadow: none !important;
+          transition: all 0.3s ease;
+        }
+        
+        .card-share-button:hover {
+          background: rgba(40, 35, 30, 0.8) !important;
+          border-color: rgba(180, 160, 120, 0.6) !important;
+          color: rgba(200, 175, 130, 1) !important;
+        }
+        
+        .card-share-button svg {
+          width: 14px !important;
+          height: 14px !important;
         }
 
         /* Tablet devices (maintain position on right side) */
