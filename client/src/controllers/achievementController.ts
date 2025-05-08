@@ -2,27 +2,16 @@ import { AchievementType } from '../constants/achievementConstants';
 
 // Key untuk local storage
 const ACHIEVEMENTS_KEY = 'diva-juan-achievements';
-const ACHIEVEMENT_TIMESTAMPS_KEY = 'diva-juan-achievement-timestamps';
-
-// Interface untuk menyimpan data timestamp achievement
-interface AchievementTimestamp {
-  achievement: AchievementType;
-  timestamp: number;
-}
 
 class AchievementController {
   private static instance: AchievementController;
   private unlockedAchievements: Set<AchievementType>;
-  private achievementTimestamps: AchievementTimestamp[] = [];
   private achievementCallback: ((type: AchievementType) => void) | null = null;
   private isDreamPage: boolean = false; // Flag untuk halaman dream.html
   
   private constructor() {
     // Load achievements dari localStorage
     this.unlockedAchievements = this.loadAchievements();
-    
-    // Load achievement timestamps
-    this.achievementTimestamps = this.loadAchievementTimestamps();
     
     // Cek apakah kita berada di halaman dream.html
     this.isDreamPage = window.location.pathname.includes('dream.html');
@@ -60,25 +49,6 @@ class AchievementController {
     return new Set<AchievementType>();
   }
   
-  // Load achievement timestamps dari localStorage
-  private loadAchievementTimestamps(): AchievementTimestamp[] {
-    try {
-      const savedData = localStorage.getItem(ACHIEVEMENT_TIMESTAMPS_KEY);
-      if (savedData) {
-        try {
-          const timestamps = JSON.parse(savedData) as AchievementTimestamp[];
-          console.log('Loaded achievement timestamps from localStorage:', timestamps);
-          return timestamps;
-        } catch (e) {
-          console.error('Error parsing achievement timestamps data:', e);
-        }
-      }
-    } catch (e) {
-      console.error('Error accessing localStorage for timestamps:', e);
-    }
-    return [];
-  }
-  
   // Simpan achievements ke localStorage
   private saveAchievements(): void {
     localStorage.setItem(
@@ -87,54 +57,33 @@ class AchievementController {
     );
   }
   
-  // Simpan achievement timestamps ke localStorage
-  private saveAchievementTimestamps(): void {
-    localStorage.setItem(
-      ACHIEVEMENT_TIMESTAMPS_KEY,
-      JSON.stringify(this.achievementTimestamps)
-    );
-  }
-  
   // Unlock achievement baru
-  public unlockAchievement(type: AchievementType, forceNotification: boolean = false): void {
+  public unlockAchievement(type: AchievementType): void {
     // Jika achievement 'nightmare' dan tidak pada halaman dream.html, abaikan
     if (type === 'nightmare' && !this.isDreamPage) {
       console.log('Nightmare achievement will only be shown on dream.html page');
       return;
     }
     
-    console.log(`Showing achievement: ${type}, forceNotification: ${forceNotification}`);
+    console.log(`Showing achievement: ${type}`);
     
-    // Cek apakah achievement sudah ada, baru memunculkan notifikasi jika belum ada atau forceNotification=true
-    const isNewAchievement = !this.unlockedAchievements.has(type);
-    
-    // Tambahkan achievement ke daftar (jika belum ada)
-    if (isNewAchievement) {
-      // Tambahkan ke daftar achievements yang unlocked
+    // Jika achievement belum di-unlock dalam sesi ini (untuk testing)
+    if (!this.unlockedAchievements.has(type)) {
+      // Tambahkan ke daftar achievements yang unlocked (hanya di memori)
       this.unlockedAchievements.add(type);
-      
-      // Catat timestamp untuk achievement baru
-      const timestamp = Date.now();
-      this.achievementTimestamps.push({
-        achievement: type,
-        timestamp
-      });
       
       // Simpan ke localStorage untuk penyimpanan permanen
       try {
         this.saveAchievements();
-        this.saveAchievementTimestamps();
-        console.log(`Achievement "${type}" saved with timestamp ${new Date(timestamp).toLocaleString()}`);
+        console.log(`Achievement "${type}" saved to localStorage`);
       } catch (e) {
-        console.error('Failed to save achievement data to localStorage:', e);
+        console.error('Failed to save achievement to localStorage:', e);
       }
-    }
-    
-    // Panggil callback untuk menampilkan notifikasi achievement jika:
-    // 1. Achievement baru unlock, atau
-    // 2. Force notification dinyalakan
-    if ((isNewAchievement || forceNotification) && this.achievementCallback) {
-      this.achievementCallback(type);
+      
+      // Panggil callback untuk menampilkan notifikasi achievement
+      if (this.achievementCallback) {
+        this.achievementCallback(type);
+      }
     }
   }
   
@@ -148,17 +97,10 @@ class AchievementController {
     return Array.from(this.unlockedAchievements);
   }
   
-  // Mendapatkan data timestamps untuk achievement
-  public getAchievementTimestamps(): AchievementTimestamp[] {
-    return [...this.achievementTimestamps];
-  }
-  
   // Reset semua achievements (untuk testing)
   public resetAchievements(): void {
     this.unlockedAchievements.clear();
-    this.achievementTimestamps = [];
     this.saveAchievements();
-    this.saveAchievementTimestamps();
   }
 }
 

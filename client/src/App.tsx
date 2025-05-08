@@ -57,7 +57,7 @@ function MainApp() {
   // Reference ke IdleTimeoutController
   const idleTimeoutControllerRef = useRef<IdleTimeoutController | null>(null);
 
-  // Check if user is trapped in nightmare or returning from nightmare
+  // Check if user is trapped in nightmare
   useEffect(() => {
     // Check if user is trapped in nightmare
     if (
@@ -67,23 +67,6 @@ function MainApp() {
       // Redirect to dream.html if trapped
       console.log("User is trapped in nightmare, redirecting to dream.html");
       window.location.href = "/dream.html";
-    } 
-    // Check if user just escaped from nightmare - Menggunakan cookie khusus untuk sekali notifikasi
-    else if (getCookie("nightmareEscaped") === "true" && getCookie("escapeAchievementShown") !== "true") {
-      // Set cookie bahwa notifikasi sudah ditampilkan (hanya sekali)
-      document.cookie = "escapeAchievementShown=true; path=/; max-age=86400"; // 24 jam
-      
-      // Unlock achievement dengan timeout agar tidak langsung muncul saat halaman dimuat
-      setTimeout(() => {
-        try {
-          console.log("[App] User escaped from nightmare, unlocking achievement with delay");
-          const achievementController = AchievementController.getInstance();
-          // Force notification hanya jika belum pernah ditampilkan
-          achievementController.unlockAchievement('escape', true);
-        } catch (error) {
-          console.error("[App] Failed to unlock escape achievement:", error);
-        }
-      }, 2000); // Delay 2 detik
     }
   }, []);
 
@@ -286,7 +269,7 @@ function MainApp() {
           if (isComplete) {
             try {
               const achievementController = AchievementController.getInstance();
-              achievementController.unlockAchievement('return', true); // Force notification
+              achievementController.unlockAchievement('return');
               console.log("[App] Unlocked 'return' achievement for returning after being thrown");
             } catch (error) {
               console.error("Failed to unlock return achievement:", error);

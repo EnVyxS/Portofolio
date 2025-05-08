@@ -987,12 +987,34 @@
                     // Unlock the escape achievement
                     const achievementType = 'escape';
                     
-                    // Save achievement to localStorage and record timestamp
+                    // Save achievement to localStorage for portfolio_achievements
                     try {
-                        // Use unlockAchievement function which handles both saving achievement
-                        // and recording timestamp. This keeps achievement tracking consistent.
-                        unlockAchievement(achievementType);
-                        console.log(`Achievement "${achievementType}" and timestamp saved via unlockAchievement function`);
+                        // For the new 'diva-juan-achievements' format
+                        const ACHIEVEMENTS_KEY = 'diva-juan-achievements';
+                        let achievements = [];
+                        const savedData = localStorage.getItem(ACHIEVEMENTS_KEY);
+                        
+                        if (savedData) {
+                            try {
+                                achievements = JSON.parse(savedData);
+                                if (!Array.isArray(achievements)) {
+                                    achievements = [];
+                                }
+                            } catch (e) {
+                                console.error('Error parsing achievements data:', e);
+                                achievements = [];
+                            }
+                        }
+                        
+                        // Only add if not already present
+                        if (!achievements.includes(achievementType)) {
+                            achievements.push(achievementType);
+                            localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(achievements));
+                            console.log(`Achievement "${achievementType}" saved to localStorage with new format`);
+                            
+                            // Also show the achievement notification
+                            unlockAchievement(achievementType);
+                        }
                     } catch (e) {
                         console.error('Failed to save achievement to localStorage:', e);
                     }
@@ -1195,9 +1217,8 @@
 
             // Achievement System for Dream Page
             function setupAchievementSystem() {
-                // Achievement definitions - match the key used in main app
-                const ACHIEVEMENTS_KEY = "diva-juan-achievements";
-                const ACHIEVEMENT_TIMESTAMPS_KEY = "diva-juan-achievement-timestamps";
+                // Achievement definitions
+                const ACHIEVEMENTS_KEY = "portfolio_achievements";
                 
                 // Function to load existing achievements
                 function loadAchievements() {
@@ -1212,65 +1233,20 @@
                     return new Set();
                 }
                 
-                // Function to load achievement timestamps
-                function loadAchievementTimestamps() {
-                    const savedData = localStorage.getItem(ACHIEVEMENT_TIMESTAMPS_KEY);
-                    if (savedData) {
-                        try {
-                            return JSON.parse(savedData);
-                        } catch (e) {
-                            console.error('Error parsing achievement timestamps data:', e);
-                        }
-                    }
-                    return [];
-                }
-                
-                // Function to save achievements
+                // Function to save achievements - DISABLED FOR TESTING
                 function saveAchievements(achievements) {
-                    localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify([...achievements]));
-                    console.log('Achievement saved to localStorage:', [...achievements]);
-                }
-                
-                // Function to save achievement timestamp
-                function saveAchievementTimestamp(achievementType) {
-                    try {
-                        // Load existing timestamps
-                        const timestamps = loadAchievementTimestamps() || [];
-                        
-                        // Add new timestamp
-                        timestamps.push({
-                            achievement: achievementType,
-                            timestamp: Date.now()
-                        });
-                        
-                        // Save back to localStorage
-                        localStorage.setItem(
-                            ACHIEVEMENT_TIMESTAMPS_KEY,
-                            JSON.stringify(timestamps)
-                        );
-                        console.log(`Timestamp recorded for achievement ${achievementType}:`, new Date().toLocaleString());
-                    } catch (e) {
-                        console.error('Error saving achievement timestamp:', e);
-                    }
+                    // localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify([...achievements]));
+                    console.log('Achievement saving disabled for testing');
                 }
                 
                 // Function to unlock an achievement
                 function unlockAchievement(type) {
                     const achievements = loadAchievements();
-                    // FIXED: Selalu munculkan achievement notification (showAchievement) meskipun achievement sudah ada
-                    // Namun kita tetap menambahkan achievement ke localStorage jika belum ada
-                    const isNewAchievement = !achievements.has(type);
-                    
-                    if (isNewAchievement) {
+                    if (!achievements.has(type)) {
                         achievements.add(type);
                         saveAchievements(achievements);
-                        
-                        // Record timestamp for new achievement
-                        saveAchievementTimestamp(type);
+                        showAchievement(type);
                     }
-                    
-                    // Selalu tampilkan notifikasi achievement
-                    showAchievement(type);
                 }
                 
                 // Function to show achievement
@@ -1568,21 +1544,10 @@
                     }, 5000);
                 }
                 
-                // Cek cookie untuk memastikan notification hanya muncul sekali
-                const hasShownNightmareAchievement = document.cookie.indexOf('nightmareAchievementShown=true') !== -1;
-                
-                // Unlock nightmare achievement when page loads only if not shown before
-                if (!hasShownNightmareAchievement) {
-                    // Set cookie bahwa notifikasi sudah ditampilkan (hanya sekali)
-                    document.cookie = "nightmareAchievementShown=true; path=/; max-age=86400"; // 24 jam
-                    
-                    setTimeout(() => {
-                        console.log("Showing nightmare achievement with delay");
-                        unlockAchievement('nightmare');
-                    }, 3000); // Wait 3 seconds after loading
-                } else {
-                    console.log("Nightmare achievement notification already shown once, skipping");
-                }
+                // Unlock nightmare achievement when page loads
+                setTimeout(() => {
+                    unlockAchievement('nightmare');
+                }, 2000); // Wait 2 seconds after loading
             }
 
             // Initialize everything

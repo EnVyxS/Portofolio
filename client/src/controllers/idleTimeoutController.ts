@@ -698,13 +698,24 @@ class IdleTimeoutController {
 
       // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
       setTimeout(() => {
-        // PERBAIKAN: Tidak langsung set teks dialog box lagi
-        // karena ini menyebabkan teks muncul langsung tanpa efek typewriter
-        // Sekarang kita sepenuhnya mengandalkan dialogController.showCustomDialog
-        // yang sudah memiliki efek typewriter
-        console.log(
-          "[IdleTimeoutController] Using dialogController.showCustomDialog for typewriter effect"
-        );
+        // Tambahkan pre-check apakah dialog box muncul dan reset jika tidak
+        try {
+          // @ts-ignore
+          if (
+            window.__dialogBoxTextSetter &&
+            typeof window.__dialogBoxTextSetter === "function"
+          ) {
+            // Coba set text langsung via global function untuk memastikan
+            // @ts-ignore
+            window.__dialogBoxTextSetter(text);
+            console.log(
+              "[IdleTimeoutController] Directly set text to dialog box:",
+              text,
+            );
+          }
+        } catch (e) {
+          console.error("Error directly setting dialog text:", e);
+        }
 
         // Tampilkan dialog peringatan dengan text custom
         // Dialog Controller akan mengelola audio secara otomatis
