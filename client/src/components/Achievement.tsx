@@ -388,7 +388,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
             damping: 25,
             duration: 0.4
           }}
-          className="fixed bottom-28 sm:bottom-32 md:bottom-36 lg:bottom-40 right-3 sm:right-4 md:right-6 lg:right-8 z-40 max-w-[85vw] sm:max-w-[340px]"
+          className="fixed top-4 sm:top-5 md:top-6 lg:top-8 right-3 sm:right-4 md:right-6 lg:right-8 z-40 max-w-[85vw] sm:max-w-[340px]"
         >
           {/* Dark Souls style achievement - compact design like the screenshot */}
           <motion.div 
@@ -407,7 +407,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
             }}
           >
             {/* Achievement notification - styled like Dark Souls, responsive width */}
-            <div className="px-3 py-3 sm:px-4 sm:py-3 bg-black/95 border-2 border-amber-500/50 shadow-xl relative overflow-hidden w-[280px] sm:w-72 rounded-sm">
+            <div className="px-2 py-2 sm:px-3 sm:py-3 bg-black/95 border-2 border-amber-500/50 shadow-xl relative overflow-hidden w-[250px] sm:w-[280px] md:w-72 rounded-sm">
               {/* Dark mystical background */}
               <div 
                 className="absolute inset-0" 
@@ -498,7 +498,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
               {/* Dark Souls style inner container - responsive for mobile */}
               <div className="relative z-10 flex items-start py-1">
                 {/* Achievement icon - smaller on mobile */}
-                <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 mr-2 sm:mr-3">
+                <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 mr-1.5 sm:mr-2 md:mr-3">
                   <motion.div 
                     className="text-amber-500/90"
                     animate={{ 
@@ -511,13 +511,13 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                     }}
                   >
                     {/* Dark Souls style icon with golden border and glow */}
-                    <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-sm bg-gradient-to-br from-black to-gray-900 flex items-center justify-center border border-amber-500/40 relative">
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 rounded-sm bg-gradient-to-br from-black to-gray-900 flex items-center justify-center border border-amber-500/40 relative">
                       {/* Icon background glow */}
                       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-amber-900/20 rounded-sm"></div>
                       
                       {/* Achievement type specific icon */}
                       {type === 'approach' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 sm:h-7 sm:w-7" xmlns="http://www.w3.org/2000/svg">
+                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
                           <path d="M19 8l-7-7-7 7v11a2 2 0 002 2h10a2 2 0 002-2V8z" 
                             stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
                           <path d="M9 15l3 3 5-5" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
