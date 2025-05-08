@@ -255,7 +255,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
             damping: 25,
             duration: 0.4
           }}
-          className="fixed top-4 sm:top-5 md:top-6 lg:top-8 right-3 sm:right-4 md:right-6 lg:right-8 z-40 max-w-[85vw] sm:max-w-[340px]"
+          className="fixed bottom-20 sm:bottom-24 md:bottom-28 right-3 sm:right-4 md:right-6 lg:right-8 z-40 max-w-[85vw] sm:max-w-[340px]"
         >
           {/* Dark Souls style achievement - compact design like the screenshot */}
           <motion.div 

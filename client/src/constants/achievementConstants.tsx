@@ -27,15 +27,15 @@ export const AchievementIcons: Record<AchievementType, React.ReactNode> = {
   contract: (
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" 
-        stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
+        stroke="#FFC107" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
       <path d="M7 7h10M7 11h10M7 15h6" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M15 19V5" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" strokeDasharray="1 2" />
+      <path d="M15 19V5" stroke="#FFC107" strokeWidth="0.75" strokeLinecap="round" strokeDasharray="1 2" />
     </svg>
   ),
   document: (
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" 
-        stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
+        stroke="#FFC107" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
       <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       {/* Simbol 'magnifier' yang lebih terlihat untuk menunjukkan dokumen yang dapat dilihat */}
       <circle cx="18" cy="20" r="2" stroke="#FFC107" strokeWidth="1.5" fill="none" />
@@ -48,18 +48,18 @@ export const AchievementIcons: Record<AchievementType, React.ReactNode> = {
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M22 12h-4l-3 9L9 3l-3 9H2" 
         stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M8 16l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" 
+      <path d="M8 16l4 4 4-4" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" 
         fill="currentColor" fillOpacity="0.2" />
-      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
+      <circle cx="12" cy="12" r="3" stroke="#FFC107" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
     </svg>
   ),
   anger: (
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" 
-        stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
+        stroke="#FFC107" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
       <path d="M12 8v8M8 12h8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
       <path d="M15 9l-3-3-3 3M15 15l-3 3-3-3M9 15l-3-3 3-3M15 9l3 3-3 3" 
-        stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.7" />
+        stroke="#FFC107" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.7" />
     </svg>
   ),
   nightmare: (
