@@ -1,4 +1,4 @@
-import { AchievementType } from '../components/Achievement';
+import { AchievementType } from '../constants/achievementConstants';
 
 // Key untuk local storage
 const ACHIEVEMENTS_KEY = 'diva-juan-achievements';

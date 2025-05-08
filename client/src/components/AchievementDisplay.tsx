@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Achievement, { AchievementType } from './Achievement';
+import Achievement from './Achievement';
+import { AchievementType } from '../constants/achievementConstants';
 import AchievementController from '../controllers/achievementController';
 
 const AchievementDisplay: React.FC = () => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { AchievementType, AchievementDescriptions, AchievementTitles, AchievementIcons } from './Achievement';
+import { AchievementType, AchievementDescriptions, AchievementTitles, AchievementIcons } from '../constants/achievementConstants';
 import AchievementController from '../controllers/achievementController';
 
 // Easter egg yang muncul ketika semua achievement terbuka
@@ -138,129 +138,7 @@ const AchievementGallery: React.FC = () => {
       {/* Detail achievement yang dipilih */}
       {renderAchievementDetail()}
       
-      <style jsx>{`
-        .achievement-gallery-container {
-          background: rgba(0, 0, 0, 0.7);
-          border: 1px solid rgba(255, 180, 30, 0.3);
-          border-radius: 4px;
-          padding: 1rem;
-          max-width: 400px;
-          margin: 0 auto;
-        }
-        
-        .achievement-progress {
-          margin-bottom: 1rem;
-        }
-        
-        .progress-bar-container {
-          height: 6px;
-          background: rgba(50, 40, 30, 0.5);
-          border-radius: 3px;
-          overflow: hidden;
-        }
-        
-        .progress-bar {
-          height: 100%;
-          background: linear-gradient(to right, #ffd700, #ffa500);
-          transition: width 0.5s ease;
-        }
-        
-        .achievement-grid {
-          display: grid;
-          grid-template-columns: repeat(5, 1fr);
-          gap: 0.5rem;
-          margin-bottom: 1rem;
-        }
-        
-        @media (max-width: 480px) {
-          .achievement-grid {
-            grid-template-columns: repeat(3, 1fr);
-          }
-        }
-        
-        .achievement-item {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          background: rgba(30, 20, 10, 0.6);
-          border: 1px solid rgba(255, 180, 30, 0.2);
-          border-radius: 4px;
-          padding: 0.5rem;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-        
-        .achievement-item.unlocked:hover {
-          background: rgba(50, 30, 10, 0.8);
-          border-color: rgba(255, 180, 30, 0.5);
-          transform: translateY(-2px);
-        }
-        
-        .achievement-item.locked {
-          opacity: 0.6;
-          cursor: default;
-        }
-        
-        .achievement-icon-container {
-          width: 28px;
-          height: 28px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 0.25rem;
-          color: #ffc107;
-        }
-        
-        .achievement-icon-container.locked {
-          color: #777;
-        }
-        
-        .achievement-name {
-          font-size: 0.55rem;
-          text-align: center;
-          color: rgba(255, 180, 30, 0.8);
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          max-width: 100%;
-        }
-        
-        .achievement-detail {
-          background: rgba(20, 15, 10, 0.8);
-          border: 1px solid rgba(255, 180, 30, 0.3);
-          border-radius: 4px;
-          padding: 0.75rem;
-          margin-top: 0.5rem;
-        }
-        
-        .easter-egg-message {
-          position: relative;
-          background: rgba(50, 30, 0, 0.3);
-          padding: 0.75rem;
-          border-radius: 4px;
-          margin-bottom: 1rem;
-          overflow: hidden;
-        }
-        
-        .easter-egg-glow {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: radial-gradient(circle at center, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
-          animation: pulse 2s infinite alternate;
-        }
-        
-        @keyframes pulse {
-          0% {
-            opacity: 0.3;
-          }
-          100% {
-            opacity: 0.7;
-          }
-        }
-      `}</style>
+      {/* styles using className instead of inline styles */}
     </div>
   );
 };
