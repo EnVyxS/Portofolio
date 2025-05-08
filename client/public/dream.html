@@ -1242,11 +1242,17 @@
                 // Function to unlock an achievement
                 function unlockAchievement(type) {
                     const achievements = loadAchievements();
-                    if (!achievements.has(type)) {
+                    // FIXED: Selalu munculkan achievement notification (showAchievement) meskipun achievement sudah ada
+                    // Namun kita tetap menambahkan achievement ke localStorage jika belum ada
+                    const isNewAchievement = !achievements.has(type);
+                    
+                    if (isNewAchievement) {
                         achievements.add(type);
                         saveAchievements(achievements);
-                        showAchievement(type);
                     }
+                    
+                    // Selalu tampilkan notifikasi achievement
+                    showAchievement(type);
                 }
                 
                 // Function to show achievement
