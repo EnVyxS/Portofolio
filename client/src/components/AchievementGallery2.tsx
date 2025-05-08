@@ -5,6 +5,7 @@ import {
   AchievementDescriptions,
   AchievementTitles,
   AchievementIcons,
+  AchievementCriteria,
 } from "../constants/achievementConstants";
 import AchievementController from "../controllers/achievementController";
 
@@ -24,6 +25,9 @@ const AchievementGallery: React.FC = () => {
   const [selectedAchievement, setSelectedAchievement] =
     useState<AchievementType | null>(null);
   const [showEasterEgg, setShowEasterEgg] = useState(false);
+  
+  // State untuk hover tooltip
+  const [hoveredAchievement, setHoveredAchievement] = useState<AchievementType | null>(null);
 
   // Daftar semua achievement yang mungkin
   const allAchievements: AchievementType[] = [
@@ -148,11 +152,18 @@ const AchievementGallery: React.FC = () => {
             ? AchievementTitles[selectedAchievement]
             : MYSTERIOUS_TITLE}
         </h3>
-        <p className="text-amber-300/70 text-xs">
+        <p className="text-amber-300/70 text-xs mb-2">
           {isUnlocked
             ? AchievementDescriptions[selectedAchievement]
             : MYSTERIOUS_DESCRIPTION}
         </p>
+        
+        {isUnlocked && (
+          <div className="achievement-criteria">
+            <div className="criteria-title">How to unlock:</div>
+            <div className="criteria-content">{AchievementCriteria[selectedAchievement]}</div>
+          </div>
+        )}
       </motion.div>
     );
   };
@@ -220,6 +231,8 @@ const AchievementGallery: React.FC = () => {
             key={achievement}
             className={`achievement-item ${isUnlocked(achievement) ? "unlocked" : "locked"}`}
             onClick={() => handleAchievementClick(achievement)}
+            onMouseEnter={() => setHoveredAchievement(achievement)}
+            onMouseLeave={() => setHoveredAchievement(null)}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05, duration: 0.3 }}
@@ -232,6 +245,24 @@ const AchievementGallery: React.FC = () => {
                 ? AchievementTitles[achievement]
                 : MYSTERIOUS_TITLE}
             </div>
+            
+            {/* Tooltip untuk kriteria unlocking */}
+            {hoveredAchievement === achievement && (
+              <motion.div 
+                className="achievement-tooltip"
+                initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="tooltip-title">How to unlock:</div>
+                <div className="tooltip-content">
+                  {isUnlocked(achievement) 
+                    ? AchievementCriteria[achievement]
+                    : "This achievement is still locked. Continue exploring!"}
+                </div>
+                <div className="tooltip-arrow"></div>
+              </motion.div>
+            )}
           </motion.div>
         ))}
       </div>
@@ -558,6 +589,95 @@ const AchievementGallery: React.FC = () => {
           color: rgba(255, 215, 0, 0.7);
           margin-top: 5px;
           font-weight: 500;
+        }
+        
+        /* Tooltip styling */
+        .achievement-tooltip {
+          position: absolute;
+          bottom: calc(100% + 10px);
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(20, 20, 20, 0.95);
+          border: 1px solid rgba(255, 215, 0, 0.5);
+          border-radius: 6px;
+          padding: 10px 12px;
+          width: 180px;
+          z-index: 100;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 215, 0, 0.2);
+          pointer-events: none;
+        }
+        
+        .tooltip-title {
+          font-size: 11px;
+          font-weight: 600;
+          color: rgba(255, 215, 0, 0.9);
+          margin-bottom: 5px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .tooltip-content {
+          font-size: 11px;
+          color: rgba(255, 255, 255, 0.9);
+          line-height: 1.4;
+        }
+        
+        .tooltip-arrow {
+          position: absolute;
+          bottom: -6px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 12px;
+          height: 6px;
+          overflow: hidden;
+        }
+        
+        .tooltip-arrow::after {
+          content: '';
+          position: absolute;
+          top: -6px;
+          left: 0;
+          width: 12px;
+          height: 12px;
+          background: rgba(20, 20, 20, 0.95);
+          border: 1px solid rgba(255, 215, 0, 0.5);
+          transform: rotate(45deg);
+          border-radius: 2px;
+        }
+        
+        /* Animation for tooltip */
+        @keyframes tooltipFadeIn {
+          from { opacity: 0; transform: translateY(5px) translateX(-50%); }
+          to { opacity: 1; transform: translateY(0) translateX(-50%); }
+        }
+        
+        .achievement-item.locked .achievement-tooltip .tooltip-content {
+          font-style: italic;
+          color: rgba(255, 215, 0, 0.6);
+        }
+        
+        /* Styles for criteria in achievement detail */
+        .achievement-criteria {
+          margin-top: 8px;
+          padding-top: 8px;
+          border-top: 1px dashed rgba(255, 215, 0, 0.3);
+        }
+        
+        .criteria-title {
+          font-size: 10px;
+          font-weight: 600;
+          color: rgba(255, 215, 0, 0.9);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 4px;
+        }
+        
+        .criteria-content {
+          font-size: 10px;
+          color: rgba(255, 255, 255, 0.85);
+          line-height: 1.4;
+          font-style: italic;
         }
         
         .progress-bar::after {

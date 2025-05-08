@@ -157,3 +157,19 @@ export const AchievementDescriptions: Record<AchievementType, string> = {
   escape: 'You\'ve found your way out of the dream world and returned to reality.',
   social: 'You\'ve shared this interactive experience with your network.'
 };
+
+// Kriteria untuk mendapatkan achievement
+export const AchievementCriteria: Record<AchievementType, string> = {
+  approach: 'Press the "APPROACH HIM" button on the homepage.',
+  contract: 'Click on the contract option during the conversation.',
+  document: 'View the detailed documents in the contract section.',
+  success: 'Complete a successful connection by clicking the contract link.',
+  anger: 'Interrupt DIVA JUAN repeatedly during his speech.',
+  nightmare: 'Experience the nightmare sequence after making him angry.',
+  listener: 'Listen to the entire dialogue without interrupting.',
+  patience: 'Stay on the page for over 9 minutes without interaction.',
+  return: 'Come back after being thrown out of the conversation.',
+  hover: 'Hover over elements after being reset to the approach screen.',
+  escape: 'Find and click the "WAKE UP" button to escape from the nightmare.',
+  social: 'Share the portfolio on social media using the share button.'
+};
