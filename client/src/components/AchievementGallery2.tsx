@@ -9,6 +9,7 @@ import {
 } from "../constants/achievementConstants";
 import AchievementController from "../controllers/achievementController";
 import AchievementSharing from "./AchievementSharing";
+import AnimatedProgressBar from "./AnimatedProgressBar";
 
 // Easter egg yang muncul ketika semua achievement terbuka
 const EASTER_EGG_MESSAGE = "You have conquered all the Diva Juan challenges!";
@@ -204,26 +205,16 @@ const AchievementGallery: React.FC = () => {
         </motion.div>
       )}
 
-      {/* Progress bar */}
-      <motion.div className="achievement-progress mb-6">
-        <div className="progress-label">
-          <span className="progress-title">Achievement Progress</span>
-          <span className="progress-count">{unlockedAchievements.length} / {allAchievements.length}</span>
-        </div>
-        <div className="progress-bar-container">
-          <motion.div
-            className="progress-bar"
-            initial={{ width: 0 }}
-            animate={{
-              width: `${(unlockedAchievements.length / allAchievements.length) * 100}%`,
-            }}
-            transition={{ duration: 1, ease: "easeOut" }}
-          ></motion.div>
-        </div>
-        <div className="progress-percentage">
-          {Math.round((unlockedAchievements.length / allAchievements.length) * 100)}% Complete
-        </div>
-      </motion.div>
+      {/* Progress bar with animation and particle effects */}
+      <AnimatedProgressBar 
+        progress={unlockedAchievements.length / allAchievements.length}
+        total={allAchievements.length}
+        current={unlockedAchievements.length}
+        className="mb-6"
+        showParticles={true}
+        height={10}
+        isAccessible={true}
+      />
 
       {/* Grid achievement */}
       <div className="achievement-grid">
