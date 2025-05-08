@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useAudio } from '../context/AudioManager';
 import AchievementController from '../controllers/achievementController';
+import AchievementProgress from '../components/AchievementProgress';
 import gifPath from '/assets/darksouls.gif';
 
 interface ApproachScreenProps {
