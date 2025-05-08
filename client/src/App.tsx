@@ -16,6 +16,7 @@ import { useIsMobile } from "./hooks/use-mobile";
 import ContractCard from "./components/ContractCard";
 import AchievementDisplay from "./components/AchievementDisplay";
 import AchievementController from "./controllers/achievementController";
+import SettingsPage from "./components/SettingsPage";
 
 // Cookie functions for nightmare trap
 function getCookie(name: string) {
@@ -44,6 +45,7 @@ function MainApp() {
     "throw" | "punch" | "none"
   >("none");
   const [wasReset, setWasReset] = useState<boolean>(false); // Untuk menandai jika user telah dilempar oleh DIVA JUAN
+  const [showSettings, setShowSettings] = useState<boolean>(false); // State untuk menampilkan halaman pengaturan
   const {
     isAudioPlaying,
     playAudio,

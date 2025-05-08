@@ -160,6 +160,24 @@ class AchievementController {
     this.saveAchievements();
     this.saveAchievementTimestamps();
   }
+  
+  // Reset semua achievements (untuk user)
+  public resetAllAchievements(): void {
+    this.unlockedAchievements.clear();
+    this.achievementTimestamps = [];
+    
+    // Hapus data dari localStorage
+    try {
+      localStorage.removeItem(ACHIEVEMENTS_KEY);
+      localStorage.removeItem(ACHIEVEMENT_TIMESTAMPS_KEY);
+      console.log('All achievements have been reset');
+    } catch (e) {
+      console.error('Error removing achievement data from localStorage:', e);
+      // Fallback jika removeItem gagal
+      this.saveAchievements();
+      this.saveAchievementTimestamps();
+    }
+  }
 }
 
 export default AchievementController;
