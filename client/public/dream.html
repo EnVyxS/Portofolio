@@ -983,12 +983,47 @@
 
                     // Remove trapped cookie
                     deleteCookie("nightmareTrapped");
+                    
+                    // Unlock the escape achievement
+                    const achievementType = 'escape';
+                    
+                    // Save achievement to localStorage for portfolio_achievements
+                    try {
+                        // For the new 'diva-juan-achievements' format
+                        const ACHIEVEMENTS_KEY = 'diva-juan-achievements';
+                        let achievements = [];
+                        const savedData = localStorage.getItem(ACHIEVEMENTS_KEY);
+                        
+                        if (savedData) {
+                            try {
+                                achievements = JSON.parse(savedData);
+                                if (!Array.isArray(achievements)) {
+                                    achievements = [];
+                                }
+                            } catch (e) {
+                                console.error('Error parsing achievements data:', e);
+                                achievements = [];
+                            }
+                        }
+                        
+                        // Only add if not already present
+                        if (!achievements.includes(achievementType)) {
+                            achievements.push(achievementType);
+                            localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(achievements));
+                            console.log(`Achievement "${achievementType}" saved to localStorage with new format`);
+                            
+                            // Also show the achievement notification
+                            unlockAchievement(achievementType);
+                        }
+                    } catch (e) {
+                        console.error('Failed to save achievement to localStorage:', e);
+                    }
 
                     // Flash before exiting
                     const flash = document.getElementById("flash");
                     flash.style.opacity = 1;
 
-                    // Fade out after a delay
+                    // Fade out after a delay but give time for achievement to be shown
                     setTimeout(function () {
                         document.body.style.transition = "opacity 2s ease-out";
                         document.body.style.opacity = "0";
@@ -997,7 +1032,7 @@
                         setTimeout(function () {
                             window.location.href = "/";
                         }, 2000);
-                    }, 300);
+                    }, 800); // Longer delay to allow achievement to be seen
                 });
             }
 
@@ -1218,11 +1253,13 @@
                 function showAchievement(type) {
                     // Achievement data
                     const titles = {
-                        'nightmare': 'DIGITAL ODYSSEY'
+                        'nightmare': 'DIGITAL ODYSSEY',
+                        'escape': 'DREAM ESCAPIST'
                     };
                     
                     const descriptions = {
-                        'nightmare': 'You discovered the creative side of this digital portfolio.'
+                        'nightmare': 'You discovered the creative side of this digital portfolio.',
+                        'escape': 'You\'ve found your way out of the dream world and returned to reality.'
                     };
                     
                     // Create achievement element - Dark Souls style minimalist
