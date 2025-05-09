@@ -188,8 +188,25 @@ function MainApp() {
   useEffect(() => {
     // Reset timer jika user kembali dari approach screen setelah dilempar
     if (approachClicked && wasReset && idleTimeoutControllerRef.current) {
-      // Reset idle timers after reset
-      idleTimeoutControllerRef.current.resetAll();
+      // JANGAN memanggil resetAll() karena akan menghapus state hasBeenReset yang dibutuhkan
+      // untuk menampilkan HOVER_AFTER_RESET dialog
+      
+      // Sebagai gantinya, reset hanya timer-timer
+      idleTimeoutControllerRef.current.clearAllIdleTimers();
+      idleTimeoutControllerRef.current.clearAllHoverTimers();
+      
+      // Reset status warning tanpa menghapus hasBeenReset
+      try {
+        // Set properti hasBeenReset = true secara eksplisit
+        // @ts-ignore - private property access
+        idleTimeoutControllerRef.current.hasBeenReset = true;
+        // @ts-ignore - private property access
+        idleTimeoutControllerRef.current.hasInteractedAfterReset = false;
+        
+        console.log("[App] Mempertahankan hasBeenReset = true untuk menampilkan HOVER_AFTER_RESET");
+      } catch (e) {
+        console.error("[App] Error mengakses properti IdleTimeoutController:", e);
+      }
 
       // Mulai timer hover berlebihan
       setTimeout(() => {
