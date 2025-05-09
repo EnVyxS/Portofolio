@@ -301,28 +301,93 @@ const GameContactCard: React.FC = () => {
           margin-bottom: 0.3rem;
         }
         
+        .share-button-container {
+          margin-top: 10px;
+          position: relative;
+        }
+        
         .card-share-button {
           width: 100%;
-          font-size: 0.6rem !important;
-          padding: 4px 8px !important;
-          background: rgba(30, 25, 20, 0.7) !important;
-          border: 1px solid rgba(150, 130, 100, 0.4) !important;
-          color: rgba(150, 130, 100, 0.9) !important;
-          border-radius: 0 !important;
+          font-size: 0.7rem !important;
+          letter-spacing: 0.5px;
+          padding: 6px 12px !important;
+          background: rgba(30, 25, 20, 0.85) !important;
+          background-image: linear-gradient(to bottom, rgba(180, 160, 120, 0.15) 0%, rgba(20, 15, 10, 0) 100%) !important;
+          border: 1px solid rgba(180, 160, 120, 0.5) !important;
+          border-bottom: 1px solid rgba(120, 100, 80, 0.6) !important;
+          color: rgba(220, 200, 160, 1) !important;
+          border-radius: 3px !important;
           justify-content: center;
-          box-shadow: none !important;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) !important;
           transition: all 0.3s ease;
+          transform: translateY(0);
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        /* Dark Souls style glowing effect */
+        .card-share-button::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 70%;
+          height: 100%;
+          background: linear-gradient(
+            90deg, 
+            transparent 0%, 
+            rgba(255, 215, 120, 0.08) 50%,
+            transparent 100%
+          );
+          transition: left 0.7s ease;
         }
         
         .card-share-button:hover {
-          background: rgba(40, 35, 30, 0.8) !important;
-          border-color: rgba(180, 160, 120, 0.6) !important;
-          color: rgba(200, 175, 130, 1) !important;
+          background: rgba(40, 35, 30, 0.9) !important;
+          background-image: linear-gradient(to bottom, rgba(200, 180, 140, 0.2) 0%, rgba(30, 25, 20, 0) 100%) !important;
+          border-color: rgba(220, 200, 160, 0.7) !important;
+          color: rgba(255, 220, 170, 1) !important;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), 0 0 4px rgba(255, 215, 120, 0.3) !important;
+        }
+        
+        .card-share-button:hover::after {
+          left: 100%;
+        }
+        
+        .card-share-button:active {
+          transform: translateY(1px);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
         }
         
         .card-share-button svg {
-          width: 14px !important;
-          height: 14px !important;
+          width: 15px !important;
+          height: 15px !important;
+          filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+          margin-right: 5px;
+        }
+        
+        /* Additional decorative elements for Dark Souls theme */
+        .card-share-button::before {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(
+            to right,
+            transparent,
+            rgba(255, 215, 120, 0.5),
+            transparent
+          );
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+        
+        .card-share-button:hover::before {
+          opacity: 1;
         }
 
         /* Tablet devices (maintain position on right side) */
