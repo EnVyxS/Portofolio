@@ -59,10 +59,21 @@ class AchievementController {
   
   // Unlock achievement baru
   public unlockAchievement(type: AchievementType, forceNotification: boolean = false): void {
-    // Jika achievement 'nightmare' dan tidak pada halaman dream.html, abaikan
+    // Cek apakah nightmare achievement masih ada di localStorage dari dream.html
     if (type === 'nightmare' && !this.isDreamPage) {
-      console.log('Nightmare achievement will only be shown on dream.html page');
-      return;
+      try {
+        const savedData = localStorage.getItem(ACHIEVEMENTS_KEY);
+        if (savedData) {
+          const achievements = JSON.parse(savedData) as AchievementType[];
+          if (achievements.includes('nightmare')) {
+            // Jika ada di localStorage, tambahkan ke daftar unlockedAchievements
+            this.unlockedAchievements.add('nightmare');
+            console.log('Nightmare achievement found in localStorage and added to unlocked achievements');
+          }
+        }
+      } catch (e) {
+        console.error('Error checking for nightmare achievement:', e);
+      }
     }
     
     console.log(`Showing achievement: ${type}, forceNotification: ${forceNotification}`);

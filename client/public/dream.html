@@ -1023,16 +1023,135 @@
                     const flash = document.getElementById("flash");
                     flash.style.opacity = 1;
 
-                    // Fade out after a delay but give time for achievement to be shown
-                    setTimeout(function () {
-                        document.body.style.transition = "opacity 2s ease-out";
-                        document.body.style.opacity = "0";
-
-                        // Redirect back to main page
-                        setTimeout(function () {
-                            window.location.href = "/";
-                        }, 2000);
-                    }, 800); // Longer delay to allow achievement to be seen
+                    // Create a full-screen centered achievement overlay
+                    const achievementOverlay = document.createElement('div');
+                    achievementOverlay.className = 'centered-achievement-overlay';
+                    achievementOverlay.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(0, 0, 0, 0.95);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 9999;
+                        opacity: 0;
+                        transition: opacity 0.5s ease-in;
+                    `;
+                    document.body.appendChild(achievementOverlay);
+                    
+                    // Create the centered achievement notification
+                    const centeredAchievement = document.createElement('div');
+                    centeredAchievement.className = 'centered-achievement';
+                    centeredAchievement.innerHTML = `
+                        <div class="achievement-inner" style="
+                            background: rgba(15, 15, 15, 0.95);
+                            border: 2px solid rgba(255, 193, 7, 0.6);
+                            padding: 20px;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            max-width: 90vw;
+                            width: 400px;
+                            box-shadow: 0 0 30px rgba(255, 193, 7, 0.2);
+                            position: relative;
+                            overflow: hidden;
+                        ">
+                            <div class="achievement-fog" style="
+                                position: absolute;
+                                inset: 0;
+                                background: radial-gradient(ellipse at center, rgba(255, 193, 7, 0.1), transparent 70%);
+                                pointer-events: none;
+                            "></div>
+                            <div class="achievement-title" style="
+                                color: rgba(255, 193, 7, 0.9);
+                                font-size: 18px;
+                                margin-bottom: 10px;
+                                text-align: center;
+                                font-weight: bold;
+                            ">
+                                ACHIEVEMENT UNLOCKED
+                            </div>
+                            <div class="achievement-icon" style="
+                                width: 80px;
+                                height: 80px;
+                                background: rgba(20, 20, 20, 0.7);
+                                border: 1px solid rgba(255, 193, 7, 0.5);
+                                border-radius: 50%;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                margin-bottom: 15px;
+                                position: relative;
+                                box-shadow: 0 0 15px rgba(255, 193, 7, 0.3);
+                            ">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 45px; height: 45px;">
+                                    <path d="M3 8l9-5 9 5v8l-9 5-9-5V8z" 
+                                        stroke="rgba(255, 193, 7, 0.9)" stroke-width="1.5" fill="rgba(255, 193, 7, 0.2)" />
+                                    <path d="M12 3v9M12 12l9-4M12 12l-9-4" stroke="rgba(255, 193, 7, 0.9)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M15 16l-3 3-3-3M12 12v7" stroke="rgba(255, 193, 7, 0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div style="
+                                    position: absolute;
+                                    inset: 0;
+                                    border-radius: 50%;
+                                    box-shadow: inset 0 0 10px rgba(255, 193, 7, 0.2);
+                                "></div>
+                            </div>
+                            <div class="achievement-name" style="
+                                color: rgba(255, 255, 255, 0.95);
+                                font-size: 24px;
+                                margin-bottom: 10px;
+                                text-align: center;
+                                font-weight: bold;
+                                text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+                            ">
+                                DREAM ESCAPIST
+                            </div>
+                            <div class="achievement-desc" style="
+                                color: rgba(255, 255, 255, 0.8);
+                                font-size: 16px;
+                                text-align: center;
+                                max-width: 320px;
+                                line-height: 1.4;
+                            ">
+                                You've found your way out of the dream world and returned to reality.
+                            </div>
+                        </div>
+                    `;
+                    achievementOverlay.appendChild(centeredAchievement);
+                    
+                    // Fade in the overlay
+                    setTimeout(() => {
+                        achievementOverlay.style.opacity = '1';
+                        
+                        // Play achievement sound
+                        try {
+                            const createAchievementSound = window.createAchievementSound;
+                            if (createAchievementSound && typeof createAchievementSound === 'function') {
+                                const playAchievementSound = createAchievementSound();
+                                if (playAchievementSound) {
+                                    playAchievementSound();
+                                }
+                            }
+                        } catch (e) {
+                            console.error("Error playing achievement sound:", e);
+                        }
+                        
+                        // Show for 3 seconds, then fade out and redirect
+                        setTimeout(() => {
+                            achievementOverlay.style.opacity = '0';
+                            document.body.style.transition = "opacity 1.5s ease-out";
+                            document.body.style.opacity = "0";
+                            
+                            // Redirect back to main page after fade out
+                            setTimeout(() => {
+                                window.location.href = "/";
+                            }, 1500);
+                        }, 3000);
+                    }, 200);
                 });
             }
 

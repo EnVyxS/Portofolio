@@ -442,6 +442,48 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                         </svg>
                       )}
                       
+                      {type === 'patience' && (
+                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="12" cy="12" r="9" stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.2)" />
+                          <path d="M12 8v4l3 3" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M7 12a5 5 0 0110 0" stroke="#FFC107" strokeWidth="1" strokeDasharray="1 1" />
+                        </svg>
+                      )}
+                      
+                      {type === 'return' && (
+                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M21 3h-7a2 2 0 00-2 2v14a2 2 0 002 2h7a2 2 0 002-2V5a2 2 0 00-2-2z" 
+                            stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.2)" />
+                          <path d="M1 12h12M8 7l-7 5 7 5" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                      
+                      {type === 'hover' && (
+                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
+                          <rect x="2" y="5" width="20" height="14" rx="2" 
+                            stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.2)" />
+                          <path d="M8 12h8M12 8v8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      )}
+                      
+                      {type === 'escape' && (
+                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3 8l9-5 9 5v8l-9 5-9-5V8z" 
+                            stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.2)" />
+                          <path d="M12 3v9M12 12l9-4M12 12l-9-4" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M15 16l-3 3-3-3M12 12v7" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                      
+                      {type === 'social' && (
+                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="18" cy="5" r="3" stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.2)" />
+                          <circle cx="6" cy="12" r="3" stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.2)" />
+                          <circle cx="18" cy="19" r="3" stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.2)" />
+                          <path d="M9 10.5l7.5-3.5M9 13.5l7.5 3.5" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      )}
+                      
                       {/* Small glowing accent in corner */}
                       <div className="absolute top-[2px] right-[2px] h-1 w-1 bg-amber-400 rounded-full opacity-80"></div>
                     </div>
