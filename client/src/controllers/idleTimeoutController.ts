@@ -566,11 +566,12 @@ class IdleTimeoutController {
             if (isComplete) {
               console.log("[IdleTimeoutController] HOVER_AFTER_RESET dialog completed");
               
-              // Unlock achievement untuk hover setelah reset
+              // Unlock achievement untuk hover setelah reset, dengan force notification
               try {
                 const achievementController = AchievementController.getInstance();
-                achievementController.unlockAchievement('hover');
-                console.log("[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset");
+                // Force notification untuk memastikan selalu muncul
+                achievementController.unlockAchievement('hover', true);
+                console.log("[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset with forced notification");
               } catch (error) {
                 console.error("Failed to unlock hover achievement:", error);
               }
