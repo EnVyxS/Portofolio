@@ -116,6 +116,11 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
     setIsClicked(true);
     setHasInteracted(true); // Trigger audio to play with volume full
     
+    // Explicitly play the background music if it's not already playing
+    if (!isAudioPlaying) {
+      playAudio();
+    }
+    
     // Sembunyikan achievement progress
     const achievementElement = document.querySelector('.achievement-progress-indicator');
     if (achievementElement) {
