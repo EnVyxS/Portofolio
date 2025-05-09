@@ -624,17 +624,18 @@ class IdleTimeoutController {
 
       // Final warning setelah 9 menit
       if (text.includes("staring at me for nine damn minutes")) {
-        achievementController.unlockAchievement("patience");
+        // Force notification parameter = true untuk memastikan muncul notifikasi
+        achievementController.unlockAchievement("patience", true);
         console.log(
-          "[IdleTimeoutController] Unlocked 'patience' achievement for staring at screen",
+          "[IdleTimeoutController] Unlocked 'patience' achievement for staring at screen with forced notification",
         );
       }
 
       // Dialog setelah reset
       else if (text.includes("Now what, you little filth")) {
-        achievementController.unlockAchievement("return");
+        achievementController.unlockAchievement("return", true);
         console.log(
-          "[IdleTimeoutController] Unlocked 'return' achievement for returning after reset",
+          "[IdleTimeoutController] Unlocked 'return' achievement for returning after reset with forced notification",
         );
       }
 
