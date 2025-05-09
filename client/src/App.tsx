@@ -57,7 +57,7 @@ function MainApp() {
   // Reference ke IdleTimeoutController
   const idleTimeoutControllerRef = useRef<IdleTimeoutController | null>(null);
 
-  // Check if user is trapped in nightmare or returning from nightmare
+  // Check if user is trapped in nightmare
   useEffect(() => {
     // Check if user is trapped in nightmare
     if (
@@ -67,19 +67,10 @@ function MainApp() {
       // Redirect to dream.html if trapped
       console.log("User is trapped in nightmare, redirecting to dream.html");
       window.location.href = "/dream.html";
-    } 
-    // Check if user just escaped from nightmare
-    else if (getCookie("nightmareEscaped") === "true") {
-      // Unlock achievement with forced notification
-      try {
-        console.log("[App] User escaped from nightmare, unlocking achievement");
-        const achievementController = AchievementController.getInstance();
-        // Force notification even if achievement was already earned
-        achievementController.unlockAchievement('escape', true);
-      } catch (error) {
-        console.error("[App] Failed to unlock escape achievement:", error);
-      }
     }
+    // Catatan: kode untuk escape achievement dipindahkan ke dream.html
+    // Achievement "escape" sekarang ditampilkan langsung di dream.html dengan jeda
+    // 3 detik sebelum kembali ke halaman utama
   }, []);
 
   const handleDialogComplete = () => {

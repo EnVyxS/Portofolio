@@ -1022,17 +1022,25 @@
                     // Flash before exiting
                     const flash = document.getElementById("flash");
                     flash.style.opacity = 1;
-
-                    // Fade out after a delay but give time for achievement to be shown
-                    setTimeout(function () {
-                        document.body.style.transition = "opacity 2s ease-out";
-                        document.body.style.opacity = "0";
-
-                        // Redirect back to main page
+                    
+                    // Pertama, tampilkan achievement (menunda fadeout untuk menampilkannya selama beberapa detik)
+                    setTimeout(function() {
+                        // Setelah 500ms tampilkan achievement
+                        console.log("Showing escape achievement notification in dream.html");
+                        showAchievement('escape');
+                        
+                        // Fade out setelah achievement ditampilkan selama 3 detik
                         setTimeout(function () {
-                            window.location.href = "/";
-                        }, 2000);
-                    }, 800); // Longer delay to allow achievement to be seen
+                            console.log("Starting fade out transition");
+                            document.body.style.transition = "opacity 2s ease-out";
+                            document.body.style.opacity = "0";
+                            
+                            // Redirect back to main page setelah fadeout
+                            setTimeout(function () {
+                                window.location.href = "/";
+                            }, 2000);
+                        }, 3000); // Menunggu 3 detik untuk memberikan waktu achievement dilihat
+                    }, 500); // Jeda kecil untuk memastikan flash animasi terlihat
                 });
             }
 
@@ -1553,9 +1561,12 @@
                 }
                 
                 // Unlock nightmare achievement when page loads
+                // Increased wait time untuk memberikan waktu page selesai loading + lebih 
+                // menarik perhatian user
                 setTimeout(() => {
+                    console.log("Unlocking nightmare achievement");
                     unlockAchievement('nightmare');
-                }, 2000); // Wait 2 seconds after loading
+                }, 3500); // Wait 3.5 seconds after loading untuk memastikan page sudah benar-benar siap
             }
 
             // Initialize everything
