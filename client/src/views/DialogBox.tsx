@@ -504,26 +504,15 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
               ) : // Only show auto-continue hint for main dialog and not for other types
               // Check if it's not a hover dialog, idle warning, or contract response
               dialogSource === "main" &&
-                // Filter out all idle warnings and angry dialog phrases
-                !text.includes("What the hell are you staring at") && // FIRST_WARNING
-                !text.includes("You really gonna keep ignoring me") && // SECOND_WARNING
-                !text.includes("You think this is funny") && // FINAL_WARNING
-                !text.includes("Staring at me") && 
-                !text.includes("nine damn minutes") && // Untuk FINAL_WARNING idle (9 menit)
-                !text.includes("Now what, you little filth") && // RETURN_DIALOG
-                !text.includes("Back for more punishment") && // Bagian dari RETURN_DIALOG
-                !text.includes("Finally, you decide to move") && // HOVER_AFTER_RESET
-                !text.includes("KEEP PUSHING") && // EXCESSIVE_HOVER_WARNING
-                !text.includes("I'VE HAD ENOUGH") && // FINAL_HOVER_WARNING
-                !text.includes("GET OUT OF MY SIGHT") && // throwText
-                !text.includes("fuck") && 
+                !text.includes("fuck") && // Idle timeout and angry dialog phrases
                 !text.includes("ENOUGH") &&
                 !text.includes("GET OUT") &&
                 !text.includes("ASKED FOR THIS") &&
+                !text.includes("KEEP PUSHING") &&
+                !text.includes("Staring at me") &&
                 !text.includes("throw") &&
                 !text.includes("punch") &&
-                // Filter out contract responses
-                !text.includes("I've never lied to you") && 
+                !text.includes("I've never lied to you") && // Contract responses specific phrases
                 !text.includes("seen the proof") &&
                 !text.includes("real qualifications") &&
                 !text.includes("answer your questions about my background") &&

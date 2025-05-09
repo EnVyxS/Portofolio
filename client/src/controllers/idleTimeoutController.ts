@@ -566,12 +566,11 @@ class IdleTimeoutController {
             if (isComplete) {
               console.log("[IdleTimeoutController] HOVER_AFTER_RESET dialog completed");
               
-              // Unlock achievement untuk hover setelah reset, dengan force notification
+              // Unlock achievement untuk hover setelah reset
               try {
                 const achievementController = AchievementController.getInstance();
-                // Force notification untuk memastikan selalu muncul
-                achievementController.unlockAchievement('hover', true);
-                console.log("[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset with forced notification");
+                achievementController.unlockAchievement('hover');
+                console.log("[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset");
               } catch (error) {
                 console.error("Failed to unlock hover achievement:", error);
               }
@@ -624,31 +623,24 @@ class IdleTimeoutController {
       const achievementController = AchievementController.getInstance();
 
       // Final warning setelah 9 menit
-      if (text.includes("staring at me for nine damn minutes") || 
-          text.includes("You think this is funny") || 
-          text.includes("nine minutes")) {
-        // Force notification untuk memastikan selalu muncul
-        achievementController.unlockAchievement("patience", true);
+      if (text.includes("staring at me for nine damn minutes")) {
+        achievementController.unlockAchievement("patience");
         console.log(
           "[IdleTimeoutController] Unlocked 'patience' achievement for staring at screen",
         );
       }
 
       // Dialog setelah reset
-      else if (text.includes("Now what, you little filth") || 
-              text.includes("Back for more punishment")) {
-        // Force notification untuk memastikan selalu muncul
-        achievementController.unlockAchievement("return", true); 
+      else if (text.includes("Now what, you little filth")) {
+        achievementController.unlockAchievement("return");
         console.log(
           "[IdleTimeoutController] Unlocked 'return' achievement for returning after reset",
         );
       }
 
       // Dialog setelah hover
-      else if (text.includes("Hmph... Finally, you decide to move") || 
-              text.includes("just get on with signing the damn contract")) {
-        // Force notification untuk memastikan selalu muncul
-        achievementController.unlockAchievement("hover", true);
+      else if (text.includes("Hmph... Finally, you decide to move")) {
+        achievementController.unlockAchievement("hover");
         console.log(
           "[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset",
         );
@@ -757,12 +749,10 @@ class IdleTimeoutController {
       "[IdleTimeoutController] Setting global flag to force show throw warning dialog",
     );
 
-    // Unlock achievement for making character angry dengan force notification
+    // Unlock achievement for making character angry
     try {
       const achievementController = AchievementController.getInstance();
-      // Force notification untuk memastikan selalu muncul
-      achievementController.unlockAchievement("anger", true);
-      console.log("[IdleTimeoutController] Unlocked 'anger' achievement with forced notification");
+      achievementController.unlockAchievement("anger");
     } catch (error) {
       console.error("Failed to unlock anger achievement:", error);
     }
@@ -962,12 +952,10 @@ class IdleTimeoutController {
           "[IdleTimeoutController] Redirecting to dream page after blackout effect",
         );
 
-        // Unlock nightmare achievement before redirecting, dengan force notification
+        // Unlock nightmare achievement before redirecting
         try {
           const achievementController = AchievementController.getInstance();
-          // Force notification untuk memastikan selalu muncul
-          achievementController.unlockAchievement("nightmare", true);
-          console.log("[IdleTimeoutController] Unlocked 'nightmare' achievement with forced notification");
+          achievementController.unlockAchievement("nightmare");
         } catch (error) {
           console.error("Failed to unlock nightmare achievement:", error);
         }
@@ -1001,21 +989,6 @@ class IdleTimeoutController {
     setTimeout(checkDialogAndPunch, 500);
   }
 
-  // Public methods untuk mengakses timer functions
-  public clearIdleTimers(): void {
-    this.clearAllIdleTimers();
-  }
-  
-  public clearHoverTimers(): void {
-    this.clearAllHoverTimers();
-  }
-  
-  // Set reset state (untuk komunikasi dengan App.tsx)
-  public setResetState(isReset: boolean): void {
-    this.hasBeenReset = isReset;
-    this.hasInteractedAfterReset = false;
-  }
-  
   // Reset semua timer dan status
   public resetAll(): void {
     this.clearAllIdleTimers();

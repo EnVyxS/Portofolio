@@ -442,46 +442,6 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                         </svg>
                       )}
                       
-                      {type === 'social' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="18" cy="5" r="3" stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
-                          <circle cx="6" cy="12" r="3" stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
-                          <circle cx="18" cy="19" r="3" stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
-                          <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.83 3.98" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      )}
-                      
-                      {type === 'patience' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="12" cy="12" r="9" stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
-                          <path d="M12 6v6l4 4" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      )}
-                      
-                      {type === 'return' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M3 12h18M3 12l5-5M3 12l5 5" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          <path d="M9 4v4M9 16v4" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="0.5 1.5" />
-                        </svg>
-                      )}
-                      
-                      {type === 'hover' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
-                          <rect x="2" y="5" width="20" height="14" rx="2" stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
-                          <path d="M8 12h8M12 8v8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
-                          <path d="M17 16l2 2M5 16l-2 2M17 8l2-2M5 8L3 6" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" />
-                        </svg>
-                      )}
-                      
-                      {type === 'escape' && (
-                        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M3 8l9-5 9 5v8l-9 5-9-5V8z" stroke="#FFC107" strokeWidth="1.5" fill="rgba(255, 180, 30, 0.3)" />
-                          <path d="M12 3v9M12 12l9-4M12 12l-9-4" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-                          <path d="M15 16l-3 3-3-3M12 12v7" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          <path d="M7 8l5 4 5-4" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="0.5 1.5" />
-                        </svg>
-                      )}
-                      
                       {/* Small glowing accent in corner */}
                       <div className="absolute top-[2px] right-[2px] h-1 w-1 bg-amber-400 rounded-full opacity-80"></div>
                     </div>
@@ -490,13 +450,13 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                 
                 {/* Achievement text content - responsive for mobile */}
                 <div className="flex flex-col mt-1">
-                  {/* Achievement title with Dark Souls style - uppercase, letterSpacing (ukuran dikurangi) */}
+                  {/* Achievement title with Dark Souls style - uppercase, letterSpacing */}
                   <motion.p
-                    className="text-[8px] sm:text-[10px] md:text-xs text-amber-100 font-semibold tracking-wide uppercase"
+                    className="text-[10px] sm:text-xs md:text-sm text-amber-100 font-semibold tracking-wide uppercase"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
-                    style={{ textShadow: '0 0 4px rgba(255, 180, 30, 0.3)' }}
+                    style={{ textShadow: '0 0 5px rgba(255, 180, 30, 0.3)' }}
                   >
                     {AchievementTitles[type]}
                   </motion.p>
