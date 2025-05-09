@@ -88,9 +88,13 @@ export const AchievementIcons: Record<AchievementType, React.ReactNode> = {
   patience: (
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
+      <circle cx="12" cy="12" r="6" stroke="#FFC107" strokeWidth="0.75" strokeDasharray="1 1" fill="#FFC107" fillOpacity="0.05" />
       <path d="M12 8v4l3 3" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 12l-2-2" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" />
       <path d="M7 12a5 5 0 0110 0" stroke="#FFC107" strokeWidth="1" strokeDasharray="1 1" />
       <path d="M16 16.5a7 7 0 01-8 0" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="1" stroke="#FFC107" strokeWidth="0.5" fill="#FFC107" fillOpacity="0.4" />
+      <path d="M3.5 12h1.5M19 12h1.5M12 3.5v1.5M12 19v1.5" stroke="#FFC107" strokeWidth="0.75" strokeLinecap="round" />
     </svg>
   ),
   return: (
@@ -107,9 +111,11 @@ export const AchievementIcons: Record<AchievementType, React.ReactNode> = {
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="2" y="5" width="20" height="14" rx="2" 
         stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
+      <circle cx="12" cy="12" r="4" stroke="#FFC107" strokeWidth="1" fill="#FFC107" fillOpacity="0.15" />
       <path d="M8 12h8M12 8v8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
       <path d="M17 16l2 2M5 16l-2 2M17 8l2-2M5 8L3 6" 
         stroke="#FFC107" strokeWidth="1" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="1.5" stroke="#FFC107" strokeWidth="0.5" fill="#FFC107" fillOpacity="0.3" />
     </svg>
   ),
   escape: (
@@ -119,6 +125,9 @@ export const AchievementIcons: Record<AchievementType, React.ReactNode> = {
       <path d="M12 3v9M12 12l9-4M12 12l-9-4" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M15 16l-3 3-3-3M12 12v7" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M7 8l5 4 5-4" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="0.5 1.5" />
+      <circle cx="12" cy="19" r="2" stroke="#FFC107" strokeWidth="0.75" fill="#FFC107" fillOpacity="0.2" />
+      <circle cx="12" cy="12" r="1" stroke="#FFC107" strokeWidth="0.5" fill="#FFC107" fillOpacity="0.3" />
+      <path d="M7 18l2-2M17 18l-2-2" stroke="#FFC107" strokeWidth="0.75" strokeLinecap="round" />
     </svg>
   ),
   social: (
@@ -126,8 +135,12 @@ export const AchievementIcons: Record<AchievementType, React.ReactNode> = {
       <circle cx="18" cy="5" r="3" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
       <circle cx="6" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
       <circle cx="18" cy="19" r="3" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
+      <circle cx="18" cy="5" r="1.5" stroke="#FFC107" strokeWidth="0.5" fill="#FFC107" fillOpacity="0.3" />
+      <circle cx="6" cy="12" r="1.5" stroke="#FFC107" strokeWidth="0.5" fill="#FFC107" fillOpacity="0.3" />
+      <circle cx="18" cy="19" r="1.5" stroke="#FFC107" strokeWidth="0.5" fill="#FFC107" fillOpacity="0.3" />
       <path d="M9 10.5l7.5-3.5M9 13.5l7.5 3.5" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
       <path d="M17 8l1 1M5 15l1 1M17 16l1-1" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 5.5C10 7 10 10 12 12c2 2 2 5 0 6.5" stroke="#FFC107" strokeWidth="0.75" strokeLinecap="round" strokeDasharray="0.5 1.5" />
     </svg>
   )
 };
