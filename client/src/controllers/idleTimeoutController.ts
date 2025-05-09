@@ -641,9 +641,9 @@ class IdleTimeoutController {
 
       // Dialog setelah hover
       else if (text.includes("Hmph... Finally, you decide to move")) {
-        achievementController.unlockAchievement("hover");
+        achievementController.unlockAchievement("hover", true);
         console.log(
-          "[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset",
+          "[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset with forced notification",
         );
       }
 

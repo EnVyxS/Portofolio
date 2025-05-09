@@ -64,10 +64,14 @@ export const AchievementIcons: Record<AchievementType, React.ReactNode> = {
   ),
   nightmare: (
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 2l2.5 5 5.5.5-4 4 1 5.5-5-2.5-5 2.5 1-5.5-4-4 5.5-.5L12 2z" 
+      <path d="M12 3l2.5 5 5.5.5-4 4 1 5.5-5-2.5-5 2.5 1-5.5-4-4 5.5-.5L12 3z" 
         stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
-      <path d="M12 7v5M12 16v.1" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" />
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1" strokeDasharray="1 1" />
+      <path d="M9 5c-1.5 1-2 2.5-2 5 0 3 3 7 5 10" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" strokeDasharray="0.5 1" />
+      <path d="M15 5c1.5 1 2 2.5 2 5 0 3-3 7-5 10" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" strokeDasharray="0.5 1" />
+      <path d="M7 10c3 0 5 1 5 4 0 3-2 4-5 4" stroke="#FFC107" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M17 10c-3 0-5 1-5 4 0 3 2 4 5 4" stroke="#FFC107" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="10" stroke="#FFC107" strokeWidth="0.7" strokeDasharray="1 1" />
+      <path d="M8 17c0.5 1 2 2 4 2s3.5-1 4-2" stroke="#FFC107" strokeWidth="1" strokeLinecap="round" />
     </svg>
   ),
   listener: (
@@ -94,7 +98,9 @@ export const AchievementIcons: Record<AchievementType, React.ReactNode> = {
       <path d="M21 3h-7a2 2 0 00-2 2v14a2 2 0 002 2h7a2 2 0 002-2V5a2 2 0 00-2-2z" 
         stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
       <path d="M1 12h12M8 7l-7 5 7 5" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M17 15h3M17 9h3" stroke="#FFC107" strokeWidth="1.2" strokeLinecap="round" />
       <path d="M18 8v8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="0.5 1.5" />
+      <circle cx="6" cy="12" r="2" stroke="#FFC107" strokeWidth="0.5" fill="#FFC107" fillOpacity="0.3" />
     </svg>
   ),
   hover: (
