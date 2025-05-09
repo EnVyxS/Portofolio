@@ -2,16 +2,20 @@ import { AchievementType } from '../constants/achievementConstants';
 
 // Key untuk local storage
 const ACHIEVEMENTS_KEY = 'diva-juan-achievements';
+// Key untuk achievement yang sudah ditampilkan notifikasinya
+const NOTIFIED_ACHIEVEMENTS_KEY = 'diva-juan-notified-achievements';
 
 class AchievementController {
   private static instance: AchievementController;
   private unlockedAchievements: Set<AchievementType>;
+  private notifiedAchievements: Set<AchievementType>; // Menyimpan achievement yang sudah ditampilkan notifikasinya
   private achievementCallback: ((type: AchievementType) => void) | null = null;
   private isDreamPage: boolean = false; // Flag untuk halaman dream.html
   
   private constructor() {
     // Load achievements dari localStorage
     this.unlockedAchievements = this.loadAchievements();
+    this.notifiedAchievements = this.loadNotifiedAchievements();
     
     // Cek apakah kita berada di halaman dream.html
     this.isDreamPage = window.location.pathname.includes('dream.html');
@@ -49,12 +53,46 @@ class AchievementController {
     return new Set<AchievementType>();
   }
   
+  // Load daftar achievement yang sudah ditampilkan notifikasinya
+  private loadNotifiedAchievements(): Set<AchievementType> {
+    try {
+      const savedData = localStorage.getItem(NOTIFIED_ACHIEVEMENTS_KEY);
+      if (savedData) {
+        try {
+          const achievements = JSON.parse(savedData) as AchievementType[];
+          return new Set(achievements);
+        } catch (e) {
+          console.error('Error parsing notified achievements data:', e);
+        }
+      }
+    } catch (e) {
+      console.error('Error accessing localStorage for notified achievements:', e);
+    }
+    return new Set<AchievementType>();
+  }
+  
   // Simpan achievements ke localStorage
   private saveAchievements(): void {
     localStorage.setItem(
       ACHIEVEMENTS_KEY, 
       JSON.stringify(Array.from(this.unlockedAchievements))
     );
+  }
+  
+  // Simpan daftar achievement yang sudah ditampilkan notifikasinya
+  private saveNotifiedAchievements(): void {
+    localStorage.setItem(
+      NOTIFIED_ACHIEVEMENTS_KEY,
+      JSON.stringify(Array.from(this.notifiedAchievements))
+    );
+  }
+  
+  // Menandai achievement sudah dinotifikasi
+  private markAsNotified(type: AchievementType): void {
+    if (!this.notifiedAchievements.has(type)) {
+      this.notifiedAchievements.add(type);
+      this.saveNotifiedAchievements();
+    }
   }
   
   // Unlock achievement baru
@@ -80,6 +118,8 @@ class AchievementController {
     
     // Cek apakah achievement sudah ada, baru memunculkan notifikasi jika belum ada atau forceNotification=true
     const isNewAchievement = !this.unlockedAchievements.has(type);
+    // Cek apakah achievement sudah pernah ditampilkan notifikasinya
+    const isAlreadyNotified = this.notifiedAchievements.has(type);
     
     // Tambahkan achievement ke daftar (jika belum ada)
     if (isNewAchievement) {
@@ -96,10 +136,14 @@ class AchievementController {
     }
     
     // Panggil callback untuk menampilkan notifikasi achievement jika:
-    // 1. Achievement baru unlock, atau
-    // 2. Force notification dinyalakan
-    if ((isNewAchievement || forceNotification) && this.achievementCallback) {
+    // 1. Achievement baru unlock dan belum pernah ditampilkan notifikasinya, atau
+    // 2. Force notification dinyalakan (untuk kasus khusus, seperti ESCAPE achievement)
+    if (((isNewAchievement && !isAlreadyNotified) || forceNotification) && this.achievementCallback) {
       this.achievementCallback(type);
+      // Tandai achievement sudah dinotifikasi (kecuali force notification)
+      if (!forceNotification) {
+        this.markAsNotified(type);
+      }
     }
   }
   
@@ -116,7 +160,9 @@ class AchievementController {
   // Reset semua achievements (untuk testing)
   public resetAchievements(): void {
     this.unlockedAchievements.clear();
+    this.notifiedAchievements.clear();
     this.saveAchievements();
+    this.saveNotifiedAchievements();
   }
 }
 

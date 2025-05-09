@@ -202,6 +202,11 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
   const fogParticles = useRef(generateFogParticles(18)); // Increased from 12 to 18
   const soulEssences = useRef(generateSoulEssences(15)); // Increased from 8 to 15
   
+  // Cek apakah ini dream.html page
+  const isDreamPage = window.location.pathname.includes('dream.html');
+  // Cek apakah ini achievement escape
+  const isEscapeAchievement = type === 'escape';
+  
   useEffect(() => {
     // Mainkan suara achievement dengan Web Audio API
     try {
@@ -224,14 +229,19 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
       console.error("Error playing achievement sound:", e);
     }
 
-    // Otomatis sembunyikan achievement setelah 3 detik
+    // Untuk achievement 'escape' di halaman dream, kita ingin menampilkannya selama tepat 3 detik
+    const displayDuration = 3000; // Semua achievement selama 3 detik
+
+    // Otomatis sembunyikan achievement setelah displayDuration
     const timer = setTimeout(() => {
+      console.log(`[Achievement] Hiding ${type} achievement after ${displayDuration}ms`);
       setIsVisible(false);
+      
       // Callback setelah animasi exit selesai
       setTimeout(() => {
         if (onComplete) onComplete();
       }, 500); // Tunggu animasi exit selesai
-    }, 3000); // Lebih cepat untuk meningkatkan pengalaman pengguna
+    }, displayDuration);
 
     return () => {
       clearTimeout(timer);
@@ -240,7 +250,7 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
         achievementSoundRef.current = null;
       }
     };
-  }, [onComplete]);
+  }, [onComplete, type]);
 
   return (
     <AnimatePresence>
