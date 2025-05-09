@@ -644,9 +644,9 @@ const AchievementProgress: React.FC<AchievementProgressProps> = ({ className }) 
         
         .souls-achievement-heading {
           font-family: 'Cinzel', serif;
-          font-size: 22px;
+          font-size: 16px; /* Reduced from 22px */
           color: rgba(255, 215, 0, 0.9);
-          letter-spacing: 2px;
+          letter-spacing: 1.5px; /* Reduced from 2px */
           font-weight: 600;
           text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
           text-transform: uppercase;
