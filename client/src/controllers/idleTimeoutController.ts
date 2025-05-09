@@ -31,34 +31,39 @@ export const IDLE_DIALOGS = {
 };
 
 // Waktu timeout dalam milidetik
+// Sesuai komentar: 
+// FIRST_WARNING: 2 menit
+// SECOND_WARNING: 2+3 = 5 menit
+// FINAL_WARNING: 5+4 = 9 menit 
+// THROW_USER: 9+1 = 10 menit
 export const TIMEOUT_DURATIONS = {
-  FIRST_WARNING: 2 * 60 * 1000, // 2 menit
-  SECOND_WARNING: 5 * 60 * 1000, // 5 menit
-  FINAL_WARNING: 9 * 60 * 1000, // 9 menit
-  THROW_USER: 10 * 60 * 1000, // 10 menit
+  FIRST_WARNING: 2 * 60 * 1000,    // 2 menit
+  SECOND_WARNING: 5 * 60 * 1000,   // 5 menit (3 menit setelah FIRST_WARNING)
+  FINAL_WARNING: 9 * 60 * 1000,    // 9 menit (4 menit setelah SECOND_WARNING)
+  THROW_USER: 10 * 60 * 1000,      // 10 menit (1 menit setelah FINAL_WARNING)
   EXCESSIVE_HOVER_WARNING: 10 * 1000, // 10 detik - Sangat cepat karena triggered oleh HoverDialogController
-  FINAL_HOVER_WARNING: 20 * 1000, // 20 detik
-  PUNCH_USER: 30 * 1000, // 30 detik
+  FINAL_HOVER_WARNING: 20 * 1000,  // 20 detik
+  PUNCH_USER: 30 * 1000,           // 30 detik
 };
 
 // Untuk testing/development, gunakan timeout yang lebih singkat
 const DEBUG_MODE = false; // Mode produksi dengan durasi timeout normal
 if (DEBUG_MODE) {
   Object.keys(TIMEOUT_DURATIONS).forEach((key) => {
-    // Gunakan waktu yang lebih singkat untuk testing
+    // Gunakan waktu yang lebih singkat untuk testing, dengan interval yang sama:
     // FIRST_WARNING: 5 detik
-    // SECOND_WARNING: 10 detik
-    // FINAL_WARNING: 15 detik
-    // THROW_USER: 20 detik
+    // SECOND_WARNING: 8 detik (3 detik setelah first)
+    // FINAL_WARNING: 13 detik (5 detik setelah second)
+    // THROW_USER: 14 detik (1 detik setelah final)
     // EXCESSIVE_HOVER_WARNING: 5 detik
     // FINAL_HOVER_WARNING: 10 detik
     // PUNCH_USER: 15 detik
 
     const debugTimeouts: Record<string, number> = {
-      FIRST_WARNING: 5000,
-      SECOND_WARNING: 10000,
-      FINAL_WARNING: 15000,
-      THROW_USER: 20000,
+      FIRST_WARNING: 5000,      // 5 detik
+      SECOND_WARNING: 8000,     // 8 detik (3 detik setelah FIRST_WARNING)
+      FINAL_WARNING: 13000,     // 13 detik (5 detik setelah SECOND_WARNING)
+      THROW_USER: 14000,        // 14 detik (1 detik setelah FINAL_WARNING) 
       EXCESSIVE_HOVER_WARNING: 5000,
       FINAL_HOVER_WARNING: 10000,
       PUNCH_USER: 15000,
