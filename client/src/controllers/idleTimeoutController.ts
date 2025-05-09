@@ -33,9 +33,9 @@ export const IDLE_DIALOGS = {
 // Waktu timeout dalam milidetik
 export const TIMEOUT_DURATIONS = {
   FIRST_WARNING: 2 * 60 * 1000, // 2 menit
-  SECOND_WARNING: 5 * 60 * 1000, // 5 menit
-  FINAL_WARNING: 9 * 60 * 1000, // 9 menit
-  THROW_USER: 10 * 60 * 1000, // 10 menit
+  SECOND_WARNING: 5 * 60 * 1000, // 5 menit total, tapi hanya 3 menit setelah first warning
+  FINAL_WARNING: 9 * 60 * 1000, // 9 menit total, tapi hanya 4 menit setelah second warning
+  THROW_USER: 10 * 60 * 1000, // 10 menit total, tapi hanya 1 menit setelah final warning
   EXCESSIVE_HOVER_WARNING: 10 * 1000, // 10 detik - Sangat cepat karena triggered oleh HoverDialogController
   FINAL_HOVER_WARNING: 20 * 1000, // 20 detik
   PUNCH_USER: 30 * 1000, // 30 detik
@@ -55,10 +55,10 @@ if (DEBUG_MODE) {
     // PUNCH_USER: 15 detik
 
     const debugTimeouts: Record<string, number> = {
-      FIRST_WARNING: 5000,
-      SECOND_WARNING: 10000,
-      FINAL_WARNING: 15000,
-      THROW_USER: 20000,
+      FIRST_WARNING: 5000,   // 5 detik untuk peringatan pertama
+      SECOND_WARNING: 10000, // dalam mode debug ini adalah waktu total, yaitu 10 detik
+      FINAL_WARNING: 15000,  // dalam mode debug ini adalah waktu total, yaitu 15 detik
+      THROW_USER: 20000,     // dalam mode debug ini adalah waktu total, yaitu 20 detik
       EXCESSIVE_HOVER_WARNING: 5000,
       FINAL_HOVER_WARNING: 10000,
       PUNCH_USER: 15000,
@@ -347,69 +347,87 @@ class IdleTimeoutController {
     this.setupIdleTimers(); // Setup timer baru
   }
 
-  // Setup timer idle
+  // Setup timer idle dengan interval yang tepat di antara peringatan
   private setupIdleTimers(): void {
     const now = Date.now();
-
+    
     // Jika belum menampilkan peringatan pertama
     if (!this.hasShownFirstWarning) {
       this.firstWarningTimer = setTimeout(() => {
         // Cek dulu apakah ada audio/dialog yang aktif sebelum menampilkan peringatan
         if (!this.isAudioOrDialogActive()) {
+          console.log(`[IdleTimeoutController] Showing FIRST_WARNING after ${TIMEOUT_DURATIONS.FIRST_WARNING/1000}s`);
           this.showIdleWarning(IDLE_DIALOGS.FIRST_WARNING);
           this.hasShownFirstWarning = true;
+          
+          // Dalam debug mode, durasi adalah total waktu, sedangkan pada implementasi baru
+          // kita menginginkan interval antar warning.
+          // Untuk mode debug, kita perlu menghitung interval yang sesuai
+          
+          // Interval untuk warning kedua (debug mode)
+          const secondWarningInterval = DEBUG_MODE ? 
+            5000 : // 5 detik setelah first warning (debug mode)
+            3 * 60 * 1000; // 3 menit setelah first warning (normal mode)
+          
+          // Setelah menampilkan peringatan pertama, setup timer untuk peringatan kedua
+          this.secondWarningTimer = setTimeout(() => {
+            if (!this.isAudioOrDialogActive()) {
+              console.log(`[IdleTimeoutController] Showing SECOND_WARNING after ${secondWarningInterval/1000}s more`);
+              this.showIdleWarning(IDLE_DIALOGS.SECOND_WARNING);
+              this.hasShownSecondWarning = true;
+              
+              // Interval untuk warning terakhir (debug mode)
+              const finalWarningInterval = DEBUG_MODE ? 
+                5000 : // 5 detik setelah second warning (debug mode)
+                4 * 60 * 1000; // 4 menit setelah second warning (normal mode)
+              
+              // Setelah menampilkan peringatan kedua, setup timer untuk peringatan terakhir
+              this.finalWarningTimer = setTimeout(() => {
+                if (!this.isAudioOrDialogActive()) {
+                  console.log(`[IdleTimeoutController] Showing FINAL_WARNING after ${finalWarningInterval/1000}s more`);
+                  this.showIdleWarning(IDLE_DIALOGS.FINAL_WARNING);
+                  this.hasShownFinalWarning = true;
+                  
+                  // Interval untuk throw user (debug mode)
+                  const throwUserInterval = DEBUG_MODE ? 
+                    5000 : // 5 detik setelah final warning (debug mode)
+                    60 * 1000; // 1 menit setelah peringatan terakhir (normal mode)
+                  
+                  // Setelah menampilkan peringatan terakhir, setup timer untuk melempar user
+                  this.throwUserTimer = setTimeout(() => {
+                    if (!this.isAudioOrDialogActive()) {
+                      console.log(`[IdleTimeoutController] Throwing user after ${throwUserInterval/1000}s more`);
+                      this.throwUser();
+                      this.hasBeenThrown = true;
+                    } else {
+                      // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
+                      this.startIdleTimer();
+                    }
+                  }, throwUserInterval);
+                } else {
+                  // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
+                  this.startIdleTimer();
+                }
+              }, finalWarningInterval);
+            } else {
+              // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
+              this.startIdleTimer();
+            }
+          }, secondWarningInterval);
         } else {
           // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
           this.startIdleTimer();
         }
       }, TIMEOUT_DURATIONS.FIRST_WARNING);
     }
-
-    // Jika belum menampilkan peringatan kedua
-    if (!this.hasShownSecondWarning) {
-      this.secondWarningTimer = setTimeout(() => {
-        // Cek dulu apakah ada audio/dialog yang aktif sebelum menampilkan peringatan
-        if (!this.isAudioOrDialogActive()) {
-          this.showIdleWarning(IDLE_DIALOGS.SECOND_WARNING);
-          this.hasShownSecondWarning = true;
-        } else {
-          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
-          this.startIdleTimer();
-        }
-      }, TIMEOUT_DURATIONS.SECOND_WARNING);
-    }
-
-    // Jika belum menampilkan peringatan terakhir
-    if (!this.hasShownFinalWarning) {
-      this.finalWarningTimer = setTimeout(() => {
-        // Cek dulu apakah ada audio/dialog yang aktif sebelum menampilkan peringatan
-        if (!this.isAudioOrDialogActive()) {
-          this.showIdleWarning(IDLE_DIALOGS.FINAL_WARNING);
-          this.hasShownFinalWarning = true;
-        } else {
-          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
-          this.startIdleTimer();
-        }
-      }, TIMEOUT_DURATIONS.FINAL_WARNING);
-    }
-
-    // Jika belum dilempar
-    if (!this.hasBeenThrown) {
-      this.throwUserTimer = setTimeout(() => {
-        // Cek dulu apakah ada audio/dialog yang aktif sebelum melempar user
-        if (!this.isAudioOrDialogActive()) {
-          this.throwUser();
-          this.hasBeenThrown = true;
-        } else {
-          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
-          this.startIdleTimer();
-        }
-      }, TIMEOUT_DURATIONS.THROW_USER);
-    }
+    
+    // Catatan: Timer kedua, terakhir, dan throwUser diatur secara berurutan
+    // setelah timer sebelumnya selesai, jadi tidak perlu mengaturnya secara terpisah di sini
   }
 
-  // Bersihkan semua timer idle
+  // Bersihkan semua timer idle dan reset status peringatan
   private clearAllIdleTimers(): void {
+    // Bersihkan semua timer
     if (this.firstWarningTimer) {
       clearTimeout(this.firstWarningTimer);
       this.firstWarningTimer = null;
@@ -428,6 +446,16 @@ class IdleTimeoutController {
     if (this.throwUserTimer) {
       clearTimeout(this.throwUserTimer);
       this.throwUserTimer = null;
+    }
+    
+    // Reset status peringatan jika user berinteraksi
+    // kecuali setelah dilempar keluar (hasBeenThrown)
+    if (!this.hasBeenThrown) {
+      this.hasShownFirstWarning = false;
+      this.hasShownSecondWarning = false;
+      this.hasShownFinalWarning = false;
+      
+      console.log("[IdleTimeoutController] Reset all warning flags due to user interaction");
     }
   }
 
