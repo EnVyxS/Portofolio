@@ -623,24 +623,31 @@ class IdleTimeoutController {
       const achievementController = AchievementController.getInstance();
 
       // Final warning setelah 9 menit
-      if (text.includes("staring at me for nine damn minutes")) {
-        achievementController.unlockAchievement("patience");
+      if (text.includes("staring at me for nine damn minutes") || 
+          text.includes("You think this is funny") || 
+          text.includes("nine minutes")) {
+        // Force notification untuk memastikan selalu muncul
+        achievementController.unlockAchievement("patience", true);
         console.log(
           "[IdleTimeoutController] Unlocked 'patience' achievement for staring at screen",
         );
       }
 
       // Dialog setelah reset
-      else if (text.includes("Now what, you little filth")) {
-        achievementController.unlockAchievement("return");
+      else if (text.includes("Now what, you little filth") || 
+              text.includes("Back for more punishment")) {
+        // Force notification untuk memastikan selalu muncul
+        achievementController.unlockAchievement("return", true); 
         console.log(
           "[IdleTimeoutController] Unlocked 'return' achievement for returning after reset",
         );
       }
 
       // Dialog setelah hover
-      else if (text.includes("Hmph... Finally, you decide to move")) {
-        achievementController.unlockAchievement("hover");
+      else if (text.includes("Hmph... Finally, you decide to move") || 
+              text.includes("just get on with signing the damn contract")) {
+        // Force notification untuk memastikan selalu muncul
+        achievementController.unlockAchievement("hover", true);
         console.log(
           "[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset",
         );
@@ -749,10 +756,12 @@ class IdleTimeoutController {
       "[IdleTimeoutController] Setting global flag to force show throw warning dialog",
     );
 
-    // Unlock achievement for making character angry
+    // Unlock achievement for making character angry dengan force notification
     try {
       const achievementController = AchievementController.getInstance();
-      achievementController.unlockAchievement("anger");
+      // Force notification untuk memastikan selalu muncul
+      achievementController.unlockAchievement("anger", true);
+      console.log("[IdleTimeoutController] Unlocked 'anger' achievement with forced notification");
     } catch (error) {
       console.error("Failed to unlock anger achievement:", error);
     }
@@ -952,10 +961,12 @@ class IdleTimeoutController {
           "[IdleTimeoutController] Redirecting to dream page after blackout effect",
         );
 
-        // Unlock nightmare achievement before redirecting
+        // Unlock nightmare achievement before redirecting, dengan force notification
         try {
           const achievementController = AchievementController.getInstance();
-          achievementController.unlockAchievement("nightmare");
+          // Force notification untuk memastikan selalu muncul
+          achievementController.unlockAchievement("nightmare", true);
+          console.log("[IdleTimeoutController] Unlocked 'nightmare' achievement with forced notification");
         } catch (error) {
           console.error("Failed to unlock nightmare achievement:", error);
         }
