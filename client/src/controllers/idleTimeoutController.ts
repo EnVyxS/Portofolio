@@ -1001,6 +1001,21 @@ class IdleTimeoutController {
     setTimeout(checkDialogAndPunch, 500);
   }
 
+  // Public methods untuk mengakses timer functions
+  public clearIdleTimers(): void {
+    this.clearAllIdleTimers();
+  }
+  
+  public clearHoverTimers(): void {
+    this.clearAllHoverTimers();
+  }
+  
+  // Set reset state (untuk komunikasi dengan App.tsx)
+  public setResetState(isReset: boolean): void {
+    this.hasBeenReset = isReset;
+    this.hasInteractedAfterReset = false;
+  }
+  
   // Reset semua timer dan status
   public resetAll(): void {
     this.clearAllIdleTimers();

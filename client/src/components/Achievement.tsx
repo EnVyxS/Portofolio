@@ -450,13 +450,13 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
                 
                 {/* Achievement text content - responsive for mobile */}
                 <div className="flex flex-col mt-1">
-                  {/* Achievement title with Dark Souls style - uppercase, letterSpacing */}
+                  {/* Achievement title with Dark Souls style - uppercase, letterSpacing (ukuran dikurangi) */}
                   <motion.p
-                    className="text-[10px] sm:text-xs md:text-sm text-amber-100 font-semibold tracking-wide uppercase"
+                    className="text-[8px] sm:text-[10px] md:text-xs text-amber-100 font-semibold tracking-wide uppercase"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
-                    style={{ textShadow: '0 0 5px rgba(255, 180, 30, 0.3)' }}
+                    style={{ textShadow: '0 0 4px rgba(255, 180, 30, 0.3)' }}
                   >
                     {AchievementTitles[type]}
                   </motion.p>

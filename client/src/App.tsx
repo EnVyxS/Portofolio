@@ -191,22 +191,13 @@ function MainApp() {
       // JANGAN memanggil resetAll() karena akan menghapus state hasBeenReset yang dibutuhkan
       // untuk menampilkan HOVER_AFTER_RESET dialog
       
-      // Sebagai gantinya, reset hanya timer-timer
-      idleTimeoutControllerRef.current.clearAllIdleTimers();
-      idleTimeoutControllerRef.current.clearAllHoverTimers();
+      // Sebagai gantinya, reset hanya timer-timer menggunakan public methods
+      idleTimeoutControllerRef.current.clearIdleTimers();
+      idleTimeoutControllerRef.current.clearHoverTimers();
       
-      // Reset status warning tanpa menghapus hasBeenReset
-      try {
-        // Set properti hasBeenReset = true secara eksplisit
-        // @ts-ignore - private property access
-        idleTimeoutControllerRef.current.hasBeenReset = true;
-        // @ts-ignore - private property access
-        idleTimeoutControllerRef.current.hasInteractedAfterReset = false;
-        
-        console.log("[App] Mempertahankan hasBeenReset = true untuk menampilkan HOVER_AFTER_RESET");
-      } catch (e) {
-        console.error("[App] Error mengakses properti IdleTimeoutController:", e);
-      }
+      // Set properti hasBeenReset = true secara eksplisit dengan public method
+      idleTimeoutControllerRef.current.setResetState(true);
+      console.log("[App] Mempertahankan hasBeenReset = true untuk menampilkan HOVER_AFTER_RESET");
 
       // Mulai timer hover berlebihan
       setTimeout(() => {
