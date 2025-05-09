@@ -1296,12 +1296,10 @@
                     styleEl.textContent = `
                         .achievement-notification {
                             position: fixed;
-                            top: max(10vh, 60px); /* Moved to top for better visibility */
+                            bottom: max(20vh, 120px); /* Responsif di berbagai ukuran perangkat mobile */
                             right: max(3vw, 12px); /* Penyesuaian posisi horizontal */
                             left: auto; /* Pastikan tidak menggunakan left */
-                            z-index: 999; /* Higher z-index to ensure it appears above everything */
-                            /* Add a glow effect to make it more visible against dark backgrounds */
-                            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5), 0 0 30px rgba(255, 180, 0, 0.3);
+                            z-index: 40; /* Same z-index as main app achievement */
                             background-color: rgba(0, 0, 0, 0.9);
                             border: 2px solid rgba(255, 180, 30, 0.5); /* Amber gold border */
                             padding: min(3vw, 12px) min(4vw, 16px); /* Padding responsif */
@@ -1310,7 +1308,7 @@
                             width: min(280px, 85vw); /* Responsive with max width */
                             max-width: 280px; /* Tetapkan max-width untuk konsistensi */
                             min-width: min(240px, 80vw); /* Min-width responsif */
-                            animation: achievementFadeIn 0.8s forwards, achievementFadeOut 0.8s 6.5s forwards; /* Longer display and smoother animation */
+                            animation: achievementFadeIn 0.5s forwards, achievementFadeOut 0.5s 4.5s forwards;
                             box-shadow: 
                                 0 4px 12px rgba(0, 0, 0, 0.6), 
                                 0 0 20px rgba(255, 180, 30, 0.2),
@@ -1545,11 +1543,11 @@
                         console.error("Error playing achievement sound:", e);
                     }
                     
-                    // Remove after animation completes - timing needs to match animation duration (6.5s delay + 0.8s fadeout)
+                    // Remove after animation completes
                     setTimeout(() => {
                         achievementEl.remove();
                         styleEl.remove();
-                    }, 7300);
+                    }, 5000);
                 }
                 
                 // Unlock nightmare achievement when page loads

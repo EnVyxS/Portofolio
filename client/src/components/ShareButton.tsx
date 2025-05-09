@@ -107,11 +107,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
           <circle cx="18" cy="19" r="3" stroke="currentColor" strokeWidth="1.5" />
           <path d="M9 10.5l7.5-3.5M9 13.5l7.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
-        <span className="share-text">
-          <span className="ornament left">•</span>
-          Share
-          <span className="ornament right">•</span>
-        </span>
+        <span>Share</span>
       </button>
       
       {/* Modal Share */}
@@ -232,37 +228,6 @@ const ShareButton: React.FC<ShareButtonProps> = ({
         .share-button svg {
           height: 20px;
           width: 20px;
-        }
-        
-        /* Dark Souls style ornaments */
-        .share-text {
-          display: flex;
-          align-items: center;
-          position: relative;
-        }
-        
-        .ornament {
-          display: inline-block;
-          color: rgba(180, 160, 100, 0.7);
-          font-size: 1.2rem;
-          position: relative;
-          text-shadow: 0 0 4px rgba(150, 130, 80, 0.3);
-          transition: all 0.3s ease;
-          opacity: 0.8;
-        }
-        
-        .ornament.left {
-          margin-right: 6px;
-        }
-        
-        .ornament.right {
-          margin-left: 6px;
-        }
-        
-        .share-button:hover .ornament {
-          color: rgba(220, 200, 150, 0.9);
-          text-shadow: 0 0 8px rgba(200, 180, 120, 0.5);
-          opacity: 1;
         }
         
         .share-modal-backdrop {
