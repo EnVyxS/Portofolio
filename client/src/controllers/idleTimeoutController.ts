@@ -116,6 +116,12 @@ class IdleTimeoutController {
 
   // Timestamp dari interaksi terakhir
   private lastInteractionTime: number = Date.now();
+  
+  // Waktu saat timer terakhir dimulai untuk menghitung dan menampilkan timer
+  private timerStartTime: number = Date.now();
+  
+  // Timer aktif saat ini (untuk menampilkan jenis timer yang sedang berjalan)
+  private currentActiveTimer: "idle" | "hover" | null = null;
 
   private constructor() {
     this.dialogController = DialogController.getInstance();
@@ -295,6 +301,71 @@ class IdleTimeoutController {
     return isActive;
   }
 
+  // Metode untuk mendapatkan waktu tersisa pada timer saat ini (untuk UI timer)
+  public getRemainingTime(): { timeRemaining: number, totalDuration: number, type: string } {
+    const now = Date.now();
+    const timeSinceStart = now - this.timerStartTime;
+    
+    // Default response jika tidak ada timer aktif
+    let result = { 
+      timeRemaining: 0, 
+      totalDuration: 0,
+      type: "Tidak ada timer aktif" 
+    };
+    
+    if (this.currentActiveTimer === "idle") {
+      // Jika timer idle aktif, hitung waktu tersisa berdasarkan peringatan mana yang sedang aktif
+      if (!this.hasShownFirstWarning) {
+        result = {
+          timeRemaining: Math.max(0, TIMEOUT_DURATIONS.FIRST_WARNING - timeSinceStart),
+          totalDuration: TIMEOUT_DURATIONS.FIRST_WARNING,
+          type: "First Warning"
+        };
+      } else if (!this.hasShownSecondWarning) {
+        result = {
+          timeRemaining: Math.max(0, TIMEOUT_DURATIONS.SECOND_WARNING - timeSinceStart),
+          totalDuration: TIMEOUT_DURATIONS.SECOND_WARNING,
+          type: "Second Warning"
+        };
+      } else if (!this.hasShownFinalWarning) {
+        result = {
+          timeRemaining: Math.max(0, TIMEOUT_DURATIONS.FINAL_WARNING - timeSinceStart),
+          totalDuration: TIMEOUT_DURATIONS.FINAL_WARNING,
+          type: "Final Warning"
+        };
+      } else if (!this.hasBeenThrown) {
+        result = {
+          timeRemaining: Math.max(0, TIMEOUT_DURATIONS.THROW_USER - timeSinceStart),
+          totalDuration: TIMEOUT_DURATIONS.THROW_USER,
+          type: "Throw"
+        };
+      }
+    } else if (this.currentActiveTimer === "hover") {
+      // Jika timer hover aktif, hitung waktu tersisa berdasarkan hover timer
+      if (!this.hasShownExcessiveHoverWarning) {
+        result = {
+          timeRemaining: Math.max(0, TIMEOUT_DURATIONS.EXCESSIVE_HOVER_WARNING - timeSinceStart),
+          totalDuration: TIMEOUT_DURATIONS.EXCESSIVE_HOVER_WARNING,
+          type: "Excessive Hover"
+        };
+      } else if (!this.hasShownFinalHoverWarning) {
+        result = {
+          timeRemaining: Math.max(0, TIMEOUT_DURATIONS.FINAL_HOVER_WARNING - timeSinceStart),
+          totalDuration: TIMEOUT_DURATIONS.FINAL_HOVER_WARNING,
+          type: "Final Hover"
+        };
+      } else if (!this.hasBeenPunched) {
+        result = {
+          timeRemaining: Math.max(0, TIMEOUT_DURATIONS.PUNCH_USER - timeSinceStart),
+          totalDuration: TIMEOUT_DURATIONS.PUNCH_USER,
+          type: "Punch"
+        };
+      }
+    }
+    
+    return result;
+  }
+
   // Memulai penghitungan timeout idle
   public startIdleTimer(): void {
     // Periksa apakah ada audio atau dialog yang aktif
@@ -344,6 +415,11 @@ class IdleTimeoutController {
     );
 
     this.clearAllIdleTimers(); // Bersihkan timer yang ada
+    
+    // Set waktu mulai dan jenis timer aktif
+    this.timerStartTime = Date.now();
+    this.currentActiveTimer = "idle";
+    
     this.setupIdleTimers(); // Setup timer baru
   }
 
@@ -447,6 +523,11 @@ class IdleTimeoutController {
 
     // Log removed
     this.clearAllHoverTimers(); // Bersihkan timer yang ada
+    
+    // Reset timer start time dan set tipe timer ke hover
+    this.timerStartTime = Date.now();
+    this.currentActiveTimer = "hover";
+    console.log("[IdleTimeoutController] Memulai timer hover, reset waktu mulai timer");
 
     // Jika belum menampilkan peringatan hover berlebihan
     if (!this.hasShownExcessiveHoverWarning) {
