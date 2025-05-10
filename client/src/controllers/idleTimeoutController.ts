@@ -593,6 +593,10 @@ class IdleTimeoutController {
   // Handler untuk interaksi user
   public handleUserInteraction(): void {
     this.lastInteractionTime = Date.now();
+    
+    // Reset timer start time pada setiap interaksi
+    this.timerStartTime = Date.now();
+    console.log("[IdleTimeoutController] User interaction detected, reset timer start time");
 
     // Jika dialog model atau audio masih aktif, jangan mulai timer baru
     if (this.isAudioOrDialogActive()) {

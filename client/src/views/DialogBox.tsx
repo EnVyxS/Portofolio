@@ -2,8 +2,8 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import DialogController from "../controllers/dialogController";
 import HoverDialogController from "../controllers/hoverDialogController";
-import IdleTimeoutController from "../controllers/idleTimeoutController";
-import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
+import IdleTimeoutController, { TIMEOUT_DURATIONS } from "../controllers/idleTimeoutController";
+import { FaVolumeUp, FaVolumeMute, FaClock } from "react-icons/fa";
 import ElevenLabsService from "../services/elevenlabsService";
 import { CONTRACT_RESPONSES } from "../components/ContractCard";
 
@@ -49,6 +49,145 @@ function isDialogPersistent(text: string): boolean {
   // Default: semua dialog regular autoplay (non-persistent)
   return false;
 }
+
+// Timer Component untuk menampilkan countdown timer
+const TimerDisplay: React.FC = () => {
+  const [timerInfo, setTimerInfo] = useState({
+    timeRemaining: 0,
+    totalDuration: 0,
+    type: "Tidak ada timer aktif"
+  });
+  const [isVisible, setIsVisible] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Update timer setiap 1 detik
+  useEffect(() => {
+    const updateTimer = () => {
+      try {
+        const idleController = IdleTimeoutController.getInstance();
+        const info = idleController.getRemainingTime();
+        setTimerInfo(info);
+        
+        // Tampilkan timer hanya jika ada waktu tersisa
+        setIsVisible(info.timeRemaining > 0);
+      } catch (e) {
+        console.error("Error updating timer:", e);
+        setIsVisible(false);
+      }
+    };
+    
+    // Update pertama kali
+    updateTimer();
+    
+    // Buat interval untuk update setiap 1 detik
+    const intervalId = setInterval(updateTimer, 1000);
+    
+    // Cleanup
+    return () => clearInterval(intervalId);
+  }, []);
+  
+  // Format waktu dalam format MM:SS
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+  
+  // Hitung persentase waktu tersisa
+  const calculatePercentage = () => {
+    if (timerInfo.totalDuration === 0) return 0;
+    return (timerInfo.timeRemaining / timerInfo.totalDuration) * 100;
+  };
+
+  // Jika timer tidak aktif, jangan tampilkan apapun
+  if (!isVisible) return null;
+  
+  return (
+    <motion.div
+      className="timer-container"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      onClick={() => setIsExpanded(!isExpanded)}
+      whileHover={{ scale: 1.05 }}
+    >
+      <div className="timer-icon">
+        <FaClock size={14} />
+      </div>
+      {isExpanded ? (
+        <div className="timer-details">
+          <div className="timer-type">{timerInfo.type}</div>
+          <div className="timer-time">{formatTime(timerInfo.timeRemaining)}</div>
+          <div className="timer-progress-container">
+            <div 
+              className="timer-progress-bar" 
+              style={{ width: `${calculatePercentage()}%` }}
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="timer-time">{formatTime(timerInfo.timeRemaining)}</div>
+      )}
+      
+      <style jsx>{`
+        .timer-container {
+          position: absolute;
+          bottom: 5px;
+          right: 5px;
+          display: flex;
+          align-items: center;
+          background-color: rgba(30, 30, 30, 0.6);
+          border-radius: 4px;
+          padding: 4px 8px;
+          cursor: pointer;
+          z-index: 100;
+          border: 1px solid rgba(160, 160, 160, 0.3);
+        }
+        
+        .timer-icon {
+          color: rgba(240, 240, 240, 0.8);
+          margin-right: 5px;
+          display: flex;
+          align-items: center;
+        }
+        
+        .timer-time {
+          color: rgba(240, 240, 240, 0.8);
+          font-size: 12px;
+          font-family: monospace;
+        }
+        
+        .timer-details {
+          display: flex;
+          flex-direction: column;
+          padding-left: 5px;
+        }
+        
+        .timer-type {
+          color: rgba(240, 240, 240, 0.8);
+          font-size: 10px;
+          margin-bottom: 2px;
+        }
+        
+        .timer-progress-container {
+          width: 100%;
+          height: 3px;
+          background-color: rgba(80, 80, 80, 0.5);
+          border-radius: 2px;
+          margin-top: 3px;
+        }
+        
+        .timer-progress-bar {
+          height: 100%;
+          border-radius: 2px;
+          background-color: rgba(240, 240, 240, 0.8);
+          transition: width 1s linear;
+        }
+      `}</style>
+    </motion.div>
+  );
+};
 
 interface DialogBoxProps {
   onDialogComplete?: () => void;

@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import DialogController from "../controllers/dialogController";
 import HoverDialogController from "../controllers/hoverDialogController";
+import IdleTimeoutController from "../controllers/idleTimeoutController";
 import AchievementController from "../controllers/achievementController";
 import { useAudio } from "../context/AudioManager";
 
@@ -160,6 +161,15 @@ const ContractCard: React.FC = () => {
 
   const handleContractClick = () => {
     if (!isOpen) {
+      // Reset timer pada IdleTimeoutController
+      try {
+        const idleController = IdleTimeoutController.getInstance();
+        idleController.handleUserInteraction();
+        console.log("[ContractCard] Reset timer when opening contract");
+      } catch (e) {
+        console.error("[ContractCard] Error resetting timer when opening contract:", e);
+      }
+
       // Saat kontrak dibuka, tidak perlu dialog yang menggangu
       // Setiap dialog yang saat ini berjalan harus dihentikan
       dialogController.stopTyping();

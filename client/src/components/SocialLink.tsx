@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import HoverDialogController, { HoverLinkType } from "../controllers/hoverDialogController";
+import IdleTimeoutController from "../controllers/idleTimeoutController";
 import AchievementController from "../controllers/achievementController";
 
 interface SocialLinkProps {
@@ -114,6 +115,16 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
   const handleMouseEnter = () => {
     triggerGlitch();
     setIsHovered(true);
+    
+    // Reset timer pada IdleTimeoutController
+    try {
+      const idleController = IdleTimeoutController.getInstance();
+      idleController.handleUserInteraction();
+      console.log("[SocialLink] Reset timer on hover");
+    } catch (e) {
+      console.error("[SocialLink] Error resetting timer on hover:", e);
+    }
+    
     // Trigger hover dialog
     hoverController.handleHoverDialog(mapIdToLinkType(id));
   };
