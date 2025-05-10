@@ -281,23 +281,20 @@ class IdleTimeoutController {
       // Error handling diselesaikan dengan diam
     }
 
-    const isActive =
-      isAudioPlaying ||
-      isDialogAudioProcessing ||
-      isDialogTyping ||
-      isHoverDialogTyping;
+    // PERUBAHAN: Hanya anggap aktif jika ada dialog yang sedang aktif
+    // Audio yang sedang berjalan TIDAK menghentikan timer idle
+    const isActive = isDialogTyping || isHoverDialogTyping;
 
     // Log untuk debugging
-    if (isActive) {
-      console.log("[IdleTimeoutController] Aktivitas terdeteksi:", {
-        audio: isAudioPlaying,
-        audioProcessing: isDialogAudioProcessing,
-        dialog: isDialogTyping,
-        hoverDialog: isHoverDialogTyping,
-      });
-    }
+    console.log("[IdleTimeoutController] Aktivitas terdeteksi:", {
+      audio: isAudioPlaying,
+      audioProcessing: isDialogAudioProcessing,
+      dialog: isDialogTyping,
+      hoverDialog: isHoverDialogTyping,
+      timerBlocked: isActive
+    });
 
-    // Jika salah satu aktif, return true
+    // Jika hanya dialog yang aktif, return true 
     return isActive;
   }
 
@@ -598,9 +595,16 @@ class IdleTimeoutController {
     this.timerStartTime = Date.now();
     console.log("[IdleTimeoutController] Manual reset requested, resetting timer start time");
     
+    // Reset semua flag peringatan
+    this.hasShownFirstWarning = false;
+    this.hasShownSecondWarning = false;
+    this.hasShownFinalWarning = false;
+    
     // Reset semua timer dan mulai ulang
     this.clearAllIdleTimers();
     this.startIdleTimer();
+    
+    console.log("[IdleTimeoutController] All warning flags and timers have been reset");
   }
 
   // Handler untuk interaksi user
