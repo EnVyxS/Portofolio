@@ -771,11 +771,11 @@ class IdleTimeoutController {
         );
       }
 
-      // Set global flag untuk memaksa dialog box muncul
+      // Set global flag untuk memaksa dialog box muncul HANYA jika ada teks
       // @ts-ignore - akses properti global dari window
-      window.__forceShowIdleWarning = true;
+      window.__forceShowIdleWarning = (text && text.trim() !== "" && text !== "...") ? true : false;
       console.log(
-        "[IdleTimeoutController] Setting global flag to force show idle warning dialog",
+        `[IdleTimeoutController] Setting global flag to force show idle warning dialog: ${window.__forceShowIdleWarning}, text: "${text?.substring(0, 20)}..."`,
       );
     } catch (e) {
       console.error("Error preparing dialog box for idle warning:", e);
@@ -843,11 +843,11 @@ class IdleTimeoutController {
   private throwUser(): void {
     console.log("[IdleTimeoutController] Executing throw user action");
 
-    // Set global flag untuk memaksa dialog box muncul
+    // Set global flag untuk memaksa dialog box muncul jika ada teks
     // @ts-ignore - akses properti global dari window
-    window.__forceShowIdleWarning = true;
+    window.__forceShowIdleWarning = (IDLE_DIALOGS.THROW_WARNING && IDLE_DIALOGS.THROW_WARNING.trim() !== "" && IDLE_DIALOGS.THROW_WARNING !== "...") ? true : false;
     console.log(
-      "[IdleTimeoutController] Setting global flag to force show throw warning dialog",
+      `[IdleTimeoutController] Setting global flag to force show throw warning dialog: ${window.__forceShowIdleWarning}`,
     );
 
     // Unlock achievement for making character angry
@@ -966,9 +966,9 @@ class IdleTimeoutController {
 
     // Set global flag untuk memaksa dialog box muncul
     // @ts-ignore - akses properti global dari window
-    window.__forceShowIdleWarning = true;
+    window.__forceShowIdleWarning = (IDLE_DIALOGS.PUNCH_WARNING && IDLE_DIALOGS.PUNCH_WARNING.trim() !== "" && IDLE_DIALOGS.PUNCH_WARNING !== "...") ? true : false;
     console.log(
-      "[IdleTimeoutController] Setting global flag to force show punch warning dialog",
+      `[IdleTimeoutController] Setting global flag to force show punch warning dialog: ${window.__forceShowIdleWarning}`,
     );
 
     // Tambahkan dialog peringatan untuk 'memukul'

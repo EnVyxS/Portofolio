@@ -568,19 +568,33 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // Tambahkan log explisit untuk membantu debugging
   console.log(`[DialogBox] Dialog status check - isDialogFinished: ${isDialogFinished}, text empty: ${text === ""}, contract active: ${isContractDialogActive}, forceShow: ${forceShowIdleWarning}`);
   
-  if (forceShowIdleWarning) {
-    // Jika flag force show aktif, pastikan dialog box selalu ditampilkan
+  // Hanya tampilkan dialog box dengan forceShowIdleWarning jika ada teks yang berarti
+  if (forceShowIdleWarning && text && text.trim() !== "" && text !== "...") {
+    // Jika flag force show aktif dan ada teks yang berarti, pastikan dialog box ditampilkan
     // Reset isDialogFinished jika perlu untuk memastikan dialog box muncul kembali
     if (isDialogFinished) {
       console.log("[DialogBox] Force resetting isDialogFinished to false to show idle warning dialog");
       setIsDialogFinished(false);
     }
+  } else if (forceShowIdleWarning) {
+    // Jika flag force show aktif tapi tidak ada teks berarti, reset flag
+    console.log("[DialogBox] Force show active but no valid text, hiding dialog box");
+    // Reset flag secara langsung (bukan solusi ideal tapi efektif)
+    try {
+      // @ts-ignore
+      window.__forceShowIdleWarning = false;
+    } catch (e) {
+      console.error("Error resetting force show flag:", e);
+    }
   }
   
-  if (isDialogFinished && text === "" && !isContractDialogActive && !forceShowIdleWarning) {
+  // Tutup dialog box dalam kondisi berikut:
+  // 1. Dialog sudah selesai ATAU tidak ada teks berarti, DAN
+  // 2. Bukan dialog kontrak
+  if ((isDialogFinished || !text || text === "" || text === "..." || text.trim() === "") && !isContractDialogActive) {
     // Debug untuk membantu melihat status dialog
-    console.log("[DialogBox] Dialog finished with empty text, hiding dialog box");
-    return null; // Hanya return null jika tidak ada teks sama sekali dan bukan dialog kontrak dan bukan force show
+    console.log("[DialogBox] Dialog finished or empty text, hiding dialog box");
+    return null; // Jangan tampilkan dialog box jika tidak ada konten yang berarti
   }
   
   // Periksa apakah ini adalah dialog kontrak (CONTRACT_RESPONSES) berdasarkan teks
