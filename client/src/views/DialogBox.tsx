@@ -103,88 +103,81 @@ const TimerDisplay: React.FC = () => {
   // Jika timer tidak aktif, jangan tampilkan apapun
   if (!isVisible) return null;
   
+  // Definisikan styles sebagai objek
+  const timerStyles = {
+    container: {
+      position: 'absolute' as const,
+      bottom: '5px',
+      right: '5px',
+      display: 'flex',
+      alignItems: 'center',
+      backgroundColor: 'rgba(30, 30, 30, 0.6)',
+      borderRadius: '4px',
+      padding: '4px 8px',
+      cursor: 'pointer',
+      zIndex: 100,
+      border: '1px solid rgba(160, 160, 160, 0.3)'
+    },
+    icon: {
+      color: 'rgba(240, 240, 240, 0.8)',
+      marginRight: '5px',
+      display: 'flex',
+      alignItems: 'center'
+    },
+    time: {
+      color: 'rgba(240, 240, 240, 0.8)',
+      fontSize: '12px',
+      fontFamily: 'monospace'
+    },
+    details: {
+      display: 'flex',
+      flexDirection: 'column' as const,
+      paddingLeft: '5px'
+    },
+    type: {
+      color: 'rgba(240, 240, 240, 0.8)',
+      fontSize: '10px',
+      marginBottom: '2px'
+    },
+    progressContainer: {
+      width: '100%',
+      height: '3px',
+      backgroundColor: 'rgba(80, 80, 80, 0.5)',
+      borderRadius: '2px',
+      marginTop: '3px'
+    },
+    progressBar: {
+      height: '100%',
+      borderRadius: '2px',
+      backgroundColor: 'rgba(240, 240, 240, 0.8)',
+      transition: 'width 1s linear',
+      width: `${calculatePercentage()}%`
+    }
+  };
+  
   return (
     <motion.div
-      className="timer-container"
+      style={timerStyles.container}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
       onClick={() => setIsExpanded(!isExpanded)}
       whileHover={{ scale: 1.05 }}
     >
-      <div className="timer-icon">
+      <div style={timerStyles.icon}>
         <FaClock size={14} />
       </div>
       {isExpanded ? (
-        <div className="timer-details">
-          <div className="timer-type">{timerInfo.type}</div>
-          <div className="timer-time">{formatTime(timerInfo.timeRemaining)}</div>
-          <div className="timer-progress-container">
-            <div 
-              className="timer-progress-bar" 
-              style={{ width: `${calculatePercentage()}%` }}
-            />
+        <div style={timerStyles.details}>
+          <div style={timerStyles.type}>{timerInfo.type}</div>
+          <div style={timerStyles.time}>{formatTime(timerInfo.timeRemaining)}</div>
+          <div style={timerStyles.progressContainer}>
+            <div style={timerStyles.progressBar} />
           </div>
         </div>
       ) : (
-        <div className="timer-time">{formatTime(timerInfo.timeRemaining)}</div>
+        <div style={timerStyles.time}>{formatTime(timerInfo.timeRemaining)}</div>
       )}
-      
-      <style jsx>{`
-        .timer-container {
-          position: absolute;
-          bottom: 5px;
-          right: 5px;
-          display: flex;
-          align-items: center;
-          background-color: rgba(30, 30, 30, 0.6);
-          border-radius: 4px;
-          padding: 4px 8px;
-          cursor: pointer;
-          z-index: 100;
-          border: 1px solid rgba(160, 160, 160, 0.3);
-        }
-        
-        .timer-icon {
-          color: rgba(240, 240, 240, 0.8);
-          margin-right: 5px;
-          display: flex;
-          align-items: center;
-        }
-        
-        .timer-time {
-          color: rgba(240, 240, 240, 0.8);
-          font-size: 12px;
-          font-family: monospace;
-        }
-        
-        .timer-details {
-          display: flex;
-          flex-direction: column;
-          padding-left: 5px;
-        }
-        
-        .timer-type {
-          color: rgba(240, 240, 240, 0.8);
-          font-size: 10px;
-          margin-bottom: 2px;
-        }
-        
-        .timer-progress-container {
-          width: 100%;
-          height: 3px;
-          background-color: rgba(80, 80, 80, 0.5);
-          border-radius: 2px;
-          margin-top: 3px;
-        }
-        
-        .timer-progress-bar {
-          height: 100%;
-          border-radius: 2px;
-          background-color: rgba(240, 240, 240, 0.8);
-          transition: width 1s linear;
-        }
-      `}</style>
     </motion.div>
   );
 };
@@ -624,6 +617,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         className={`dialog-box ${dialogSource === "hover" ? "hover-dialog" : ""}`}
         data-angry={text.includes("fuck") || text.includes("ENOUGH") || text.includes("GET OUT") || text.includes("ASKED FOR THIS")}
       >
+        {/* Tampilkan timer */}
+        <TimerDisplay />
+        
         <div
           className={`character-name ${dialogSource === "hover" ? "hover-character" : ""}`}
         >
