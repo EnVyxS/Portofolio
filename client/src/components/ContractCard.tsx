@@ -164,7 +164,7 @@ const ContractCard: React.FC = () => {
       // Reset timer pada IdleTimeoutController
       try {
         const idleController = IdleTimeoutController.getInstance();
-        idleController.handleUserInteraction();
+        idleController.resetIdleTimer(); // Menggunakan method khusus untuk reset
         console.log("[ContractCard] Reset timer when opening contract");
       } catch (e) {
         console.error("[ContractCard] Error resetting timer when opening contract:", e);
