@@ -590,14 +590,25 @@ class IdleTimeoutController {
     }
   }
 
+  // Handler untuk reset timer secara manual (dari link hover atau kontrak)
+  public resetIdleTimer(): void {
+    this.lastInteractionTime = Date.now();
+    
+    // Reset timer start time
+    this.timerStartTime = Date.now();
+    console.log("[IdleTimeoutController] Manual reset requested, resetting timer start time");
+    
+    // Reset semua timer dan mulai ulang
+    this.clearAllIdleTimers();
+    this.startIdleTimer();
+  }
+
   // Handler untuk interaksi user
   public handleUserInteraction(): void {
     this.lastInteractionTime = Date.now();
     
-    // Reset timer start time pada setiap interaksi
-    this.timerStartTime = Date.now();
-    console.log("[IdleTimeoutController] User interaction detected, reset timer start time");
-
+    // TIDAK me-reset timer start time untuk gerakan mouse biasa
+    
     // Jika dialog model atau audio masih aktif, jangan mulai timer baru
     if (this.isAudioOrDialogActive()) {
       console.log(
