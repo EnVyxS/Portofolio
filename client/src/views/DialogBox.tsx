@@ -590,8 +590,13 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   
   // Tutup dialog box dalam kondisi berikut:
   // 1. Dialog sudah selesai ATAU tidak ada teks berarti, DAN
-  // 2. Bukan dialog kontrak
-  if ((isDialogFinished || !text || text === "" || text === "..." || text.trim() === "") && !isContractDialogActive) {
+  // 2. Bukan dialog kontrak, DAN
+  // 3. Bukan hover dialog yang persistent (yang memerlukan interaksi user)
+  const isHoverDialogPersistent = dialogSource === "hover" && isDialogPersistent(text);
+  
+  if ((isDialogFinished || !text || text === "" || text === "..." || text.trim() === "") && 
+      !isContractDialogActive && 
+      !isHoverDialogPersistent) {
     // Debug untuk membantu melihat status dialog
     console.log("[DialogBox] Dialog finished or empty text, hiding dialog box");
     return null; // Jangan tampilkan dialog box jika tidak ada konten yang berarti
