@@ -351,7 +351,7 @@ class DialogController {
       try {
         const hoverDialogController = HoverDialogController.getInstance();
         if (hoverDialogController) {
-          // Reset SEMUA state di HoverDialogController yang bisa mengganggu dialog
+          // Pastikan hover dialog dinonaktifkan selama dialog return
           if (typeof hoverDialogController.setDialogSource === 'function') {
             hoverDialogController.setDialogSource('main');
             console.log("[DialogController] Set dialog source to 'main' for return dialog");
@@ -362,42 +362,13 @@ class DialogController {
             hoverDialogController.setHasInteractedWithHover(false);
             console.log("[DialogController] Reset hover interaction flag to false");
           }
-
-          // Reset idle timeout status yang mungkin masih aktif
-          if (typeof hoverDialogController.setIdleTimeoutOccurred === 'function') {
-            hoverDialogController.setIdleTimeoutOccurred(false);
-            console.log("[DialogController] Reset idle timeout status to false");
-          }
-
-          // Reset semua annoyance flags
-          if (typeof hoverDialogController.resetAllState === 'function') {
-            hoverDialogController.resetAllState();
-            console.log("[DialogController] Reset all HoverDialogController state");
-          }
-
-          // Stop any ongoing typing in hover dialog
-          if (typeof hoverDialogController.stopTyping === 'function') {
-            hoverDialogController.stopTyping();
-            console.log("[DialogController] Stopped any ongoing hover dialog typing");
-          }
         }
       } catch (e) {
         console.error("[DialogController] Failed to reset hover controller state:", e);
       }
       
-      // Force reset SEMUA global properties yang bisa mengganggu dialog
+      // Force reset dialog box visibility dari global properties
       try {
-        // Reset global flag untuk force show idle warning
-        // @ts-ignore
-        window.__forceShowIdleWarning = false;
-        console.log("[DialogController] Reset global __forceShowIdleWarning flag");
-
-        // Reset contract dialog status
-        // @ts-ignore
-        window.__contractDialogActive = false;
-        console.log("[DialogController] Reset global __contractDialogActive flag");
-
-        // Force reset dialog box visibility
         // @ts-ignore
         if (window.__dialogBoxIsFinishedSetter) {
           // @ts-ignore
@@ -474,36 +445,21 @@ class DialogController {
           console.error("[DialogController] Error starting audio playback:", e);
         });
       
-      // Fungsi rekursif untuk simulasi typing dengan error handling
+      // Fungsi rekursif untuk simulasi typing
       const typeNextChar = () => {
-        try {
-          if (currentIndex < textLength) {
-            currentText += dialogText[currentIndex];
-            currentIndex++;
-            
-            // Kirim callback dengan text saat ini
-            if (callback) {
-              callback(currentText, false);
-            }
-            
-            // Jadwalkan karakter selanjutnya dalam 50ms
-            setTimeout(typeNextChar, 50); // 50ms per karakter
-          } else {
-            // Typing selesai, kirim callback dengan completed=true
-            if (callback) {
-              callback(currentText, true);
-            }
-            console.log("[DialogController] RETURN_DIALOG typing completed successfully");
-            
-            // Mark that post-reset dialog is complete
-            this.isPostResetDialog = false;
-          }
-        } catch (error) {
-          console.error("[DialogController] Error during return dialog typing:", error);
-          // Fallback - complete the dialog
-          if (callback) {
-            callback(dialogText, true);
-          }
+        if (currentIndex < textLength) {
+          currentText += dialogText[currentIndex];
+          currentIndex++;
+          
+          // Kirim callback dengan text saat ini
+          if (callback) callback(currentText, false);
+          
+          // Jadwalkan karakter selanjutnya dalam 50ms
+          setTimeout(typeNextChar, 50); // 50ms per karakter
+        } else {
+          // Typing selesai, kirim callback dengan completed=true
+          if (callback) callback(currentText, true);
+          console.log("[DialogController] RETURN_DIALOG typing completed successfully");
         }
       };
       
