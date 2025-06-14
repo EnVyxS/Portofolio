@@ -305,34 +305,29 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           return;
         }
 
-        // Move to the next dialog
-        dialogController.nextDialog((text, complete) => {
-          // PERBAIKAN: Cek apakah sedang dalam mode hover dialog untuk mencegah penimpaan  
-          const currentDialogSource = dialogSource;
-          if (currentDialogSource === "hover") {
-            console.log("[DialogBox] Currently showing hover dialog, skipping main dialog update to prevent text override");
-            return;
-          }
-          
-          setText(text);
-          setIsComplete(complete);
+        // Move to the next dialog hanya jika tidak sedang dalam mode hover
+        if (dialogSource !== "hover") {
+          dialogController.nextDialog((text, complete) => {
+            setText(text);
+            setIsComplete(complete);
 
-          // Get current dialog to display character name
-          const currentDialog = dialogController.getCurrentDialog();
-          if (currentDialog) {
-            setCharacterName(currentDialog.character);
-            // Update hover dialog controller with completion status
-            hoverDialogController.setDialogCompleted(complete);
-          } else {
-            // Tetap tandai dialog sebagai selesai untuk interaksi hover
-            hoverDialogController.setDialogCompleted(true);
+            // Get current dialog to display character name
+            const currentDialog = dialogController.getCurrentDialog();
+            if (currentDialog) {
+              setCharacterName(currentDialog.character);
+              // Update hover dialog controller with completion status
+              hoverDialogController.setDialogCompleted(complete);
+            } else {
+              // Tetap tandai dialog sebagai selesai untuk interaksi hover
+              hoverDialogController.setDialogCompleted(true);
 
-            // Jangan set isDialogFinished ke true agar tetap menampilkan dialog box
-            if (onDialogComplete) {
-              onDialogComplete();
+              // Jangan set isDialogFinished ke true agar tetap menampilkan dialog box
+              if (onDialogComplete) {
+                onDialogComplete();
+              }
             }
-          }
-        });
+          });
+        }
       }
     } else if (dialogSource === "hover") {
       // For hover dialogs

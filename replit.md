@@ -107,6 +107,7 @@ This is an interactive portfolio application built as a Dark Souls-inspired char
 ## Changelog
 
 - June 14, 2025. Initial setup
+- June 14, 2025. Fixed dialog box race condition bug - prevented hover dialog text from being overridden by main dialog when user spams next/skip buttons
 
 ## User Preferences
 
