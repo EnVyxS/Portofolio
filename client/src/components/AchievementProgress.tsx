@@ -342,24 +342,7 @@ const AchievementProgress: React.FC<AchievementProgressProps> = ({ className }) 
         )}
       </AnimatePresence>
       
-      {/* Dark Souls style achievement unlock animation */}
-      <AnimatePresence>
-        {newUnlock && (
-          <motion.div 
-            className="dark-souls-achievement-popup"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div 
-              className="souls-achievement-text"
-              animate={achievementTextControls}
-            >
-              <span className="souls-achievement-heading font-souls"></span>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
       
       {/* Achievement Gallery Modal */}
       <AnimatePresence>
