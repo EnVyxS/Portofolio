@@ -285,31 +285,11 @@ class IdleTimeoutController {
       isDialogTyping = this.dialogController.isCurrentlyTyping();
     }
 
-    // Cek apakah hover dialog sedang diketik
-    let isHoverDialogTyping = false;
-    try {
-      if (typeof this.hoverDialogController.isTypingHoverDialog === "function") {
-        isHoverDialogTyping = this.hoverDialogController.isTypingHoverDialog();
-      }
-    } catch (error) {
-      // Error handling diselesaikan dengan diam
-    }
-
     // Cek apakah idle dialog sedang diketik (new check)
     const isIdleDialogTyping = this.isTypingIdle;
 
-    // Consider all dialog types as active
-    const isActive = isDialogTyping || isHoverDialogTyping || isIdleDialogTyping;
-
-    // Log untuk debugging
-    console.log("[IdleTimeoutController] Aktivitas terdeteksi:", {
-      audio: isAudioPlaying,
-      audioProcessing: isDialogAudioProcessing,
-      dialog: isDialogTyping,
-      hoverDialog: isHoverDialogTyping,
-      idleDialog: isIdleDialogTyping,
-      timerBlocked: isActive
-    });
+    // Only block if main dialog is typing OR audio is playing, don't block for finished dialogs
+    const isActive = isDialogTyping || isIdleDialogTyping || isAudioPlaying;
 
     return isActive;
   }
@@ -726,12 +706,24 @@ class IdleTimeoutController {
     this.hasShownFirstWarning = false;
     this.hasShownSecondWarning = false;
     this.hasShownFinalWarning = false;
+    this.hasBeenThrown = false;
+    
+    // Clear processing warnings set
+    this.processingWarnings.clear();
     
     // Reset semua timer dan mulai ulang
     this.clearAllIdleTimers();
     this.startIdleTimer();
     
     console.log("[IdleTimeoutController] All warning flags and timers have been reset");
+  }
+
+  // Method untuk force trigger first warning (untuk testing)
+  public forceFirstWarning(): void {
+    console.log("[IdleTimeoutController] Force triggering first warning");
+    this.hasShownFirstWarning = false;
+    this.processingWarnings.delete('first_warning');
+    this.showIdleWarning(IDLE_DIALOGS.FIRST_WARNING);
   }
 
   // Handler untuk interaksi user
