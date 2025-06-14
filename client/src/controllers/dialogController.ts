@@ -355,16 +355,21 @@ class DialogController {
       console.error("[DialogController] Failed to reset hover controller:", e);
     }
     
-    // Use the existing typeDialog method for consistency
-    const dialogText = RETURN_DIALOG.text;
+    // Create a proper Dialog object for RETURN_DIALOG
+    const returnDialog: Dialog = {
+      id: 9998,
+      text: RETURN_DIALOG.text,
+      character: RETURN_DIALOG.character,
+      persistent: false
+    };
     
     // Start audio
-    this.elevenlabsService.speakText(dialogText).catch(e => {
+    this.elevenlabsService.speakText(returnDialog.text).catch(e => {
       console.error("[DialogController] Error playing return dialog audio:", e);
     });
     
-    // Type the dialog
-    await this.typeDialog(dialogText, callback);
+    // Type the dialog using the proper typeDialog method
+    await this.typeDialog(returnDialog, callback);
     console.log("[DialogController] RETURN_DIALOG completed");
   }
   
