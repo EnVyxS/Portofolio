@@ -346,6 +346,26 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         
         // Tetap tampilkan dialog box untuk dialog berikutnya
       }
+    } else if (dialogSource === "idle") {
+      // For idle dialogs
+      if (!isComplete) {
+        // Jika dialog masih dalam proses typing, langsung tampilkan full text
+        idleTimeoutController.skipToFullIdleText();
+        setIsComplete(true);
+      } else {
+        // Jika dialog sudah selesai, user menekan NEXT
+        // Reset idle dialog state tetapi JANGAN set isDialogFinished ke true
+        idleTimeoutController.stopTyping();
+        
+        // Reset text untuk mempersiapkan dialog berikutnya
+        setText("");
+        setIsComplete(false);
+        
+        // Reset dialog source back to main
+        setDialogSource("main");
+        
+        // Tetap tampilkan dialog box untuk dialog berikutnya
+      }
     }
   }, [
     dialogSource,
@@ -489,13 +509,21 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       setText(text);
       setIsComplete(complete);
       setDialogSource("hover");
-      setCharacterName("DIVA JUAN NUR TAQARRUB"); // Dialog hover dari DIVA JUAN (idle warnings juga)
+      setCharacterName("DIVA JUAN NUR TAQARRUB"); // Dialog hover dari DIVA JUAN
+    });
+
+    // Set idle dialog callback untuk menangkap idle dialog
+    idleTimeoutController.setIdleTextCallback((text, complete) => {
+      setText(text);
+      setIsComplete(complete);
+      setDialogSource("idle");
+      setCharacterName("DIVA JUAN NUR TAQARRUB"); // Dialog idle dari DIVA JUAN (idle warnings)
     });
 
     // Buat function untuk set dialogSource dari luar komponen
-    hoverDialogController.setDialogSource = (source: "main" | "hover") => {
+    hoverDialogController.setDialogSource = (source: "main" | "hover" | "idle") => {
       setDialogSource(source);
-      if (source === "main") {
+      if (source === "main" || source === "idle") {
         setCharacterName("DIVA JUAN NUR TAQARRUB");
       }
     };

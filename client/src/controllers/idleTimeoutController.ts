@@ -123,6 +123,15 @@ class IdleTimeoutController {
   // Timer aktif saat ini (untuk menampilkan jenis timer yang sedang berjalan)
   private currentActiveTimer: "idle" | "hover" | null = null;
 
+  // Typing system properties (matching hoverDialogController and dialogController)
+  private typingSpeed: number = 50; // ms per character
+  private isTypingIdle: boolean = false;
+  private idleTextCallback: ((text: string, isComplete: boolean) => void) | null = null;
+  private currentText: string = '';
+  private fullText: string = '';
+  private charIndex: number = 0;
+  private typingInterval: NodeJS.Timeout | null = null;
+
   private constructor() {
     this.dialogController = DialogController.getInstance();
     this.hoverDialogController = HoverDialogController.getInstance();
@@ -263,27 +272,25 @@ class IdleTimeoutController {
 
     // Cek apakah ada dialog yang sedang diketik
     let isDialogTyping = false;
-    // Pastikan method isCurrentlyTyping ada di dialogController
     if (typeof this.dialogController.isCurrentlyTyping === "function") {
       isDialogTyping = this.dialogController.isCurrentlyTyping();
     }
 
-    // Cek juga apakah hover dialog sedang diketik
+    // Cek apakah hover dialog sedang diketik
     let isHoverDialogTyping = false;
-    // Gunakan try/catch untuk menghindari error jika method tidak ada
     try {
-      if (
-        typeof this.hoverDialogController.isTypingHoverDialog === "function"
-      ) {
+      if (typeof this.hoverDialogController.isTypingHoverDialog === "function") {
         isHoverDialogTyping = this.hoverDialogController.isTypingHoverDialog();
       }
     } catch (error) {
       // Error handling diselesaikan dengan diam
     }
 
-    // PERUBAHAN: Hanya anggap aktif jika ada dialog yang sedang aktif
-    // Audio yang sedang berjalan TIDAK menghentikan timer idle
-    const isActive = isDialogTyping || isHoverDialogTyping;
+    // Cek apakah idle dialog sedang diketik (new check)
+    const isIdleDialogTyping = this.isTypingIdle;
+
+    // Consider all dialog types as active
+    const isActive = isDialogTyping || isHoverDialogTyping || isIdleDialogTyping;
 
     // Log untuk debugging
     console.log("[IdleTimeoutController] Aktivitas terdeteksi:", {
@@ -291,10 +298,10 @@ class IdleTimeoutController {
       audioProcessing: isDialogAudioProcessing,
       dialog: isDialogTyping,
       hoverDialog: isHoverDialogTyping,
+      idleDialog: isIdleDialogTyping,
       timerBlocked: isActive
     });
 
-    // Jika hanya dialog yang aktif, return true 
     return isActive;
   }
 
@@ -696,8 +703,114 @@ class IdleTimeoutController {
   // Set untuk melacak dialog marah yang sudah ditampilkan
   private displayedAngryDialogs: Set<string> = new Set();
 
+  // Public methods for typing status (matching hoverDialogController interface)
+  public isTypingIdleDialog(): boolean {
+    return this.isTypingIdle;
+  }
+
+  public setIdleTextCallback(callback: (text: string, isComplete: boolean) => void): void {
+    this.idleTextCallback = callback;
+  }
+
+  // Stop typing method (matching hoverDialogController)
+  public stopTyping(): void {
+    this.isTypingIdle = false;
+    if (this.typingInterval) {
+      clearInterval(this.typingInterval);
+      this.typingInterval = null;
+    }
+    
+    // Reset text callback
+    if (this.idleTextCallback) {
+      this.idleTextCallback("", true);
+    }
+    this.currentText = "";
+    this.fullText = "";
+  }
+
+  // Start typing animation (matching dialogController logic)
+  private async startTypingAnimation(text: string): Promise<void> {
+    this.fullText = text;
+    this.currentText = '';
+    this.charIndex = 0;
+    this.isTypingIdle = true;
+    
+    // Estimate duration based on text length (matching dialogController logic)
+    const estimatedDuration = Math.max(3000, (text.length / 10) * 1000);
+    
+    // Try to speak the text if voice is enabled
+    let audioStarted = false;
+    if (this.elevenlabsService.getApiKey()) {
+      console.log("[IdleTimeoutController] Generating speech for text:", text);
+      audioStarted = await this.elevenlabsService.speakText(text);
+    }
+    
+    // Adjust typing speed based on audio
+    const typingDuration = audioStarted ? estimatedDuration : (text.length * this.typingSpeed);
+    const typingSpeed = audioStarted 
+      ? Math.max(20, Math.min(50, typingDuration / text.length)) 
+      : this.typingSpeed;
+    
+    console.log(`[IdleTimeoutController] Starting typing animation for idle dialog in ${Math.round(typingDuration)}ms`);
+    
+    // Set up audio completion timer if audio is playing
+    let audioCompletionTimer: NodeJS.Timeout | null = null;
+    if (audioStarted) {
+      audioCompletionTimer = setTimeout(() => {
+        if (this.isTypingIdle) {
+          console.log("[IdleTimeoutController] Audio completion timer triggered - finishing idle dialog typing");
+          this.skipToFullIdleText();
+        }
+      }, estimatedDuration + 1000);
+    }
+    
+    // Start typewriter effect
+    this.typingInterval = setInterval(() => {
+      if (this.charIndex < this.fullText.length) {
+        this.currentText += this.fullText[this.charIndex];
+        this.charIndex++;
+        if (this.idleTextCallback) {
+          this.idleTextCallback(this.currentText, false);
+        }
+      } else {
+        // Typing complete
+        this.isTypingIdle = false;
+        if (this.typingInterval) {
+          clearInterval(this.typingInterval);
+          this.typingInterval = null;
+        }
+        
+        // Clear audio completion timer if still active
+        if (audioCompletionTimer) {
+          clearTimeout(audioCompletionTimer);
+          audioCompletionTimer = null;
+        }
+        
+        if (this.idleTextCallback) {
+          this.idleTextCallback(this.currentText, true);
+        }
+      }
+    }, typingSpeed);
+  }
+
+  // Skip to full text method (matching dialogController)
+  public skipToFullIdleText(): void {
+    if (this.typingInterval) {
+      clearInterval(this.typingInterval);
+      this.typingInterval = null;
+    }
+    
+    this.elevenlabsService.stopSpeaking();
+    this.currentText = this.fullText;
+    this.isTypingIdle = false;
+    
+    if (this.idleTextCallback) {
+      this.idleTextCallback(this.fullText, true);
+    }
+  }
+
   // Method untuk menampilkan peringatan
-  private showIdleWarning(text: string): void {
+  private async showIdleWarning(text: string): Promise<void> {
     // Cek apakah ini dialog marah dan sudah pernah ditampilkan
     const isAngryDialog =
       text.includes("KEEP PUSHING") ||
@@ -724,7 +837,6 @@ class IdleTimeoutController {
 
       // Final warning setelah 9 menit
       if (text.includes("staring at me for nine damn minutes")) {
-        // Force notification parameter = true untuk memastikan muncul notifikasi
         achievementController.unlockAchievement("patience", true);
         console.log(
           "[IdleTimeoutController] Unlocked 'patience' achievement for staring at screen with forced notification",
@@ -746,8 +858,6 @@ class IdleTimeoutController {
           "[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset with forced notification",
         );
       }
-
-      // Menghapus referensi achievement untuk hover berlebihan sesuai permintaan
     } catch (error) {
       console.error("Failed to unlock achievement:", error);
     }
@@ -755,88 +865,45 @@ class IdleTimeoutController {
     // Hentikan semua aktivitas dialog terlebih dahulu
     this.dialogController.stopTyping();
     this.hoverDialogController.stopTyping();
+    this.stopTyping(); // Stop our own typing if any
 
-    // Pastikan dialog box ditampilkan untuk idle warnings
+    console.log(`[IdleTimeoutController] Showing warning message: "${text}"`);
+
+    // Set dialog source ke 'main' untuk memastikan teks muncul di dialog box utama
+    if (this.hoverDialogController.setDialogSource) {
+      console.log(
+        "[IdleTimeoutController] Setting dialog source to 'main' before showing idle warning",
+      );
+      this.hoverDialogController.setDialogSource("main");
+    }
+
+    // Ensure the dialog box is visible and ready
     try {
-      // Reset isDialogFinished untuk memastikan dialog box muncul kembali jika sudah di-hide
-      // @ts-ignore - akses properti global dari window
-      if (
-        window.__dialogBoxIsFinishedSetter &&
-        typeof window.__dialogBoxIsFinishedSetter === "function"
-      ) {
-        // @ts-ignore
-        window.__dialogBoxIsFinishedSetter(false);
-        console.log(
-          "[IdleTimeoutController] Reset dialog finished state to show dialog box",
-        );
+      // Use type assertion to avoid TypeScript errors
+      const windowAny = window as any;
+      
+      if (windowAny.__dialogBoxIsFinishedSetter && typeof windowAny.__dialogBoxIsFinishedSetter === "function") {
+        windowAny.__dialogBoxIsFinishedSetter(false);
+        console.log("[IdleTimeoutController] Reset dialog finished state to show dialog box");
       }
 
-      // Set global flag untuk memaksa dialog box muncul HANYA jika ada teks
-      // @ts-ignore - akses properti global dari window
-      window.__forceShowIdleWarning = (text && text.trim() !== "" && text !== "...") ? true : false;
-      console.log(
-        `[IdleTimeoutController] Setting global flag to force show idle warning dialog: ${window.__forceShowIdleWarning}, text: "${text?.substring(0, 20)}..."`,
-      );
+      // Set global flag to force show idle warning
+      windowAny.__forceShowIdleWarning = (text && text.trim() !== "" && text !== "...") ? true : false;
+      console.log(`[IdleTimeoutController] Setting global flag to force show idle warning dialog: ${windowAny.__forceShowIdleWarning}`);
     } catch (e) {
       console.error("Error preparing dialog box for idle warning:", e);
     }
 
-    // Pastikan tidak ada audio yang sedang diputar dengan delay untuk memastikan
-    // semua audio benar-benar berhenti
-    setTimeout(() => {
-      // Hentikan audio apapun yang masih berjalan
+    // Wait a moment to ensure previous audio stops
+    setTimeout(async () => {
       this.elevenlabsService.stopSpeaking();
-
-      console.log(`[IdleTimeoutController] Showing warning message: "${text}"`);
-
-      // Set dialog source ke 'main' terlebih dahulu untuk memastikan teks muncul di dialog box utama
-      if (this.hoverDialogController.setDialogSource) {
-        console.log(
-          "[IdleTimeoutController] Setting dialog source to 'main' before showing idle warning",
-        );
-        this.hoverDialogController.setDialogSource("main");
-      }
-
-      // Tambahkan delay kecil untuk memastikan semua suara berhenti sebelum memulai dialog baru
-      setTimeout(() => {
-        // Tambahkan pre-check apakah dialog box muncul dan reset jika tidak
-        try {
-          // @ts-ignore
-          if (
-            window.__dialogBoxTextSetter &&
-            typeof window.__dialogBoxTextSetter === "function"
-          ) {
-            // Coba set text langsung via global function untuk memastikan
-            // @ts-ignore
-            window.__dialogBoxTextSetter(text);
-            console.log(
-              "[IdleTimeoutController] Directly set text to dialog box:",
-              text,
-            );
-          }
-        } catch (e) {
-          console.error("Error directly setting dialog text:", e);
-        }
-
-        // Tampilkan dialog peringatan dengan text custom
-        // Dialog Controller akan mengelola audio secara otomatis
-        this.dialogController.showCustomDialog(
-          text,
-          (dialogText, isComplete) => {
-            if (isComplete) {
-              // Tandai bahwa user sudah berinteraksi dengan dialog
-              this.hoverDialogController.setHasInteractedWithHover(true);
-
-              // Setelah dialog selesai, jangan langsung hapus flag agar dialog tetap terlihat
-              // Flag akan dihapus saat user berinteraksi dengan dialog
-            }
-          },
-        );
-      }, 200);
+      
+      // Start our own typing animation (matching hoverDialogController logic)
+      await this.startTypingAnimation(text);
+      
+      // Mark that user has interacted with idle dialog
+      this.hoverDialogController.setHasInteractedWithHover(true);
     }, 100);
-
-    // Tidak perlu memanggil elevenlabsService.speakText disini
-    // karena sudah dipanggil oleh dialogController.showCustomDialog
   }
 
   // Method untuk 'melempar' user
