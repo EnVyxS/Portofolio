@@ -231,13 +231,13 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     // Nonaktifkan tombol setelah diklik (mencegah spam klik)
     setIsButtonDisabled(true);
     
-    // Aktifkan tombol kembali setelah delay tertentu (300ms)
+    // Aktifkan tombol kembali setelah delay tertentu (1000ms)
     if (buttonTimeoutRef.current) {
       clearTimeout(buttonTimeoutRef.current);
     }
     buttonTimeoutRef.current = setTimeout(() => {
       setIsButtonDisabled(false);
-    }, 300); // Jeda 300ms sebelum tombol dapat diklik lagi
+    }, 1000); // Jeda 1 detik sebelum tombol dapat diklik lagi
     
     // Reset force show idle warning flag saat user menekan tombol continue
     try {
@@ -1133,7 +1133,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           right: 0;
           bottom: 0;
           background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
-          animation: cooldown-sweep 0.3s ease-out;
+          animation: cooldown-sweep 1s ease-out;
           z-index: 3;
         }
         
