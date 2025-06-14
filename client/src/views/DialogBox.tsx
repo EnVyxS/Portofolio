@@ -269,28 +269,30 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
             return;
           }
 
-          // Move to the next dialog
-          dialogController.nextDialog((text, complete) => {
-            setText(text);
-            setIsComplete(complete);
+          // Move to the next dialog hanya jika tidak sedang dalam mode hover
+          if (dialogSource !== "hover") {
+            dialogController.nextDialog((text, complete) => {
+              setText(text);
+              setIsComplete(complete);
 
-            // Get current dialog to display character name
-            const currentDialog = dialogController.getCurrentDialog();
-            if (currentDialog) {
-              setCharacterName(currentDialog.character);
-              // Update hover dialog controller with completion status
-              hoverDialogController.setDialogCompleted(complete);
-            } else {
-              // Tandai dialog sudah selesai untuk interaksi hover
-              hoverDialogController.setDialogCompleted(true);
+              // Get current dialog to display character name
+              const currentDialog = dialogController.getCurrentDialog();
+              if (currentDialog) {
+                setCharacterName(currentDialog.character);
+                // Update hover dialog controller with completion status
+                hoverDialogController.setDialogCompleted(complete);
+              } else {
+                // Tandai dialog sudah selesai untuk interaksi hover
+                hoverDialogController.setDialogCompleted(true);
 
-              // Tetap menjalankan onDialogComplete jika ada
-              if (onDialogComplete) {
-                onDialogComplete();
+                // Tetap menjalankan onDialogComplete jika ada
+                if (onDialogComplete) {
+                  onDialogComplete();
+                }
               }
-            }
-          });
-        }, 50); // Delay kecil untuk memastikan UI diupdate dengan benar
+            });
+          }
+        }, 100); // Delay diperbesar untuk memberikan waktu hover dialog bekerja
       } else {
         // Dialog sudah selesai dan user menekan NEXT
         // Cek apakah user sudah berinteraksi dengan hover dialog
@@ -305,6 +307,13 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
         // Move to the next dialog
         dialogController.nextDialog((text, complete) => {
+          // PERBAIKAN: Cek apakah sedang dalam mode hover dialog untuk mencegah penimpaan  
+          const currentDialogSource = dialogSource;
+          if (currentDialogSource === "hover") {
+            console.log("[DialogBox] Currently showing hover dialog, skipping main dialog update to prevent text override");
+            return;
+          }
+          
           setText(text);
           setIsComplete(complete);
 
