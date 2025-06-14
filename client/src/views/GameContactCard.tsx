@@ -1,8 +1,11 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaGithub, FaLinkedin, FaWhatsapp, FaEnvelope, FaTiktok, FaYoutube } from "react-icons/fa";
 import { motion } from "framer-motion";
 import SocialLink from "../components/SocialLink";
 import ShareButton from "../components/ShareButton";
+import DialogController from "../controllers/dialogController";
+import HoverDialogController from "../controllers/hoverDialogController";
+import IdleTimeoutController from "../controllers/idleTimeoutController";
 
 interface SocialLink {
   id: string;
@@ -25,11 +28,37 @@ interface Skill {
 const GameContactCard: React.FC = () => {
   const cardRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+  const [hasActiveDialog, setHasActiveDialog] = useState(false);
 
-  // Tidak ada animasi gerakan pada card lagi
+  // Monitor dialog activity to adjust positioning
   useEffect(() => {
-    // Tidak perlu animasi, card tetap diam
-    console.log("Contact card initialized without animations");
+    const checkDialogActivity = () => {
+      try {
+        const dialogController = DialogController.getInstance();
+        const hoverDialogController = HoverDialogController.getInstance();
+        const idleTimeoutController = IdleTimeoutController.getInstance();
+
+        // Check if any dialog is currently active
+        const isMainDialogTyping = typeof dialogController.isCurrentlyTyping === "function" 
+          ? dialogController.isCurrentlyTyping() : false;
+        const isHoverDialogActive = hoverDialogController.isTypingHoverDialog();
+        const isIdleDialogActive = idleTimeoutController.isTypingIdle;
+
+        const dialogActive = isMainDialogTyping || isHoverDialogActive || isIdleDialogActive;
+        setHasActiveDialog(dialogActive);
+      } catch (error) {
+        console.error("Error checking dialog activity:", error);
+        setHasActiveDialog(false);
+      }
+    };
+
+    // Check immediately
+    checkDialogActivity();
+
+    // Set up interval to check dialog activity
+    const interval = setInterval(checkDialogActivity, 500);
+
+    return () => clearInterval(interval);
   }, []);
 
   // Social media links data

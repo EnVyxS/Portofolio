@@ -1000,18 +1000,7 @@ class IdleTimeoutController {
       console.error("Failed to unlock anger achievement:", error);
     }
 
-    // Play the throw sound effect using the dynamically generated whoosh sound
-    try {
-      const windowAny = window as any;
-      if (windowAny.createWhooshSound && typeof windowAny.createWhooshSound === "function") {
-        console.log("Playing dynamically generated whoosh sound");
-        windowAny.createWhooshSound();
-      } else {
-        console.warn("Whoosh sound generator not available");
-      }
-    } catch (error) {
-      console.error("Error playing throw sound effect:", error);
-    }
+
 
     // Tambahkan dialog peringatan untuk 'melempar' dengan nada kemarahan
     const throwText = "That's it. GET OUT OF MY SIGHT!";
@@ -1086,6 +1075,20 @@ class IdleTimeoutController {
     // Jalankan callback untuk efek melempar dengan jeda yang cukup untuk membaca dialog
     setTimeout(() => {
       console.log("[IdleTimeoutController] Calling throw user callback");
+      
+      // Play the throw sound effect bersamaan dengan efek visual
+      try {
+        const windowAny = window as any;
+        if (windowAny.createWhooshSound && typeof windowAny.createWhooshSound === "function") {
+          console.log("Playing dynamically generated whoosh sound with throw effect");
+          windowAny.createWhooshSound();
+        } else {
+          console.warn("Whoosh sound generator not available");
+        }
+      } catch (error) {
+        console.error("Error playing throw sound effect:", error);
+      }
+      
       if (this.throwUserCallback) {
         this.throwUserCallback();
       }
@@ -1094,7 +1097,7 @@ class IdleTimeoutController {
       if (this.resetSceneCallback) {
         this.resetSceneCallback();
       }
-    }, 4000); // Memberikan waktu 4 detik untuk membaca dialog "That's it. GET OUT OF MY SIGHT!" sebelum dilempar
+    }, 2000); // Memberikan waktu 2 detik untuk membaca dialog "That's it. GET OUT OF MY SIGHT!" sebelum dilempar
   }
 
   // Method untuk 'memukul' user
