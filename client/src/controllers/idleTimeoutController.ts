@@ -1083,7 +1083,7 @@ class IdleTimeoutController {
       console.error("Error applying rumble effect:", error);
     }
 
-    // Jalankan callback untuk efek melempar SEGERA - respons lebih cepat
+    // Jalankan callback untuk efek melempar dengan jeda yang cukup untuk membaca dialog
     setTimeout(() => {
       console.log("[IdleTimeoutController] Calling throw user callback");
       if (this.throwUserCallback) {
@@ -1094,7 +1094,7 @@ class IdleTimeoutController {
       if (this.resetSceneCallback) {
         this.resetSceneCallback();
       }
-    }, 800); // Reduced wait time for quicker response from 2000ms to 800ms
+    }, 4000); // Memberikan waktu 4 detik untuk membaca dialog "That's it. GET OUT OF MY SIGHT!" sebelum dilempar
   }
 
   // Method untuk 'memukul' user
