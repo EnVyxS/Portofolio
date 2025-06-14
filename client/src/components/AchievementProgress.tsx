@@ -355,7 +355,7 @@ const AchievementProgress: React.FC<AchievementProgressProps> = ({ className }) 
               className="souls-achievement-text"
               animate={achievementTextControls}
             >
-              <span className="souls-achievement-heading font-souls">ACHIEVEMENT UNLOCKED</span>
+              <span className="souls-achievement-heading font-souls"></span>
             </motion.div>
           </motion.div>
         )}
