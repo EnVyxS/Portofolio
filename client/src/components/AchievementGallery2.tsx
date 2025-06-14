@@ -272,20 +272,7 @@ const AchievementGallery: React.FC = () => {
       {/* Detail achievement yang dipilih */}
       {renderAchievementDetail()}
       
-      {/* Achievement Sharing Section */}
-      {unlockedAchievements.length > 0 && (
-        <motion.div
-          className="achievement-sharing-section"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.4 }}
-        >
-          <div className="section-divider">
-            <span className="divider-text">Share Your Achievements</span>
-          </div>
-          <AchievementSharing />
-        </motion.div>
-      )}
+
 
       {/* Custom styling for mysterious achievements */}
       <style
