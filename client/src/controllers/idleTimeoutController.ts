@@ -449,6 +449,16 @@ class IdleTimeoutController {
       }
 
       const elapsed = Date.now() - this.timerStartTime;
+      
+      // Debug logging setiap 10 detik
+      if (elapsed % 10000 < 100) {
+        console.log('[IdleTimeoutController] Timer check - elapsed:', elapsed, 'ms, flags:', {
+          first: this.hasShownFirstWarning,
+          second: this.hasShownSecondWarning,
+          final: this.hasShownFinalWarning,
+          thrown: this.hasBeenThrown
+        });
+      }
 
       // First warning check - trigger tepat saat elapsed >= 120000ms
       if (!this.hasShownFirstWarning && elapsed >= TIMEOUT_DURATIONS.FIRST_WARNING) {
@@ -456,6 +466,8 @@ class IdleTimeoutController {
           console.log('[IdleTimeoutController] ⚡ Triggering first warning - elapsed:', elapsed, 'ms');
           this.showIdleWarning(IDLE_DIALOGS.FIRST_WARNING);
           this.hasShownFirstWarning = true;
+        } else {
+          console.log('[IdleTimeoutController] First warning blocked by active audio/dialog');
         }
       }
 
@@ -465,6 +477,8 @@ class IdleTimeoutController {
           console.log('[IdleTimeoutController] ⚡ Triggering second warning - elapsed:', elapsed, 'ms');
           this.showIdleWarning(IDLE_DIALOGS.SECOND_WARNING);
           this.hasShownSecondWarning = true;
+        } else {
+          console.log('[IdleTimeoutController] Second warning blocked by active audio/dialog');
         }
       }
 
@@ -474,6 +488,8 @@ class IdleTimeoutController {
           console.log('[IdleTimeoutController] ⚡ Triggering final warning - elapsed:', elapsed, 'ms');
           this.showIdleWarning(IDLE_DIALOGS.FINAL_WARNING);
           this.hasShownFinalWarning = true;
+        } else {
+          console.log('[IdleTimeoutController] Final warning blocked by active audio/dialog');
         }
       }
 
