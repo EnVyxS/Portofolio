@@ -170,8 +170,10 @@ class DialogController {
       } else {
         // Typing complete
         this.isTyping = false;
-        clearInterval(this.typingInterval as NodeJS.Timeout);
-        this.typingInterval = null;
+        if (this.typingInterval) {
+          clearInterval(this.typingInterval);
+          this.typingInterval = null;
+        }
         
         // Clear audio completion timer jika masih ada
         if (audioCompletionTimer) {
