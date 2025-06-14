@@ -760,18 +760,21 @@ class IdleTimeoutController {
       // Jika user baru saja di-reset dan ini adalah interaksi pertama setelah reset
       this.hasInteractedAfterReset = true;
       
-      console.log("[IdleTimeoutController] Menampilkan HOVER_AFTER_RESET karena ini interaksi pertama setelah reset");
+      console.log("[IdleTimeoutController] Showing HOVER_AFTER_RESET dialog after reset");
       
-      // Use the new typing system to show HOVER_AFTER_RESET dialog
-      console.log("[IdleTimeoutController] Showing HOVER_AFTER_RESET dialog via new typing system");
-      
-      // Set dialog source to main for proper handling (since setDialogSource only accepts main/hover)
-      if (this.hoverDialogController.setDialogSource) {
-        this.hoverDialogController.setDialogSource("main");
+      // Use the existing showIdleWarning method which handles dialog display properly
+      try {
+        // Set dialog source to main for proper handling
+        if (this.hoverDialogController.setDialogSource) {
+          this.hoverDialogController.setDialogSource("main");
+        }
+        
+        // Use the showIdleWarning method which is designed for idle dialogs
+        this.showIdleWarning(IDLE_DIALOGS.HOVER_AFTER_RESET);
+
+      } catch (e) {
+        console.error("[IdleTimeoutController] Error showing HOVER_AFTER_RESET dialog:", e);
       }
-      
-      // Use our new typing animation system
-      this.showIdleWarning(IDLE_DIALOGS.HOVER_AFTER_RESET);
 
       // Mulai timer hover berlebihan
       this.startExcessiveHoverTimers();
