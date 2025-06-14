@@ -395,8 +395,10 @@ class HoverDialogController {
       } else {
         // Typing complete
         this.isTypingHover = false;
-        clearInterval(this.typingInterval as NodeJS.Timeout);
-        this.typingInterval = null;
+        if (this.typingInterval) {
+          clearInterval(this.typingInterval);
+          this.typingInterval = null;
+        }
 
         // Cek apakah dialog ini adalah persistent berdasarkan teksnya
         const isPersistent = this.isPersistent(this.fullText);
