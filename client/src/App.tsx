@@ -16,6 +16,7 @@ import { useIsMobile } from "./hooks/use-mobile";
 import ContractCard from "./components/ContractCard";
 import AchievementDisplay from "./components/AchievementDisplay";
 import AchievementController from "./controllers/achievementController";
+import IdleTimer from "./components/IdleTimer";
 
 // Cookie functions for nightmare trap
 function getCookie(name: string) {
@@ -390,6 +391,9 @@ function MainApp() {
 
         {/* Dialog box di bagian bawah layar, sekarang tidak memengaruhi keberadaan contact card */}
         {<DialogBox onDialogComplete={handleDialogComplete} />}
+
+        {/* Idle Timer - ditampilkan saat tidak ada dialog aktif */}
+        <IdleTimer />
 
         {/* ElevenLabs setup modal */}
         {showElevenLabsSetup && (
