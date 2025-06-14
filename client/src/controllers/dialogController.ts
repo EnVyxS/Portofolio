@@ -351,7 +351,7 @@ class DialogController {
       try {
         const hoverDialogController = HoverDialogController.getInstance();
         if (hoverDialogController) {
-          // Pastikan hover dialog dinonaktifkan selama dialog return
+          // Reset SEMUA state di HoverDialogController yang bisa mengganggu dialog
           if (typeof hoverDialogController.setDialogSource === 'function') {
             hoverDialogController.setDialogSource('main');
             console.log("[DialogController] Set dialog source to 'main' for return dialog");
@@ -362,13 +362,42 @@ class DialogController {
             hoverDialogController.setHasInteractedWithHover(false);
             console.log("[DialogController] Reset hover interaction flag to false");
           }
+
+          // Reset idle timeout status yang mungkin masih aktif
+          if (typeof hoverDialogController.setIdleTimeoutOccurred === 'function') {
+            hoverDialogController.setIdleTimeoutOccurred(false);
+            console.log("[DialogController] Reset idle timeout status to false");
+          }
+
+          // Reset semua annoyance flags
+          if (typeof hoverDialogController.resetAllState === 'function') {
+            hoverDialogController.resetAllState();
+            console.log("[DialogController] Reset all HoverDialogController state");
+          }
+
+          // Stop any ongoing typing in hover dialog
+          if (typeof hoverDialogController.stopTyping === 'function') {
+            hoverDialogController.stopTyping();
+            console.log("[DialogController] Stopped any ongoing hover dialog typing");
+          }
         }
       } catch (e) {
         console.error("[DialogController] Failed to reset hover controller state:", e);
       }
       
-      // Force reset dialog box visibility dari global properties
+      // Force reset SEMUA global properties yang bisa mengganggu dialog
       try {
+        // Reset global flag untuk force show idle warning
+        // @ts-ignore
+        window.__forceShowIdleWarning = false;
+        console.log("[DialogController] Reset global __forceShowIdleWarning flag");
+
+        // Reset contract dialog status
+        // @ts-ignore
+        window.__contractDialogActive = false;
+        console.log("[DialogController] Reset global __contractDialogActive flag");
+
+        // Force reset dialog box visibility
         // @ts-ignore
         if (window.__dialogBoxIsFinishedSetter) {
           // @ts-ignore
