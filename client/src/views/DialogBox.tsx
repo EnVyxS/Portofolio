@@ -609,6 +609,15 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       !isHoverDialogPersistent) {
     // Debug untuk membantu melihat status dialog
     console.log("[DialogBox] Dialog finished or empty text, hiding dialog box");
+    
+    // Set global flag untuk memberitahu komponen lain bahwa dialog box tidak terlihat
+    try {
+      // @ts-ignore
+      window.__dialogBoxVisible = false;
+    } catch (e) {
+      // Ignore error
+    }
+    
     return null; // Jangan tampilkan dialog box jika tidak ada konten yang berarti
   }
   
@@ -627,6 +636,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   // Tambahkan log untuk membantu debug tampilan dialog
   if (!isDialogFinished) {
     console.log(`[DialogBox] Showing dialog - Text: "${text.substring(0, 30)}..." Source: ${dialogSource}`);
+  }
+
+  // Set global flag untuk memberitahu komponen lain bahwa dialog box terlihat
+  try {
+    // @ts-ignore
+    window.__dialogBoxVisible = true;
+  } catch (e) {
+    // Ignore error
   }
 
   return (

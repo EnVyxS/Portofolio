@@ -27,15 +27,27 @@ const IdleTimer: React.FC = () => {
         const dialogController = DialogController.getInstance();
         const hoverDialogController = HoverDialogController.getInstance();
         
-        // Dialog aktif jika ada dialog utama atau hover dialog yang sedang berjalan
-        const isMainDialogActive = dialogController.isCurrentlyTyping() || dialogController.getCurrentDialog() !== null;
+        // Dialog aktif jika ada dialog yang sedang ditampilkan di UI
+        const isMainDialogActive = dialogController.isCurrentlyTyping();
         const isHoverDialogActive = hoverDialogController.hasUserInteractedWithHover();
-        const hasActiveDialog = isMainDialogActive || isHoverDialogActive;
+        
+        // Cek apakah DialogBox sedang menampilkan dialog
+        let isDialogBoxVisible = false;
+        try {
+          // @ts-ignore - check global flag for dialog box visibility
+          isDialogBoxVisible = window.__dialogBoxVisible === true;
+        } catch (e) {
+          // Fallback: assume dialog is not visible
+        }
+        
+        const hasActiveDialog = isMainDialogActive || isHoverDialogActive || isDialogBoxVisible;
         
         setIsDialogActive(hasActiveDialog);
         
         // Tampilkan timer hanya jika ada waktu tersisa DAN tidak ada dialog aktif
-        setIsVisible(info.timeRemaining > 0 && !hasActiveDialog);
+        const shouldShow = info.timeRemaining > 0 && !hasActiveDialog;
+        console.log(`[IdleTimer] Timer visibility check - timeRemaining: ${info.timeRemaining}, hasActiveDialog: ${hasActiveDialog}, shouldShow: ${shouldShow}`);
+        setIsVisible(shouldShow);
       } catch (e) {
         console.error("Error updating timer:", e);
         setIsVisible(false);
