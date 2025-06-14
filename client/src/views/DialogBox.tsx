@@ -191,7 +191,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const [characterName, setCharacterName] = useState<string>("");
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [isDialogFinished, setIsDialogFinished] = useState<boolean>(false);
-  const [dialogSource, setDialogSource] = useState<"main" | "hover">("main");
+  const [dialogSource, setDialogSource] = useState<string>("main");
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
 
@@ -270,7 +270,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           }
 
           // Move to the next dialog hanya jika tidak sedang dalam mode hover
-          if (dialogSource !== "hover") {
+          if (dialogSource === "main") {
             dialogController.nextDialog((text, complete) => {
               setText(text);
               setIsComplete(complete);
@@ -306,7 +306,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         }
 
         // Move to the next dialog hanya jika tidak sedang dalam mode hover
-        if (dialogSource !== "hover") {
+        if (dialogSource === "main") {
           dialogController.nextDialog((text, complete) => {
             setText(text);
             setIsComplete(complete);
