@@ -333,12 +333,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         setIsComplete(true);
       } else {
         // Jika dialog sudah selesai, user menekan NEXT
-        // Reset hover state dan hilangkan dialog box
+        // Reset hover state tetapi JANGAN set isDialogFinished ke true
         hoverDialogController.resetHoverState();
-        setIsDialogFinished(true);
         
-        // Jangan kembali ke dialog utama
-        // Ini perbaikan utama yang dilakukan
+        // Reset text untuk mempersiapkan dialog berikutnya
+        setText("");
+        setIsComplete(false);
+        
+        // Tetap tampilkan dialog box untuk dialog berikutnya
       }
     }
   }, [
@@ -402,9 +404,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           const isLastDialog = currentIndex >= allDialogs.length - 1;
 
           if (isLastDialog) {
-            // Jika ini dialog terakhir, hilangkan dialog box setelah 3 detik
+            // Jika ini dialog terakhir, reset text tetapi tetap tampilkan dialog box
             autoPlayTimerRef.current = setTimeout(() => {
-              setIsDialogFinished(true);
+              setText("");
+              setIsComplete(false);
+              // JANGAN set isDialogFinished ke true agar dialog box tetap tersedia
             }, 3000);
           } else {
             // Jika bukan dialog terakhir, lanjutkan ke dialog berikutnya seperti biasa
@@ -424,8 +428,10 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           // Reset dialog hover state
           hoverDialogController.resetHoverState();
 
-          // Hilangkan dialog box
-          setIsDialogFinished(true);
+          // Reset text tetapi tetap tampilkan dialog box
+          setText("");
+          setIsComplete(false);
+          // JANGAN set isDialogFinished ke true agar dialog box tetap tersedia
         }, dismissDelay);
       }
     }

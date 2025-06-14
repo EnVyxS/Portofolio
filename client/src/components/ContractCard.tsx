@@ -15,7 +15,7 @@ import AchievementController from "../controllers/achievementController";
 import { useAudio } from "../context/AudioManager";
 
 // Responses for contract interactions - moved from DialogBox.tsx and made more natural
-const CONTRACT_RESPONSES = [
+export const CONTRACT_RESPONSES = [
   "Now you've seen the proof. Are we good to continue, or do you need more convincing?",
   "That should answer your questions about my background. Ready to talk about something else now?",
   "There's everything you needed to see. I'm the real deal. What would you like to discuss next?",
