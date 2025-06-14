@@ -28,7 +28,7 @@ const IdleTimer: React.FC = () => {
         const hoverDialogController = HoverDialogController.getInstance();
         
         // Dialog aktif jika ada dialog utama atau hover dialog yang sedang berjalan
-        const isMainDialogActive = dialogController.isTyping || dialogController.getCurrentDialog() !== null;
+        const isMainDialogActive = dialogController.isCurrentlyTyping() || dialogController.getCurrentDialog() !== null;
         const isHoverDialogActive = hoverDialogController.hasUserInteractedWithHover();
         const hasActiveDialog = isMainDialogActive || isHoverDialogActive;
         

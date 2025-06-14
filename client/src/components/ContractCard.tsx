@@ -389,7 +389,7 @@ const ContractCard: React.FC = () => {
             window.__contractDialogActive = false;
             // @ts-ignore
             window.__contractResponseText = null;
-          }, 5000); // Beri waktu 5 detik untuk dialog tetap terlihat
+          }, 1200); // Beri waktu 1.2 detik untuk dialog tetap terlihat setelah selesai bicara
         }
       });
     }, 300);
