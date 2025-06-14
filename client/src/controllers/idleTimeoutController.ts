@@ -118,6 +118,9 @@ class IdleTimeoutController {
   // Callback untuk aksi eksternal
   private throwUserCallback: (() => void) | null = null;
   private punchUserCallback: (() => void) | null = null;
+
+  // Tracking untuk mencegah dialog berulang
+  private processingWarnings: Set<string> = new Set();
   private resetSceneCallback: (() => void) | null = null;
 
   // Timestamp dari interaksi terakhir
@@ -417,6 +420,9 @@ class IdleTimeoutController {
     this.hasShownFinalWarning = false;
     this.hasBeenThrown = false;
     
+    // Clear processing warnings set
+    this.processingWarnings.clear();
+    
     // Set waktu mulai dan aktivasi timer
     this.timerStartTime = Date.now();
     this.currentActiveTimer = "idle";
@@ -462,42 +468,130 @@ class IdleTimeoutController {
 
       // First warning check - trigger tepat saat elapsed >= 120000ms
       if (!this.hasShownFirstWarning && elapsed >= TIMEOUT_DURATIONS.FIRST_WARNING) {
-        if (!this.isAudioOrDialogActive()) {
-          console.log('[IdleTimeoutController] ⚡ Triggering first warning - elapsed:', elapsed, 'ms');
-          this.showIdleWarning(IDLE_DIALOGS.FIRST_WARNING);
-          this.hasShownFirstWarning = true;
-        } else {
-          console.log('[IdleTimeoutController] First warning blocked by active audio/dialog');
+        const warningKey = 'first_warning';
+        
+        // Check if already being processed
+        if (this.processingWarnings.has(warningKey)) {
+          return;
         }
+        
+        // Set flags immediately to prevent race condition
+        this.hasShownFirstWarning = true;
+        this.processingWarnings.add(warningKey);
+        console.log('[IdleTimeoutController] ⚡ Triggering first warning - elapsed:', elapsed, 'ms');
+        
+        // Schedule the dialog to run after current execution
+        setTimeout(() => {
+          if (!this.isAudioOrDialogActive()) {
+            this.showIdleWarning(IDLE_DIALOGS.FIRST_WARNING);
+          } else {
+            console.log('[IdleTimeoutController] First warning delayed due to active audio/dialog');
+            // Retry after delay
+            setTimeout(() => {
+              if (!this.isAudioOrDialogActive()) {
+                this.showIdleWarning(IDLE_DIALOGS.FIRST_WARNING);
+              }
+            }, 2000);
+          }
+          // Remove from processing set after execution
+          this.processingWarnings.delete(warningKey);
+        }, 0);
       }
 
       // Second warning check - trigger tepat saat elapsed >= 300000ms
       if (!this.hasShownSecondWarning && elapsed >= TIMEOUT_DURATIONS.SECOND_WARNING) {
-        if (!this.isAudioOrDialogActive()) {
-          console.log('[IdleTimeoutController] ⚡ Triggering second warning - elapsed:', elapsed, 'ms');
-          this.showIdleWarning(IDLE_DIALOGS.SECOND_WARNING);
-          this.hasShownSecondWarning = true;
-        } else {
-          console.log('[IdleTimeoutController] Second warning blocked by active audio/dialog');
+        const warningKey = 'second_warning';
+        
+        // Check if already being processed
+        if (this.processingWarnings.has(warningKey)) {
+          return;
         }
+        
+        // Set flags immediately to prevent race condition
+        this.hasShownSecondWarning = true;
+        this.processingWarnings.add(warningKey);
+        console.log('[IdleTimeoutController] ⚡ Triggering second warning - elapsed:', elapsed, 'ms');
+        
+        // Schedule the dialog to run after current execution
+        setTimeout(() => {
+          if (!this.isAudioOrDialogActive()) {
+            this.showIdleWarning(IDLE_DIALOGS.SECOND_WARNING);
+          } else {
+            console.log('[IdleTimeoutController] Second warning delayed due to active audio/dialog');
+            // Retry after delay
+            setTimeout(() => {
+              if (!this.isAudioOrDialogActive()) {
+                this.showIdleWarning(IDLE_DIALOGS.SECOND_WARNING);
+              }
+            }, 2000);
+          }
+          // Remove from processing set after execution
+          this.processingWarnings.delete(warningKey);
+        }, 0);
       }
 
       // Final warning check - trigger tepat saat elapsed >= 540000ms
       if (!this.hasShownFinalWarning && elapsed >= TIMEOUT_DURATIONS.FINAL_WARNING) {
-        if (!this.isAudioOrDialogActive()) {
-          console.log('[IdleTimeoutController] ⚡ Triggering final warning - elapsed:', elapsed, 'ms');
-          this.showIdleWarning(IDLE_DIALOGS.FINAL_WARNING);
-          this.hasShownFinalWarning = true;
-        } else {
-          console.log('[IdleTimeoutController] Final warning blocked by active audio/dialog');
+        const warningKey = 'final_warning';
+        
+        // Check if already being processed
+        if (this.processingWarnings.has(warningKey)) {
+          return;
         }
+        
+        // Set flags immediately to prevent race condition
+        this.hasShownFinalWarning = true;
+        this.processingWarnings.add(warningKey);
+        console.log('[IdleTimeoutController] ⚡ Triggering final warning - elapsed:', elapsed, 'ms');
+        
+        // Schedule the dialog to run after current execution
+        setTimeout(() => {
+          if (!this.isAudioOrDialogActive()) {
+            this.showIdleWarning(IDLE_DIALOGS.FINAL_WARNING);
+          } else {
+            console.log('[IdleTimeoutController] Final warning delayed due to active audio/dialog');
+            // Retry after delay
+            setTimeout(() => {
+              if (!this.isAudioOrDialogActive()) {
+                this.showIdleWarning(IDLE_DIALOGS.FINAL_WARNING);
+              }
+            }, 2000);
+          }
+          // Remove from processing set after execution
+          this.processingWarnings.delete(warningKey);
+        }, 0);
       }
 
       // Throw user check - trigger tepat saat elapsed >= 600000ms
       if (!this.hasBeenThrown && elapsed >= TIMEOUT_DURATIONS.THROW_USER) {
-        console.log('[IdleTimeoutController] ⚡ Throwing user - elapsed:', elapsed, 'ms');
-        this.throwUser();
+        const warningKey = 'throw_user';
+        
+        // Check if already being processed
+        if (this.processingWarnings.has(warningKey)) {
+          return;
+        }
+        
+        // Set flags immediately to prevent race condition
         this.hasBeenThrown = true;
+        this.processingWarnings.add(warningKey);
+        console.log('[IdleTimeoutController] ⚡ Throwing user - elapsed:', elapsed, 'ms');
+        
+        // Schedule the action to run after current execution
+        setTimeout(() => {
+          if (!this.isAudioOrDialogActive()) {
+            this.throwUser();
+          } else {
+            console.log('[IdleTimeoutController] Throw user delayed due to active audio/dialog');
+            // Retry after delay
+            setTimeout(() => {
+              if (!this.isAudioOrDialogActive()) {
+                this.throwUser();
+              }
+            }, 2000);
+          }
+          // Remove from processing set after execution
+          this.processingWarnings.delete(warningKey);
+        }, 0);
       }
     } catch (error) {
       console.error('[IdleTimeoutController] Error in checkTimerState:', error);
@@ -1153,6 +1247,9 @@ class IdleTimeoutController {
 
     // Clear set dialog marah yang sudah ditampilkan
     this.displayedAngryDialogs.clear();
+
+    // Clear processing warnings set
+    this.processingWarnings.clear();
 
     this.hasShownExcessiveHoverWarning = false;
     this.hasShownFinalHoverWarning = false;
