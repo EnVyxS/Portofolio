@@ -1103,11 +1103,12 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         
         /* Style untuk tombol yang disabled (dalam jeda) */
         .button-disabled {
-          opacity: 0.5;
+          opacity: 0.3;
           pointer-events: none;
           cursor: not-allowed;
-          transition: opacity 0.3s ease;
+          transition: all 0.3s ease;
           position: relative;
+          filter: grayscale(0.8);
         }
         
         /* Indikator visual untuk tombol yang sedang dalam masa jeda */
@@ -1118,9 +1119,27 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.3);
+          background: rgba(0, 0, 0, 0.5);
           border-radius: 2px;
           z-index: 2;
+        }
+        
+        /* Tambahan animasi untuk menunjukkan tombol sedang dalam cooldown */
+        .button-disabled::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+          animation: cooldown-sweep 0.3s ease-out;
+          z-index: 3;
+        }
+        
+        @keyframes cooldown-sweep {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
         }
         
         /* Styling for pure text buttons (no box/border) */
