@@ -103,6 +103,9 @@ class IdleTimeoutController {
   private hasShownFinalWarning: boolean = false;
   private hasBeenThrown: boolean = false;
 
+  // Flag untuk mencegah multiple timer restart
+  private isTimerRunning: boolean = false;
+
   // Status hover berlebihan
   private hasShownExcessiveHoverWarning: boolean = false;
   private hasShownFinalHoverWarning: boolean = false;
@@ -375,59 +378,51 @@ class IdleTimeoutController {
 
   // Memulai penghitungan timeout idle
   public startIdleTimer(): void {
-    // Periksa apakah ada audio atau dialog yang aktif
-    if (this.isAudioOrDialogActive()) {
-      console.log(
-        "[IdleTimeoutController] Dialog model atau audio masih aktif, menunda timer IDLE_DIALOGS...",
-      );
-
-      // Cek lagi nanti setelah beberapa detik
-      setTimeout(() => {
-        this.startIdleTimer();
-      }, 5000); // cek setiap 5 detik
-
+    // Cegah multiple restart dengan debouncing
+    if (this.isTimerRunning) {
+      console.log("[IdleTimeoutController] Timer sudah aktif, mengabaikan restart");
       return;
     }
 
-    // Periksa apakah properti window untuk dialog kontrak masih aktif
+    // Periksa apakah ada audio atau dialog yang aktif
+    if (this.isAudioOrDialogActive()) {
+      console.log("[IdleTimeoutController] Masih ada audio atau dialog aktif. Menunggu...");
+      setTimeout(() => {
+        this.startIdleTimer();
+      }, 2000);
+      return;
+    }
+
+    // Periksa kontrak dialog
     try {
       // @ts-ignore - akses properti global dari window
       if (window.__contractDialogActive) {
-        console.log(
-          "[IdleTimeoutController] Contract dialog masih aktif, menunda timer IDLE_DIALOGS...",
-        );
-
-        // Cek lagi nanti setelah beberapa detik
+        console.log("[IdleTimeoutController] Contract dialog masih aktif. Menunggu...");
         setTimeout(() => {
           this.startIdleTimer();
-        }, 3000); // cek setiap 3 detik untuk contract dialog
-
+        }, 3000);
         return;
       }
     } catch (e) {
-      console.error(
-        "[IdleTimeoutController] Error checking contract dialog status:",
-        e,
-      );
+      console.error("[IdleTimeoutController] Error checking contract dialog:", e);
     }
 
-    console.log(
-      "[IdleTimeoutController] Dialog model dan contract dialog selesai. Memulai timer IDLE_DIALOGS - First warning in " +
-        TIMEOUT_DURATIONS.FIRST_WARNING / 1000 +
-        "s, second in " +
-        TIMEOUT_DURATIONS.SECOND_WARNING / 1000 +
-        "s, final in " +
-        TIMEOUT_DURATIONS.FINAL_WARNING / 1000 +
-        "s",
-    );
+    console.log("[IdleTimeoutController] ✅ Memulai timer IDLE baru");
 
-    this.clearAllIdleTimers(); // Bersihkan timer yang ada
+    this.clearAllIdleTimers();
     
-    // Set waktu mulai dan jenis timer aktif
+    // Reset semua status untuk siklus timer baru
+    this.hasShownFirstWarning = false;
+    this.hasShownSecondWarning = false;
+    this.hasShownFinalWarning = false;
+    this.hasBeenThrown = false;
+    
+    // Set waktu mulai dan aktivasi timer
     this.timerStartTime = Date.now();
     this.currentActiveTimer = "idle";
+    this.isTimerRunning = true;
     
-    this.setupIdleTimers(); // Setup timer baru
+    this.setupIdleTimers();
   }
 
   // Setup timer idle dengan monitoring real-time
