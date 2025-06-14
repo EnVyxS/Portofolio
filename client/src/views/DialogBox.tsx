@@ -646,8 +646,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         className={`dialog-box ${dialogSource === "hover" ? "hover-dialog" : ""}`}
         data-angry={text.includes("fuck") || text.includes("ENOUGH") || text.includes("GET OUT") || text.includes("ASKED FOR THIS")}
       >
-        {/* Tampilkan timer */}
-        <TimerDisplay />
+        {/* Timer disembunyikan dari user */}
+        {/* <TimerDisplay /> */}
         
         <div
           className={`character-name ${dialogSource === "hover" ? "hover-character" : ""}`}
