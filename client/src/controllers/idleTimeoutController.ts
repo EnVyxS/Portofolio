@@ -650,46 +650,16 @@ class IdleTimeoutController {
       
       console.log("[IdleTimeoutController] Menampilkan HOVER_AFTER_RESET karena ini interaksi pertama setelah reset");
       
-      // Gunakan dialog controller langsung untuk menampilkan hover dialog
-      try {
-        const dialogController = DialogController.getInstance();
-        if (dialogController) {
-          console.log("[IdleTimeoutController] Directly showing HOVER_AFTER_RESET dialog via DialogController");
-          
-          // Force reset dialog box visibility sehingga dialog box muncul
-          try {
-            // @ts-ignore
-            if (window.__dialogBoxIsFinishedSetter) {
-              // @ts-ignore
-              window.__dialogBoxIsFinishedSetter(false);
-              console.log("[IdleTimeoutController] Force reset dialog box visibility for HOVER_AFTER_RESET");
-            }
-          } catch (e) {
-            console.error("Failed to force reset dialog box visibility:", e);
-          }
-          
-          // Gunakan showCustomDialog untuk memastikan text muncul
-          dialogController.showCustomDialog(IDLE_DIALOGS.HOVER_AFTER_RESET, (text, isComplete) => {
-            if (isComplete) {
-              console.log("[IdleTimeoutController] HOVER_AFTER_RESET dialog completed");
-              
-              // Unlock achievement untuk hover setelah reset
-              try {
-                const achievementController = AchievementController.getInstance();
-                achievementController.unlockAchievement('hover');
-                console.log("[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset");
-              } catch (error) {
-                console.error("Failed to unlock hover achievement:", error);
-              }
-            }
-          });
-        }
-      } catch (e) {
-        console.error("Failed to show HOVER_AFTER_RESET dialog:", e);
-        
-        // Fallback ke metode lama
-        this.showIdleWarning(IDLE_DIALOGS.HOVER_AFTER_RESET);
+      // Use the new typing system to show HOVER_AFTER_RESET dialog
+      console.log("[IdleTimeoutController] Showing HOVER_AFTER_RESET dialog via new typing system");
+      
+      // Set dialog source to main for proper handling (since setDialogSource only accepts main/hover)
+      if (this.hoverDialogController.setDialogSource) {
+        this.hoverDialogController.setDialogSource("main");
       }
+      
+      // Use our new typing animation system
+      this.showIdleWarning(IDLE_DIALOGS.HOVER_AFTER_RESET);
 
       // Mulai timer hover berlebihan
       this.startExcessiveHoverTimers();
@@ -910,13 +880,6 @@ class IdleTimeoutController {
   private throwUser(): void {
     console.log("[IdleTimeoutController] Executing throw user action");
 
-    // Set global flag untuk memaksa dialog box muncul jika ada teks
-    // @ts-ignore - akses properti global dari window
-    window.__forceShowIdleWarning = (IDLE_DIALOGS.THROW_WARNING && IDLE_DIALOGS.THROW_WARNING.trim() !== "" && IDLE_DIALOGS.THROW_WARNING !== "...") ? true : false;
-    console.log(
-      `[IdleTimeoutController] Setting global flag to force show throw warning dialog: ${window.__forceShowIdleWarning}`,
-    );
-
     // Unlock achievement for making character angry
     try {
       const achievementController = AchievementController.getInstance();
@@ -927,13 +890,10 @@ class IdleTimeoutController {
 
     // Play the throw sound effect using the dynamically generated whoosh sound
     try {
-      if (
-        window.createWhooshSound &&
-        typeof window.createWhooshSound === "function"
-      ) {
-        // Use our custom sound generator
+      const windowAny = window as any;
+      if (windowAny.createWhooshSound && typeof windowAny.createWhooshSound === "function") {
         console.log("Playing dynamically generated whoosh sound");
-        window.createWhooshSound();
+        windowAny.createWhooshSound();
       } else {
         console.warn("Whoosh sound generator not available");
       }
@@ -944,15 +904,13 @@ class IdleTimeoutController {
     // Tambahkan dialog peringatan untuk 'melempar' dengan nada kemarahan
     const throwText = "That's it. GET OUT OF MY SIGHT!";
 
-    // Atur dialogSource ke 'main' sebelum menampilkan peringatan
-    // untuk memastikan teks muncul di dialog box utama
+    // Set dialog source to main for proper handling
     if (this.hoverDialogController.setDialogSource) {
-      console.log(
-        "[IdleTimeoutController] Setting dialog source to 'main' before showing throw dialog",
-      );
+      console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing throw dialog");
       this.hoverDialogController.setDialogSource("main");
     }
 
+    // Use the new typing system instead of old showCustomDialog
     this.showIdleWarning(throwText);
 
     // Pastikan bahwa dialog controller tahu ini adalah post-reset dialog
@@ -1032,11 +990,10 @@ class IdleTimeoutController {
     // Log removed
 
     // Set global flag untuk memaksa dialog box muncul
-    // @ts-ignore - akses properti global dari window
-    window.__forceShowIdleWarning = (IDLE_DIALOGS.PUNCH_WARNING && IDLE_DIALOGS.PUNCH_WARNING.trim() !== "" && IDLE_DIALOGS.PUNCH_WARNING !== "...") ? true : false;
-    console.log(
-      `[IdleTimeoutController] Setting global flag to force show punch warning dialog: ${window.__forceShowIdleWarning}`,
-    );
+    const windowAny = window as any;
+    // Note: PUNCH_WARNING doesn't exist in IDLE_DIALOGS, using punchText instead
+    windowAny.__forceShowIdleWarning = true;
+    console.log("[IdleTimeoutController] Setting global flag to force show punch warning dialog: true");
 
     // Tambahkan dialog peringatan untuk 'memukul'
     const punchText = "YOU ASKED FOR THIS.";

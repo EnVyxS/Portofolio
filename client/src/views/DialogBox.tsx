@@ -458,6 +458,23 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
           // JANGAN set isDialogFinished ke true agar dialog box tetap tersedia
         }, dismissDelay);
       }
+    } else if (isComplete && dialogSource === "idle") {
+      // Untuk idle dialog, periksa juga persistensi
+      if (!isDialogPersistent(text)) {
+        // Idle dialog yang tidak memerlukan respons
+        const dismissDelay = 3000; // 3 detik untuk membaca pesan
+
+        autoPlayTimerRef.current = setTimeout(() => {
+          // Reset idle dialog state
+          idleTimeoutController.stopTyping();
+
+          // Reset text tetapi tetap tampilkan dialog box
+          setText("");
+          setIsComplete(false);
+          setDialogSource("main");
+          // JANGAN set isDialogFinished ke true agar dialog box tetap tersedia
+        }, dismissDelay);
+      }
     }
 
     // Cleanup timer when unmounting or when dependencies change
