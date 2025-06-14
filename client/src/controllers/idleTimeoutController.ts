@@ -782,9 +782,24 @@ class IdleTimeoutController {
             this.hoverDialogController.setDialogSource("main");
             console.log("[IdleTimeoutController] Set dialog source to main before showing HOVER_AFTER_RESET");
           }
+
+          // Reset all annoyance flags
+          if (typeof this.hoverDialogController.resetAllState === "function") {
+            this.hoverDialogController.resetAllState();
+            console.log("[IdleTimeoutController] Full reset of HoverDialogController before showing HOVER_AFTER_RESET");
+          }
         }
       } catch (e) {
         console.error("[IdleTimeoutController] Error resetting controller states:", e);
+      }
+
+      // Force set global flag untuk memastikan dialog muncul
+      try {
+        // @ts-ignore
+        window.__forceShowIdleWarning = true;
+        console.log("[IdleTimeoutController] Force enabling dialog display for HOVER_AFTER_RESET");
+      } catch (e) {
+        console.error("Could not set force show flag:", e);
       }
       
       // Use our new typing animation system
@@ -997,12 +1012,23 @@ class IdleTimeoutController {
     setTimeout(async () => {
       this.elevenlabsService.stopSpeaking();
       
+      // Force reset dialog box state sebelum memulai typing
+      try {
+        const windowAny = window as any;
+        if (windowAny.__dialogBoxTextSetter && typeof windowAny.__dialogBoxTextSetter === "function") {
+          windowAny.__dialogBoxTextSetter("");
+          console.log("[IdleTimeoutController] Reset dialog box text before showing idle warning");
+        }
+      } catch (e) {
+        console.error("Error resetting dialog box text:", e);
+      }
+      
       // Start our own typing animation (matching hoverDialogController logic)
       await this.startTypingAnimation(text);
       
-      // Mark that user has interacted with idle dialog
-      this.hoverDialogController.setHasInteractedWithHover(true);
-    }, 100);
+      // Mark that user has interacted with idle dialog ONLY setelah dialog selesai
+      // this.hoverDialogController.setHasInteractedWithHover(true);
+    }, 200); // Increase delay untuk memastikan state reset
   }
 
   // Method untuk 'melempar' user
@@ -1037,6 +1063,15 @@ class IdleTimeoutController {
     if (this.hoverDialogController.setDialogSource) {
       console.log("[IdleTimeoutController] Setting dialog source to 'main' before showing throw dialog");
       this.hoverDialogController.setDialogSource("main");
+    }
+
+    // Force set global flag untuk memastikan dialog muncul
+    try {
+      // @ts-ignore
+      window.__forceShowIdleWarning = true;
+      console.log("[IdleTimeoutController] Force enabling dialog display for throw warning");
+    } catch (e) {
+      console.error("Could not set force show flag:", e);
     }
 
     // Use the new typing system instead of old showCustomDialog
@@ -1123,6 +1158,31 @@ class IdleTimeoutController {
     // Note: PUNCH_WARNING doesn't exist in IDLE_DIALOGS, using punchText instead
     windowAny.__forceShowIdleWarning = true;
     console.log("[IdleTimeoutController] Setting global flag to force show punch warning dialog: true");
+
+    // Reset semua state controller sebelum punch dialog
+    try {
+      if (this.hoverDialogController) {
+        // Reset hover interaction status
+        if (typeof this.hoverDialogController.setHasInteractedWithHover === "function") {
+          this.hoverDialogController.setHasInteractedWithHover(false);
+          console.log("[IdleTimeoutController] Reset hover interaction flag before punch dialog");
+        }
+
+        // Reset idle timeout status
+        if (typeof this.hoverDialogController.setIdleTimeoutOccurred === "function") {
+          this.hoverDialogController.setIdleTimeoutOccurred(false);
+          console.log("[IdleTimeoutController] Reset idle timeout status before punch dialog");
+        }
+
+        // Reset all state
+        if (typeof this.hoverDialogController.resetAllState === "function") {
+          this.hoverDialogController.resetAllState();
+          console.log("[IdleTimeoutController] Full reset of HoverDialogController before punch dialog");
+        }
+      }
+    } catch (e) {
+      console.error("[IdleTimeoutController] Error resetting controller states before punch:", e);
+    }
 
     // Tambahkan dialog peringatan untuk 'memukul'
     const punchText = "YOU ASKED FOR THIS.";

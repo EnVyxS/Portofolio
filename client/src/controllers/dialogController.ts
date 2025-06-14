@@ -474,21 +474,36 @@ class DialogController {
           console.error("[DialogController] Error starting audio playback:", e);
         });
       
-      // Fungsi rekursif untuk simulasi typing
+      // Fungsi rekursif untuk simulasi typing dengan error handling
       const typeNextChar = () => {
-        if (currentIndex < textLength) {
-          currentText += dialogText[currentIndex];
-          currentIndex++;
-          
-          // Kirim callback dengan text saat ini
-          if (callback) callback(currentText, false);
-          
-          // Jadwalkan karakter selanjutnya dalam 50ms
-          setTimeout(typeNextChar, 50); // 50ms per karakter
-        } else {
-          // Typing selesai, kirim callback dengan completed=true
-          if (callback) callback(currentText, true);
-          console.log("[DialogController] RETURN_DIALOG typing completed successfully");
+        try {
+          if (currentIndex < textLength) {
+            currentText += dialogText[currentIndex];
+            currentIndex++;
+            
+            // Kirim callback dengan text saat ini
+            if (callback) {
+              callback(currentText, false);
+            }
+            
+            // Jadwalkan karakter selanjutnya dalam 50ms
+            setTimeout(typeNextChar, 50); // 50ms per karakter
+          } else {
+            // Typing selesai, kirim callback dengan completed=true
+            if (callback) {
+              callback(currentText, true);
+            }
+            console.log("[DialogController] RETURN_DIALOG typing completed successfully");
+            
+            // Mark that post-reset dialog is complete
+            this.isPostResetDialog = false;
+          }
+        } catch (error) {
+          console.error("[DialogController] Error during return dialog typing:", error);
+          // Fallback - complete the dialog
+          if (callback) {
+            callback(dialogText, true);
+          }
         }
       };
       
