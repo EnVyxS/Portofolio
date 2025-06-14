@@ -94,6 +94,9 @@ class IdleTimeoutController {
   private finalHoverWarningTimer: NodeJS.Timeout | null = null;
   private punchUserTimer: NodeJS.Timeout | null = null;
 
+  // Real-time monitoring interval
+  private checkInterval: NodeJS.Timeout | null = null;
+
   // Status timeout
   private hasShownFirstWarning: boolean = false;
   private hasShownSecondWarning: boolean = false;
@@ -427,64 +430,62 @@ class IdleTimeoutController {
     this.setupIdleTimers(); // Setup timer baru
   }
 
-  // Setup timer idle
+  // Setup timer idle dengan monitoring real-time
   private setupIdleTimers(): void {
+    // Clear existing timers
+    this.clearAllIdleTimers();
+
     const now = Date.now();
+    this.timerStartTime = now;
 
-    // Jika belum menampilkan peringatan pertama
-    if (!this.hasShownFirstWarning) {
-      this.firstWarningTimer = setTimeout(() => {
-        // Cek dulu apakah ada audio/dialog yang aktif sebelum menampilkan peringatan
-        if (!this.isAudioOrDialogActive()) {
-          this.showIdleWarning(IDLE_DIALOGS.FIRST_WARNING);
-          this.hasShownFirstWarning = true;
-        } else {
-          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
-          this.startIdleTimer();
-        }
-      }, TIMEOUT_DURATIONS.FIRST_WARNING);
+    // Start monitoring interval untuk check timer state secara real-time
+    this.checkInterval = setInterval(() => {
+      this.checkTimerState();
+    }, 50); // Check setiap 50ms untuk responsivitas maksimal
+
+    console.log('[IdleTimeoutController] Real-time timer monitoring started');
+  }
+
+  // Method untuk mengecek state timer dan trigger warnings secara real-time
+  private checkTimerState(): void {
+    if (!this.timerStartTime || this.currentActiveTimer !== "idle") {
+      return;
     }
 
-    // Jika belum menampilkan peringatan kedua
-    if (!this.hasShownSecondWarning) {
-      this.secondWarningTimer = setTimeout(() => {
-        // Cek dulu apakah ada audio/dialog yang aktif sebelum menampilkan peringatan
-        if (!this.isAudioOrDialogActive()) {
-          this.showIdleWarning(IDLE_DIALOGS.SECOND_WARNING);
-          this.hasShownSecondWarning = true;
-        } else {
-          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
-          this.startIdleTimer();
-        }
-      }, TIMEOUT_DURATIONS.SECOND_WARNING);
+    const elapsed = Date.now() - this.timerStartTime;
+
+    // First warning check - trigger tepat saat elapsed >= 120000ms
+    if (!this.hasShownFirstWarning && elapsed >= TIMEOUT_DURATIONS.FIRST_WARNING) {
+      if (!this.isAudioOrDialogActive()) {
+        console.log('[IdleTimeoutController] ⚡ Triggering first warning - elapsed:', elapsed, 'ms');
+        this.showIdleWarning(IDLE_DIALOGS.FIRST_WARNING);
+        this.hasShownFirstWarning = true;
+      }
     }
 
-    // Jika belum menampilkan peringatan terakhir
-    if (!this.hasShownFinalWarning) {
-      this.finalWarningTimer = setTimeout(() => {
-        // Cek dulu apakah ada audio/dialog yang aktif sebelum menampilkan peringatan
-        if (!this.isAudioOrDialogActive()) {
-          this.showIdleWarning(IDLE_DIALOGS.FINAL_WARNING);
-          this.hasShownFinalWarning = true;
-        } else {
-          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
-          this.startIdleTimer();
-        }
-      }, TIMEOUT_DURATIONS.FINAL_WARNING);
+    // Second warning check - trigger tepat saat elapsed >= 300000ms
+    if (!this.hasShownSecondWarning && elapsed >= TIMEOUT_DURATIONS.SECOND_WARNING) {
+      if (!this.isAudioOrDialogActive()) {
+        console.log('[IdleTimeoutController] ⚡ Triggering second warning - elapsed:', elapsed, 'ms');
+        this.showIdleWarning(IDLE_DIALOGS.SECOND_WARNING);
+        this.hasShownSecondWarning = true;
+      }
     }
 
-    // Jika belum dilempar
-    if (!this.hasBeenThrown) {
-      this.throwUserTimer = setTimeout(() => {
-        // Cek dulu apakah ada audio/dialog yang aktif sebelum melempar user
-        if (!this.isAudioOrDialogActive()) {
-          this.throwUser();
-          this.hasBeenThrown = true;
-        } else {
-          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
-          this.startIdleTimer();
-        }
-      }, TIMEOUT_DURATIONS.THROW_USER);
+    // Final warning check - trigger tepat saat elapsed >= 540000ms
+    if (!this.hasShownFinalWarning && elapsed >= TIMEOUT_DURATIONS.FINAL_WARNING) {
+      if (!this.isAudioOrDialogActive()) {
+        console.log('[IdleTimeoutController] ⚡ Triggering final warning - elapsed:', elapsed, 'ms');
+        this.showIdleWarning(IDLE_DIALOGS.FINAL_WARNING);
+        this.hasShownFinalWarning = true;
+      }
+    }
+
+    // Throw user check - trigger tepat saat elapsed >= 600000ms
+    if (!this.hasBeenThrown && elapsed >= TIMEOUT_DURATIONS.THROW_USER) {
+      console.log('[IdleTimeoutController] ⚡ Throwing user - elapsed:', elapsed, 'ms');
+      this.throwUser();
+      this.hasBeenThrown = true;
     }
   }
 
@@ -508,6 +509,11 @@ class IdleTimeoutController {
     if (this.throwUserTimer) {
       clearTimeout(this.throwUserTimer);
       this.throwUserTimer = null;
+    }
+
+    if (this.checkInterval) {
+      clearInterval(this.checkInterval);
+      this.checkInterval = null;
     }
   }
 
