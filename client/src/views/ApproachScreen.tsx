@@ -12,8 +12,8 @@ interface ApproachScreenProps {
 const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
-  const { isAudioPlaying, playAudio, pauseAudio, setHasInteracted, hasInteracted } = useAudio();
   const [isVisible, setIsVisible] = useState(false);
+  const { isAudioPlaying, playAudio, pauseAudio, setHasInteracted, hasInteracted } = useAudio();
   const bonfireSoundRef = useRef<HTMLAudioElement | null>(null);
   const menuSoundRef = useRef<HTMLAudioElement | null>(null);
   const itemSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -115,6 +115,11 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
   const handleApproach = () => {
     setIsClicked(true);
     setHasInteracted(true); // Trigger audio to play with volume full
+    
+    // Start background music immediately when approach is clicked
+    if (!isAudioPlaying) {
+      playAudio();
+    }
     
     // Sembunyikan achievement progress
     const achievementElement = document.querySelector('.achievement-progress-indicator');
