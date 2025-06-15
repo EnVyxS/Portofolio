@@ -206,6 +206,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
 
   const pauseAudio = useCallback(() => {
     if (isAudioPlaying) {
+      console.log("Pausing background music and ambient sound");
       music.pause();
       ambient.pause();
       setIsAudioPlaying(false);
