@@ -44,6 +44,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
   const [hasInteracted, setHasInteracted] = useState<boolean>(false);
   const [currentVolume, setCurrentVolume] = useState<number>(0.4);
   const [currentAmbientVolume, setCurrentAmbientVolume] = useState<number>(0.2);
+  const [userHasManuallyStopped, setUserHasManuallyStopped] = useState<boolean>(false);
   const interactionTimeout = useRef<NodeJS.Timeout | null>(null);
   const autoPlayAttempted = useRef<boolean>(false);
 
@@ -167,6 +168,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
           await music.play();
           console.log("Music started successfully");
           setIsAudioPlaying(true);
+          setUserHasManuallyStopped(false); // Reset manual stop flag when user plays audio
           
           setTimeout(async () => {
             try {
@@ -210,6 +212,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
       music.pause();
       ambient.pause();
       setIsAudioPlaying(false);
+      setUserHasManuallyStopped(true);
     }
   }, [music, ambient, isAudioPlaying]);
 
@@ -227,12 +230,12 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
     }
   }, [ambient]);
 
-  // Play audio when hasInteracted changes to true
+  // Play audio when hasInteracted changes to true, but only if user hasn't manually stopped it
   useEffect(() => {
-    if (hasInteracted && !isAudioPlaying) {
+    if (hasInteracted && !isAudioPlaying && !userHasManuallyStopped) {
       playAudio();
     }
-  }, [hasInteracted, isAudioPlaying, playAudio]);
+  }, [hasInteracted, isAudioPlaying, userHasManuallyStopped, playAudio]);
 
   return (
     <AudioContextValue.Provider
