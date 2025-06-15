@@ -124,13 +124,15 @@ class DialogController {
     // Rata-rata pembacaan 12 karakter per detik (standar untuk bahasa Inggris - lebih lambat untuk DIVA JUAN)
     const estimatedDuration = Math.max(3000, (dialog.text.length / 10) * 1000); 
     
-    // Try to speak the text if voice is enabled - menggunakan text asli tanpa modifikasi
+    // Try to speak the text if voice is enabled and not muted - menggunakan text asli tanpa modifikasi
     let audioStarted = false;
-    if (this.elevenlabsService.getApiKey()) {
+    if (this.elevenlabsService.getApiKey() && !this.elevenlabsService.isMuted()) {
       // Pastikan teks yang dikirim ke speech generator 100% sama dengan yang ditampilkan
       const exactDialogText = dialog.text;
       console.log("Generating speech for exact text:", exactDialogText);
       audioStarted = await this.elevenlabsService.speakText(exactDialogText);
+    } else if (this.elevenlabsService.isMuted()) {
+      console.log("Audio is muted, skipping voice synthesis for dialog");
     }
     
     // Sesuaikan kecepatan typing dengan durasi audio
