@@ -1339,21 +1339,26 @@ class IdleTimeoutController {
       
       console.log("[IdleTimeoutController] Triggering RETURN_DIALOG - user returned after being thrown");
       
-      // Show RETURN_DIALOG
-      if (this.hoverDialogController.setDialogSource) {
-        this.hoverDialogController.setDialogSource("main");
-      }
-      
-      this.showIdleWarning(IDLE_DIALOGS.RETURN_DIALOG);
-      
-      // Unlock the return achievement
-      try {
-        const achievementController = AchievementController.getInstance();
-        achievementController.unlockAchievement('return', true); // Force notification
-        console.log("[IdleTimeoutController] Unlocked 'return' achievement for returning after being thrown");
-      } catch (error) {
-        console.error("Failed to unlock return achievement:", error);
-      }
+      // Use DialogController's showReturnDialog method which supports audio
+      setTimeout(() => {
+        const returnDialogCallback = (text: string, isComplete: boolean) => {
+          console.log("[IdleTimeoutController] Return dialog being displayed:", text, "isComplete:", isComplete);
+          
+          // Unlock achievement for returning after punishment
+          if (isComplete) {
+            try {
+              const achievementController = AchievementController.getInstance();
+              achievementController.unlockAchievement('return', true); // Force notification
+              console.log("[IdleTimeoutController] Unlocked 'return' achievement for returning after being thrown");
+            } catch (error) {
+              console.error("Failed to unlock return achievement:", error);
+            }
+          }
+        };
+        
+        // Use the proper DialogController method that supports audio
+        this.dialogController.showReturnDialog(returnDialogCallback);
+      }, 500);
       
       return true; // Indicates RETURN_DIALOG was triggered
     }
