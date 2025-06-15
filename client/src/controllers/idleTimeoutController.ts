@@ -1271,6 +1271,10 @@ class IdleTimeoutController {
 
     this.hasBeenReset = false;
     this.hasInteractedAfterReset = false;
+    
+    // Reset new tracking variables
+    this.hasBeenThrown = false;
+    this.userHasBeenReturn = false;
 
     this.lastInteractionTime = Date.now();
 
@@ -1306,6 +1310,55 @@ class IdleTimeoutController {
 
     // Setup timer baru
     this.setupIdleTimers();
+  }
+
+  // Public methods for accessing and modifying new tracking variables
+  public getHasBeenThrown(): boolean {
+    return this.hasBeenThrown;
+  }
+
+  public setHasBeenThrown(value: boolean): void {
+    this.hasBeenThrown = value;
+    console.log(`[IdleTimeoutController] hasBeenThrown set to: ${value}`);
+  }
+
+  public getUserHasBeenReturn(): boolean {
+    return this.userHasBeenReturn;
+  }
+
+  public setUserHasBeenReturn(value: boolean): void {
+    this.userHasBeenReturn = value;
+    console.log(`[IdleTimeoutController] userHasBeenReturn set to: ${value}`);
+  }
+
+  // Method to handle RETURN_DIALOG logic when user clicks APPROACH HIM after being thrown
+  public handleApproachAfterThrown(): boolean {
+    if (this.hasBeenThrown && !this.userHasBeenReturn) {
+      // Set the return flag
+      this.userHasBeenReturn = true;
+      
+      console.log("[IdleTimeoutController] Triggering RETURN_DIALOG - user returned after being thrown");
+      
+      // Show RETURN_DIALOG
+      if (this.hoverDialogController.setDialogSource) {
+        this.hoverDialogController.setDialogSource("main");
+      }
+      
+      this.showIdleWarning(IDLE_DIALOGS.RETURN_DIALOG);
+      
+      // Unlock the return achievement
+      try {
+        const achievementController = AchievementController.getInstance();
+        achievementController.unlockAchievement('return', true); // Force notification
+        console.log("[IdleTimeoutController] Unlocked 'return' achievement for returning after being thrown");
+      } catch (error) {
+        console.error("Failed to unlock return achievement:", error);
+      }
+      
+      return true; // Indicates RETURN_DIALOG was triggered
+    }
+    
+    return false; // Normal approach, no special dialog needed
   }
 }
 

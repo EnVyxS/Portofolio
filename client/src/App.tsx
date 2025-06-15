@@ -113,6 +113,19 @@ function MainApp() {
   }, [approachClicked, isTransitioning, setVolume]);
 
   const handleApproach = () => {
+    // Check if user has been thrown and should see RETURN_DIALOG
+    const idleController = IdleTimeoutController.getInstance();
+    const shouldShowReturnDialog = idleController.handleApproachAfterThrown();
+    
+    if (shouldShowReturnDialog) {
+      // User has been thrown and this is their return - show RETURN_DIALOG
+      console.log("[App] Showing RETURN_DIALOG for returning user");
+      setApproachClicked(true);
+      // Don't show ElevenLabs setup for return dialog
+      return;
+    }
+    
+    // Normal approach flow
     setIsTransitioning(true);
     setApproachClicked(true);
     // setShowElevenLabsSetup akan dipanggil setelah transisi selesai
