@@ -3,7 +3,6 @@ import ElevenLabsService from '../services/elevenlabsService';
 import HoverDialogController from './hoverDialogController';
 import { CONTRACT_RESPONSES } from '../components/ContractCard';
 import AchievementController from './achievementController';
-import IdleTimeoutController from './idleTimeoutController';
 
 class DialogController {
   private static instance: DialogController;
@@ -57,15 +56,6 @@ class DialogController {
     // Stop previous typing
     this.stopTyping();
     
-    // Reset idle timer when progressing to next dialog
-    try {
-      const idleController = IdleTimeoutController.getInstance();
-      idleController.resetTimerDueToDialog();
-      console.log("[DialogController] Reset idle timer due to next dialog");
-    } catch (e) {
-      console.error("[DialogController] Failed to reset idle timer:", e);
-    }
-    
     // Get next dialog
     const nextDialog = this.dialogModel.nextDialog();
     if (nextDialog) {
@@ -109,15 +99,6 @@ class DialogController {
     this.resetDialogInterruption();
     this.dialogsVisited.clear();
     console.log(`[DialogController] Starting new dialog session. Achievement tracking reset.`);
-    
-    // Reset idle timer when starting dialog
-    try {
-      const idleController = IdleTimeoutController.getInstance();
-      idleController.resetTimerDueToDialog();
-      console.log("[DialogController] Reset idle timer due to dialog start");
-    } catch (e) {
-      console.error("[DialogController] Failed to reset idle timer:", e);
-    }
     
     // Get first dialog
     const dialog = this.dialogModel.getCurrentDialog();
@@ -356,15 +337,6 @@ class DialogController {
     this.stopTyping();
     
     console.log("[DialogController] Preparing to show RETURN_DIALOG after user was thrown and returned");
-    
-    // Reset idle timer when showing return dialog
-    try {
-      const idleController = IdleTimeoutController.getInstance();
-      idleController.resetTimerDueToDialog();
-      console.log("[DialogController] Reset idle timer due to return dialog");
-    } catch (e) {
-      console.error("[DialogController] Failed to reset idle timer:", e);
-    }
     
     // Tunggu sebentar untuk memastikan audio sebelumnya sudah selesai
     setTimeout(() => {
