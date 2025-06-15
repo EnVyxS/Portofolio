@@ -101,7 +101,6 @@ class IdleTimeoutController {
   private hasShownFirstWarning: boolean = false;
   private hasShownSecondWarning: boolean = false;
   private hasShownFinalWarning: boolean = false;
-  private hasBeenThrown: boolean = false;
 
   // Flag untuk mencegah multiple timer restart
   private isTimerRunning: boolean = false;
@@ -114,6 +113,10 @@ class IdleTimeoutController {
   // Status untuk setelah reset (user kembali ke APPROACH HIM)
   private hasBeenReset: boolean = false;
   private hasInteractedAfterReset: boolean = false;
+  
+  // New tracking variables for the updated requirements
+  private hasBeenThrown: boolean = false;
+  private userHasBeenReturn: boolean = false;
 
   // Callback untuk aksi eksternal
   private throwUserCallback: (() => void) | null = null;
@@ -756,27 +759,34 @@ class IdleTimeoutController {
       );
     }
 
-    if (this.hasBeenReset && !this.hasInteractedAfterReset) {
-      // Jika user baru saja di-reset dan ini adalah interaksi pertama setelah reset
+    // New logic: Check if HOVER_AFTER_RESET should be triggered
+    if (this.hasBeenThrown && !this.hasInteractedAfterReset) {
+      // First interaction after being thrown (mouse move or hover)
       this.hasInteractedAfterReset = true;
       
-      console.log("[IdleTimeoutController] Menampilkan HOVER_AFTER_RESET karena ini interaksi pertama setelah reset");
+      console.log("[IdleTimeoutController] Triggering HOVER_AFTER_RESET - first interaction after being thrown");
       
-      // Use the new typing system to show HOVER_AFTER_RESET dialog
-      console.log("[IdleTimeoutController] Showing HOVER_AFTER_RESET dialog via new typing system");
+      // Unlock the hover achievement
+      try {
+        const achievementController = AchievementController.getInstance();
+        achievementController.unlockAchievement('hover');
+        console.log("[IdleTimeoutController] Unlocked 'hover' achievement for first interaction after reset");
+      } catch (error) {
+        console.error("Failed to unlock hover achievement:", error);
+      }
       
-      // Set dialog source to main for proper handling (since setDialogSource only accepts main/hover)
+      // Set dialog source to main for proper handling
       if (this.hoverDialogController.setDialogSource) {
         this.hoverDialogController.setDialogSource("main");
       }
       
-      // Use our new typing animation system
+      // Show HOVER_AFTER_RESET dialog
       this.showIdleWarning(IDLE_DIALOGS.HOVER_AFTER_RESET);
 
-      // Mulai timer hover berlebihan
+      // Start excessive hover timers
       this.startExcessiveHoverTimers();
-    } else if (!this.hasBeenReset) {
-      // Reset timer idle jika belum di-reset
+    } else if (!this.hasBeenThrown) {
+      // Normal timer reset if user hasn't been thrown yet
       this.clearAllIdleTimers();
       this.setupIdleTimers();
     }
@@ -1023,9 +1033,12 @@ class IdleTimeoutController {
       console.error("Could not reset dialog controller post-reset status:", e);
     }
 
-    // Tandai bahwa user telah dilempar
-    this.hasBeenReset = true;
+    // Tandai bahwa user telah dilempar dengan flag baru
+    this.hasBeenThrown = true;
     this.hasInteractedAfterReset = false;
+    
+    // Keep old flags for backwards compatibility
+    this.hasBeenReset = true;
 
     // Notifikasi HoverDialogController bahwa idle timeout telah terjadi
     try {
@@ -1179,6 +1192,10 @@ class IdleTimeoutController {
         );
       }
 
+      // Set the hasBeenThrown flag since punch also results in being thrown to dream page
+      this.hasBeenThrown = true;
+      this.hasInteractedAfterReset = false;
+      
       // Ejecutar el callback inmediatamente para una respuesta más rápida
       setTimeout(() => {
         if (this.punchUserCallback) {
