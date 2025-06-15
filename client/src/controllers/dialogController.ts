@@ -3,6 +3,7 @@ import ElevenLabsService from '../services/elevenlabsService';
 import HoverDialogController from './hoverDialogController';
 import { CONTRACT_RESPONSES } from '../components/ContractCard';
 import AchievementController from './achievementController';
+import IdleTimeoutController from './idleTimeoutController';
 
 class DialogController {
   private static instance: DialogController;
@@ -99,6 +100,15 @@ class DialogController {
     this.resetDialogInterruption();
     this.dialogsVisited.clear();
     console.log(`[DialogController] Starting new dialog session. Achievement tracking reset.`);
+    
+    // Reset idle timer when starting dialog
+    try {
+      const idleController = IdleTimeoutController.getInstance();
+      idleController.resetTimerDueToDialog();
+      console.log("[DialogController] Reset idle timer due to dialog start");
+    } catch (e) {
+      console.error("[DialogController] Failed to reset idle timer:", e);
+    }
     
     // Get first dialog
     const dialog = this.dialogModel.getCurrentDialog();

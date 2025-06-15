@@ -992,6 +992,9 @@ class IdleTimeoutController {
     setTimeout(async () => {
       this.elevenlabsService.stopSpeaking();
       
+      // Reset timer when showing dialog (treat dialog as user interaction)
+      this.resetTimerDueToDialog();
+      
       // Start our own typing animation (matching hoverDialogController logic)
       await this.startTypingAnimation(text);
       
@@ -1329,6 +1332,27 @@ class IdleTimeoutController {
   public setUserHasBeenReturn(value: boolean): void {
     this.userHasBeenReturn = value;
     console.log(`[IdleTimeoutController] userHasBeenReturn set to: ${value}`);
+  }
+
+  // Public method to reset timer due to dialog (can be called from other methods)
+  public resetTimerDueToDialog(): void {
+    console.log("[IdleTimeoutController] Resetting timer due to dialog appearance");
+    
+    // Update last interaction time
+    this.lastInteractionTime = Date.now();
+    
+    // Reset timer start time to current time
+    this.timerStartTime = Date.now();
+    
+    // Reset all warning flags (but not throw/reset flags)
+    this.hasShownFirstWarning = false;
+    this.hasShownSecondWarning = false;
+    this.hasShownFinalWarning = false;
+    
+    // Clear processing warnings set
+    this.processingWarnings.clear();
+    
+    console.log("[IdleTimeoutController] Timer reset completed due to dialog");
   }
 
   // Method to handle RETURN_DIALOG logic when user clicks APPROACH HIM after being thrown
