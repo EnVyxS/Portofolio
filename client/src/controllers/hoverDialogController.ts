@@ -736,8 +736,12 @@ class HoverDialogController {
       // Mulai animasi typing untuk dialog hover
       this.typeHoverText(dialogText);
 
-      // Speak the dialog text menggunakan default voice
-      await this.elevenlabsService.speakText(dialogText);
+      // Speak the dialog text menggunakan default voice hanya jika tidak di-mute
+      if (!this.elevenlabsService.isMuted()) {
+        await this.elevenlabsService.speakText(dialogText);
+      } else {
+        console.log("Audio is muted, skipping voice synthesis for hover dialog");
+      }
 
       // Log untuk informasi tambahan
       if (isAnnoyedLastLevel) {

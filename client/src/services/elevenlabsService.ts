@@ -275,6 +275,11 @@ class ElevenLabsService {
   public isCurrentlyPlaying(): boolean {
     return this.isPlaying;
   }
+
+  // Method untuk mengecek apakah audio sedang di-mute
+  public isMuted(): boolean {
+    return !this.apiKey || this.apiKey === "";
+  }
   
   // Metode untuk memainkan suara ambient api dengan volume lebih rendah
   public playAmbientSound(volume: number = 0.1): void {

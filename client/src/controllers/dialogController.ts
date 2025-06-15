@@ -417,33 +417,39 @@ class DialogController {
       let currentIndex = 0;
       let currentText = "";
       
-      // Coba gunakan elevenlabs untuk mengucapkan dialog
-      console.log("[DialogController] Attempting to play audio for return dialog");
-      this.elevenlabsService.speakText(dialogText)
-        .then(audioStarted => {
-          if (!audioStarted) {
-            console.log("[DialogController] First attempt to play audio failed, retrying...");
-            // Retry setelah delay kecil
-            setTimeout(() => {
-              this.elevenlabsService.speakText(dialogText)
-                .then(retrySuccess => {
-                  if (retrySuccess) {
-                    console.log("[DialogController] Retry audio playback successful");
-                  } else {
-                    console.log("[DialogController] Retry audio playback failed");
-                  }
-                })
-                .catch(e => {
-                  console.error("[DialogController] Retry audio playback failed with error:", e);
-                });
-            }, 500);
-          } else {
-            console.log("[DialogController] Audio playback started successfully");
-          }
-        })
-        .catch(e => {
-          console.error("[DialogController] Error starting audio playback:", e);
-        });
+      // Coba gunakan elevenlabs untuk mengucapkan dialog jika tidak di-mute
+      if (!this.elevenlabsService.isMuted()) {
+        console.log("[DialogController] Attempting to play audio for return dialog");
+        this.elevenlabsService.speakText(dialogText)
+          .then(audioStarted => {
+            if (!audioStarted) {
+              console.log("[DialogController] First attempt to play audio failed, retrying...");
+              // Retry setelah delay kecil
+              setTimeout(() => {
+                if (!this.elevenlabsService.isMuted()) {
+                  this.elevenlabsService.speakText(dialogText)
+                    .then(retrySuccess => {
+                      if (retrySuccess) {
+                        console.log("[DialogController] Retry audio playback successful");
+                      } else {
+                        console.log("[DialogController] Retry audio playback failed");
+                      }
+                    })
+                    .catch(e => {
+                      console.error("[DialogController] Retry audio playback failed with error:", e);
+                    });
+                }
+              }, 500);
+            } else {
+              console.log("[DialogController] Audio playback started successfully");
+            }
+          })
+          .catch(e => {
+            console.error("[DialogController] Error starting audio playback:", e);
+          });
+      } else {
+        console.log("[DialogController] Audio is muted, skipping voice synthesis for return dialog");
+      }
       
       // Fungsi rekursif untuk simulasi typing
       const typeNextChar = () => {

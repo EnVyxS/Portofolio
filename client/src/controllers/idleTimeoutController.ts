@@ -820,11 +820,13 @@ class IdleTimeoutController {
     // Estimate duration based on text length (matching dialogController logic)
     const estimatedDuration = Math.max(3000, (text.length / 10) * 1000);
     
-    // Try to speak the text if voice is enabled
+    // Try to speak the text if voice is enabled and not muted
     let audioStarted = false;
-    if (this.elevenlabsService.getApiKey()) {
+    if (this.elevenlabsService.getApiKey() && !this.elevenlabsService.isMuted()) {
       console.log("[IdleTimeoutController] Generating speech for text:", text);
       audioStarted = await this.elevenlabsService.speakText(text);
+    } else if (this.elevenlabsService.isMuted()) {
+      console.log("[IdleTimeoutController] Audio is muted, skipping voice synthesis for idle dialog");
     }
     
     // Adjust typing speed based on audio
