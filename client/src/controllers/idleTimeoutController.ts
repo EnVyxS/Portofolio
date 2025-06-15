@@ -1334,25 +1334,27 @@ class IdleTimeoutController {
     console.log(`[IdleTimeoutController] userHasBeenReturn set to: ${value}`);
   }
 
-  // Public method to reset timer due to dialog (can be called from other methods)
+  // Simplified timer reset method - only called when truly needed
   public resetTimerDueToDialog(): void {
-    console.log("[IdleTimeoutController] Resetting timer due to dialog appearance");
-    
-    // Update last interaction time
-    this.lastInteractionTime = Date.now();
-    
-    // Reset timer start time to current time
-    this.timerStartTime = Date.now();
-    
-    // Reset all warning flags (but not throw/reset flags)
-    this.hasShownFirstWarning = false;
-    this.hasShownSecondWarning = false;
-    this.hasShownFinalWarning = false;
-    
-    // Clear processing warnings set
-    this.processingWarnings.clear();
-    
-    console.log("[IdleTimeoutController] Timer reset completed due to dialog");
+    // Only reset if not already processing to avoid conflicts
+    if (this.processingWarnings.size === 0) {
+      console.log("[IdleTimeoutController] Resetting timer due to dialog appearance");
+      
+      // Update last interaction time
+      this.lastInteractionTime = Date.now();
+      
+      // Reset timer start time to current time  
+      this.timerStartTime = Date.now();
+      
+      // Reset warning flags selectively
+      this.hasShownFirstWarning = false;
+      this.hasShownSecondWarning = false;
+      this.hasShownFinalWarning = false;
+      
+      console.log("[IdleTimeoutController] Timer reset completed due to dialog");
+    } else {
+      console.log("[IdleTimeoutController] Skip timer reset - warnings in progress");
+    }
   }
 
   // Method to handle RETURN_DIALOG logic when user clicks APPROACH HIM after being thrown
