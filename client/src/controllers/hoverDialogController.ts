@@ -194,6 +194,67 @@ class HoverDialogController {
     const currentCategory = this.getLinkCategory(linkType);
     const previousCategory = this.getLinkCategory(this.lastHoveredLink);
 
+    // Check for HOVER_AFTER_RESET conditions and curious observer achievement
+    try {
+      const achievementController = AchievementController.getInstance();
+      const idleController = IdleTimeoutController.getInstance();
+      
+      // Check if user has required achievements or flags
+      const hasDigitalOdyssey = achievementController.hasAchievement('nightmare');
+      const hasDreamEscapist = achievementController.hasAchievement('escape');
+      const hasBeenThrown = idleController ? idleController.getHasBeenThrown() : false;
+      const userHasBeenReturn = idleController ? idleController.getUserHasBeenReturn() : false;
+      const hasCuriousObserver = achievementController.hasAchievement('hover');
+
+      // Check if conditions for HOVER_AFTER_RESET are met
+      const shouldTriggerHoverAfterReset = 
+        (hasDigitalOdyssey && hasDreamEscapist) || (hasBeenThrown && userHasBeenReturn);
+
+      // If conditions are met and user doesn't have curious observer yet, trigger HOVER_AFTER_RESET
+      if (shouldTriggerHoverAfterReset && !hasCuriousObserver && (currentCategory === "contact" || currentCategory === "social")) {
+        console.log("[HoverDialogController] Triggering HOVER_AFTER_RESET for curious observer achievement");
+        
+        // Set dialog source to main for proper handling
+        if (this.setDialogSource) {
+          this.setDialogSource("main");
+        }
+        
+        // Show HOVER_AFTER_RESET dialog
+        const hoverAfterResetText = "Hmph... Finally, you decide to move... Suit yourself. You want to check it or just get on with signing the damn contract?";
+        
+        try {
+          // Stop any current dialog/audio
+          this.dialogController.stopTyping();
+          this.elevenlabsService.stopSpeaking();
+          
+          // Use IdleTimeoutController's showIdleWarning method to display the dialog
+          if (idleController && typeof idleController.showIdleWarning === 'function') {
+            idleController.showIdleWarning(hoverAfterResetText);
+          }
+          
+          // Unlock curious observer achievement
+          achievementController.unlockAchievement('hover', true);
+          console.log("[HoverDialogController] Unlocked 'hover' (curious observer) achievement");
+          
+        } catch (error) {
+          console.error("Failed to trigger HOVER_AFTER_RESET:", error);
+        }
+        
+        // Update last hovered link and return early
+        this.lastHoveredLink = linkType;
+        return;
+      }
+
+      // If user has required achievements/flags, don't show normal hover dialogs
+      if (shouldTriggerHoverAfterReset && hasCuriousObserver) {
+        console.log("[HoverDialogController] User has completed achievement sequence, disabling hover dialogs");
+        this.lastHoveredLink = linkType;
+        return;
+      }
+    } catch (error) {
+      console.error("Error checking achievement conditions:", error);
+    }
+
     // Jika idle timeout sudah terjadi, tidak perlu menampilkan hover dialog lagi
     if (this.hasIdleTimeoutOccurred) {
       console.log("Idle timeout telah terjadi, hover dialog diabaikan");

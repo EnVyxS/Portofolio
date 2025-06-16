@@ -935,7 +935,7 @@ class IdleTimeoutController {
   }
 
   // Method untuk menampilkan peringatan
-  private async showIdleWarning(text: string): Promise<void> {
+  public async showIdleWarning(text: string): Promise<void> {
     // Cek apakah ini dialog marah dan sudah pernah ditampilkan
     const isAngryDialog =
       text.includes("KEEP PUSHING") ||
