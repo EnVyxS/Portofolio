@@ -19,6 +19,7 @@ class DialogController {
   private dialogInterrupted: boolean = false; // Melacak apakah dialog diinterupsi oleh user
   private dialogsVisited: Set<number> = new Set(); // Melacak dialog yang telah dikunjungi
   private totalDialogCount: number = 0; // Total jumlah dialog yang harus dikunjungi
+  private mainDialog: boolean = false; // Flag untuk menandakan apakah main dialog sedang aktif
 
   private constructor() {
     this.dialogModel = DialogModel.getInstance();
@@ -92,6 +93,10 @@ class DialogController {
   }
 
   public startDialog(callback: (text: string, isComplete: boolean) => void): void {
+    // Set mainDialog to true when starting dialog
+    this.mainDialog = true;
+    console.log(`[DialogController] Main dialog started - mainDialog = true`);
+    
     // Reset dialog to beginning
     this.dialogModel.resetDialog();
     
@@ -188,6 +193,15 @@ class DialogController {
           this.markDialogVisited(dialog.id);
         }
         
+        // Cek apakah ini adalah dialog terakhir
+        const allDialogs = this.dialogModel.getAllDialogs();
+        const currentIndex = this.dialogModel.getCurrentIndex();
+        const isLastDialog = currentIndex >= allDialogs.length - 1;
+        if (isLastDialog) {
+          this.mainDialog = false;
+          console.log(`[DialogController] All main dialogs completed - mainDialog = false`);
+        }
+        
         if (this.typewriterCallback) {
           this.typewriterCallback(this.currentText, true);
         }
@@ -242,6 +256,23 @@ class DialogController {
 
   public isCurrentlyTyping(): boolean {
     return this.isTyping;
+  }
+
+  // Method untuk mengecek status mainDialog
+  public isMainDialogActive(): boolean {
+    return this.mainDialog;
+  }
+
+  // Method untuk mengatur mainDialog menjadi false
+  public setMainDialogInactive(): void {
+    this.mainDialog = false;
+    console.log(`[DialogController] Main dialog deactivated - mainDialog = false`);
+  }
+
+  // Method untuk mengatur mainDialog menjadi true (jika diperlukan)
+  public setMainDialogActive(): void {
+    this.mainDialog = true;
+    console.log(`[DialogController] Main dialog activated - mainDialog = true`);
   }
   
   // Cek apakah audio sedang diproses

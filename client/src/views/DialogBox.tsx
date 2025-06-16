@@ -527,6 +527,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       setIsComplete(complete);
       setDialogSource("hover");
       setCharacterName("DIVA JUAN NUR TAQARRUB"); // Dialog hover dari DIVA JUAN
+      
+      // Set mainDialog to false when hover dialog is active
+      dialogController.setMainDialogInactive();
     });
 
     // Set idle dialog callback untuk menangkap idle dialog
