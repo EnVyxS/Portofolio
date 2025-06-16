@@ -42,7 +42,18 @@ class AchievementController {
         try {
           const achievements = JSON.parse(savedData) as AchievementType[];
           console.log('Loaded achievements from localStorage:', achievements);
-          return new Set(achievements);
+          
+          // Bug fix: Jika user sudah memiliki achievement yang memerlukan final warning
+          // tapi belum memiliki "patience", tambahkan secara otomatis
+          const achievementSet = new Set(achievements);
+          if ((achievementSet.has('escape') || achievementSet.has('nightmare')) && !achievementSet.has('patience')) {
+            console.log('User reached final stages but missing patience achievement - adding it automatically');
+            achievementSet.add('patience');
+            // Save the updated achievements back to localStorage
+            localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(Array.from(achievementSet)));
+          }
+          
+          return achievementSet;
         } catch (e) {
           console.error('Error parsing achievements data:', e);
         }
