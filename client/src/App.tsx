@@ -125,6 +125,29 @@ function MainApp() {
       return;
     }
     
+    // Check if user has achievements that disable main dialog
+    try {
+      const achievementController = AchievementController.getInstance();
+      const hasDigitalOdyssey = achievementController.hasAchievement('nightmare');
+      const hasDreamEscapist = achievementController.hasAchievement('escape');
+      const hasBeenThrown = idleController ? idleController.getHasBeenThrown() : false;
+      const userHasBeenReturn = idleController ? idleController.getUserHasBeenReturn() : false;
+      const hasCuriousObserver = achievementController.hasAchievement('hover');
+      
+      // Check if conditions for disabling dialogs are met
+      const shouldDisableDialogs = 
+        ((hasDigitalOdyssey && hasDreamEscapist) || (hasBeenThrown && userHasBeenReturn)) && hasCuriousObserver;
+      
+      if (shouldDisableDialogs) {
+        console.log("[App] User has completed achievement sequence - disabling all dialogs");
+        setApproachClicked(true);
+        // Don't show ElevenLabs setup - user has completed the sequence
+        return;
+      }
+    } catch (error) {
+      console.error("Error checking achievement conditions:", error);
+    }
+    
     // Normal approach flow
     setIsTransitioning(true);
     setApproachClicked(true);
