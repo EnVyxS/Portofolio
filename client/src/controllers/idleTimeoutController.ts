@@ -936,6 +936,31 @@ class IdleTimeoutController {
 
   // Method untuk menampilkan peringatan
   public async showIdleWarning(text: string): Promise<void> {
+    // Check if user has achievements that disable idle warnings
+    const isIdleWarning = text === IDLE_DIALOGS.FIRST_WARNING || 
+                          text === IDLE_DIALOGS.SECOND_WARNING || 
+                          text === IDLE_DIALOGS.FINAL_WARNING;
+    
+    if (isIdleWarning) {
+      try {
+        const achievementController = AchievementController.getInstance();
+        const hasDigitalOdyssey = achievementController.hasAchievement('nightmare');
+        const hasDreamEscapist = achievementController.hasAchievement('escape');
+        const hasCuriousObserver = achievementController.hasAchievement('hover');
+        
+        // Check if conditions for disabling warnings are met
+        const shouldDisableIdleWarnings = 
+          ((hasDigitalOdyssey && hasDreamEscapist) || (this.hasBeenThrown && this.userHasBeenReturn)) && hasCuriousObserver;
+        
+        if (shouldDisableIdleWarnings) {
+          console.log("[IdleTimeoutController] User has completed achievement sequence - disabling idle warnings");
+          return;
+        }
+      } catch (error) {
+        console.error("Error checking achievement conditions for idle warnings:", error);
+      }
+    }
+
     // Cek apakah ini dialog marah dan sudah pernah ditampilkan
     const isAngryDialog =
       text.includes("KEEP PUSHING") ||
