@@ -962,7 +962,7 @@ class IdleTimeoutController {
   }
 
   // Method untuk menampilkan peringatan
-  private async showIdleWarning(text: string): Promise<void> {
+  public async showIdleWarning(text: string): Promise<void> {
     // Cek apakah ini dialog marah dan sudah pernah ditampilkan
     const isAngryDialog =
       text.includes("KEEP PUSHING") ||
@@ -1389,6 +1389,18 @@ class IdleTimeoutController {
     console.log(`[IdleTimeoutController] userHasBeenReturn set to: ${value}`);
   }
 
+  public getHasBeenPunched(): boolean {
+    return this.hasBeenPunched;
+  }
+
+  public setHasInteractedAfterReset(value: boolean): void {
+    this.hasInteractedAfterReset = value;
+  }
+
+  public getHasInteractedAfterReset(): boolean {
+    return this.hasInteractedAfterReset;
+  }
+
   // Method to handle RETURN_DIALOG logic when user clicks APPROACH HIM after being thrown
   public handleApproachAfterThrown(): boolean {
     if (this.hasBeenThrown && !this.userHasBeenReturn) {
@@ -1419,18 +1431,7 @@ class IdleTimeoutController {
     return false; // Normal approach, no special dialog needed
   }
 
-  // Additional getter methods
-  public getHasBeenPunched(): boolean {
-    return this.hasBeenPunched;
-  }
 
-  public setHasInteractedAfterReset(value: boolean): void {
-    this.hasInteractedAfterReset = value;
-  }
-
-  public getHasInteractedAfterReset(): boolean {
-    return this.hasInteractedAfterReset;
-  }
 }
 
 export default IdleTimeoutController;

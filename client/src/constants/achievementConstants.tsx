@@ -188,7 +188,7 @@ export const AchievementCriteria: Record<AchievementType, string> = {
   listener: 'Listen to the entire dialogue without interrupting.',
   patience: 'Stay on the page for over 9 minutes without interaction.',
   return: 'Come back after being thrown out of the conversation.',
-  hover: 'Hover over elements after being reset to the approach screen.',
+  hover: 'After meeting special conditions, hover over contract or social elements to trigger a dialogue, then receive this achievement.',
   escape: 'Find and click the "WAKE UP" button to escape from the nightmare.',
   social: 'Share the portfolio on social media using the share button.'
 };

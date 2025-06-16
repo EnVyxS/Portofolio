@@ -197,7 +197,7 @@ class HoverDialogController {
           console.log("[HoverDialogController] Conditions met for HOVER_AFTER_RESET and Curious Observer achievement");
           
           // First show HOVER_AFTER_RESET dialog if not shown yet
-          if (!idleController.hasInteractedAfterReset) {
+          if (!idleController.getHasInteractedAfterReset()) {
             // Set dialog source to main for proper handling
             if (this.setDialogSource) {
               this.setDialogSource("main");
@@ -207,7 +207,7 @@ class HoverDialogController {
             idleController.setHasInteractedAfterReset(true);
             
             // Show HOVER_AFTER_RESET dialog
-            idleController.showIdleWarning(IDLE_DIALOGS.HOVER_AFTER_RESET);
+            idleController.showIdleWarning("Hmph... Finally, you decide to move... Suit yourself. You want to check it or just get on with signing the damn contract?");
             
             // After dialog finishes, unlock Curious Observer achievement
             setTimeout(() => {
