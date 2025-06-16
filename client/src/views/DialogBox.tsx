@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import DialogController from "../controllers/dialogController";
 import HoverDialogController from "../controllers/hoverDialogController";
 import IdleTimeoutController, { TIMEOUT_DURATIONS } from "../controllers/idleTimeoutController";
-import AchievementController from "../controllers/achievementController";
 import { FaVolumeUp, FaVolumeMute, FaClock } from "react-icons/fa";
 import ElevenLabsService from "../services/elevenlabsService";
 import { CONTRACT_RESPONSES } from "../components/ContractCard";
@@ -555,33 +554,11 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
     // Periksa apakah hover dialog sedang aktif (typing)
     const isHoverDialogActive = hoverDialogController.isTypingHoverDialog();
 
-    // Check if user has achievements that disable main dialog
-    let shouldDisableMainDialog = false;
-    try {
-      const achievementController = AchievementController.getInstance();
-      const hasDigitalOdyssey = achievementController.hasAchievement('nightmare');
-      const hasDreamEscapist = achievementController.hasAchievement('escape');
-      const hasBeenThrown = idleTimeoutController ? idleTimeoutController.getHasBeenThrown() : false;
-      const userHasBeenReturn = idleTimeoutController ? idleTimeoutController.getUserHasBeenReturn() : false;
-      const hasCuriousObserver = achievementController.hasAchievement('hover');
-      
-      // Check if conditions for disabling dialogs are met
-      shouldDisableMainDialog = 
-        ((hasDigitalOdyssey && hasDreamEscapist) || (hasBeenThrown && userHasBeenReturn)) && hasCuriousObserver;
-      
-      if (shouldDisableMainDialog) {
-        console.log("[DialogBox] User has completed achievement sequence - disabling main dialog");
-      }
-    } catch (error) {
-      console.error("Error checking achievement conditions in DialogBox:", error);
-    }
-
     // Start the dialog sequence hanya jika user belum berinteraksi dengan hover dialog
-    // dan tidak ada hover dialog yang sedang aktif dan belum mencapai kondisi disable
+    // dan tidak ada hover dialog yang sedang aktif
     if (
       !hoverDialogController.hasUserInteractedWithHover() &&
-      !isHoverDialogActive &&
-      !shouldDisableMainDialog
+      !isHoverDialogActive
     ) {
       dialogController.startDialog((text, complete) => {
         setText(text);

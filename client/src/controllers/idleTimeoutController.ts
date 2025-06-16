@@ -935,32 +935,7 @@ class IdleTimeoutController {
   }
 
   // Method untuk menampilkan peringatan
-  public async showIdleWarning(text: string): Promise<void> {
-    // Check if user has achievements that disable idle warnings
-    const isIdleWarning = text === IDLE_DIALOGS.FIRST_WARNING || 
-                          text === IDLE_DIALOGS.SECOND_WARNING || 
-                          text === IDLE_DIALOGS.FINAL_WARNING;
-    
-    if (isIdleWarning) {
-      try {
-        const achievementController = AchievementController.getInstance();
-        const hasDigitalOdyssey = achievementController.hasAchievement('nightmare');
-        const hasDreamEscapist = achievementController.hasAchievement('escape');
-        const hasCuriousObserver = achievementController.hasAchievement('hover');
-        
-        // Check if conditions for disabling warnings are met
-        const shouldDisableIdleWarnings = 
-          ((hasDigitalOdyssey && hasDreamEscapist) || (this.hasBeenThrown && this.userHasBeenReturn)) && hasCuriousObserver;
-        
-        if (shouldDisableIdleWarnings) {
-          console.log("[IdleTimeoutController] User has completed achievement sequence - disabling idle warnings");
-          return;
-        }
-      } catch (error) {
-        console.error("Error checking achievement conditions for idle warnings:", error);
-      }
-    }
-
+  private async showIdleWarning(text: string): Promise<void> {
     // Cek apakah ini dialog marah dan sudah pernah ditampilkan
     const isAngryDialog =
       text.includes("KEEP PUSHING") ||
@@ -1390,28 +1365,6 @@ class IdleTimeoutController {
   // Method to handle RETURN_DIALOG logic when user clicks APPROACH HIM after being thrown
   public handleApproachAfterThrown(): boolean {
     if (this.hasBeenThrown && !this.userHasBeenReturn) {
-      // Check if user has achievements that disable RETURN_DIALOG
-      try {
-        const achievementController = AchievementController.getInstance();
-        const hasDigitalOdyssey = achievementController.hasAchievement('nightmare');
-        const hasDreamEscapist = achievementController.hasAchievement('escape');
-        const hasCuriousObserver = achievementController.hasAchievement('hover');
-        
-        // Check if conditions for disabling dialogs are met
-        // Note: Don't check hasBeenThrown && !userHasBeenReturn here as it's always true in this context
-        const shouldDisableReturnDialog = 
-          (hasDigitalOdyssey && hasDreamEscapist) && hasCuriousObserver;
-        
-        if (shouldDisableReturnDialog) {
-          console.log("[IdleTimeoutController] User has completed achievement sequence - disabling RETURN_DIALOG");
-          // Set the return flag but don't show dialog
-          this.userHasBeenReturn = true;
-          return true; // Still indicates user has returned, but no dialog shown
-        }
-      } catch (error) {
-        console.error("Error checking achievement conditions for RETURN_DIALOG:", error);
-      }
-
       // Set the return flag
       this.userHasBeenReturn = true;
       
