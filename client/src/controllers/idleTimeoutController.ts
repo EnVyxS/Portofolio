@@ -863,6 +863,25 @@ class IdleTimeoutController {
     this.idleTextCallback = callback;
   }
 
+  // Setup idle text callback to connect with DialogBox
+  private setupIdleTextCallback(): void {
+    if (!this.idleTextCallback) {
+      this.idleTextCallback = (text: string, isComplete: boolean) => {
+        try {
+          const windowAny = window as any;
+          if (windowAny.__dialogBoxTextSetter && typeof windowAny.__dialogBoxTextSetter === 'function') {
+            windowAny.__dialogBoxTextSetter(text);
+          }
+          if (windowAny.__dialogBoxIsFinishedSetter && typeof windowAny.__dialogBoxIsFinishedSetter === 'function') {
+            windowAny.__dialogBoxIsFinishedSetter(isComplete);
+          }
+        } catch (error) {
+          console.error("[IdleTimeoutController] Error setting dialog text:", error);
+        }
+      };
+    }
+  }
+
   // Stop typing method (matching hoverDialogController)
   public stopTyping(): void {
     this.isTypingIdle = false;
@@ -1476,10 +1495,23 @@ class IdleTimeoutController {
         this.hoverDialogController.setDialogSource("main");
       }
       
-      // Use the random return dialog variation instead of static text
-      const returnDialog = getReturnDialog();
-      this.showIdleWarning(returnDialog.text);
-      console.log("[IdleTimeoutController] Using random RETURN_DIALOG variation:", returnDialog.text);
+      // Use DialogController's showReturnDialog which already handles audio and random variations
+      this.dialogController.showReturnDialog((text: string, isComplete: boolean) => {
+        // Connect to DialogBox display system
+        try {
+          const windowAny = window as any;
+          if (windowAny.__dialogBoxTextSetter && typeof windowAny.__dialogBoxTextSetter === 'function') {
+            windowAny.__dialogBoxTextSetter(text);
+          }
+          if (windowAny.__dialogBoxIsFinishedSetter && typeof windowAny.__dialogBoxIsFinishedSetter === 'function') {
+            windowAny.__dialogBoxIsFinishedSetter(isComplete);
+          }
+        } catch (error) {
+          console.error("[IdleTimeoutController] Error displaying RETURN_DIALOG:", error);
+        }
+      });
+      
+      console.log("[IdleTimeoutController] Triggering RETURN_DIALOG with audio through DialogController");
       
       // Unlock the return achievement
       try {
