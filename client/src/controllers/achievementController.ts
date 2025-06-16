@@ -127,7 +127,7 @@ class AchievementController {
     
     console.log(`Showing achievement: ${type}, forceNotification: ${forceNotification}`);
     
-    // Cek apakah achievement sudah ada, baru memunculkan notifikasi jika belum ada atau forceNotification=true
+    // Cek apakah achievement sudah ada
     const isNewAchievement = !this.unlockedAchievements.has(type);
     // Cek apakah achievement sudah pernah ditampilkan notifikasinya
     const isAlreadyNotified = this.notifiedAchievements.has(type);
@@ -146,15 +146,13 @@ class AchievementController {
       }
     }
     
-    // Panggil callback untuk menampilkan notifikasi achievement jika:
+    // Panggil callback untuk menampilkan notifikasi achievement hanya jika:
     // 1. Achievement baru unlock dan belum pernah ditampilkan notifikasinya, atau
-    // 2. Force notification dinyalakan (untuk kasus khusus, seperti ESCAPE achievement)
-    if (((isNewAchievement && !isAlreadyNotified) || forceNotification) && this.achievementCallback) {
+    // 2. Force notification dinyalakan DAN achievement belum pernah dinotifikasi
+    if (this.achievementCallback && (isNewAchievement || (forceNotification && !isAlreadyNotified))) {
       this.achievementCallback(type);
-      // Tandai achievement sudah dinotifikasi (kecuali force notification)
-      if (!forceNotification) {
-        this.markAsNotified(type);
-      }
+      // Tandai achievement sudah dinotifikasi
+      this.markAsNotified(type);
     }
   }
   
