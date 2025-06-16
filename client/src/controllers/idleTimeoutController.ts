@@ -1143,7 +1143,7 @@ class IdleTimeoutController {
       if (this.resetSceneCallback) {
         this.resetSceneCallback();
       }
-    }, 2000); // Memberikan waktu 2 detik untuk membaca dialog "That's it. GET OUT OF MY SIGHT!" sebelum dilempar
+    }, 2300); // Memberikan waktu 2.3 detik untuk membaca dialog "That's it. GET OUT OF MY SIGHT!" sebelum dilempar
   }
 
   // Method untuk 'memukul' user
