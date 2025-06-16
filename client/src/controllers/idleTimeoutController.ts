@@ -1233,7 +1233,7 @@ class IdleTimeoutController {
           console.log("[IdleTimeoutController] Triggering punch animation");
           this.punchUserCallback();
         }
-      }, 200); // Reducido de 500ms a 200ms para una respuesta más rápida
+      }, 50); // Reducido de 200ms a 50ms para una respuesta más rápida
 
       // Redirección a la página de sueño (dream) después del efecto blackout
       // Mantenemos el tiempo para permitir que se vea claramente el efecto de "pingsan" (desmayo)
@@ -1251,7 +1251,7 @@ class IdleTimeoutController {
         }
 
         window.location.href = "/dream.html"; // Redirigir a la página de sueño con video de música
-      }, 2500); // Mantenemos 2500ms para una transición clara del efecto blackout
+      }, 2200); // Reducido de 2500ms a 2200ms para una transición más rápida
     };
 
     // Tampilkan peringatan, tetapi tunggu dialog selesai sebelum melanjutkan
