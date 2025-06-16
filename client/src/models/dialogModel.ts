@@ -6,7 +6,46 @@ export interface Dialog {
   persistent?: boolean; // Apakah dialog tetap visible setelah selesai
 }
 
-// Dialog khusus untuk situasi setelah reset
+// Variasi dialog untuk situasi setelah reset
+const RETURN_DIALOG_VARIATIONS = [
+  "[menacing] Now what, you little filth!?.. [threatening] Back for more punishment?",
+  "You just don't learn, do you?",
+  "Thought you'd had enough. Guess I was wrong.",
+  "Back on your feet already? You're persistent, I'll give you that.",
+  "I don't have time for this. But if you insist...",
+  "Still breathing? Impressive. Stupid, but impressive.",
+  "You should've stayed down.",
+  "I warned you once. That was your mercy.",
+  "You mistake survival for strength. Let me fix that.",
+  "Back again? Your pain threshold must be as low as your wit.",
+  "This isn't bravery. It's desperation… or stupidity.",
+  "You bleed easy. Let's see how long before you break.",
+  "Still standing? I'll make that regret last.",
+  "You came all this way just to die tired.",
+  "You had your chance. Now I take mine.",
+  "Last time was a warning. This time, it's a lesson.",
+  "You're not a challenge. You're an inconvenience.",
+  "You came back. Brave… or foolish?",
+  "Some people never know when to quit.",
+  "Fine. One more lesson. Then it ends.",
+  "Didn't think you'd crawl back so soon. But here we are."
+];
+
+// Fungsi untuk mendapatkan RETURN_DIALOG dengan variasi random
+export const getReturnDialog = (): Dialog => {
+  const randomIndex = Math.floor(Math.random() * RETURN_DIALOG_VARIATIONS.length);
+  const selectedText = RETURN_DIALOG_VARIATIONS[randomIndex];
+  
+  return {
+    id: 1001,
+    character: "DIVA JUAN NUR TAQARRUB",
+    text: selectedText,
+    voiceId: "dBynzNhvSFj0l1D7I9yV",
+    persistent: true
+  };
+};
+
+// Dialog khusus untuk situasi setelah reset (backward compatibility)
 export const RETURN_DIALOG: Dialog = {
   id: 1001,
   character: "DIVA JUAN NUR TAQARRUB",

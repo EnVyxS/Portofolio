@@ -1,4 +1,4 @@
-import DialogModel, { Dialog, RETURN_DIALOG } from '../models/dialogModel';
+import DialogModel, { Dialog, RETURN_DIALOG, getReturnDialog } from '../models/dialogModel';
 import ElevenLabsService from '../services/elevenlabsService';
 import HoverDialogController from './hoverDialogController';
 import { CONTRACT_RESPONSES } from '../components/ContractCard';
@@ -422,16 +422,19 @@ class DialogController {
         console.error("[DialogController] Failed to force reset dialog box text/visibility:", e);
       }
       
+      // Dapatkan dialog return dengan variasi random
+      const returnDialog = getReturnDialog();
+      
       // Log detail RETURN_DIALOG for debugging
-      console.log("[DialogController] RETURN_DIALOG content:", JSON.stringify(RETURN_DIALOG));
+      console.log("[DialogController] RETURN_DIALOG content:", JSON.stringify(returnDialog));
       
       // MENGGUNAKAN PENDEKATAN YANG BERBEDA:
       // 1. Alih-alih menggunakan typeDialog atau showCustomDialog, kita akan langsung memanipulasi UI
       //    dengan mengirim text karakter per karakter melalui callback, seperti simulasi typewriter
       
-      // Simpan referensi ke RETURN_DIALOG untuk penggunaan dalam closure
-      const dialogText = RETURN_DIALOG.text;
-      const characterName = RETURN_DIALOG.character;
+      // Simpan referensi ke returnDialog untuk penggunaan dalam closure
+      const dialogText = returnDialog.text;
+      const characterName = returnDialog.character;
       const textLength = dialogText.length;
       
       // Pastikan nama karakter terlihat
