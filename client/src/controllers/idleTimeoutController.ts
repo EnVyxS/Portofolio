@@ -960,11 +960,11 @@ class IdleTimeoutController {
     try {
       const achievementController = AchievementController.getInstance();
 
-      // Final warning setelah 9 menit
-      if (text.includes("staring at me for nine damn minutes")) {
+      // Final warning setelah 9 menit - achievement TIME GAZER hanya didapat saat FINAL_WARNING tercapai
+      if (text.includes("You think this is funny?.. Staring at me for nine damn minutes?.. Fuck you!!")) {
         achievementController.unlockAchievement("patience", true);
         console.log(
-          "[IdleTimeoutController] Unlocked 'patience' achievement for staring at screen with forced notification",
+          "[IdleTimeoutController] Unlocked 'patience' achievement for reaching FINAL_WARNING dialog with forced notification",
         );
       }
 
