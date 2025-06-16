@@ -1012,8 +1012,10 @@
                             localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(achievements));
                             console.log(`Achievement "${achievementType}" saved to localStorage with new format`);
                             
-                            // Also show the achievement notification
+                            // Also show the achievement notification only if it's new
                             unlockAchievement(achievementType);
+                        } else {
+                            console.log(`Achievement "${achievementType}" already exists, skipping notification`);
                         }
                     } catch (e) {
                         console.error('Failed to save achievement to localStorage:', e);
