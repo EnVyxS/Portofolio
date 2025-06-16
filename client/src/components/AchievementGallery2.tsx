@@ -801,7 +801,7 @@ const AchievementGallery: React.FC = () => {
           border: 2px solid rgba(255, 215, 0, 0.9);
           border-radius: 8px;
           padding: 12px 20px;
-          margin-top: 16px;
+          margin: 16px auto 0;
           cursor: pointer;
           transition: all 0.3s ease;
           box-shadow: 
@@ -812,7 +812,12 @@ const AchievementGallery: React.FC = () => {
           text-transform: uppercase;
           letter-spacing: 1px;
           color: rgba(20, 20, 20, 0.9);
-          font-size: 12px;
+          font-size: clamp(11px, 2.5vw, 14px);
+          width: 100%;
+          max-width: 280px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         
         .reward-button:hover {
@@ -840,7 +845,9 @@ const AchievementGallery: React.FC = () => {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
+          gap: 6px;
+          text-align: center;
+          line-height: 1.2;
         }
         
         .reward-sparkles {
@@ -877,6 +884,71 @@ const AchievementGallery: React.FC = () => {
         @keyframes rewardShine {
           0% { left: -200%; }
           100% { left: 200%; }
+        }
+        
+        /* Responsive styling untuk easter egg dan reward button */
+        @media (max-width: 768px) {
+          .easter-egg-message {
+            margin: 10px;
+            padding: 16px;
+          }
+          
+          .easter-egg-message p {
+            font-size: 12px !important;
+            line-height: 1.4;
+          }
+          
+          .easter-egg-crown {
+            font-size: 20px;
+          }
+          
+          .reward-button {
+            padding: 10px 16px;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            max-width: 250px;
+          }
+          
+          .reward-sparkles {
+            font-size: 12px;
+            top: -3px;
+            right: -3px;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .easter-egg-message {
+            margin: 8px;
+            padding: 12px;
+          }
+          
+          .easter-egg-message p {
+            font-size: 11px !important;
+          }
+          
+          .reward-button {
+            padding: 8px 12px;
+            font-size: 10px;
+            max-width: 220px;
+            border-radius: 6px;
+          }
+          
+          .reward-text {
+            gap: 4px;
+          }
+        }
+        
+        @media (min-width: 1024px) {
+          .easter-egg-message {
+            max-width: 400px;
+            margin: 0 auto;
+          }
+          
+          .reward-button {
+            max-width: 300px;
+            font-size: 13px;
+            padding: 14px 24px;
+          }
         }
       `,
         }}
