@@ -104,10 +104,6 @@ class HoverDialogController {
 
   // Flag untuk kontrol jika idle timeout telah terjadi
   private hasIdleTimeoutOccurred: boolean = false;
-  
-  // Flag untuk kontrol apakah user sudah pernah dilempar dan ini adalah hover pertama setelah reset
-  private isPostResetFirstHover: boolean = false;
-  private hasShownHoverAfterReset: boolean = false;
 
   // Menyimpan jumlah kalimat yang sudah diucapkan berdasarkan kategori
   private categoryUtteranceCount: {
@@ -162,17 +158,6 @@ class HoverDialogController {
     this.hasIdleTimeoutOccurred = value;
   }
 
-  // Method untuk mengatur flag post-reset hover
-  public setPostResetFirstHover(value: boolean): void {
-    this.isPostResetFirstHover = value;
-    console.log(`[HoverDialogController] Post-reset first hover flag set to: ${value}`);
-  }
-
-  // Method untuk mengecek apakah sudah menampilkan HOVER_AFTER_RESET
-  public hasShownHoverAfterResetDialog(): boolean {
-    return this.hasShownHoverAfterReset;
-  }
-
   // Method untuk menentukan apakah link termasuk kategori kontak atau sosial
   private getLinkCategory(
     linkType: HoverLinkType,
@@ -213,41 +198,6 @@ class HoverDialogController {
     if (this.hasIdleTimeoutOccurred) {
       console.log("Idle timeout telah terjadi, hover dialog diabaikan");
       this.lastHoveredLink = linkType; // Update last hovered link tanpa trigger dialog
-      return;
-    }
-
-    // Logika khusus untuk post-reset first hover
-    if (this.isPostResetFirstHover && !this.hasShownHoverAfterReset) {
-      console.log("[HoverDialogController] First hover after reset detected - triggering HOVER_AFTER_RESET");
-      this.hasShownHoverAfterReset = true;
-      this.isPostResetFirstHover = false;
-      
-      // Trigger HOVER_AFTER_RESET melalui IdleTimeoutController
-      try {
-        const idleController = IdleTimeoutController.getInstance();
-        if (idleController) {
-          // Import IDLE_DIALOGS from idleTimeoutController
-          const HOVER_AFTER_RESET = "Hmph... Finally, you decide to move... Suit yourself. You want to check it or just get on with signing the damn contract?";
-          idleController.showIdleWarning(HOVER_AFTER_RESET);
-          
-          // Unlock hover achievement
-          const achievementController = AchievementController.getInstance();
-          achievementController.unlockAchievement('hover', true);
-          console.log("[HoverDialogController] Unlocked 'hover' achievement for post-reset hover");
-        }
-      } catch (e) {
-        console.error("Could not trigger HOVER_AFTER_RESET:", e);
-      }
-      
-      // Update last hovered link dan return tanpa menjalankan hover dialog normal
-      this.lastHoveredLink = linkType;
-      return;
-    }
-
-    // Jika sudah pernah menampilkan HOVER_AFTER_RESET, abaikan semua hover selanjutnya
-    if (this.hasShownHoverAfterReset) {
-      console.log("[HoverDialogController] HOVER_AFTER_RESET already shown, ignoring subsequent hover");
-      this.lastHoveredLink = linkType;
       return;
     }
 
@@ -851,10 +801,6 @@ class HoverDialogController {
     this.hasShownFirstLevelAnnoyance = false;
     this.hasShownSecondLevelAnnoyance = false;
     this.hasIdleTimeoutOccurred = false;
-    
-    // Reset post-reset flags
-    this.isPostResetFirstHover = false;
-    this.hasShownHoverAfterReset = false;
 
     // Reset category utterance counts
     this.categoryUtteranceCount = {

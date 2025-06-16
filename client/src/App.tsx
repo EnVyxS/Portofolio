@@ -342,33 +342,11 @@ function MainApp() {
     }, 1500); // Berikan waktu yang cukup untuk handleApproach menampilkan setup
   };
 
-  // Check if user has been thrown before and should trigger RETURN_DIALOG
-  const handleApproachClick = () => {
-    if (idleTimeoutControllerRef.current && idleTimeoutControllerRef.current.getHasBeenThrown()) {
-      // User has been thrown before - trigger RETURN_DIALOG every time
-      console.log("[App] User has been thrown before - triggering RETURN_DIALOG");
-      
-      // Set approach clicked first
-      setApproachClicked(true);
-      
-      // Trigger RETURN_DIALOG immediately
-      if (idleTimeoutControllerRef.current.handleApproachAfterThrown) {
-        idleTimeoutControllerRef.current.handleApproachAfterThrown();
-      }
-    } else if (wasReset) {
-      // Normal post-reset approach
-      handlePostResetApproach();
-    } else {
-      // Normal first approach
-      handleApproach();
-    }
-  };
-
   // If user hasn't approached yet, show the approach screen
   if (!approachClicked) {
     return (
       <ApproachScreen
-        onApproach={handleApproachClick}
+        onApproach={wasReset ? handlePostResetApproach : handleApproach}
       />
     );
   }
