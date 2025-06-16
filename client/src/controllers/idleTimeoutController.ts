@@ -934,8 +934,8 @@ class IdleTimeoutController {
     }
   }
 
-  // Method untuk menampilkan peringatan
-  private async showIdleWarning(text: string): Promise<void> {
+  // Method untuk menampilkan peringatan - dibuat public agar bisa dipanggil dari HoverDialogController
+  public async showIdleWarning(text: string): Promise<void> {
     // Cek apakah ini dialog marah dan sudah pernah ditampilkan
     const isAngryDialog =
       text.includes("KEEP PUSHING") ||
@@ -1070,6 +1070,9 @@ class IdleTimeoutController {
     
     // Keep old flags for backwards compatibility
     this.hasBeenReset = true;
+    
+    // Set post-reset hover flag untuk HoverDialogController
+    this.setPostResetHoverFlag();
 
     // Notifikasi HoverDialogController bahwa idle timeout telah terjadi
     try {
@@ -1227,6 +1230,9 @@ class IdleTimeoutController {
       this.hasBeenThrown = true;
       this.hasInteractedAfterReset = false;
       
+      // Set post-reset hover flag untuk HoverDialogController
+      this.setPostResetHoverFlag();
+      
       // Ejecutar el callback inmediatamente para una respuesta más rápida
       setTimeout(() => {
         if (this.punchUserCallback) {
@@ -1360,6 +1366,16 @@ class IdleTimeoutController {
   public setUserHasBeenReturn(value: boolean): void {
     this.userHasBeenReturn = value;
     console.log(`[IdleTimeoutController] userHasBeenReturn set to: ${value}`);
+  }
+
+  // Method untuk mengatur flag post-reset hover di HoverDialogController
+  public setPostResetHoverFlag(): void {
+    try {
+      this.hoverDialogController.setPostResetFirstHover(true);
+      console.log("[IdleTimeoutController] Set post-reset hover flag in HoverDialogController");
+    } catch (e) {
+      console.error("Failed to set post-reset hover flag:", e);
+    }
   }
 
   // Method to handle RETURN_DIALOG logic when user clicks APPROACH HIM after being thrown
