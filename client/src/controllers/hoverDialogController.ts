@@ -851,6 +851,10 @@ class HoverDialogController {
     this.hasShownFirstLevelAnnoyance = false;
     this.hasShownSecondLevelAnnoyance = false;
     this.hasIdleTimeoutOccurred = false;
+    
+    // Reset post-reset flags
+    this.isPostResetFirstHover = false;
+    this.hasShownHoverAfterReset = false;
 
     // Reset category utterance counts
     this.categoryUtteranceCount = {
