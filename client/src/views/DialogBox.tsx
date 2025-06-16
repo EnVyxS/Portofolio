@@ -538,6 +538,9 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
       setIsComplete(complete);
       setDialogSource("idle");
       setCharacterName("DIVA JUAN NUR TAQARRUB"); // Dialog idle dari DIVA JUAN (idle warnings)
+      
+      // Set mainDialog to false when idle dialog is active
+      dialogController.setMainDialogInactive();
     });
 
     // Buat function untuk set dialogSource dari luar komponen

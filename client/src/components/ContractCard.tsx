@@ -201,6 +201,10 @@ const ContractCard: React.FC = () => {
         // @ts-ignore - setting global property on window
         window.__contractDialogActive = true;
         console.log("[ContractCard] Set contract dialog active flag to true");
+        
+        // Set mainDialog to false when contract dialog is active
+        const dialogController = DialogController.getInstance();
+        dialogController.setMainDialogInactive();
       } catch (e) {
         console.error("Could not set contract dialog active flag:", e);
       }

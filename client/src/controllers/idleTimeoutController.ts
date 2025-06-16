@@ -176,6 +176,20 @@ class IdleTimeoutController {
       "[IdleTimeoutController] Dialog model selesai berbicara. Memeriksa apakah dapat memulai timer IDLE_DIALOGS...",
     );
 
+    // Periksa terlebih dahulu apakah mainDialog sedang aktif
+    if (this.dialogController.isMainDialogActive()) {
+      console.log(
+        "[IdleTimeoutController] Main dialog masih aktif. Menunggu...",
+      );
+
+      // Cek lagi setelah beberapa saat
+      setTimeout(() => {
+        this.startIdleTimerAfterDialogComplete();
+      }, 2000); // Cek setiap 2 detik
+
+      return;
+    }
+
     // Periksa terlebih dahulu apakah ada aktivitas audio atau dialog yang masih berjalan
     if (this.isAudioOrDialogActive()) {
       console.log(
@@ -367,6 +381,15 @@ class IdleTimeoutController {
     // Cegah multiple restart dengan debouncing
     if (this.isTimerRunning) {
       console.log("[IdleTimeoutController] Timer sudah aktif, mengabaikan restart");
+      return;
+    }
+
+    // Periksa apakah mainDialog sedang aktif
+    if (this.dialogController.isMainDialogActive()) {
+      console.log("[IdleTimeoutController] Main dialog sedang aktif. Menunggu...");
+      setTimeout(() => {
+        this.startIdleTimer();
+      }, 2000);
       return;
     }
 
@@ -734,6 +757,14 @@ class IdleTimeoutController {
     this.lastInteractionTime = Date.now();
     
     // TIDAK me-reset timer start time untuk gerakan mouse biasa
+    
+    // Jika mainDialog masih aktif, jangan mulai timer baru
+    if (this.dialogController.isMainDialogActive()) {
+      console.log(
+        "[IdleTimeoutController] Main dialog masih aktif, menunda handleUserInteraction...",
+      );
+      return;
+    }
     
     // Jika dialog model atau audio masih aktif, jangan mulai timer baru
     if (this.isAudioOrDialogActive()) {

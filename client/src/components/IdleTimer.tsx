@@ -25,10 +25,10 @@ const IdleTimer: React.FC = () => {
         // Cek apakah ada dialog aktif
         const dialogController = DialogController.getInstance();
         
-        // Dialog aktif hanya jika main dialog sedang typing
-        const isMainDialogActive = dialogController.isCurrentlyTyping();
+        // Dialog aktif jika main dialog sedang typing ATAU mainDialog flag aktif
+        const isMainDialogActive = dialogController.isCurrentlyTyping() || dialogController.isMainDialogActive();
         
-        // Simplified - timer should be visible when there's time remaining and no main dialog typing
+        // Timer should be hidden when main dialog is active
         const hasActiveDialog = isMainDialogActive;
         
         setIsDialogActive(hasActiveDialog);
