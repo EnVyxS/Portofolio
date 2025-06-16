@@ -314,6 +314,34 @@ const ContractCard: React.FC = () => {
       console.error("Could not reset contract dialog active flag:", e);
     }
 
+    // Check if user has achievements that disable contract dialog
+    let shouldDisableContractDialog = false;
+    try {
+      const achievementController = AchievementController.getInstance();
+      const idleController = IdleTimeoutController.getInstance();
+      const hasDigitalOdyssey = achievementController.hasAchievement('nightmare');
+      const hasDreamEscapist = achievementController.hasAchievement('escape');
+      const hasBeenThrown = idleController ? idleController.getHasBeenThrown() : false;
+      const userHasBeenReturn = idleController ? idleController.getUserHasBeenReturn() : false;
+      const hasCuriousObserver = achievementController.hasAchievement('hover');
+      
+      // Check if conditions for disabling dialogs are met
+      shouldDisableContractDialog = 
+        ((hasDigitalOdyssey && hasDreamEscapist) || (hasBeenThrown && userHasBeenReturn)) && hasCuriousObserver;
+      
+      if (shouldDisableContractDialog) {
+        console.log("[ContractCard] User has completed achievement sequence - disabling contract dialog");
+        setIsOpen(false);
+        setCurrentIndex(0);
+        setScale(0.8);
+        setPosition({ x: 0, y: 0 });
+        setHasDragged(false);
+        return;
+      }
+    } catch (error) {
+      console.error("Error checking achievement conditions in ContractCard:", error);
+    }
+
     // Display a random CONTRACT_RESPONSE dialog
     const randomIndex = Math.floor(Math.random() * CONTRACT_RESPONSES.length);
     const randomResponse = CONTRACT_RESPONSES[randomIndex];

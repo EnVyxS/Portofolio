@@ -111,6 +111,7 @@ This is an interactive portfolio application built as a Dark Souls-inspired char
 - June 16, 2025. Added easter egg reward system - when all 12 achievements are collected, a special reward button appears that redirects to Rick Astley's "Never Gonna Give You Up" as a Rick Roll surprise
 - June 16, 2025. Added 21 variations for RETURN_DIALOG to make the character's responses more diverse when user returns after being thrown out
 - June 16, 2025. Fixed Time Gizer achievement exploit - removed auto-completion logic that automatically granted "patience" achievement to users who reached final stages without waiting for FINAL_WARNING. Achievement now only unlocks through legitimate 9-minute idle timeout.
+- June 16, 2025. Redesigned "curious observer" achievement system - HOVER_AFTER_RESET dialog now triggers first when user hovers over contract/social links, then unlocks achievement. Requirements: Digital Odyssey + Dream Escapist achievements OR hasBeenThrown + userHasBeenReturn flags. After completion, all main dialogs, hover dialogs, contract dialogs, and RETURN_DIALOG are disabled to provide a clean experience for users who have completed the achievement sequence.
 
 ## User Preferences
 

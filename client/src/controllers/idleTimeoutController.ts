@@ -1365,6 +1365,27 @@ class IdleTimeoutController {
   // Method to handle RETURN_DIALOG logic when user clicks APPROACH HIM after being thrown
   public handleApproachAfterThrown(): boolean {
     if (this.hasBeenThrown && !this.userHasBeenReturn) {
+      // Check if user has achievements that disable RETURN_DIALOG
+      try {
+        const achievementController = AchievementController.getInstance();
+        const hasDigitalOdyssey = achievementController.hasAchievement('nightmare');
+        const hasDreamEscapist = achievementController.hasAchievement('escape');
+        const hasCuriousObserver = achievementController.hasAchievement('hover');
+        
+        // Check if conditions for disabling dialogs are met
+        const shouldDisableReturnDialog = 
+          ((hasDigitalOdyssey && hasDreamEscapist) || (this.hasBeenThrown && !this.userHasBeenReturn)) && hasCuriousObserver;
+        
+        if (shouldDisableReturnDialog) {
+          console.log("[IdleTimeoutController] User has completed achievement sequence - disabling RETURN_DIALOG");
+          // Set the return flag but don't show dialog
+          this.userHasBeenReturn = true;
+          return true; // Still indicates user has returned, but no dialog shown
+        }
+      } catch (error) {
+        console.error("Error checking achievement conditions for RETURN_DIALOG:", error);
+      }
+
       // Set the return flag
       this.userHasBeenReturn = true;
       
