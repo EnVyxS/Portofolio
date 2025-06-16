@@ -175,12 +175,121 @@ class HoverDialogController {
     return "none";
   }
 
-  // Handler untuk hover event dari komponen SocialLink
+  // Method to check for Curious Observer achievement conditions
+  private checkForCuriousObserverAchievement(linkType: HoverLinkType): void {
+    try {
+      const idleController = IdleTimeoutController.getInstance();
+      const achievementController = AchievementController.getInstance();
+      
+      // Check if user already has curious observer achievement
+      if (achievementController.hasAchievement('hover')) {
+        return; // Already has the achievement
+      }
+      
+      // Check if HOVER_AFTER_RESET conditions are met
+      const shouldTriggerHoverAfterReset = this.shouldTriggerHoverAfterReset();
+      
+      if (shouldTriggerHoverAfterReset) {
+        // Check if this is hover on contract or hoverDialog areas
+        const isContractOrHoverArea = this.isContractOrHoverDialogArea(linkType);
+        
+        if (isContractOrHoverArea) {
+          console.log("[HoverDialogController] Conditions met for HOVER_AFTER_RESET and Curious Observer achievement");
+          
+          // First show HOVER_AFTER_RESET dialog if not shown yet
+          if (!idleController.hasInteractedAfterReset) {
+            // Set dialog source to main for proper handling
+            if (this.setDialogSource) {
+              this.setDialogSource("main");
+            }
+            
+            // Mark as interacted after reset
+            idleController.setHasInteractedAfterReset(true);
+            
+            // Show HOVER_AFTER_RESET dialog
+            idleController.showIdleWarning(IDLE_DIALOGS.HOVER_AFTER_RESET);
+            
+            // After dialog finishes, unlock Curious Observer achievement
+            setTimeout(() => {
+              try {
+                achievementController.unlockAchievement('hover');
+                console.log("[HoverDialogController] Unlocked 'hover' (Curious Observer) achievement after HOVER_AFTER_RESET dialog");
+              } catch (error) {
+                console.error("Failed to unlock curious observer achievement:", error);
+              }
+            }, 3000); // Wait for dialog to finish
+          } else {
+            // Dialog already shown, just unlock achievement
+            achievementController.unlockAchievement('hover');
+            console.log("[HoverDialogController] Unlocked 'hover' (Curious Observer) achievement directly");
+          }
+        }
+      }
+    } catch (error) {
+      console.error("[HoverDialogController] Error checking for Curious Observer achievement:", error);
+    }
+  }
+
+  // Method to check if HOVER_AFTER_RESET should be triggered based on new conditions
+  private shouldTriggerHoverAfterReset(): boolean {
+    try {
+      const achievementController = AchievementController.getInstance();
+      const idleController = IdleTimeoutController.getInstance();
+      
+      // Check if user has digital odyssey (nightmare) and dream escapist (escape) achievements
+      const hasDigitalOdyssey = achievementController.hasAchievement('nightmare');
+      const hasEscapist = achievementController.hasAchievement('escape');
+      
+      // Condition 1: User has both digital odyssey and dream escapist achievements
+      const hasRequiredAchievements = hasDigitalOdyssey && hasEscapist;
+      
+      // Condition 2: User has been thrown or punched AND has returned
+      const hasBeenThrown = idleController.getHasBeenThrown();
+      const hasBeenPunched = idleController.getHasBeenPunched();
+      const userHasBeenReturn = idleController.getUserHasBeenReturn();
+      
+      const hasBeenThrownOrPunched = hasBeenThrown || hasBeenPunched;
+      const hasReturnedAfterAction = hasBeenThrownOrPunched && userHasBeenReturn;
+      
+      console.log("[HoverDialogController] HOVER_AFTER_RESET conditions check:", {
+        hasDigitalOdyssey,
+        hasEscapist,
+        hasRequiredAchievements,
+        hasBeenThrown,
+        hasBeenPunched,
+        hasBeenThrownOrPunched,
+        userHasBeenReturn,
+        hasReturnedAfterAction
+      });
+      
+      return hasRequiredAchievements || hasReturnedAfterAction;
+    } catch (error) {
+      console.error("[HoverDialogController] Error checking HOVER_AFTER_RESET conditions:", error);
+      return false;
+    }
+  }
+
+  // Method to check if the hover is on contract or hoverDialog areas
+  private isContractOrHoverDialogArea(linkType: HoverLinkType): boolean {
+    // Contract areas include whatsapp and email (contact category)
+    const isContactArea = linkType === "whatsapp" || linkType === "email";
+    
+    // HoverDialog areas include all social links
+    const isHoverDialogArea = linkType === "linkedin" || linkType === "github" || 
+                              linkType === "tiktok" || linkType === "youtube";
+    
+    return isContactArea || isHoverDialogArea;
+  }
+
+  // Handler untuk hover event dari komponen SocialLink atau contract
   public handleHoverDialog(linkType: HoverLinkType): void {
     // Jika tidak ada link yang di-hover, reset saja
     if (linkType === "none") {
       return;
     }
+
+    // Check for HOVER_AFTER_RESET conditions and curious observer achievement
+    this.checkForCuriousObserverAchievement(linkType);
 
     // Force reset isHandlingHover jika hover event baru terjadi terlalu cepat setelah yang sebelumnya
     if (this.isHandlingHover) {

@@ -790,28 +790,21 @@ class IdleTimeoutController {
       );
     }
 
-    // New logic: Check if HOVER_AFTER_RESET should be triggered
-    if (this.hasBeenThrown && !this.hasInteractedAfterReset) {
-      // First interaction after being thrown (mouse move or hover)
+    // Check if HOVER_AFTER_RESET conditions are met
+    const shouldTriggerHoverAfterReset = this.shouldTriggerHoverAfterReset();
+    
+    if (shouldTriggerHoverAfterReset && !this.hasInteractedAfterReset) {
+      // First interaction after meeting hover after reset conditions
       this.hasInteractedAfterReset = true;
       
-      console.log("[IdleTimeoutController] Triggering HOVER_AFTER_RESET - first interaction after being thrown");
-      
-      // Unlock the hover achievement
-      try {
-        const achievementController = AchievementController.getInstance();
-        achievementController.unlockAchievement('hover');
-        console.log("[IdleTimeoutController] Unlocked 'hover' achievement for first interaction after reset");
-      } catch (error) {
-        console.error("Failed to unlock hover achievement:", error);
-      }
+      console.log("[IdleTimeoutController] Triggering HOVER_AFTER_RESET - conditions met and first interaction detected");
       
       // Set dialog source to main for proper handling
       if (this.hoverDialogController.setDialogSource) {
         this.hoverDialogController.setDialogSource("main");
       }
       
-      // Show HOVER_AFTER_RESET dialog
+      // Show HOVER_AFTER_RESET dialog first
       this.showIdleWarning(IDLE_DIALOGS.HOVER_AFTER_RESET);
 
       // Start excessive hover timers
@@ -825,6 +818,40 @@ class IdleTimeoutController {
 
   // Set untuk melacak dialog marah yang sudah ditampilkan
   private displayedAngryDialogs: Set<string> = new Set();
+
+  // Method to check if HOVER_AFTER_RESET should be triggered based on new conditions
+  private shouldTriggerHoverAfterReset(): boolean {
+    try {
+      const achievementController = AchievementController.getInstance();
+      
+      // Check if user has digital odyssey (nightmare) and dream escapist (escape) achievements
+      const hasDigitalOdyssey = achievementController.hasAchievement('nightmare');
+      const hasEscapist = achievementController.hasAchievement('escape');
+      
+      // Condition 1: User has both digital odyssey and dream escapist achievements
+      const hasRequiredAchievements = hasDigitalOdyssey && hasEscapist;
+      
+      // Condition 2: User has been thrown or punched AND has returned
+      const hasBeenThrownOrPunched = this.hasBeenThrown || this.hasBeenPunched;
+      const hasReturnedAfterAction = hasBeenThrownOrPunched && this.userHasBeenReturn;
+      
+      console.log("[IdleTimeoutController] HOVER_AFTER_RESET conditions check:", {
+        hasDigitalOdyssey,
+        hasEscapist,
+        hasRequiredAchievements,
+        hasBeenThrown: this.hasBeenThrown,
+        hasBeenPunched: this.hasBeenPunched,
+        hasBeenThrownOrPunched,
+        userHasBeenReturn: this.userHasBeenReturn,
+        hasReturnedAfterAction
+      });
+      
+      return hasRequiredAchievements || hasReturnedAfterAction;
+    } catch (error) {
+      console.error("[IdleTimeoutController] Error checking HOVER_AFTER_RESET conditions:", error);
+      return false;
+    }
+  }
 
   // Public methods for typing status (matching hoverDialogController interface)
   public isTypingIdleDialog(): boolean {
@@ -1390,6 +1417,19 @@ class IdleTimeoutController {
     }
     
     return false; // Normal approach, no special dialog needed
+  }
+
+  // Additional getter methods
+  public getHasBeenPunched(): boolean {
+    return this.hasBeenPunched;
+  }
+
+  public setHasInteractedAfterReset(value: boolean): void {
+    this.hasInteractedAfterReset = value;
+  }
+
+  public getHasInteractedAfterReset(): boolean {
+    return this.hasInteractedAfterReset;
   }
 }
 
