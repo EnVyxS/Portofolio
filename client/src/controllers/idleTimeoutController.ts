@@ -2,6 +2,7 @@ import DialogController from "./dialogController";
 import HoverDialogController from "./hoverDialogController";
 import AchievementController from "./achievementController";
 import ElevenLabsService from "../services/elevenlabsService";
+import { getReturnDialog } from "../models/dialogModel";
 
 // Dialog yang akan ditampilkan pada timeout tertentu
 export const IDLE_DIALOGS = {
@@ -1475,7 +1476,10 @@ class IdleTimeoutController {
         this.hoverDialogController.setDialogSource("main");
       }
       
-      this.showIdleWarning(IDLE_DIALOGS.RETURN_DIALOG);
+      // Use the random return dialog variation instead of static text
+      const returnDialog = getReturnDialog();
+      this.showIdleWarning(returnDialog.text);
+      console.log("[IdleTimeoutController] Using random RETURN_DIALOG variation:", returnDialog.text);
       
       // Unlock the return achievement
       try {
