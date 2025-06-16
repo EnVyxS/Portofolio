@@ -992,9 +992,6 @@ class IdleTimeoutController {
     setTimeout(async () => {
       this.elevenlabsService.stopSpeaking();
       
-      // Reset timer when showing dialog (treat dialog as user interaction)
-      this.resetTimerDueToDialog();
-      
       // Start our own typing animation (matching hoverDialogController logic)
       await this.startTypingAnimation(text);
       
@@ -1334,29 +1331,6 @@ class IdleTimeoutController {
     console.log(`[IdleTimeoutController] userHasBeenReturn set to: ${value}`);
   }
 
-  // Simplified timer reset method - only called when truly needed
-  public resetTimerDueToDialog(): void {
-    // Only reset if not already processing to avoid conflicts
-    if (this.processingWarnings.size === 0) {
-      console.log("[IdleTimeoutController] Resetting timer due to dialog appearance");
-      
-      // Update last interaction time
-      this.lastInteractionTime = Date.now();
-      
-      // Reset timer start time to current time  
-      this.timerStartTime = Date.now();
-      
-      // Reset warning flags selectively
-      this.hasShownFirstWarning = false;
-      this.hasShownSecondWarning = false;
-      this.hasShownFinalWarning = false;
-      
-      console.log("[IdleTimeoutController] Timer reset completed due to dialog");
-    } else {
-      console.log("[IdleTimeoutController] Skip timer reset - warnings in progress");
-    }
-  }
-
   // Method to handle RETURN_DIALOG logic when user clicks APPROACH HIM after being thrown
   public handleApproachAfterThrown(): boolean {
     if (this.hasBeenThrown && !this.userHasBeenReturn) {
@@ -1365,26 +1339,21 @@ class IdleTimeoutController {
       
       console.log("[IdleTimeoutController] Triggering RETURN_DIALOG - user returned after being thrown");
       
-      // Use DialogController's showReturnDialog method which supports audio
-      setTimeout(() => {
-        const returnDialogCallback = (text: string, isComplete: boolean) => {
-          console.log("[IdleTimeoutController] Return dialog being displayed:", text, "isComplete:", isComplete);
-          
-          // Unlock achievement for returning after punishment
-          if (isComplete) {
-            try {
-              const achievementController = AchievementController.getInstance();
-              achievementController.unlockAchievement('return', true); // Force notification
-              console.log("[IdleTimeoutController] Unlocked 'return' achievement for returning after being thrown");
-            } catch (error) {
-              console.error("Failed to unlock return achievement:", error);
-            }
-          }
-        };
-        
-        // Use the proper DialogController method that supports audio
-        this.dialogController.showReturnDialog(returnDialogCallback);
-      }, 500);
+      // Show RETURN_DIALOG
+      if (this.hoverDialogController.setDialogSource) {
+        this.hoverDialogController.setDialogSource("main");
+      }
+      
+      this.showIdleWarning(IDLE_DIALOGS.RETURN_DIALOG);
+      
+      // Unlock the return achievement
+      try {
+        const achievementController = AchievementController.getInstance();
+        achievementController.unlockAchievement('return', true); // Force notification
+        console.log("[IdleTimeoutController] Unlocked 'return' achievement for returning after being thrown");
+      } catch (error) {
+        console.error("Failed to unlock return achievement:", error);
+      }
       
       return true; // Indicates RETURN_DIALOG was triggered
     }
