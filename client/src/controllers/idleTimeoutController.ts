@@ -1380,26 +1380,26 @@ class IdleTimeoutController {
 
   // Method to handle RETURN_DIALOG logic when user clicks APPROACH HIM after being thrown
   public handleApproachAfterThrown(): boolean {
-    if (this.hasBeenThrown && !this.userHasBeenReturn) {
-      // Set the return flag
-      this.userHasBeenReturn = true;
+    if (this.hasBeenThrown) {
+      console.log("[IdleTimeoutController] User has been thrown before - triggering RETURN_DIALOG");
       
-      console.log("[IdleTimeoutController] Triggering RETURN_DIALOG - user returned after being thrown");
-      
-      // Show RETURN_DIALOG
+      // Show RETURN_DIALOG setiap kali user approach setelah pernah dilempar
       if (this.hoverDialogController.setDialogSource) {
         this.hoverDialogController.setDialogSource("main");
       }
       
       this.showIdleWarning(IDLE_DIALOGS.RETURN_DIALOG);
       
-      // Unlock the return achievement
-      try {
-        const achievementController = AchievementController.getInstance();
-        achievementController.unlockAchievement('return', true); // Force notification
-        console.log("[IdleTimeoutController] Unlocked 'return' achievement for returning after being thrown");
-      } catch (error) {
-        console.error("Failed to unlock return achievement:", error);
+      // Unlock the return achievement hanya pertama kali
+      if (!this.userHasBeenReturn) {
+        this.userHasBeenReturn = true;
+        try {
+          const achievementController = AchievementController.getInstance();
+          achievementController.unlockAchievement('return', true); // Force notification
+          console.log("[IdleTimeoutController] Unlocked 'return' achievement for first return after being thrown");
+        } catch (error) {
+          console.error("Failed to unlock return achievement:", error);
+        }
       }
       
       return true; // Indicates RETURN_DIALOG was triggered
