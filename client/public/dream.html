@@ -987,6 +987,9 @@
                     // Unlock the escape achievement
                     const achievementType = 'escape';
                     
+                    // Check if achievement already exists before showing notification
+                    let shouldShowNotification = false;
+                    
                     // Save achievement to localStorage for portfolio_achievements
                     try {
                         // For the new 'diva-juan-achievements' format
@@ -1006,19 +1009,34 @@
                             }
                         }
                         
-                        // Only add if not already present
+                        // Only add and show notification if not already present
                         if (!achievements.includes(achievementType)) {
                             achievements.push(achievementType);
                             localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(achievements));
                             console.log(`Achievement "${achievementType}" saved to localStorage with new format`);
+                            shouldShowNotification = true;
                             
-                            // Also show the achievement notification only if it's new
+                            // Show the achievement notification for new achievement
                             unlockAchievement(achievementType);
                         } else {
-                            console.log(`Achievement "${achievementType}" already exists, skipping notification`);
+                            console.log(`Achievement "${achievementType}" already exists, skipping notification and redirecting directly`);
+                            shouldShowNotification = false;
                         }
                     } catch (e) {
                         console.error('Failed to save achievement to localStorage:', e);
+                        shouldShowNotification = false;
+                    }
+                    
+                    // If achievement already exists, redirect immediately without showing notification
+                    if (!shouldShowNotification) {
+                        console.log('Redirecting directly to main page - achievement already obtained');
+                        document.body.style.transition = "opacity 1.5s ease-out";
+                        document.body.style.opacity = "0";
+                        
+                        setTimeout(() => {
+                            window.location.href = "/";
+                        }, 1500);
+                        return; // Exit early, don't show achievement overlay
                     }
 
                     // Flash before exiting
