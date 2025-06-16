@@ -720,30 +720,6 @@ class IdleTimeoutController {
     }
   }
 
-  // Method untuk mengecek kondisi HOVER_AFTER_RESET
-  private checkHoverAfterResetConditions(): boolean {
-    try {
-      const achievementController = AchievementController.getInstance();
-      
-      // Kondisi 1: User sudah mendapat achievement "nightmare" dan "escape"
-      const hasNightmareAndEscape = achievementController.hasAchievement('nightmare') && 
-                                   achievementController.hasAchievement('escape');
-      
-      // Kondisi 2: hasBeenThrown = true dan userHasBeenReturn = true
-      const hasThrownAndReturn = this.hasBeenThrown && this.userHasBeenReturn;
-      
-      console.log(`[IdleTimeoutController] Checking HOVER_AFTER_RESET conditions:
-        - Has nightmare & escape: ${hasNightmareAndEscape}
-        - Has been thrown & returned: ${hasThrownAndReturn}
-        - Final result: ${hasNightmareAndEscape || hasThrownAndReturn}`);
-      
-      return hasNightmareAndEscape || hasThrownAndReturn;
-    } catch (error) {
-      console.error("Error checking HOVER_AFTER_RESET conditions:", error);
-      return false;
-    }
-  }
-
   // Handler untuk reset timer secara manual (dari link hover atau kontrak)
   public resetIdleTimer(): void {
     this.lastInteractionTime = Date.now();
@@ -815,23 +791,27 @@ class IdleTimeoutController {
     }
 
     // New logic: Check if HOVER_AFTER_RESET should be triggered
-    // HOVER_AFTER_RESET hanya aktif jika:
-    // 1. User sudah mendapat achievement "nightmare" dan "escape", ATAU
-    // 2. hasBeenThrown = true dan userHasBeenReturn = true
-    const shouldTriggerHoverAfterReset = this.checkHoverAfterResetConditions();
-    
-    if (shouldTriggerHoverAfterReset && !this.hasInteractedAfterReset) {
-      // First interaction after conditions are met (mouse move or hover)
+    if (this.hasBeenThrown && !this.hasInteractedAfterReset) {
+      // First interaction after being thrown (mouse move or hover)
       this.hasInteractedAfterReset = true;
       
-      console.log("[IdleTimeoutController] Triggering HOVER_AFTER_RESET - conditions met and first interaction detected");
+      console.log("[IdleTimeoutController] Triggering HOVER_AFTER_RESET - first interaction after being thrown");
+      
+      // Unlock the hover achievement
+      try {
+        const achievementController = AchievementController.getInstance();
+        achievementController.unlockAchievement('hover');
+        console.log("[IdleTimeoutController] Unlocked 'hover' achievement for first interaction after reset");
+      } catch (error) {
+        console.error("Failed to unlock hover achievement:", error);
+      }
       
       // Set dialog source to main for proper handling
       if (this.hoverDialogController.setDialogSource) {
         this.hoverDialogController.setDialogSource("main");
       }
       
-      // Show HOVER_AFTER_RESET dialog first
+      // Show HOVER_AFTER_RESET dialog
       this.showIdleWarning(IDLE_DIALOGS.HOVER_AFTER_RESET);
 
       // Start excessive hover timers
@@ -996,11 +976,11 @@ class IdleTimeoutController {
         );
       }
 
-      // Dialog setelah hover - achievement CURIOUS OBSERVER didapat setelah dialog HOVER_AFTER_RESET dimulai
+      // Dialog setelah hover
       else if (text.includes("Hmph... Finally, you decide to move")) {
         achievementController.unlockAchievement("hover", true);
         console.log(
-          "[IdleTimeoutController] Unlocked 'hover' achievement (CURIOUS OBSERVER) after HOVER_AFTER_RESET dialog started with forced notification",
+          "[IdleTimeoutController] Unlocked 'hover' achievement for hovering after reset with forced notification",
         );
       }
     } catch (error) {
