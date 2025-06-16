@@ -1398,8 +1398,9 @@ class IdleTimeoutController {
         const hasCuriousObserver = achievementController.hasAchievement('hover');
         
         // Check if conditions for disabling dialogs are met
+        // Note: Don't check hasBeenThrown && !userHasBeenReturn here as it's always true in this context
         const shouldDisableReturnDialog = 
-          ((hasDigitalOdyssey && hasDreamEscapist) || (this.hasBeenThrown && !this.userHasBeenReturn)) && hasCuriousObserver;
+          (hasDigitalOdyssey && hasDreamEscapist) && hasCuriousObserver;
         
         if (shouldDisableReturnDialog) {
           console.log("[IdleTimeoutController] User has completed achievement sequence - disabling RETURN_DIALOG");
