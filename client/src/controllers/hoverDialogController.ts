@@ -105,6 +105,9 @@ class HoverDialogController {
   // Flag untuk kontrol jika idle timeout telah terjadi
   private hasIdleTimeoutOccurred: boolean = false;
 
+  // Flag untuk men-disable controller saat kondisi tertentu terpenuhi
+  private isDisabled: boolean = false;
+
   // Menyimpan jumlah kalimat yang sudah diucapkan berdasarkan kategori
   private categoryUtteranceCount: {
     interruption: { contact: number; social: number };
@@ -156,6 +159,16 @@ class HoverDialogController {
   // Method untuk mengatur status idle timeout dari IdleTimeoutController
   public setIdleTimeoutOccurred(value: boolean): void {
     this.hasIdleTimeoutOccurred = value;
+  }
+
+  // Method untuk men-disable/enable controller
+  public setDisabled(disabled: boolean): void {
+    this.isDisabled = disabled;
+    console.log(`[HoverDialogController] Controller ${disabled ? 'disabled' : 'enabled'}`);
+  }
+
+  public isControllerDisabled(): boolean {
+    return this.isDisabled;
   }
 
   // Method untuk menentukan apakah link termasuk kategori kontak atau sosial
@@ -283,6 +296,12 @@ class HoverDialogController {
 
   // Handler untuk hover event dari komponen SocialLink atau contract
   public handleHoverDialog(linkType: HoverLinkType): void {
+    // Jika controller di-disable, abaikan semua hover events
+    if (this.isDisabled) {
+      console.log("[HoverDialogController] Controller is disabled, ignoring hover event");
+      return;
+    }
+
     // Jika tidak ada link yang di-hover, reset saja
     if (linkType === "none") {
       return;

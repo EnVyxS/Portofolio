@@ -1401,13 +1401,74 @@ class IdleTimeoutController {
     return this.hasInteractedAfterReset;
   }
 
-  // Method to handle RETURN_DIALOG logic when user clicks APPROACH HIM after being thrown
+  // Method to check if RETURN_DIALOG conditions are met
+  private shouldTriggerReturnDialog(): boolean {
+    try {
+      const achievementController = AchievementController.getInstance();
+      
+      // Check if user has digital odyssey (nightmare) and dream escapist (escape) achievements
+      const hasDigitalOdyssey = achievementController.hasAchievement('nightmare');
+      const hasEscapist = achievementController.hasAchievement('escape');
+      
+      // Condition 1: User has both digital odyssey and dream escapist achievements
+      const hasRequiredAchievements = hasDigitalOdyssey && hasEscapist;
+      
+      // Condition 2: User has been thrown or punched AND has returned
+      const hasBeenThrownOrPunched = this.hasBeenThrown || this.hasBeenPunched;
+      const hasReturnedAfterAction = hasBeenThrownOrPunched && this.userHasBeenReturn;
+      
+      console.log("[IdleTimeoutController] RETURN_DIALOG conditions check:", {
+        hasDigitalOdyssey,
+        hasEscapist,
+        hasRequiredAchievements,
+        hasBeenThrown: this.hasBeenThrown,
+        hasBeenPunched: this.hasBeenPunched,
+        hasBeenThrownOrPunched,
+        userHasBeenReturn: this.userHasBeenReturn,
+        hasReturnedAfterAction
+      });
+      
+      return hasRequiredAchievements || hasReturnedAfterAction;
+    } catch (error) {
+      console.error("[IdleTimeoutController] Error checking RETURN_DIALOG conditions:", error);
+      return false;
+    }
+  }
+
+  // Method to disable controllers when RETURN_DIALOG conditions are met
+  private disableControllers(): void {
+    try {
+      // Disable HoverDialogController
+      if (this.hoverDialogController) {
+        console.log("[IdleTimeoutController] Disabling HoverDialogController");
+        // Add a flag to disable hover dialog processing
+        this.hoverDialogController.setDisabled(true);
+      }
+      
+      // Disable DialogController
+      if (this.dialogController) {
+        console.log("[IdleTimeoutController] Disabling DialogController");
+        // Add a flag to disable main dialog processing
+        this.dialogController.setDisabled(true);
+      }
+    } catch (error) {
+      console.error("[IdleTimeoutController] Error disabling controllers:", error);
+    }
+  }
+
+  // Method to handle RETURN_DIALOG logic when user clicks APPROACH HIM after meeting conditions
   public handleApproachAfterThrown(): boolean {
-    if (this.hasBeenThrown && !this.userHasBeenReturn) {
+    // Check if RETURN_DIALOG conditions are met
+    const shouldTrigger = this.shouldTriggerReturnDialog();
+    
+    if (shouldTrigger && !this.userHasBeenReturn) {
       // Set the return flag
       this.userHasBeenReturn = true;
       
-      console.log("[IdleTimeoutController] Triggering RETURN_DIALOG - user returned after being thrown");
+      console.log("[IdleTimeoutController] Triggering RETURN_DIALOG - conditions met and user returned");
+      
+      // Disable both controllers before showing RETURN_DIALOG
+      this.disableControllers();
       
       // Show RETURN_DIALOG
       if (this.hoverDialogController.setDialogSource) {
@@ -1420,7 +1481,7 @@ class IdleTimeoutController {
       try {
         const achievementController = AchievementController.getInstance();
         achievementController.unlockAchievement('return', true); // Force notification
-        console.log("[IdleTimeoutController] Unlocked 'return' achievement for returning after being thrown");
+        console.log("[IdleTimeoutController] Unlocked 'return' achievement for returning after meeting conditions");
       } catch (error) {
         console.error("Failed to unlock return achievement:", error);
       }

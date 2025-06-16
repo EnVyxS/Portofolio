@@ -20,6 +20,7 @@ class DialogController {
   private dialogsVisited: Set<number> = new Set(); // Melacak dialog yang telah dikunjungi
   private totalDialogCount: number = 0; // Total jumlah dialog yang harus dikunjungi
   private mainDialog: boolean = false; // Flag untuk menandakan apakah main dialog sedang aktif
+  private isDisabled: boolean = false; // Flag untuk men-disable controller
 
   private constructor() {
     this.dialogModel = DialogModel.getInstance();
@@ -54,6 +55,12 @@ class DialogController {
   }
 
   public nextDialog(callback: (text: string, isComplete: boolean) => void): void {
+    // Check if controller is disabled
+    if (this.isDisabled) {
+      console.log("[DialogController] Controller is disabled, ignoring nextDialog");
+      return;
+    }
+
     // Stop previous typing
     this.stopTyping();
     
@@ -76,6 +83,12 @@ class DialogController {
   }
 
   public previousDialog(callback: (text: string, isComplete: boolean) => void): void {
+    // Check if controller is disabled
+    if (this.isDisabled) {
+      console.log("[DialogController] Controller is disabled, ignoring previousDialog");
+      return;
+    }
+
     // Stop previous typing
     this.stopTyping();
     
@@ -93,6 +106,12 @@ class DialogController {
   }
 
   public startDialog(callback: (text: string, isComplete: boolean) => void): void {
+    // Check if controller is disabled
+    if (this.isDisabled) {
+      console.log("[DialogController] Controller is disabled, ignoring startDialog");
+      return;
+    }
+
     // Set mainDialog to true when starting dialog
     this.mainDialog = true;
     console.log(`[DialogController] Main dialog started - mainDialog = true`);
@@ -579,6 +598,16 @@ class DialogController {
   // Dapatkan status interupsi dialog
   public getDialogInterruptionStatus(): boolean {
     return this.dialogInterrupted;
+  }
+
+  // Method untuk men-disable/enable controller
+  public setDisabled(disabled: boolean): void {
+    this.isDisabled = disabled;
+    console.log(`[DialogController] Controller ${disabled ? 'disabled' : 'enabled'}`);
+  }
+
+  public isControllerDisabled(): boolean {
+    return this.isDisabled;
   }
 }
 
