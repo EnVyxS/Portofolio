@@ -168,6 +168,16 @@ class AchievementController {
     return Array.from(this.unlockedAchievements);
   }
   
+  // Mengecek apakah semua achievement sudah terkumpul
+  public hasAllAchievements(): boolean {
+    const allAchievementTypes: AchievementType[] = [
+      'approach', 'contract', 'success', 'document', 'anger', 'nightmare',
+      'listener', 'patience', 'return', 'hover', 'escape', 'social'
+    ];
+    
+    return allAchievementTypes.every(type => this.unlockedAchievements.has(type));
+  }
+
   // Reset semua achievements (untuk testing)
   public resetAchievements(): void {
     this.unlockedAchievements.clear();

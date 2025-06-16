@@ -53,12 +53,10 @@ const AchievementGallery: React.FC = () => {
     const unlocked = achievementController.getUnlockedAchievements();
     setUnlockedAchievements(unlocked);
 
-    // Cek apakah semua achievement sudah terbuka
-    const allUnlocked = allAchievements.every((achievement) =>
-      unlocked.includes(achievement),
-    );
-
-    if (allUnlocked && unlocked.length === allAchievements.length) {
+    // Cek apakah semua achievement sudah terbuka menggunakan method baru
+    const hasAllAchievements = achievementController.hasAllAchievements();
+    
+    if (hasAllAchievements) {
       setShowEasterEgg(true);
     }
   }, []);
@@ -201,6 +199,23 @@ const AchievementGallery: React.FC = () => {
           >
             👑
           </motion.div>
+          
+          {/* Tombol Reward Easter Egg */}
+          <motion.button
+            className="reward-button"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 2.0 }}
+            whileHover={{ scale: 1.05, rotate: 1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              // Rick Roll Easter Egg - redirect ke Never Gonna Give You Up
+              window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
+            }}
+          >
+            <span className="reward-text">🎁 CLAIM YOUR REWARD</span>
+            <div className="reward-sparkles">✨</div>
+          </motion.button>
         </motion.div>
       )}
 
@@ -773,6 +788,95 @@ const AchievementGallery: React.FC = () => {
         @keyframes progressShine {
           0% { left: -100%; }
           100% { left: 100%; }
+        }
+        
+        /* Reward Button Styling */
+        .reward-button {
+          position: relative;
+          background: linear-gradient(135deg, 
+            rgba(255, 193, 7, 0.8) 0%, 
+            rgba(255, 215, 0, 0.9) 50%, 
+            rgba(255, 193, 7, 0.8) 100%
+          );
+          border: 2px solid rgba(255, 215, 0, 0.9);
+          border-radius: 8px;
+          padding: 12px 20px;
+          margin-top: 16px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 
+            0 4px 15px rgba(255, 193, 7, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+          overflow: hidden;
+          font-weight: bold;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          color: rgba(20, 20, 20, 0.9);
+          font-size: 12px;
+        }
+        
+        .reward-button:hover {
+          background: linear-gradient(135deg, 
+            rgba(255, 215, 0, 0.9) 0%, 
+            rgba(255, 193, 7, 1) 50%, 
+            rgba(255, 215, 0, 0.9) 100%
+          );
+          box-shadow: 
+            0 6px 20px rgba(255, 193, 7, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+          transform: translateY(-2px);
+        }
+        
+        .reward-button:active {
+          transform: translateY(0);
+          box-shadow: 
+            0 2px 10px rgba(255, 193, 7, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .reward-text {
+          position: relative;
+          z-index: 2;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+        
+        .reward-sparkles {
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          font-size: 14px;
+          animation: sparkle 2s infinite;
+          z-index: 3;
+        }
+        
+        .reward-button::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: linear-gradient(45deg, 
+            transparent 30%, 
+            rgba(255, 255, 255, 0.3) 50%, 
+            transparent 70%
+          );
+          transform: rotate(45deg);
+          animation: rewardShine 3s infinite;
+          z-index: 1;
+        }
+        
+        @keyframes sparkle {
+          0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+          50% { opacity: 0.7; transform: scale(1.2) rotate(180deg); }
+        }
+        
+        @keyframes rewardShine {
+          0% { left: -200%; }
+          100% { left: 200%; }
         }
       `,
         }}
