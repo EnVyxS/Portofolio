@@ -988,48 +988,31 @@
                     const achievementType = 'escape';
                     
                     // Check if achievement already exists before showing notification
-                    let shouldShowNotification = false;
+                    let hasAchievement = false;
                     
-                    // Save achievement to localStorage for portfolio_achievements
+                    // Check if achievement already exists in localStorage
                     try {
                         // For the new 'diva-juan-achievements' format
                         const ACHIEVEMENTS_KEY = 'diva-juan-achievements';
-                        let achievements = [];
                         const savedData = localStorage.getItem(ACHIEVEMENTS_KEY);
                         
                         if (savedData) {
                             try {
-                                achievements = JSON.parse(savedData);
-                                if (!Array.isArray(achievements)) {
-                                    achievements = [];
+                                const achievements = JSON.parse(savedData);
+                                if (Array.isArray(achievements) && achievements.includes(achievementType)) {
+                                    hasAchievement = true;
                                 }
                             } catch (e) {
                                 console.error('Error parsing achievements data:', e);
-                                achievements = [];
                             }
                         }
-                        
-                        // Only add and show notification if not already present
-                        if (!achievements.includes(achievementType)) {
-                            achievements.push(achievementType);
-                            localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(achievements));
-                            console.log(`Achievement "${achievementType}" saved to localStorage with new format`);
-                            shouldShowNotification = true;
-                            
-                            // Show the achievement notification for new achievement
-                            unlockAchievement(achievementType);
-                        } else {
-                            console.log(`Achievement "${achievementType}" already exists, skipping notification and redirecting directly`);
-                            shouldShowNotification = false;
-                        }
                     } catch (e) {
-                        console.error('Failed to save achievement to localStorage:', e);
-                        shouldShowNotification = false;
+                        console.error('Failed to check achievements in localStorage:', e);
                     }
                     
                     // If achievement already exists, redirect immediately without showing notification
-                    if (!shouldShowNotification) {
-                        console.log('Redirecting directly to main page - achievement already obtained');
+                    if (hasAchievement) {
+                        console.log(`Achievement "${achievementType}" already exists, skipping notification and redirecting directly`);
                         document.body.style.transition = "opacity 1.5s ease-out";
                         document.body.style.opacity = "0";
                         
@@ -1038,6 +1021,8 @@
                         }, 1500);
                         return; // Exit early, don't show achievement overlay
                     }
+                    
+                    // If we reach here, achievement doesn't exist yet - show notification first
 
                     // Flash before exiting
                     const flash = document.getElementById("flash");
@@ -1162,6 +1147,34 @@
                         
                         // Show for exactly 3 seconds, then fade out and redirect
                         setTimeout(() => {
+                            // NOW save the achievement to localStorage after notification is shown
+                            try {
+                                const ACHIEVEMENTS_KEY = 'diva-juan-achievements';
+                                let achievements = [];
+                                const savedData = localStorage.getItem(ACHIEVEMENTS_KEY);
+                                
+                                if (savedData) {
+                                    try {
+                                        achievements = JSON.parse(savedData);
+                                        if (!Array.isArray(achievements)) {
+                                            achievements = [];
+                                        }
+                                    } catch (e) {
+                                        console.error('Error parsing achievements data:', e);
+                                        achievements = [];
+                                    }
+                                }
+                                
+                                // Add achievement if not already present
+                                if (!achievements.includes(achievementType)) {
+                                    achievements.push(achievementType);
+                                    localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(achievements));
+                                    console.log(`Achievement "${achievementType}" saved to localStorage after notification`);
+                                }
+                            } catch (e) {
+                                console.error('Failed to save achievement to localStorage after notification:', e);
+                            }
+                            
                             achievementOverlay.style.opacity = '0';
                             document.body.style.transition = "opacity 1.5s ease-out";
                             document.body.style.opacity = "0";
