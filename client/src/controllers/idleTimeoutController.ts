@@ -987,6 +987,16 @@ class IdleTimeoutController {
       console.error("Failed to unlock achievement:", error);
     }
 
+    // Special handling for RETURN_DIALOG - activate main dialog
+    const isReturnDialog = text === IDLE_DIALOGS.RETURN_DIALOG;
+    if (isReturnDialog) {
+      console.log("[IdleTimeoutController] RETURN_DIALOG detected - activating main dialog");
+      this.dialogController.setMainDialogActive();
+    } else {
+      // Pastikan dialog controller dalam keadaan idle untuk warning lainnya
+      this.dialogController.setMainDialogInactive();
+    }
+
     // Hentikan semua aktivitas dialog terlebih dahulu
     this.dialogController.stopTyping();
     this.hoverDialogController.stopTyping();
