@@ -110,6 +110,7 @@ This is an interactive portfolio application built as a Dark Souls-inspired char
 - June 14, 2025. Fixed dialog box race condition bug - prevented hover dialog text from being overridden by main dialog when user spams next/skip buttons
 - June 16, 2025. Added easter egg reward system - when all 12 achievements are collected, a special reward button appears that redirects to Rick Astley's "Never Gonna Give You Up" as a Rick Roll surprise
 - June 16, 2025. Added 21 variations for RETURN_DIALOG to make the character's responses more diverse when user returns after being thrown out
+- June 16, 2025. Fixed Time Gizer achievement exploit - removed auto-completion logic that automatically granted "patience" achievement to users who reached final stages without waiting for FINAL_WARNING. Achievement now only unlocks through legitimate 9-minute idle timeout.
 
 ## User Preferences
 
