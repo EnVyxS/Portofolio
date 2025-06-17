@@ -37,9 +37,7 @@ export const TIMEOUT_DURATIONS = {
   SECOND_WARNING: 5 * 60 * 1000, // 5 menit
   FINAL_WARNING: 9 * 60 * 1000, // 9 menit
   THROW_USER: 10 * 60 * 1000, // 10 menit
-  EXCESSIVE_HOVER_WARNING: 10 * 1000, // 10 detik - Sangat cepat karena triggered oleh HoverDialogController
-  FINAL_HOVER_WARNING: 20 * 1000, // 20 detik
-  PUNCH_USER: 30 * 1000, // 30 detik
+  // Timer hover dihapus karena sudah ada alternatif trigger via hover counting
 };
 
 // Untuk testing/development, gunakan timeout yang lebih singkat
@@ -90,10 +88,7 @@ class IdleTimeoutController {
   private finalWarningTimer: NodeJS.Timeout | null = null;
   private throwUserTimer: NodeJS.Timeout | null = null;
 
-  // Timer untuk hover berlebihan
-  private excessiveHoverTimer: NodeJS.Timeout | null = null;
-  private finalHoverWarningTimer: NodeJS.Timeout | null = null;
-  private punchUserTimer: NodeJS.Timeout | null = null;
+  // Timer hover dihapus - menggunakan hover counting sebagai gantinya
 
   // Real-time monitoring interval
   private checkInterval: NodeJS.Timeout | null = null;
@@ -351,28 +346,8 @@ class IdleTimeoutController {
           type: "Throw"
         };
       }
-    } else if (this.currentActiveTimer === "hover") {
-      // Jika timer hover aktif, hitung waktu tersisa berdasarkan hover timer
-      if (!this.hasShownExcessiveHoverWarning) {
-        result = {
-          timeRemaining: Math.max(0, TIMEOUT_DURATIONS.EXCESSIVE_HOVER_WARNING - timeSinceStart),
-          totalDuration: TIMEOUT_DURATIONS.EXCESSIVE_HOVER_WARNING,
-          type: "Excessive Hover"
-        };
-      } else if (!this.hasShownFinalHoverWarning) {
-        result = {
-          timeRemaining: Math.max(0, TIMEOUT_DURATIONS.FINAL_HOVER_WARNING - timeSinceStart),
-          totalDuration: TIMEOUT_DURATIONS.FINAL_HOVER_WARNING,
-          type: "Final Hover"
-        };
-      } else if (!this.hasBeenPunched) {
-        result = {
-          timeRemaining: Math.max(0, TIMEOUT_DURATIONS.PUNCH_USER - timeSinceStart),
-          totalDuration: TIMEOUT_DURATIONS.PUNCH_USER,
-          type: "Punch"
-        };
-      }
     }
+    // Timer hover sudah dihapus - menggunakan hover counting sebagai gantinya
     
     return result;
   }
@@ -638,88 +613,7 @@ class IdleTimeoutController {
     }
   }
 
-  // Setup timer untuk hover berlebihan
-  public startExcessiveHoverTimers(): void {
-    // Jika ada audio atau dialog yang aktif, jangan jalankan timer
-    if (this.isAudioOrDialogActive()) {
-      // Log removed
-
-      // Cek lagi nanti setelah beberapa detik
-      setTimeout(() => {
-        this.startExcessiveHoverTimers();
-      }, 5000); // cek setiap 5 detik
-
-      return;
-    }
-
-    // Log removed
-    this.clearAllHoverTimers(); // Bersihkan timer yang ada
-    
-    // Reset timer start time dan set tipe timer ke hover
-    this.timerStartTime = Date.now();
-    this.currentActiveTimer = "hover";
-    console.log("[IdleTimeoutController] Memulai timer hover, reset waktu mulai timer");
-
-    // Jika belum menampilkan peringatan hover berlebihan
-    if (!this.hasShownExcessiveHoverWarning) {
-      this.excessiveHoverTimer = setTimeout(() => {
-        // Cek dulu apakah ada audio/dialog yang aktif sebelum menampilkan peringatan
-        if (!this.isAudioOrDialogActive()) {
-          this.showIdleWarning(IDLE_DIALOGS.EXCESSIVE_HOVER_WARNING);
-          this.hasShownExcessiveHoverWarning = true;
-        } else {
-          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
-          this.startExcessiveHoverTimers();
-        }
-      }, TIMEOUT_DURATIONS.EXCESSIVE_HOVER_WARNING);
-    }
-
-    // Jika belum menampilkan peringatan hover final
-    if (!this.hasShownFinalHoverWarning) {
-      this.finalHoverWarningTimer = setTimeout(() => {
-        // Cek dulu apakah ada audio/dialog yang aktif sebelum menampilkan peringatan
-        if (!this.isAudioOrDialogActive()) {
-          this.showIdleWarning(IDLE_DIALOGS.FINAL_HOVER_WARNING);
-          this.hasShownFinalHoverWarning = true;
-        } else {
-          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
-          this.startExcessiveHoverTimers();
-        }
-      }, TIMEOUT_DURATIONS.FINAL_HOVER_WARNING);
-    }
-
-    // Jika belum dipukul
-    if (!this.hasBeenPunched) {
-      this.punchUserTimer = setTimeout(() => {
-        // Cek dulu apakah ada audio/dialog yang aktif sebelum memukul user
-        if (!this.isAudioOrDialogActive()) {
-          this.punchUser();
-          this.hasBeenPunched = true;
-        } else {
-          // Jika ada audio/dialog aktif, jadwalkan ulang pengecekan
-          this.startExcessiveHoverTimers();
-        }
-      }, TIMEOUT_DURATIONS.PUNCH_USER);
-    }
-  }
-
-  // Bersihkan semua timer hover
-  private clearAllHoverTimers(): void {
-    if (this.excessiveHoverTimer) {
-      clearTimeout(this.excessiveHoverTimer);
-      this.excessiveHoverTimer = null;
-    }
-
-    if (this.finalHoverWarningTimer) {
-      clearTimeout(this.finalHoverWarningTimer);
-      this.finalHoverWarningTimer = null;
-    }
-
-    if (this.punchUserTimer) {
-      clearTimeout(this.punchUserTimer);
-      this.punchUserTimer = null;
-    }
-  }
+  // Timer hover methods dihapus - menggunakan hover counting sebagai gantinya
 
   // Handler untuk reset timer secara manual (dari link hover atau kontrak)
   public resetIdleTimer(): void {
