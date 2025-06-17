@@ -599,6 +599,118 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to generate dialog audio' });
     }
   });
+
+  // Generate all missing RETURN_DIALOG audio files
+  app.post('/api/generate-return-dialogs', async (req, res) => {
+    try {
+      // All RETURN_DIALOG variations from dialogModel.ts
+      const returnDialogs = [
+        "[menacing] Now what, you little filth!?.. [threatening] Back for more punishment?",
+        "You just don't learn, do you?",
+        "Thought you'd had enough. Guess I was wrong.",
+        "Back on your feet already? You're persistent, I'll give you that.",
+        "I don't have time for this. But if you insist...",
+        "Still breathing? Impressive. Stupid, but impressive.",
+        "You should've stayed down.",
+        "I warned you once. That was your mercy.",
+        "You mistake survival for strength. Let me fix that.",
+        "Back again? Your pain threshold must be as low as your wit.",
+        "This isn't bravery. It's desperation… or stupidity.",
+        "You bleed easy. Let's see how long before you break.",
+        "Still standing? I'll make that regret last.",
+        "You came all this way just to die tired.",
+        "You had your chance. Now I take mine.",
+        "Last time was a warning. This time, it's a lesson.",
+        "You're not a challenge. You're an inconvenience.",
+        "You came back. Brave… or foolish?",
+        "Some people never know when to quit.",
+        "Fine. One more lesson. Then it ends.",
+        "Didn't think you'd crawl back so soon. But here we are."
+      ];
+
+      // Check existing files
+      const existingFiles = fs.readdirSync(characterAudioDir);
+      const existingHashes = new Set();
+      
+      existingFiles.forEach(file => {
+        if (file.startsWith('dialog_') && file.endsWith('.mp3')) {
+          const hash = file.replace('dialog_', '').replace('.mp3', '');
+          existingHashes.add(hash);
+        }
+      });
+
+      let generated = 0;
+      let skipped = 0;
+      const total = returnDialogs.length;
+
+      res.writeHead(200, {
+        'Content-Type': 'text/plain',
+        'Transfer-Encoding': 'chunked'
+      });
+
+      res.write(`Starting generation of ${total} RETURN_DIALOG audio files...\n`);
+
+      for (let i = 0; i < returnDialogs.length; i++) {
+        const text = returnDialogs[i];
+        
+        // Clean the text by removing stage directions in brackets
+        const cleanText = text.replace(/\[.*?\]/g, '').trim();
+        
+        const hash = Math.abs(cleanText.split('').reduce((a, b) => {
+          a = ((a << 5) - a) + b.charCodeAt(0);
+          return a & a;
+        }, 0));
+
+        if (existingHashes.has(hash.toString())) {
+          skipped++;
+          res.write(`[${i + 1}/${total}] Skipped: "${cleanText.substring(0, 50)}..." (already exists)\n`);
+          continue;
+        }
+
+        try {
+          const response = await fetch('http://localhost:5000/api/elevenlabs/text-to-speech', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: cleanText,
+              voice_id: "dBynzNhvSFj0l1D7I9yV", // DIVA JUAN voice ID
+              model_id: "eleven_monolingual_v1",
+              voice_settings: {
+                stability: 0.9,
+                similarity_boost: 1.0,
+                style: 0.25,
+                use_speaker_boost: true,
+                speaking_rate: 0.95
+              }
+            })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            generated++;
+            res.write(`[${i + 1}/${total}] Generated: "${cleanText.substring(0, 50)}..."\n`);
+          } else {
+            res.write(`[${i + 1}/${total}] Failed: "${cleanText.substring(0, 50)}..." - ${data.error}\n`);
+          }
+        } catch (error) {
+          res.write(`[${i + 1}/${total}] Error: "${cleanText.substring(0, 50)}..." - ${error.message}\n`);
+        }
+
+        // Small delay to avoid overwhelming the API
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      res.write(`\nRETURN_DIALOG generation complete!\n`);
+      res.write(`Total: ${total}\n`);
+      res.write(`Generated: ${generated}\n`);
+      res.write(`Skipped: ${skipped}\n`);
+      res.end();
+
+    } catch (error) {
+      console.error('Error generating return dialog audio:', error);
+      res.status(500).json({ error: 'Failed to generate return dialog audio' });
+    }
+  });
   
   // Copy the audio file from the assets to the public directory for client access
   try {
