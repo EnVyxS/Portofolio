@@ -426,6 +426,179 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to generate whisper audio' });
     }
   });
+
+  // Generate all missing dialog audio files (idleDialog, HoverDialog, DialogController)
+  app.post('/api/generate-all-dialogs', async (req, res) => {
+    try {
+      // All dialog texts from different controllers
+      const allDialogs = [
+        // Main DialogController dialogs
+        "...Didn't ask for company.",
+        "Fire's warm... Always brings strays....",
+        "Haahhhh... You need something or are you just here to waste my time?",
+        ".....",
+        "Curiosity?... Hmph... Doesn't pay the bills...",
+        "Pfftt... Waiting... Drinking... What else is there?",
+        "A job?.., A way out?.., Some miracle?..",
+        
+        // Idle timeout dialogs
+        "What the hell are you staring at?.. Got something to say!?",
+        "You really gonna keep ignoring me? I'm not in the mood for this.",
+        "You think this is funny?.. Staring at me for nine damn minutes?.. Fuck you!!",
+        "Now what, you little filth!?.. Back for more punishment?",
+        "Hmph... Finally, you decide to move... Suit yourself. You want to check it or just get on with signing the damn contract?",
+        "KEEP PUSHING, AND YOU'LL REGRET IT.",
+        "I'VE HAD ENOUGH OF YOUR GAMES!",
+        
+        // Hover dialog - interruption contact
+        "Hmph... In a rush, are we? Fine. Tell me what you need done.",
+        "Can't wait till I'm done talking? Fine. What do you want?",
+        "Interrupting me? Rude. But I'm listening.",
+        "Not even letting me finish? Fine, what's the contract?",
+        "Hmm. Impatient, aren't you? What is it?",
+        
+        // Hover dialog - interruption social
+        "Not listening, huh? Fine. Decide after you've checked.",
+        "My story's boring you? Go on then, look elsewhere.",
+        "Hmm. Distracted already? Go ahead, check it out.",
+        "Prefer looking around than listening? Your choice.",
+        "Lost interest so quickly? Whatever. Go look.",
+        
+        // Hover dialog - completed contact
+        "Straight to the point—I like that. Fine. Give me the contract.",
+        "Business it is then. What's the job?",
+        "Contract details? Let's hear it.",
+        "Talk business. I'm listening.",
+        "Hmm. Cutting to the chase. Good.",
+        
+        // Hover dialog - completed social
+        "Need to check first before deciding? Fine. Not like I'm in a hurry.",
+        "Want to know more about me first? Suit yourself.",
+        "Curious about my past work? Take a look.",
+        "Checking my credentials? Smart. Not that I care.",
+        "Due diligence, huh? Look all you want.",
+        
+        // Hover dialog - transition socialToContact
+        "Took your time, didn't you? Fine. Hand me the damn contract.",
+        "Done looking? Ready for business now?",
+        "Satisfied with what you found? Let's talk work.",
+        "Seen enough? What's the job then?",
+        "Research complete? Let's hear about the contract.",
+        
+        // Hover dialog - transition contactToSocial
+        "Fine. Go ahead, check it first.",
+        "Having second thoughts? Look around then.",
+        "Changed your mind? Go on, look me up.",
+        "Not convinced yet? See for yourself.",
+        "Hmm. Still uncertain? Check my background.",
+        
+        // Hover dialog - annoyance firstLevel
+        "Talk... You got a job, or just wasting my time?",
+        "Make up your mind. I don't have all day.",
+        "Hmm. This back and forth is getting irritating.",
+        "Decide already. Contract or not?",
+        "Getting annoyed with the indecision here.",
+        
+        // Hover dialog - annoyance secondLevel
+        "Arghh... whatever you want. I'm done.",
+        "That's it. I'm done with this nonsense.",
+        "Enough of this. Make a choice or leave me be.",
+        "HAHH...I've lost my patience. We're done here.",
+        "I'm through with this game. Decide or go away.",
+        
+        // Contract responses
+        "Now you've seen the proof. Are we good to continue, or do you need more convincing?",
+        "That should answer your questions about my background. Ready to talk about something else now?",
+        "There's everything you needed to see. I'm the real deal. What would you like to discuss next?"
+      ];
+
+      // Check existing files
+      const existingFiles = fs.readdirSync(characterAudioDir);
+      const existingHashes = new Set();
+      
+      existingFiles.forEach(file => {
+        if (file.startsWith('dialog_') && file.endsWith('.mp3')) {
+          const hash = file.replace('dialog_', '').replace('.mp3', '');
+          existingHashes.add(hash);
+        }
+      });
+
+      let generated = 0;
+      let skipped = 0;
+      const total = allDialogs.length;
+
+      res.writeHead(200, {
+        'Content-Type': 'text/plain',
+        'Transfer-Encoding': 'chunked'
+      });
+
+      res.write(`Starting generation of ${total} dialog audio files...\n`);
+
+      for (let i = 0; i < allDialogs.length; i++) {
+        const text = allDialogs[i];
+        
+        // Skip empty dialogs
+        if (!text || text.trim() === '' || text.trim() === '.....') {
+          skipped++;
+          res.write(`[${i + 1}/${total}] Skipped: "${text}" (empty or dots only)\n`);
+          continue;
+        }
+        
+        const hash = Math.abs(text.split('').reduce((a, b) => {
+          a = ((a << 5) - a) + b.charCodeAt(0);
+          return a & a;
+        }, 0));
+
+        if (existingHashes.has(hash.toString())) {
+          skipped++;
+          res.write(`[${i + 1}/${total}] Skipped: "${text.substring(0, 50)}..." (already exists)\n`);
+          continue;
+        }
+
+        try {
+          const response = await fetch('http://localhost:5000/api/elevenlabs/text-to-speech', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: text,
+              voice_id: "dBynzNhvSFj0l1D7I9yV", // DIVA JUAN voice ID
+              model_id: "eleven_monolingual_v1",
+              voice_settings: {
+                stability: 0.9,
+                similarity_boost: 1.0,
+                style: 0.25,
+                use_speaker_boost: true,
+                speaking_rate: 0.95
+              }
+            })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            generated++;
+            res.write(`[${i + 1}/${total}] Generated: "${text.substring(0, 50)}..."\n`);
+          } else {
+            res.write(`[${i + 1}/${total}] Failed: "${text.substring(0, 50)}..." - ${data.error}\n`);
+          }
+        } catch (error) {
+          res.write(`[${i + 1}/${total}] Error: "${text.substring(0, 50)}..." - ${error.message}\n`);
+        }
+
+        // Small delay to avoid overwhelming the API
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      res.write(`\nDialog generation complete!\n`);
+      res.write(`Total: ${total}\n`);
+      res.write(`Generated: ${generated}\n`);
+      res.write(`Skipped: ${skipped}\n`);
+      res.end();
+
+    } catch (error) {
+      console.error('Error generating dialog audio:', error);
+      res.status(500).json({ error: 'Failed to generate dialog audio' });
+    }
+  });
   
   // Copy the audio file from the assets to the public directory for client access
   try {
