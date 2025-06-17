@@ -101,7 +101,7 @@ class IdleTimeoutController {
   // Flag untuk mencegah multiple timer restart
   private isTimerRunning: boolean = false;
 
-  // Status hover berlebihan
+  // Status hover berlebihan - dikelola oleh HoverDialogController melalui counting
   private hasShownExcessiveHoverWarning: boolean = false;
   private hasShownFinalHoverWarning: boolean = false;
   private hasBeenPunched: boolean = false;
@@ -702,8 +702,7 @@ class IdleTimeoutController {
       // Show HOVER_AFTER_RESET dialog first
       this.showIdleWarning(IDLE_DIALOGS.HOVER_AFTER_RESET);
 
-      // Start excessive hover timers
-      this.startExcessiveHoverTimers();
+      // Timer hover sudah dihapus - dialog akan dipicu melalui hover counting
     } else if (!this.hasBeenThrown) {
       // Normal timer reset if user hasn't been thrown yet
       this.clearAllIdleTimers();
@@ -1204,7 +1203,7 @@ class IdleTimeoutController {
   // Reset semua timer dan status
   public resetAll(): void {
     this.clearAllIdleTimers();
-    this.clearAllHoverTimers();
+    // Timer hover sudah dihapus
 
     // Reset semua status
     this.hasShownFirstWarning = false;
