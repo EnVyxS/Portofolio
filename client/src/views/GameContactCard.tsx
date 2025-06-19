@@ -106,7 +106,7 @@ const GameContactCard: React.FC = () => {
     {
       id: "email",
       name: "Email",
-      url: "mailto:111202012560@mhs.dinus.ac.id?subject=JOB",
+      url: "mailto:divajuannurtaqarrub@gmail.com?subject=JOB",
       icon: <FaEnvelope size={24} />,
       color: "#EA4335", // Gmail primary red color
       hoverColor: "#EA4335", // Same color on hover for Gmail
