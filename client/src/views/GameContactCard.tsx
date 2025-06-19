@@ -124,15 +124,33 @@ const GameContactCard: React.FC = () => {
     },
   ];
 
-  // Hapus semua animasi untuk menghilangkan pergerakan
+  // Framer Motion variants - lebih halus dan minimal
   const containerVariants = {
-    hidden: { opacity: 1 },
-    visible: { opacity: 1 },
+    hidden: { opacity: 0, y: 5 }, // Minimal y movement
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "tween", // Use tween instead of spring for smoother motion
+        duration: 1.5, // Longer duration for more gentle appearance
+        ease: "easeOut",
+        delayChildren: 0.3,
+        staggerChildren: 0.2,
+      },
+    },
   };
 
   const itemVariants = {
-    hidden: { opacity: 1 },
-    visible: { opacity: 1 },
+    hidden: { y: 3, opacity: 0 }, // Minimal movement
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { 
+        type: "tween", 
+        duration: 0.8, 
+        ease: "easeOut" 
+      },
+    },
   };
 
   return (
@@ -140,15 +158,25 @@ const GameContactCard: React.FC = () => {
       {/* Main container with proper structure */}
       <div className={`content-wrapper ${hasActiveDialog ? 'dialog-active' : ''}`}>
         {/* Unified card component containing links */}
-        <div
+        <motion.div
           ref={cardRef}
           className="unified-card"
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+          whileHover={{
+            boxShadow: "0 0 15px rgba(156, 136, 114, 0.4)", // Stronger glow
+            scale: 1.03, // Slightly larger grow effect
+            opacity: 0.8, // More opaque on hover for better visibility
+            borderColor: "rgba(156, 136, 114, 0.7)", // Highlight border
+          }}
+          transition={{ duration: 0.3 }}
         >
           {/* Orange accent corner for design element */}
           <div className="card-accent-corner"></div>
           
           {/* Social links section */}
-          <div className="social-links">
+          <motion.div className="social-links" variants={itemVariants}>
             {socialLinks.map((link) => (
               <SocialLink
                 key={link.id}
@@ -162,23 +190,29 @@ const GameContactCard: React.FC = () => {
                 hoverColor={link.hoverColor}
               />
             ))}
-          </div>
+          </motion.div>
           
           {/* Share Button beneath social links */}
-          <div className="share-button-container">
+          <motion.div 
+            className="share-button-container"
+            variants={itemVariants}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1, duration: 0.5 }}
+          >
             <ShareButton 
               className="card-share-button"
               title="DIVA JUAN | Interactive Portfolio"
               text="Check out this immersive interactive portfolio by DIVA JUAN - an experience you won't forget!"
             />
-          </div>
+          </motion.div>
           
           {/* Card corner decorations for Dark Souls aesthetic */}
           <div className="card-corner top-left"></div>
           <div className="card-corner top-right"></div>
           <div className="card-corner bottom-left"></div>
           <div className="card-corner bottom-right"></div>
-        </div>
+        </motion.div>
       </div>
 
       <style>{`
@@ -201,17 +235,24 @@ const GameContactCard: React.FC = () => {
           max-width: 500px;
           margin: 0;
           position: absolute;
-          top: 10px; /* Gunakan posisi saat dialog aktif sebagai default */
+          top: 30px; /* Kembalikan ke posisi semula */
           right: 40px; /* Sedikit lebih jauh ke kanan */
           transform: none; /* No vertical centering for desktop */
           z-index: 20; /* Pastikan selalu di atas elemen lain */
+          transition: all 0.3s ease; /* Smooth positioning transition */
         }
 
-        /* Tidak ada perubahan posisi saat dialog aktif */
+        /* Dynamic positioning and scaling when dialog is active */
         .content-wrapper.dialog-active {
-          /* Posisi tetap sama, tidak ada pergerakan */
+          top: 10px; /* Move up 20px when dialog is active (from 30px to 10px) */
         }
         
+        .content-wrapper.dialog-active .unified-card {
+          transform: scale(0.8); /* Scale down when dialog is active */
+          opacity: 0.45; /* Reduce opacity when dialog is active */
+          filter: blur(0.5px); /* Subtle blur effect when dialog is active */
+        }
+
         /* Unified card that contains all elements */
         .unified-card {
           background: rgba(20, 16, 14, 0.5); /* Lebih gelap dan lebih terlihat */
@@ -229,14 +270,14 @@ const GameContactCard: React.FC = () => {
           flex-direction: column;
           align-items: center;
           justify-content: space-between; /* Distribute space evenly */
-          /* Hapus transition untuk menghilangkan animasi */
+          transition: all 0.4s ease;
           position: relative;
           overflow: hidden;
           margin: 0 auto;
           z-index: 30;
           touch-action: manipulation; /* More responsive touch */
           -webkit-tap-highlight-color: transparent; /* Remove default browser mobile highlight */
-          /* Hapus transform scale untuk menghilangkan animasi */
+          transform: scale(0.9); /* Ukuran sedikit lebih besar */
           min-height: 300px; /* Minimum height untuk proporsi yang baik */
         }
 
@@ -308,7 +349,7 @@ const GameContactCard: React.FC = () => {
           flex: 1; /* Take available space */
           justify-content: space-evenly; /* Evenly distribute social links */
           padding: 0.3rem 0; /* Minimal padding for optimal use of space */
-          /* Hapus transform translateY untuk menghilangkan animasi */
+          transform: translateY(-30px); /* Naik lebih tinggi agar posisi lebih ke atas */
         }
         
         .share-button-container {
@@ -327,7 +368,7 @@ const GameContactCard: React.FC = () => {
           border-radius: 0 !important;
           justify-content: center;
           box-shadow: none !important;
-          /* Hapus transition untuk menghilangkan animasi */
+          transition: all 0.3s ease;
         }
         
         .card-share-button:hover {
@@ -344,7 +385,7 @@ const GameContactCard: React.FC = () => {
         /* Tablet devices (maintain position on right side) */
         @media (max-width: 768px) {
           .content-wrapper {
-            top: 40px; /* Gunakan posisi dialog-active sebagai default */
+            top: 60px; /* Kembalikan ke posisi semula */
             right: 20px; /* Closer to edge on tablets */
             max-width: 320px;
             z-index: 10; /* Ensure it's above other elements */
@@ -352,7 +393,7 @@ const GameContactCard: React.FC = () => {
           }
           
           .content-wrapper.dialog-active {
-            /* Tidak ada perubahan posisi */
+            top: 40px; /* Move up 20px for tablets */
           }
           
           .content-wrapper.dialog-active .unified-card {
@@ -458,7 +499,7 @@ const GameContactCard: React.FC = () => {
         /* Landscape mode on mobile devices */
         @media (max-height: 500px) and (orientation: landscape) {
           .content-wrapper {
-            top: 5px; /* Gunakan posisi dialog-active sebagai default */
+            top: 10px; /* Kembalikan ke posisi semula */
             right: 10px; /* Menempel di sisi kanan */
             height: auto; /* Reset height */
             transform: none; /* No transform */
@@ -467,7 +508,7 @@ const GameContactCard: React.FC = () => {
           }
           
           .content-wrapper.dialog-active {
-            /* Tidak ada perubahan posisi */
+            top: 5px; /* Move up 5px for landscape mode */
           }
           
           .content-wrapper.dialog-active .unified-card {
