@@ -344,11 +344,11 @@ const GameContactCard: React.FC = () => {
         .social-links {
           display: flex;
           flex-direction: column;
-          gap: 0.6rem; /* Optimized spacing between links */
+          gap: 0.5rem; /* Perfect spacing between links */
           width: 100%;
           flex: 1; /* Take available space */
-          justify-content: center; /* Center social links in available space */
-          padding: 0.5rem 0; /* Vertical padding for better distribution */
+          justify-content: space-evenly; /* Evenly distribute social links */
+          padding: 0.3rem 0; /* Minimal padding for optimal use of space */
         }
         
         .share-button-container {
