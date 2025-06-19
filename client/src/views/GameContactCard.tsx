@@ -90,7 +90,7 @@ const GameContactCard: React.FC = () => {
     {
       id: "youtube",
       name: "YouTube",
-      url: "https://www.youtube.com/@envyxs",
+      url: "https://www.youtube.com/@progr3s790",
       icon: <FaYoutube size={24} />,
       color: "#FF0000",
       hoverColor: "#FF0000", // YouTube red color
