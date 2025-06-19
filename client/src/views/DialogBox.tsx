@@ -361,22 +361,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         if (isException) {
           console.log("[DialogBox] Exception dialog detected, auto-continuing without user input:", text);
           
-          // Use same timing calculation as DialogController
-          const textLength = text.length;
-          const baseDelay = 2000; // 2 detik base delay
-          const charDelay = 50; // 50ms per karakter
-          const exceptionDelay = Math.min(
-            baseDelay + textLength * charDelay,
-            8000, // maksimal 8 detik
-          );
-          
+          // Auto-continue after a short delay for the user to read
           setTimeout(() => {
             idleTimeoutController.stopTyping();
             setText("");
             setIsComplete(false);
             setDialogSource("main");
             setIsExceptionDialogActive(false);
-          }, exceptionDelay);
+          }, 2000); // 2 second delay for reading
           
           return; // Exit early to prevent normal button handling
         }
@@ -487,14 +479,8 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         console.log("[DialogBox] Exception dialog auto-continuing:", text);
         setIsExceptionDialogActive(true);
         
-        // Use same timing calculation as DialogController for consistency
-        const textLength = text.length;
-        const baseDelay = 2000; // 2 detik base delay
-        const charDelay = 50; // 50ms per karakter
-        const exceptionDelay = Math.min(
-          baseDelay + textLength * charDelay,
-          8000, // maksimal 8 detik
-        );
+        // Auto-continue after shorter delay for exception dialogs
+        const exceptionDelay = 2500; // 2.5 seconds for reading warning
         
         autoPlayTimerRef.current = setTimeout(() => {
           idleTimeoutController.stopTyping();
