@@ -179,10 +179,9 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       animate={{
-        // === CONTACT CARD BEHAVIOR IMPLEMENTATION ===
-        // IF dialogBox.isVisible() == FALSE THEN contactCard.moveDown() ELSE contactCard.resetPosition()
-        y: isDialogVisible ? 0 : 20, // Move down when no dialog, reset when dialog visible
-        opacity: isDialogVisible ? 1 : 0.8 // Slightly fade when moved down
+        // Social links tidak bergerak berdasarkan dialog visibility
+        y: 0, // Tidak ada pergerakan vertikal
+        opacity: 1 // Opacity tetap penuh
       }}
       transition={{ 
         duration: 0.3, 
