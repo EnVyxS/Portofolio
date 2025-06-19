@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { FaWhatsapp } from 'react-icons/fa';
 import AchievementController from '../controllers/achievementController';
 
@@ -18,6 +18,38 @@ const ShareButton: React.FC<ShareButtonProps> = ({
 }) => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState('');
+  
+  // Close modal function with debugging
+  const closeModal = () => {
+    console.log('Closing modal...');
+    setIsShareModalOpen(false);
+  };
+  
+  // Handle escape key press
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isShareModalOpen) {
+        closeModal();
+      }
+    };
+    
+    if (isShareModalOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden'; // Prevent background scroll
+    }
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isShareModalOpen]);
+  
+  // Handle drag to close on mobile
+  const handleDragEnd = (event: any, info: PanInfo) => {
+    if (info.offset.y > 100 && info.velocity.y > 0) {
+      closeModal();
+    }
+  };
   
   // Fungsi untuk membagikan menggunakan Web Share API
   const handleShare = async () => {
@@ -75,7 +107,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
       achievementController.unlockAchievement('social');
       
       // Tutup modal setelah membagikan
-      setIsShareModalOpen(false);
+      closeModal();
     }
   };
   
@@ -119,7 +151,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsShareModalOpen(false)}
+            onClick={closeModal}
           >
             <motion.div 
               className="share-modal"
@@ -143,13 +175,17 @@ const ShareButton: React.FC<ShareButtonProps> = ({
                 damping: window.innerWidth <= 768 ? 30 : 25, 
                 stiffness: window.innerWidth <= 768 ? 400 : 300 
               }}
+              drag={window.innerWidth <= 768 ? "y" : false}
+              dragConstraints={{ top: 0, bottom: 300 }}
+              dragElastic={0.2}
+              onDragEnd={handleDragEnd}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="share-modal-header">
                 <h3>Share this portfolio</h3>
                 <button 
                   className="close-button"
-                  onClick={() => setIsShareModalOpen(false)}
+                  onClick={closeModal}
                   aria-label="Close share modal"
                 >
                   ×
@@ -259,9 +295,10 @@ const ShareButton: React.FC<ShareButtonProps> = ({
           display: flex;
           justify-content: center;
           align-items: center;
-          z-index: 1000;
+          z-index: 9999;
           padding: 20px;
           backdrop-filter: blur(3px);
+          cursor: pointer;
         }
         
         .share-modal {
@@ -272,6 +309,8 @@ const ShareButton: React.FC<ShareButtonProps> = ({
           padding: 24px;
           box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
           border: 1px solid rgba(255, 215, 0, 0.3);
+          cursor: default;
+          position: relative;
         }
         
         .share-modal-header {
@@ -460,10 +499,21 @@ const ShareButton: React.FC<ShareButtonProps> = ({
             background: rgba(255, 255, 255, 0.1);
             border-radius: 50%;
             font-size: 1.8rem;
+            z-index: 10001;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
           
           .close-button:hover {
             background: rgba(255, 255, 255, 0.2);
+          }
+          
+          .close-button:active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0.95);
           }
           
           .share-options {
