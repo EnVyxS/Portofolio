@@ -224,10 +224,11 @@ const GameContactCard: React.FC = () => {
           max-width: 500px;
           margin: 0;
           position: absolute;
-          top: 30px; /* Lebih tinggi di layar (untuk menghindari dialog box) */
+          top: ${hasActiveDialog ? '30px' : '50px'}; /* Move down 20px when no dialog active */
           right: 40px; /* Sedikit lebih jauh ke kanan */
           transform: none; /* No vertical centering for desktop */
           z-index: 20; /* Pastikan selalu di atas elemen lain */
+          transition: top 0.3s ease; /* Smooth transition */
         }
 
         /* Unified card that contains all elements */
