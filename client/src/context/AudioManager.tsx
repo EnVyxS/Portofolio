@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 
-// Import audio files using Vite asset imports for proper bundling
-import backgroundMusicPath from '@assets/creepy-music-box.m4a';
-import fireplaceAmbientPath from '@assets/relaxing-fire-sounds.m4a';
+// Gunakan path relatif untuk akses langsung public assets
+const backgroundMusicPath = '/assets/Darksouls-Chill.m4a';
+const fireplaceAmbientPath = '/assets/fireplace-ambient.m4a';
 
 interface AudioContextProps {
   isAudioPlaying: boolean;
