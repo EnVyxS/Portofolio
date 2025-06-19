@@ -124,33 +124,15 @@ const GameContactCard: React.FC = () => {
     },
   ];
 
-  // Framer Motion variants - lebih halus dan minimal
+  // Hapus semua animasi untuk menghilangkan pergerakan
   const containerVariants = {
-    hidden: { opacity: 0, y: 5 }, // Minimal y movement
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "tween", // Use tween instead of spring for smoother motion
-        duration: 1.5, // Longer duration for more gentle appearance
-        ease: "easeOut",
-        delayChildren: 0.3,
-        staggerChildren: 0.2,
-      },
-    },
+    hidden: { opacity: 1 },
+    visible: { opacity: 1 },
   };
 
   const itemVariants = {
-    hidden: { y: 3, opacity: 0 }, // Minimal movement
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { 
-        type: "tween", 
-        duration: 0.8, 
-        ease: "easeOut" 
-      },
-    },
+    hidden: { opacity: 1 },
+    visible: { opacity: 1 },
   };
 
   return (
@@ -263,14 +245,14 @@ const GameContactCard: React.FC = () => {
           flex-direction: column;
           align-items: center;
           justify-content: space-between; /* Distribute space evenly */
-          transition: all 0.4s ease;
+          /* Hapus transition untuk menghilangkan animasi */
           position: relative;
           overflow: hidden;
           margin: 0 auto;
           z-index: 30;
           touch-action: manipulation; /* More responsive touch */
           -webkit-tap-highlight-color: transparent; /* Remove default browser mobile highlight */
-          transform: scale(0.9); /* Ukuran sedikit lebih besar */
+          /* Hapus transform scale untuk menghilangkan animasi */
           min-height: 300px; /* Minimum height untuk proporsi yang baik */
         }
 
@@ -342,7 +324,7 @@ const GameContactCard: React.FC = () => {
           flex: 1; /* Take available space */
           justify-content: space-evenly; /* Evenly distribute social links */
           padding: 0.3rem 0; /* Minimal padding for optimal use of space */
-          transform: translateY(-30px); /* Naik lebih tinggi agar posisi lebih ke atas */
+          /* Hapus transform translateY untuk menghilangkan animasi */
         }
         
         .share-button-container {
@@ -361,7 +343,7 @@ const GameContactCard: React.FC = () => {
           border-radius: 0 !important;
           justify-content: center;
           box-shadow: none !important;
-          transition: all 0.3s ease;
+          /* Hapus transition untuk menghilangkan animasi */
         }
         
         .card-share-button:hover {
