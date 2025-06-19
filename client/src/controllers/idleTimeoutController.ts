@@ -660,12 +660,12 @@ class IdleTimeoutController {
   public handleUserInteraction(): void {
     this.lastInteractionTime = Date.now();
     
-    // Cancel Extended Return Timer if user interacts before it triggers
-    if (this.extendedReturnTimer && this.lastDialogWasReturn) {
-      console.log("[IdleTimeoutController] User interacted - canceling Extended Return Dialog timer");
+    // Cancel Extended Return Timer (ultimatum timer) if user interacts
+    if (this.extendedReturnTimer) {
+      console.log("[IdleTimeoutController] User interacted - canceling ultimatum timer");
       clearTimeout(this.extendedReturnTimer);
       this.extendedReturnTimer = null;
-      this.lastDialogWasReturn = false;
+      // Don't reset lastDialogWasReturn here as it might be needed elsewhere
     }
     
     // TIDAK me-reset timer start time untuk gerakan mouse biasa
@@ -1394,7 +1394,7 @@ class IdleTimeoutController {
       return;
     }
 
-    console.log("[IdleTimeoutController] Triggering Extended Return Dialog after 2 minutes");
+    console.log("[IdleTimeoutController] Showing Extended Return Dialog immediately after RETURN_DIALOG");
     
     // Mark as shown
     this.hasShownExtendedReturnDialog = true;
@@ -1413,8 +1413,41 @@ class IdleTimeoutController {
     // Show the extended dialog
     this.showIdleWarning(extendedDialog.text);
     
+    // Start 2-minute ultimatum timer - if user doesn't interact, they get punched
+    this.startUltimatumTimer();
+    
     // Reset the last dialog flag
     this.lastDialogWasReturn = false;
+  }
+
+  // Method to start ultimatum timer (2 minutes after Extended Return Dialog)
+  private startUltimatumTimer(): void {
+    console.log("[IdleTimeoutController] Starting ultimatum timer - user has 2 minutes or gets punched");
+    
+    // Clear any existing timers first
+    this.clearAllIdleTimers();
+    
+    // Start the 2-minute ultimatum timer
+    this.extendedReturnTimer = setTimeout(() => {
+      this.executeUltimatum();
+    }, TIMEOUT_DURATIONS.EXTENDED_RETURN_ULTIMATUM);
+  }
+
+  // Method to execute ultimatum - punch the user
+  private executeUltimatum(): void {
+    console.log("[IdleTimeoutController] Ultimatum timer expired - executing punishment");
+    
+    // Show punch dialog and execute punch
+    this.hasBeenPunched = true;
+    this.showIdleWarning("You had your chance... Time's up!");
+    
+    // Execute punch callback after a short delay
+    setTimeout(() => {
+      if (this.punchUserCallback) {
+        console.log("[IdleTimeoutController] Executing punch user callback");
+        this.punchUserCallback();
+      }
+    }, 2000);
   }
 
   // Method to handle RETURN_DIALOG logic when user clicks APPROACH HIM after meeting conditions
@@ -1442,8 +1475,10 @@ class IdleTimeoutController {
       this.showIdleWarning(returnDialog.text);
       console.log("[IdleTimeoutController] Using random RETURN_DIALOG variation:", returnDialog.text);
       
-      // Start timer for Extended Return Dialog (2 minutes)
-      this.startExtendedReturnTimer();
+      // Show Extended Return Dialog immediately after RETURN_DIALOG
+      setTimeout(() => {
+        this.showExtendedReturnDialog();
+      }, 3000); // Small delay to let RETURN_DIALOG finish
       
       // Unlock the return achievement
       try {
