@@ -1307,9 +1307,8 @@ class IdleTimeoutController {
       // Condition 1: User has both digital odyssey and dream escapist achievements
       const hasRequiredAchievements = hasDigitalOdyssey && hasEscapist;
       
-      // Condition 2: User has been thrown or punched AND has returned
+      // Condition 2: User has been thrown or punched (should trigger RETURN_DIALOG regardless of achievements)
       const hasBeenThrownOrPunched = this.hasBeenThrown || this.hasBeenPunched;
-      const hasReturnedAfterAction = hasBeenThrownOrPunched && this.userHasBeenReturn;
       
       console.log("[IdleTimeoutController] RETURN_DIALOG conditions check:", {
         hasDigitalOdyssey,
@@ -1318,11 +1317,11 @@ class IdleTimeoutController {
         hasBeenThrown: this.hasBeenThrown,
         hasBeenPunched: this.hasBeenPunched,
         hasBeenThrownOrPunched,
-        userHasBeenReturn: this.userHasBeenReturn,
-        hasReturnedAfterAction
+        userHasBeenReturn: this.userHasBeenReturn
       });
       
-      return hasRequiredAchievements || hasReturnedAfterAction;
+      // Return true if user has required achievements OR has been thrown/punched
+      return hasRequiredAchievements || hasBeenThrownOrPunched;
     } catch (error) {
       console.error("[IdleTimeoutController] Error checking RETURN_DIALOG conditions:", error);
       return false;
