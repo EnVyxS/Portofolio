@@ -30,7 +30,7 @@ const AchievementGallery: React.FC = () => {
   // State untuk hover tooltip
   const [hoveredAchievement, setHoveredAchievement] = useState<AchievementType | null>(null);
 
-  // Daftar semua achievement yang mungkin
+  // Daftar semua achievement yang mungkin (termasuk substitusi)
   const allAchievements: AchievementType[] = [
     "approach",
     "contract",
@@ -44,6 +44,8 @@ const AchievementGallery: React.FC = () => {
     "hover",
     "escape",
     "social",
+    "tillDeath",
+    "againstWill",
   ];
 
   // Load achievement saat komponen dimuat

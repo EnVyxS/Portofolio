@@ -156,14 +156,24 @@ class AchievementController {
     return Array.from(this.unlockedAchievements);
   }
   
-  // Mengecek apakah semua achievement sudah terkumpul
+  // Mengecek apakah semua achievement sudah terkumpul (dengan substitusi)
   public hasAllAchievements(): boolean {
-    const allAchievementTypes: AchievementType[] = [
+    // Achievement count harus 12, tapi bisa kombinasi dari original + substituted
+    if (this.unlockedAchievements.size < 12) return false;
+    
+    // Minimal harus punya base achievements yang tidak bisa disubstitusi
+    const requiredBaseAchievements: AchievementType[] = [
       'approach', 'contract', 'success', 'document', 'anger', 'nightmare',
-      'listener', 'patience', 'return', 'hover', 'escape', 'social'
+      'return', 'hover', 'escape', 'social'
     ];
     
-    return allAchievementTypes.every(type => this.unlockedAchievements.has(type));
+    const hasAllRequired = requiredBaseAchievements.every(type => this.unlockedAchievements.has(type));
+    
+    // Dan harus punya kombinasi dari listener/againstWill dan patience/tillDeath
+    const hasListenerVariant = this.hasAchievement('listener') || this.hasAchievement('againstWill');
+    const hasPatienceVariant = this.hasAchievement('patience') || this.hasAchievement('tillDeath');
+    
+    return hasAllRequired && hasListenerVariant && hasPatienceVariant;
   }
 
   // Mengecek kondisi flags untuk sistem substitusi achievement
@@ -200,9 +210,10 @@ class AchievementController {
 
     console.log(`Achievement substitution check - Kondisi1: ${kondisi1}, Kondisi2: ${kondisi2}, Count: ${achievementCount}, Context: ${triggerContext}`);
 
-    // Skenario 1: 11 achievements, only missing Time Gazer, user clicked Achievement button
+    // Skenario 1: 11 achievements, only missing Time Gazer, auto substitute with Till Death Do Us Part
     if (kondisi1 && kondisi2 && achievementCount === 11 && 
-        !this.hasAchievement('patience') && triggerContext === 'achievement_click') {
+        !this.hasAchievement('patience') && !this.hasAchievement('tillDeath') &&
+        (triggerContext === 'achievement_gallery_access' || triggerContext === 'achievement_click')) {
       
       console.log('Substituting Time Gazer with Till Death Do Us Part');
       // Remove Time Gazer and add Till Death Do Us Part
