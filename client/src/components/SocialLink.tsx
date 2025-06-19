@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import HoverDialogController, { HoverLinkType } from "../controllers/hoverDialogController";
 import IdleTimeoutController from "../controllers/idleTimeoutController";
 import AchievementController from "../controllers/achievementController";
+import DialogController from "../controllers/dialogController";
 
 interface SocialLinkProps {
   name: string;
@@ -16,7 +17,9 @@ interface SocialLinkProps {
 const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverColor, id }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isGlitching, setIsGlitching] = useState(false);
+  const [isDialogVisible, setIsDialogVisible] = useState(false);
   const hoverController = HoverDialogController.getInstance();
+  const dialogController = DialogController.getInstance();
 
   // Pemetaan id ke HoverLinkType
   const mapIdToLinkType = (id: string): HoverLinkType => {
@@ -37,6 +40,32 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
         return 'none';
     }
   };
+
+  // === 1. CONTACT CARD BEHAVIOR ===
+  // Monitor dialog visibility to control contact card position
+  useEffect(() => {
+    const checkDialogVisibility = () => {
+      try {
+        // Check if any dialog is visible
+        const isMainDialogActive = dialogController.isMainDialogActive();
+        const isCurrentlyTyping = dialogController.isCurrentlyTyping();
+        const hasActiveDialog = isMainDialogActive || isCurrentlyTyping;
+        
+        setIsDialogVisible(hasActiveDialog);
+      } catch (error) {
+        console.error("[SocialLink] Error checking dialog visibility:", error);
+        setIsDialogVisible(false);
+      }
+    };
+
+    // Check initially
+    checkDialogVisibility();
+
+    // Set up interval to monitor dialog state
+    const interval = setInterval(checkDialogVisibility, 100);
+
+    return () => clearInterval(interval);
+  }, [dialogController]);
 
   const triggerGlitch = () => {
     setIsGlitching(true);
@@ -149,7 +178,19 @@ const SocialLink: React.FC<SocialLinkProps> = ({ name, url, icon, color, hoverCo
       onTouchEnd={handleMouseLeave} /* Support for touch devices */
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
+      animate={{
+        // === CONTACT CARD BEHAVIOR IMPLEMENTATION ===
+        // IF dialogBox.isVisible() == FALSE THEN contactCard.moveDown() ELSE contactCard.resetPosition()
+        y: isDialogVisible ? 0 : 20, // Move down when no dialog, reset when dialog visible
+        opacity: isDialogVisible ? 1 : 0.8 // Slightly fade when moved down
+      }}
+      transition={{ 
+        duration: 0.3, 
+        ease: "easeOut",
+        type: "spring",
+        stiffness: 300,
+        damping: 30
+      }}
     >
       <div className={`icon-container ${isGlitching ? "glitch" : ""}`}>
         <div className="icon" style={{ color: hoverColor }}>

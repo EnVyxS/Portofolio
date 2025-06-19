@@ -321,3 +321,27 @@
 }
 
 /* Achievement Progress Indicator Styles are now handled in AchievementProgress.tsx component */
+
+/* Exception Dialog Hint Styling */
+.exception-dialog-hint {
+  color: #ff6b6b;
+  font-weight: bold;
+  font-size: 0.9rem;
+  animation: warning-pulse 1.5s infinite;
+  text-align: center;
+  padding: 0.25rem 0.5rem;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+@keyframes warning-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.02);
+  }
+}

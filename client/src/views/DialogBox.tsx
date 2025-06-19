@@ -6,6 +6,7 @@ import IdleTimeoutController, { TIMEOUT_DURATIONS } from "../controllers/idleTim
 import { FaVolumeUp, FaVolumeMute, FaClock } from "react-icons/fa";
 import ElevenLabsService from "../services/elevenlabsService";
 import { CONTRACT_RESPONSES } from "../components/ContractCard";
+import { isExceptionDialog, EXCEPTION_BEHAVIOR } from "../constants/dialogExceptions";
 
 // Import fungsi hash untuk debugging
 function generateSimpleHash(text: string): string {
@@ -194,6 +195,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
   const [dialogSource, setDialogSource] = useState<string>("main");
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
+  const [isExceptionDialogActive, setIsExceptionDialogActive] = useState<boolean>(false);
 
   const dialogController = DialogController.getInstance();
   const hoverDialogController = HoverDialogController.getInstance();
@@ -347,24 +349,35 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         // Tetap tampilkan dialog box untuk dialog berikutnya
       }
     } else if (dialogSource === "idle") {
-      // For idle dialogs
+      // For idle dialogs - check if it's an exception dialog
+      const isException = isExceptionDialog(text);
+      
       if (!isComplete) {
         // Jika dialog masih dalam proses typing, langsung tampilkan full text
         idleTimeoutController.skipToFullIdleText();
         setIsComplete(true);
       } else {
-        // Jika dialog sudah selesai, user menekan NEXT
-        // Reset idle dialog state tetapi JANGAN set isDialogFinished ke true
-        idleTimeoutController.stopTyping();
+        // For exception dialogs, auto-continue without user interaction
+        if (isException) {
+          console.log("[DialogBox] Exception dialog detected, auto-continuing without user input:", text);
+          
+          // Auto-continue after a short delay for the user to read
+          setTimeout(() => {
+            idleTimeoutController.stopTyping();
+            setText("");
+            setIsComplete(false);
+            setDialogSource("main");
+            setIsExceptionDialogActive(false);
+          }, 2000); // 2 second delay for reading
+          
+          return; // Exit early to prevent normal button handling
+        }
         
-        // Reset text untuk mempersiapkan dialog berikutnya
+        // Normal idle dialog handling (user pressed NEXT)
+        idleTimeoutController.stopTyping();
         setText("");
         setIsComplete(false);
-        
-        // Reset dialog source back to main
         setDialogSource("main");
-        
-        // Tetap tampilkan dialog box untuk dialog berikutnya
       }
     }
   }, [
@@ -459,9 +472,25 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         }, dismissDelay);
       }
     } else if (isComplete && dialogSource === "idle") {
-      // Untuk idle dialog, periksa juga persistensi
-      if (!isDialogPersistent(text)) {
-        // Idle dialog yang tidak memerlukan respons
+      // Check if it's an exception dialog that should auto-continue
+      const isException = isExceptionDialog(text);
+      
+      if (isException) {
+        console.log("[DialogBox] Exception dialog auto-continuing:", text);
+        setIsExceptionDialogActive(true);
+        
+        // Auto-continue after shorter delay for exception dialogs
+        const exceptionDelay = 2500; // 2.5 seconds for reading warning
+        
+        autoPlayTimerRef.current = setTimeout(() => {
+          idleTimeoutController.stopTyping();
+          setText("");
+          setIsComplete(false);
+          setDialogSource("main");
+          setIsExceptionDialogActive(false);
+        }, exceptionDelay);
+      } else if (!isDialogPersistent(text)) {
+        // Normal idle dialog yang tidak memerlukan respons
         const dismissDelay = 3000; // 3 detik untuk membaca pesan
 
         autoPlayTimerRef.current = setTimeout(() => {
@@ -728,31 +757,51 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
         <div className="dialog-text">{text}</div>
         <div className="dialog-actions">
           <div className="dialog-hints">
-            {isComplete &&
-              (isDialogPersistent(text) ? (
-                <div className="waiting-interaction-hint">
-                  Waiting for your action...
-                </div>
-              ) : // Only show auto-continue hint for main dialog and not for other types
-              // Check if it's not a hover dialog, idle warning, or contract response
-              dialogSource === "main" &&
-                !text.includes("fuck") && // Idle timeout and angry dialog phrases
-                !text.includes("ENOUGH") &&
-                !text.includes("GET OUT") &&
-                !text.includes("ASKED FOR THIS") &&
-                !text.includes("KEEP PUSHING") &&
-                !text.includes("Staring at me") &&
-                !text.includes("throw") &&
-                !text.includes("punch") &&
-                !text.includes("I've never lied to you") && // Contract responses specific phrases
-                !text.includes("seen the proof") &&
-                !text.includes("real qualifications") &&
-                !text.includes("answer your questions about my background") &&
-                !text.includes("I'm the real deal") ? (
-                <div className="auto-continue-hint">
-                  Auto-continues in a moment...
-                </div>
-              ) : null)}
+            {isComplete && (() => {
+              const isException = isExceptionDialog(text);
+              
+              // For exception dialogs, show auto-continuing message
+              if (isException || isExceptionDialogActive) {
+                return (
+                  <div className="exception-dialog-hint">
+                    ⚠️ Auto-continuing...
+                  </div>
+                );
+              }
+              
+              // For persistent dialogs, show waiting message
+              if (isDialogPersistent(text)) {
+                return (
+                  <div className="waiting-interaction-hint">
+                    Waiting for your action...
+                  </div>
+                );
+              }
+              
+              // For normal main dialogs, show auto-continue hint
+              if (dialogSource === "main" &&
+                  !text.includes("fuck") && // Idle timeout and angry dialog phrases
+                  !text.includes("ENOUGH") &&
+                  !text.includes("GET OUT") &&
+                  !text.includes("ASKED FOR THIS") &&
+                  !text.includes("KEEP PUSHING") &&
+                  !text.includes("Staring at me") &&
+                  !text.includes("throw") &&
+                  !text.includes("punch") &&
+                  !text.includes("I've never lied to you") && // Contract responses specific phrases
+                  !text.includes("seen the proof") &&
+                  !text.includes("real qualifications") &&
+                  !text.includes("answer your questions about my background") &&
+                  !text.includes("I'm the real deal")) {
+                return (
+                  <div className="auto-continue-hint">
+                    Auto-continues in a moment...
+                  </div>
+                );
+              }
+              
+              return null;
+            })()}
           </div>
 
           <div className="dialog-controls">
@@ -767,6 +816,14 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
 
             {/* Tentukan apakah tombol NEXT/SKIP harus ditampilkan */}
             {(() => {
+              // Check if this is an exception dialog first
+              const isException = isExceptionDialog(text);
+              
+              // For exception dialogs, hide buttons completely
+              if (isException || isExceptionDialogActive) {
+                return null;
+              }
+
               // Untuk dialog hover, tidak perlu menampilkan tombol NEXT/SKIP
               if (dialogSource === "hover") {
                 return null;
