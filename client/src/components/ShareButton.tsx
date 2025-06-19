@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FaWhatsapp } from 'react-icons/fa';
 import AchievementController from '../controllers/achievementController';
 
 interface ShareButtonProps {
@@ -172,7 +173,9 @@ const ShareButton: React.FC<ShareButtonProps> = ({
                   onClick={() => shareToSocial('whatsapp')}
                   aria-label="Share on WhatsApp"
                 >
-                  <div className="share-icon whatsapp-icon">𝑊</div>
+                  <div className="share-icon whatsapp-icon">
+                    <FaWhatsapp />
+                  </div>
                   <span>WhatsApp</span>
                 </button>
               </div>
@@ -390,8 +393,101 @@ const ShareButton: React.FC<ShareButtonProps> = ({
         }
         
         @media (max-width: 768px) {
+          .share-modal {
+            width: 95%;
+            max-width: none;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 16px;
+          }
+          
+          .share-modal-header h3 {
+            font-size: 1.1rem;
+          }
+          
           .share-options {
             grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+          }
+          
+          .share-option {
+            padding: 12px 8px;
+            border-radius: 12px;
+            gap: 6px;
+          }
+          
+          .share-icon {
+            width: 44px;
+            height: 44px;
+            font-size: 1.3rem;
+          }
+          
+          .share-option span {
+            font-size: 0.85rem;
+            font-weight: 500;
+          }
+          
+          .copy-link-button {
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            min-width: 70px;
+          }
+          
+          .link-input {
+            padding: 12px;
+            font-size: 0.85rem;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .share-modal {
+            width: 96%;
+            padding: 16px;
+            border-radius: 12px;
+          }
+          
+          .share-modal-header {
+            margin-bottom: 16px;
+          }
+          
+          .share-modal-header h3 {
+            font-size: 1rem;
+          }
+          
+          .share-options {
+            gap: 8px;
+            margin-bottom: 16px;
+          }
+          
+          .share-option {
+            padding: 10px 6px;
+            gap: 4px;
+          }
+          
+          .share-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.1rem;
+          }
+          
+          .share-option span {
+            font-size: 0.75rem;
+          }
+          
+          .copy-link-container {
+            margin-top: 16px;
+          }
+          
+          .copy-link-button {
+            padding: 10px 12px;
+            font-size: 0.8rem;
+            min-width: 60px;
+          }
+          
+          .link-input {
+            padding: 10px;
+            font-size: 0.8rem;
           }
         }
       `}</style>
