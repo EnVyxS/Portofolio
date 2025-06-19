@@ -236,19 +236,6 @@ const AchievementGallery: React.FC = () => {
             </span>
             <div className="reward-sparkles">✨</div>
           </motion.button>
-          
-          {/* Temporary Reset Button for fixing current state */}
-          <motion.button
-            className="reward-button"
-            style={{ marginTop: '10px', backgroundColor: 'rgba(255, 0, 0, 0.8)' }}
-            onClick={() => {
-              const controller = AchievementController.getInstance();
-              controller.resetToCorrectState();
-              setTimeout(() => window.location.reload(), 500);
-            }}
-          >
-            <span className="reward-text">🔄 RESET TO CORRECT STATE</span>
-          </motion.button>
         </motion.div>
       )}
 
