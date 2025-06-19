@@ -322,9 +322,27 @@ class HoverDialogController {
     const currentCategory = this.getLinkCategory(linkType);
     const previousCategory = this.getLinkCategory(this.lastHoveredLink);
 
-    // Jika idle timeout sudah terjadi, tidak perlu menampilkan hover dialog lagi
+    // Jika idle timeout sudah terjadi, hitung hover dan langsung pukul setelah 10x
     if (this.hasIdleTimeoutOccurred) {
-      console.log("Idle timeout telah terjadi, hover dialog diabaikan");
+      this.hoverCount++;
+      console.log(`Hover setelah kembali: ${this.hoverCount}/10`);
+      
+      // Langsung pukul setelah 10x hover tanpa warning
+      if (this.hoverCount >= 10) {
+        console.log("User hover 10x setelah kembali, langsung pukul!");
+        
+        // Reset counter untuk mencegah spam
+        this.hoverCount = 0;
+        
+        // Trigger punishment langsung
+        try {
+          const idleController = IdleTimeoutController.getInstance();
+          idleController.triggerExcessiveHoverPunishment();
+        } catch (error) {
+          console.error("Error triggering punishment:", error);
+        }
+      }
+      
       this.lastHoveredLink = linkType; // Update last hovered link tanpa trigger dialog
       return;
     }

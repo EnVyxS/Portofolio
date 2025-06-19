@@ -286,6 +286,17 @@ class IdleTimeoutController {
     this.punchUser();
   }
 
+  // Method untuk punishment langsung saat user hover berlebihan setelah kembali
+  public triggerExcessiveHoverPunishment(): void {
+    console.log("[IdleTimeoutController] Triggering immediate punishment for excessive hovering after return");
+    
+    // Mark that user has been punched for tracking
+    this.hasBeenPunched = true;
+    
+    // Execute punishment immediately without dialog
+    this.punchUser();
+  }
+
   // Cek apakah ada audio atau dialog yang sedang berjalan
   private isAudioOrDialogActive(): boolean {
     // Cek apakah ada audio yang sedang diputar
