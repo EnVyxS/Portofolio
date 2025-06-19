@@ -1413,8 +1413,14 @@ class IdleTimeoutController {
     // Show the extended dialog
     this.showIdleWarning(extendedDialog.text);
     
-    // Start 2-minute ultimatum timer - if user doesn't interact, they get punched
-    this.startUltimatumTimer();
+    // Wait for the extended dialog to finish speaking before starting ultimatum timer
+    // Estimate dialog duration based on text length
+    const dialogDuration = Math.max(3000, (extendedDialog.text.length / 10) * 1000);
+    
+    setTimeout(() => {
+      console.log("[IdleTimeoutController] Extended Return Dialog finished - starting 2-minute ultimatum timer");
+      this.startUltimatumTimer();
+    }, dialogDuration);
     
     // Reset the last dialog flag
     this.lastDialogWasReturn = false;
@@ -1475,10 +1481,10 @@ class IdleTimeoutController {
       this.showIdleWarning(returnDialog.text);
       console.log("[IdleTimeoutController] Using random RETURN_DIALOG variation:", returnDialog.text);
       
-      // Show Extended Return Dialog immediately after RETURN_DIALOG
+      // Show Extended Return Dialog after RETURN_DIALOG with proper delay
       setTimeout(() => {
         this.showExtendedReturnDialog();
-      }, 3000); // Small delay to let RETURN_DIALOG finish
+      }, 5000); // 5 second delay to let RETURN_DIALOG fully complete
       
       // Unlock the return achievement
       try {
