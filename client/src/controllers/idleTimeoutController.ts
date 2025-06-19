@@ -1524,17 +1524,9 @@ class IdleTimeoutController {
     // Reset timer type
     this.currentActiveTimer = null;
     
-    // Show punch dialog and execute punch
+    // Execute the full punch sequence including redirect
     this.hasBeenPunched = true;
-    this.showIdleWarning("You had your chance... Time's up!");
-    
-    // Execute punch callback after a short delay
-    setTimeout(() => {
-      if (this.punchUserCallback) {
-        console.log("[IdleTimeoutController] Executing punch user callback");
-        this.punchUserCallback();
-      }
-    }, 2000);
+    this.punchUser();
   }
 
   // Method to handle RETURN_DIALOG logic when user clicks APPROACH HIM after meeting conditions
