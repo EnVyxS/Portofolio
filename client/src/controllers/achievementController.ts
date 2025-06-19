@@ -224,8 +224,8 @@ class AchievementController {
 
   // Sistem substitusi achievement berdasarkan kondisi
   public performAchievementSubstitution(triggerContext: string = ''): void {
-    const kondisi1 = this.checkCondition1();
-    const kondisi2 = this.checkCondition2();
+    const kondisi1 = this.checkCondition1(); // hasDigitalOdyssey AND hasEscapist
+    const kondisi2 = this.checkCondition2(); // (hasBeenThrown OR hasBeenPunched) AND userHasBeenReturn
     const achievementCount = this.getAchievementCount();
 
     console.log(`Achievement substitution check - Kondisi1: ${kondisi1}, Kondisi2: ${kondisi2}, Count: ${achievementCount}, Context: ${triggerContext}`);
@@ -237,90 +237,55 @@ class AchievementController {
       return; // Exit and let user refresh
     }
 
-    // Scenario 1: User has Patient Listener but missing Time Gazer (11 achievements)
-    if (kondisi1 && kondisi2 && achievementCount === 11 && 
-        this.hasAchievement('patientListener') && !this.hasAchievement('timeGazer') &&
-        (triggerContext === 'achievement_gallery_access' || triggerContext === 'achievement_click')) {
+    // TRIGGER: Saat user membuka Achievement Gallery
+    if (kondisi1 && kondisi2 && triggerContext === 'achievement_gallery_access') {
       
-      // Replace Patient Listener with Against Your Will
-      if (!this.hasAchievement('againstWill')) {
-        console.log('Replacing Patient Listener with Against Your Will');
-        this.unlockedAchievements.delete('patientListener' as AchievementType);
-        this.unlockedAchievements.add('againstWill' as AchievementType);
-        this.saveAchievements();
-        
-        if (this.achievementCallback) {
-          this.achievementCallback('againstWill' as AchievementType);
+      // CASE 1: User has 10 achievements + "Patient Listener"
+      if (achievementCount === 11 && this.hasAchievement('listener')) {
+        if (!this.hasAchievement('tillDeath')) {
+          console.log('CASE 1: Adding Till Death Do Us Part achievement');
+          this.unlockedAchievements.add('tillDeath');
+          this.saveAchievements();
+          
+          if (this.achievementCallback) {
+            this.achievementCallback('tillDeath');
+          }
         }
       }
       
-      // Add Till Death Do Us Part to complete 12 achievements
-      if (!this.hasAchievement('tillDeath')) {
-        console.log('Adding Till Death Do Us Part achievement');
-        this.unlockedAchievements.add('tillDeath' as AchievementType);
-        this.saveAchievements();
-        
-        if (this.achievementCallback) {
-          this.achievementCallback('tillDeath' as AchievementType);
+      // CASE 2: User has exactly 10 achievements and does NOT have "Patient Listener"
+      else if (achievementCount === 10 && !this.hasAchievement('listener')) {
+        if (!this.hasAchievement('againstWill')) {
+          console.log('CASE 2: Adding Against Your Will achievement');
+          this.unlockedAchievements.add('againstWill');
+          this.saveAchievements();
+          
+          if (this.achievementCallback) {
+            this.achievementCallback('againstWill');
+          }
         }
-      }
-    }
-    
-    // Scenario 2: User has Time Gazer but missing Patient Listener (11 achievements)  
-    else if (kondisi1 && kondisi2 && achievementCount === 11 && 
-             this.hasAchievement('timeGazer') && !this.hasAchievement('patientListener') &&
-             (triggerContext === 'achievement_gallery_access' || triggerContext === 'achievement_click')) {
-      
-      // Replace Time Gazer with Till Death Do Us Part
-      if (!this.hasAchievement('tillDeath')) {
-        console.log('Replacing Time Gazer with Till Death Do Us Part');
-        this.unlockedAchievements.delete('timeGazer' as AchievementType);
-        this.unlockedAchievements.add('tillDeath' as AchievementType);
-        this.saveAchievements();
         
-        if (this.achievementCallback) {
-          this.achievementCallback('tillDeath' as AchievementType);
+        if (!this.hasAchievement('tillDeath')) {
+          console.log('CASE 2: Adding Till Death Do Us Part achievement');
+          this.unlockedAchievements.add('tillDeath');
+          this.saveAchievements();
+          
+          if (this.achievementCallback) {
+            this.achievementCallback('tillDeath');
+          }
         }
       }
       
-      // Add Against Your Will to complete 12 achievements
-      if (!this.hasAchievement('againstWill')) {
-        console.log('Adding Against Your Will achievement');
-        this.unlockedAchievements.add('againstWill' as AchievementType);
-        this.saveAchievements();
-        
-        if (this.achievementCallback) {
-          this.achievementCallback('againstWill' as AchievementType);
-        }
-      }
-    }
-    
-    // Scenario 3: User has both Patient Listener and Time Gazer (12 achievements)
-    else if (kondisi1 && kondisi2 && achievementCount === 12 && 
-             this.hasAchievement('patientListener') && this.hasAchievement('timeGazer') &&
-             (triggerContext === 'achievement_gallery_access' || triggerContext === 'achievement_click')) {
-      
-      // Replace Patient Listener with Against Your Will
-      if (!this.hasAchievement('againstWill')) {
-        console.log('Replacing Patient Listener with Against Your Will');
-        this.unlockedAchievements.delete('patientListener' as AchievementType);
-        this.unlockedAchievements.add('againstWill' as AchievementType);
-        this.saveAchievements();
-        
-        if (this.achievementCallback) {
-          this.achievementCallback('againstWill' as AchievementType);
-        }
-      }
-      
-      // Replace Time Gazer with Till Death Do Us Part  
-      if (!this.hasAchievement('tillDeath')) {
-        console.log('Replacing Time Gazer with Till Death Do Us Part');
-        this.unlockedAchievements.delete('timeGazer' as AchievementType);
-        this.unlockedAchievements.add('tillDeath' as AchievementType);
-        this.saveAchievements();
-        
-        if (this.achievementCallback) {
-          this.achievementCallback('tillDeath' as AchievementType);
+      // CASE 3: User has 10 achievements + "Time Gazer"
+      else if (achievementCount === 11 && this.hasAchievement('patience')) {
+        if (!this.hasAchievement('againstWill')) {
+          console.log('CASE 3: Adding Against Your Will achievement');
+          this.unlockedAchievements.add('againstWill');
+          this.saveAchievements();
+          
+          if (this.achievementCallback) {
+            this.achievementCallback('againstWill');
+          }
         }
       }
     }
