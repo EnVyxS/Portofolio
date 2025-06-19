@@ -87,7 +87,7 @@ This is an interactive portfolio application built as a Dark Souls-inspired char
 ## Deployment Strategy
 
 ### Development Environment
-- **Platform**: Replit with Node.js and PostgreSQL modules
+- **Platform**: Cloud development environment with Node.js and PostgreSQL modules
 - **Hot Reload**: Vite development server with HMR
 - **Port Configuration**: Development on port 5000
 - **Environment Variables**: API keys loaded from .env files
@@ -99,7 +99,7 @@ This is an interactive portfolio application built as a Dark Souls-inspired char
 - **Static Serving**: Express serves built client files in production
 
 ### Deployment Configuration
-- **Target**: Replit autoscale deployment
+- **Target**: Cloud autoscale deployment
 - **Build Commands**: npm run build (builds both client and server)
 - **Start Command**: npm run start (runs production server)
 - **Port Mapping**: Internal port 5000 mapped to external port 80
