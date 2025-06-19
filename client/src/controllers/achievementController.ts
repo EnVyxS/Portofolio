@@ -277,21 +277,21 @@ class AchievementController {
     if (hasTillDeath && hasAgainstWill) {
       return {
         url: 'https://www.youtube.com/watch?v=L397TWLwrUU', // System of a Down - B.Y.O.B.
-        title: '🎵 SYSTEM OF A DOWN - B.Y.O.B.'
+        title: '🎵 FORBIDDEN SYMPHONY'
       };
     }
     // Jika hanya Against Your Will
     else if (hasAgainstWill && !hasTillDeath) {
       return {
         url: 'https://www.youtube.com/watch?v=sX_Jj3PlFaQ', // My Chemical Romance - Cancer
-        title: '🎵 MY CHEMICAL ROMANCE - CANCER'
+        title: '🎵 MELANCHOLIC ECHO'
       };
     }
     // Jika hanya Till Death Do Us Part
     else if (hasTillDeath && !hasAgainstWill) {
       return {
         url: 'https://www.youtube.com/watch?v=KVjBCT2Lc94', // Avenged Sevenfold - A Little Piece of Heaven
-        title: '🎵 AVENGED SEVENFOLD - A LITTLE PIECE OF HEAVEN'
+        title: '🎵 ETERNAL SERENADE'
       };
     }
     // Default Rick Roll
