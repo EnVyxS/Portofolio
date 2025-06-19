@@ -113,6 +113,7 @@ This is an interactive portfolio application built as a Dark Souls-inspired char
 - June 16, 2025. Fixed Time Gizer achievement exploit - removed auto-completion logic that automatically granted "patience" achievement to users who reached final stages without waiting for FINAL_WARNING. Achievement now only unlocks through legitimate 9-minute idle timeout.
 - June 19, 2025. Implemented dynamic achievement substitution system - "Against Your Will" achievement automatically replaces "Patient Listener" when user accesses achievement gallery with required conditions (Digital Odyssey + Escapist + Challenge Accepted + Undeterred Seeker + 10 total achievements). Easter egg reward system now provides different YouTube tracks based on achievement combinations.
 - June 19, 2025. **Restructured for Vercel deployment** - migrated from Express full-stack to Vercel serverless functions while maintaining all features. Created `/api` folder with serverless functions, updated frontend API calls to work in both development and production, configured vercel.json for proper routing and SPA fallback.
+- June 19, 2025. **Fixed Vercel deployment issues** - resolved audio file naming conflicts by renaming files with spaces/special characters to web-safe names, updated edge runtime configuration from nodejs18.x to edge, fixed background music loading by importing proper audio assets instead of using empty files in public folder.
 
 ## User Preferences
 

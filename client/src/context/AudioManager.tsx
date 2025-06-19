@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 
-// Gunakan path relatif untuk akses langsung public assets
-const backgroundMusicPath = '/assets/Darksouls-Chill.m4a';
-const fireplaceAmbientPath = '/assets/fireplace-ambient.m4a';
+// Import background music from attached assets
+import backgroundMusicSrc from "@assets/relaxing-fire-sounds.m4a";
+import fireplaceAmbientSrc from "@assets/pink-noise-audio.mp3";
 
 interface AudioContextProps {
   isAudioPlaying: boolean;
@@ -38,8 +38,8 @@ interface AudioProviderProps {
 
 // Provider untuk konteks audio
 export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
-  const [music] = useState<HTMLAudioElement>(new Audio(backgroundMusicPath));
-  const [ambient] = useState<HTMLAudioElement>(new Audio(fireplaceAmbientPath));
+  const [music] = useState<HTMLAudioElement>(new Audio(backgroundMusicSrc));
+  const [ambient] = useState<HTMLAudioElement>(new Audio(fireplaceAmbientSrc));
   const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
   const [hasInteracted, setHasInteracted] = useState<boolean>(false);
   const [currentVolume, setCurrentVolume] = useState<number>(0.4);
