@@ -26,23 +26,26 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
 
   // Efek fade-in untuk komponen setelah load
   useEffect(() => {
-    // Setup audio dengan file yang sudah diimport
-    bonfireSoundRef.current = new Audio(punchSfxSrc);
-    bonfireSoundRef.current.volume = 0.7;
+    // Preload sounds - konfigurasi asli
+    bonfireSoundRef.current = new Audio('/assets/sounds/souls-bonfire.mp3');
+    menuSoundRef.current = new Audio('/assets/sounds/souls-menu.mp3');
+    itemSoundRef.current = new Audio('/assets/sounds/souls-item.mp3');
+    hoverSoundRef.current = new Audio('/assets/sounds/souls-menu.mp3');
+    footstepsSoundRef.current = new Audio('/audio/effects/footsteps.m4a');
     
-    menuSoundRef.current = new Audio(punchSfxSrc);
-    menuSoundRef.current.volume = 0.8;
+    // Set volume untuk sound effects
+    if (bonfireSoundRef.current) bonfireSoundRef.current.volume = 0.7;
+    if (menuSoundRef.current) menuSoundRef.current.volume = 0.8;
+    if (itemSoundRef.current) itemSoundRef.current.volume = 0.8;
+    if (hoverSoundRef.current) hoverSoundRef.current.volume = 0.5;
     
-    itemSoundRef.current = new Audio(punchSfxSrc);
-    itemSoundRef.current.volume = 0.8;
-    
-    hoverSoundRef.current = new Audio(punchSfxSrc);
-    hoverSoundRef.current.volume = 0.5;
-    
-    footstepsSoundRef.current = new Audio(footstepsSrc);
-    footstepsSoundRef.current.volume = 0;
-    footstepsSoundRef.current.loop = true;
-    footstepsSoundRef.current.playbackRate = 1.0;
+    // Konfigurasi footsteps sound
+    if (footstepsSoundRef.current) {
+      footstepsSoundRef.current.volume = 0;
+      footstepsSoundRef.current.loop = true;
+      footstepsSoundRef.current.playbackRate = 1.0;
+      footstepsSoundRef.current.load();
+    }
     
     setIsVisible(true);
     
