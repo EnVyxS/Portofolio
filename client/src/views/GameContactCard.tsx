@@ -145,11 +145,11 @@ const GameContactCard: React.FC = () => {
   return (
     <div className="layout-container">
       {/* Main container with proper structure */}
-      <div className="content-wrapper">
+      <div className={`content-wrapper ${hasActiveDialog ? 'dialog-active' : ''}`}>
         {/* Unified card component containing links */}
         <motion.div
           ref={cardRef}
-          className={`unified-card ${hasActiveDialog ? 'dialog-active' : ''}`}
+          className="unified-card"
           initial="hidden"
           animate="visible"
           variants={containerVariants}
@@ -232,8 +232,8 @@ const GameContactCard: React.FC = () => {
         }
 
         /* Dynamic positioning when dialog is active */
-        .unified-card.dialog-active {
-          transform: translateY(-20px) scale(0.9); /* Move up 20px when dialog is active */
+        .content-wrapper.dialog-active {
+          top: 10px; /* Move up 20px when dialog is active (from 30px to 10px) */
         }
 
         /* Unified card that contains all elements */
@@ -373,6 +373,10 @@ const GameContactCard: React.FC = () => {
             align-items: flex-end; /* Keep right alignment */
           }
           
+          .content-wrapper.dialog-active {
+            top: 40px; /* Move up 20px for tablets */
+          }
+          
           .unified-card {
             max-width: min(220px, 70%); /* Larger on tablets */
             opacity: 0.65; /* Subtle visibility on tablets */
@@ -476,6 +480,10 @@ const GameContactCard: React.FC = () => {
             transform: none; /* No transform */
             align-items: flex-end; /* Align to right */
             justify-content: flex-start; /* Align to top */
+          }
+          
+          .content-wrapper.dialog-active {
+            top: 5px; /* Move up 5px for landscape mode */
           }
 
           .unified-card {
