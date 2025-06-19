@@ -33,8 +33,8 @@ const IdleTimer: React.FC = () => {
         
         setIsDialogActive(hasActiveDialog);
         
-        // Tampilkan timer hanya jika ada waktu tersisa DAN tidak ada dialog aktif
-        const shouldShow = info.timeRemaining > 0 && !hasActiveDialog;
+        // Hide timer from user - always set to false
+        const shouldShow = false;
         console.log(`[IdleTimer] Timer visibility check - timeRemaining: ${info.timeRemaining}, hasActiveDialog: ${hasActiveDialog}, shouldShow: ${shouldShow}`);
         setIsVisible(shouldShow);
       } catch (e) {
