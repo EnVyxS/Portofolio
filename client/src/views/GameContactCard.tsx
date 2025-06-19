@@ -30,33 +30,40 @@ const GameContactCard: React.FC = () => {
   const headerRef = useRef<HTMLDivElement>(null);
   const [hasActiveDialog, setHasActiveDialog] = useState(false);
 
-  // Monitor dialog activity to adjust positioning
+  // Monitor dialog visibility to adjust positioning
   useEffect(() => {
-    const checkDialogActivity = () => {
+    const checkDialogVisibility = () => {
       try {
         const dialogController = DialogController.getInstance();
         const hoverDialogController = HoverDialogController.getInstance();
-        const idleTimeoutController = IdleTimeoutController.getInstance();
 
-        // Check if any dialog is currently active
-        const isMainDialogTyping = typeof dialogController.isCurrentlyTyping === "function" 
-          ? dialogController.isCurrentlyTyping() : false;
+        // Check if main dialog is active
+        const isMainDialogActive = dialogController.isMainDialogActive();
         const isHoverDialogActive = hoverDialogController.isTypingHoverDialog();
-        const isIdleDialogActive = false; // Removed private property access
+        
+        // Check if dialog box elements are visible in DOM
+        const dialogBoxElements = document.querySelectorAll('.dialog-box-container');
+        const hasVisibleDialogBox = Array.from(dialogBoxElements).some(element => {
+          const htmlElement = element as HTMLElement;
+          const computedStyle = window.getComputedStyle(htmlElement);
+          return computedStyle.display !== 'none' && 
+                 computedStyle.visibility !== 'hidden' && 
+                 computedStyle.opacity !== '0';
+        });
 
-        const dialogActive = isMainDialogTyping || isHoverDialogActive || isIdleDialogActive;
-        setHasActiveDialog(dialogActive);
+        const dialogVisible = isMainDialogActive || isHoverDialogActive || hasVisibleDialogBox;
+        setHasActiveDialog(dialogVisible);
       } catch (error) {
-        console.error("Error checking dialog activity:", error);
+        console.error("Error checking dialog visibility:", error);
         setHasActiveDialog(false);
       }
     };
 
     // Check immediately
-    checkDialogActivity();
+    checkDialogVisibility();
 
-    // Set up interval to check dialog activity
-    const interval = setInterval(checkDialogActivity, 500);
+    // Set up interval to check dialog visibility
+    const interval = setInterval(checkDialogVisibility, 300);
 
     return () => clearInterval(interval);
   }, []);
@@ -231,9 +238,14 @@ const GameContactCard: React.FC = () => {
           transition: all 0.3s ease; /* Smooth positioning transition */
         }
 
-        /* Dynamic positioning when dialog is active */
+        /* Dynamic positioning and scaling when dialog is active */
         .content-wrapper.dialog-active {
           top: 10px; /* Move up 20px when dialog is active (from 30px to 10px) */
+        }
+        
+        .content-wrapper.dialog-active .unified-card {
+          transform: scale(0.85); /* Scale down when dialog is active */
+          opacity: 0.5; /* Reduce opacity when dialog is active */
         }
 
         /* Unified card that contains all elements */
@@ -377,6 +389,11 @@ const GameContactCard: React.FC = () => {
             top: 40px; /* Move up 20px for tablets */
           }
           
+          .content-wrapper.dialog-active .unified-card {
+            transform: scale(0.8); /* Scale down on tablets when dialog is active */
+            opacity: 0.45; /* Reduce opacity on tablets */
+          }
+          
           .unified-card {
             max-width: min(220px, 70%); /* Larger on tablets */
             opacity: 0.65; /* Subtle visibility on tablets */
@@ -484,6 +501,11 @@ const GameContactCard: React.FC = () => {
           
           .content-wrapper.dialog-active {
             top: 5px; /* Move up 5px for landscape mode */
+          }
+          
+          .content-wrapper.dialog-active .unified-card {
+            transform: scale(0.7); /* Scale down more in landscape mode */
+            opacity: 0.4; /* Lower opacity in landscape */
           }
 
           .unified-card {
