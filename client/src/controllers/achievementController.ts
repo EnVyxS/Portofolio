@@ -237,12 +237,54 @@ class AchievementController {
       return; // Exit and let user refresh
     }
 
-    // Skenario: User memenuhi kondisi untuk substitusi achievement (only if count is exactly 10)
-    if (kondisi1 && kondisi2 && achievementCount === 10 && 
+    // Scenario 1: User has Patient Listener but missing Time Gazer (11 achievements)
+    if (kondisi1 && kondisi2 && achievementCount === 11 && 
+        this.hasAchievement('patientListener') && !this.hasAchievement('timeGazer') &&
         (triggerContext === 'achievement_gallery_access' || triggerContext === 'achievement_click')) {
       
-      // Add Against Your Will (since user doesn't have listener or patience yet)
-      if (!this.hasAchievement('againstWill') && !this.hasAchievement('listener')) {
+      // Replace Patient Listener with Against Your Will
+      if (!this.hasAchievement('againstWill')) {
+        console.log('Replacing Patient Listener with Against Your Will');
+        this.unlockedAchievements.delete('patientListener' as AchievementType);
+        this.unlockedAchievements.add('againstWill' as AchievementType);
+        this.saveAchievements();
+        
+        if (this.achievementCallback) {
+          this.achievementCallback('againstWill' as AchievementType);
+        }
+      }
+      
+      // Add Till Death Do Us Part to complete 12 achievements
+      if (!this.hasAchievement('tillDeath')) {
+        console.log('Adding Till Death Do Us Part achievement');
+        this.unlockedAchievements.add('tillDeath' as AchievementType);
+        this.saveAchievements();
+        
+        if (this.achievementCallback) {
+          this.achievementCallback('tillDeath' as AchievementType);
+        }
+      }
+    }
+    
+    // Scenario 2: User has Time Gazer but missing Patient Listener (11 achievements)  
+    else if (kondisi1 && kondisi2 && achievementCount === 11 && 
+             this.hasAchievement('timeGazer') && !this.hasAchievement('patientListener') &&
+             (triggerContext === 'achievement_gallery_access' || triggerContext === 'achievement_click')) {
+      
+      // Replace Time Gazer with Till Death Do Us Part
+      if (!this.hasAchievement('tillDeath')) {
+        console.log('Replacing Time Gazer with Till Death Do Us Part');
+        this.unlockedAchievements.delete('timeGazer' as AchievementType);
+        this.unlockedAchievements.add('tillDeath' as AchievementType);
+        this.saveAchievements();
+        
+        if (this.achievementCallback) {
+          this.achievementCallback('tillDeath' as AchievementType);
+        }
+      }
+      
+      // Add Against Your Will to complete 12 achievements
+      if (!this.hasAchievement('againstWill')) {
         console.log('Adding Against Your Will achievement');
         this.unlockedAchievements.add('againstWill' as AchievementType);
         this.saveAchievements();
@@ -253,17 +295,33 @@ class AchievementController {
       }
     }
     
-    // Second phase: if user now has 11 achievements, add Till Death Do Us Part
-    if (kondisi1 && kondisi2 && this.getAchievementCount() === 11 && 
-        this.hasAchievement('againstWill') && !this.hasAchievement('tillDeath') &&
-        !this.hasAchievement('patience')) {
+    // Scenario 3: User has both Patient Listener and Time Gazer (12 achievements)
+    else if (kondisi1 && kondisi2 && achievementCount === 12 && 
+             this.hasAchievement('patientListener') && this.hasAchievement('timeGazer') &&
+             (triggerContext === 'achievement_gallery_access' || triggerContext === 'achievement_click')) {
       
-      console.log('Adding Till Death Do Us Part achievement');
-      this.unlockedAchievements.add('tillDeath' as AchievementType);
-      this.saveAchievements();
+      // Replace Patient Listener with Against Your Will
+      if (!this.hasAchievement('againstWill')) {
+        console.log('Replacing Patient Listener with Against Your Will');
+        this.unlockedAchievements.delete('patientListener' as AchievementType);
+        this.unlockedAchievements.add('againstWill' as AchievementType);
+        this.saveAchievements();
+        
+        if (this.achievementCallback) {
+          this.achievementCallback('againstWill' as AchievementType);
+        }
+      }
       
-      if (this.achievementCallback) {
-        this.achievementCallback('tillDeath' as AchievementType);
+      // Replace Time Gazer with Till Death Do Us Part  
+      if (!this.hasAchievement('tillDeath')) {
+        console.log('Replacing Time Gazer with Till Death Do Us Part');
+        this.unlockedAchievements.delete('timeGazer' as AchievementType);
+        this.unlockedAchievements.add('tillDeath' as AchievementType);
+        this.saveAchievements();
+        
+        if (this.achievementCallback) {
+          this.achievementCallback('tillDeath' as AchievementType);
+        }
       }
     }
   }
@@ -276,14 +334,14 @@ class AchievementController {
     // Jika kedua achievement baru dimiliki
     if (hasTillDeath && hasAgainstWill) {
       return {
-        url: 'https://www.youtube.com/watch?v=L397TWLwrUU', // System of a Down - B.Y.O.B.
+        url: 'https://youtu.be/zUzd9KyIDrM?si=qZ1YMSl8z-MdwIq_', // System of a Down - B.Y.O.B.
         title: '✨ CLAIM YOUR ULTIMATE REWARD'
       };
     }
     // Jika hanya Against Your Will
     else if (hasAgainstWill && !hasTillDeath) {
       return {
-        url: 'https://www.youtube.com/watch?v=sX_Jj3PlFaQ', // My Chemical Romance - Cancer
+        url: 'https://youtu.be/wc2s9skF_58?si=4K3M8BrMqnQJdXI8', // My Chemical Romance - Cancer
         title: '🎭 CLAIM YOUR DARK REWARD'
       };
     }
