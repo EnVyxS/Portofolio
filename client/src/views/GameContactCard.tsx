@@ -82,7 +82,7 @@ const GameContactCard: React.FC = () => {
     {
       id: "tiktok",
       name: "TikTok",
-      url: "https://www.tiktok.com/@envyxs",
+      url: "https://www.tiktok.com/@_divajuan",
       icon: <FaTiktok size={24} />,
       color: "#000000",
       hoverColor: "#ff0050", // TikTok pink color
