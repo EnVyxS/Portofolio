@@ -5,6 +5,10 @@ import AchievementController from '../controllers/achievementController';
 import AchievementProgress from '../components/AchievementProgress';
 import gifPath from '/assets/darksouls.gif';
 
+// Import audio files from attached_assets
+import punchSfxSrc from "@assets/punch_sfx.m4a";
+import footstepsSrc from "@assets/footsteps-sound.m4a";
+
 interface ApproachScreenProps {
   onApproach: () => void;
 }
@@ -22,30 +26,23 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
 
   // Efek fade-in untuk komponen setelah load
   useEffect(() => {
-    // Preload sounds
-    bonfireSoundRef.current = new Audio('/assets/sounds/souls-bonfire.mp3');
-    menuSoundRef.current = new Audio('/assets/sounds/souls-menu.mp3');
-    itemSoundRef.current = new Audio('/assets/sounds/souls-item.mp3');
-    hoverSoundRef.current = new Audio('/assets/sounds/souls-menu.mp3'); // Menggunakan menu sound juga untuk hover
-    footstepsSoundRef.current = new Audio('/audio/effects/footsteps.m4a'); // Menggunakan file langkah kaki yang benar
+    // Setup audio dengan file yang sudah diimport
+    bonfireSoundRef.current = new Audio(punchSfxSrc);
+    bonfireSoundRef.current.volume = 0.7;
     
-    // Set volume untuk sound effects (ditingkatkan untuk perangkat mobile)
-    if (bonfireSoundRef.current) bonfireSoundRef.current.volume = 0.7; // Meningkatkan dari 0.3 menjadi 0.7
-    if (menuSoundRef.current) menuSoundRef.current.volume = 0.8; // Meningkatkan dari 0.4 menjadi 0.8
-    if (itemSoundRef.current) itemSoundRef.current.volume = 0.8; // Meningkatkan dari 0.4 menjadi 0.8
-    if (hoverSoundRef.current) hoverSoundRef.current.volume = 0.5; // Meningkatkan dari 0.2 menjadi 0.5
+    menuSoundRef.current = new Audio(punchSfxSrc);
+    menuSoundRef.current.volume = 0.8;
     
-    // Konfigurasi khusus untuk footsteps sound
-    if (footstepsSoundRef.current) {
-      // Set volume to 0 initially as we'll increase it when actually playing
-      footstepsSoundRef.current.volume = 0;
-      // Loop true agar suara langkah kaki berulang selama proses berjalan
-      footstepsSoundRef.current.loop = true;
-      // Normal speed for realistic footsteps
-      footstepsSoundRef.current.playbackRate = 1.0;
-      // Preload the audio to ensure it's ready
-      footstepsSoundRef.current.preload = 'auto';
-    }
+    itemSoundRef.current = new Audio(punchSfxSrc);
+    itemSoundRef.current.volume = 0.8;
+    
+    hoverSoundRef.current = new Audio(punchSfxSrc);
+    hoverSoundRef.current.volume = 0.5;
+    
+    footstepsSoundRef.current = new Audio(footstepsSrc);
+    footstepsSoundRef.current.volume = 0;
+    footstepsSoundRef.current.loop = true;
+    footstepsSoundRef.current.playbackRate = 1.0;
     
     setIsVisible(true);
     
