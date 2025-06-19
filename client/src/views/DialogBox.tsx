@@ -764,7 +764,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ onDialogComplete }) => {
               if (isException || isExceptionDialogActive) {
                 return (
                   <div className="exception-dialog-hint">
-                    ⚠️ Auto-continuing...
+                    Auto-continues in a moment...
                   </div>
                 );
               }
