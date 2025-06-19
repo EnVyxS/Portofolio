@@ -235,7 +235,7 @@ const GameContactCard: React.FC = () => {
           max-width: 500px;
           margin: 0;
           position: absolute;
-          top: 10px; /* Naik 20px dari posisi sebelumnya (30px -> 10px) */
+          top: 30px; /* Kembalikan ke posisi semula */
           right: 40px; /* Sedikit lebih jauh ke kanan */
           transform: none; /* No vertical centering for desktop */
           z-index: 20; /* Pastikan selalu di atas elemen lain */
@@ -244,7 +244,7 @@ const GameContactCard: React.FC = () => {
 
         /* Dynamic positioning and scaling when dialog is active */
         .content-wrapper.dialog-active {
-          top: -10px; /* Move up 20px when dialog is active (from 10px to -10px) */
+          top: 10px; /* Move up 20px when dialog is active (from 30px to 10px) */
         }
         
         .content-wrapper.dialog-active .unified-card {
@@ -349,6 +349,7 @@ const GameContactCard: React.FC = () => {
           flex: 1; /* Take available space */
           justify-content: space-evenly; /* Evenly distribute social links */
           padding: 0.3rem 0; /* Minimal padding for optimal use of space */
+          transform: translateY(-20px); /* Naik 20px dari posisi default */
         }
         
         .share-button-container {
@@ -384,7 +385,7 @@ const GameContactCard: React.FC = () => {
         /* Tablet devices (maintain position on right side) */
         @media (max-width: 768px) {
           .content-wrapper {
-            top: 40px; /* Naik 20px dari posisi sebelumnya (60px -> 40px) */
+            top: 60px; /* Kembalikan ke posisi semula */
             right: 20px; /* Closer to edge on tablets */
             max-width: 320px;
             z-index: 10; /* Ensure it's above other elements */
@@ -392,7 +393,7 @@ const GameContactCard: React.FC = () => {
           }
           
           .content-wrapper.dialog-active {
-            top: 20px; /* Move up 20px for tablets (dari 40px ke 20px) */
+            top: 40px; /* Move up 20px for tablets */
           }
           
           .content-wrapper.dialog-active .unified-card {
@@ -498,7 +499,7 @@ const GameContactCard: React.FC = () => {
         /* Landscape mode on mobile devices */
         @media (max-height: 500px) and (orientation: landscape) {
           .content-wrapper {
-            top: -10px; /* Naik 20px dari posisi sebelumnya (10px -> -10px) */
+            top: 10px; /* Kembalikan ke posisi semula */
             right: 10px; /* Menempel di sisi kanan */
             height: auto; /* Reset height */
             transform: none; /* No transform */
@@ -507,7 +508,7 @@ const GameContactCard: React.FC = () => {
           }
           
           .content-wrapper.dialog-active {
-            top: -15px; /* Move up 5px for landscape mode (dari -10px ke -15px) */
+            top: 5px; /* Move up 5px for landscape mode */
           }
           
           .content-wrapper.dialog-active .unified-card {
