@@ -1,6 +1,6 @@
 // Vercel serverless function for ElevenLabs API
 export const config = {
-  runtime: 'nodejs18.x'
+  runtime: 'edge'
 };
 
 export default async function handler(req, res) {
@@ -38,7 +38,8 @@ export default async function handler(req, res) {
 
       // Process text for special cases (ellipsis handling)
       let processedText = text;
-      if (starts_with_ellipsis && trimmedText.startsWith('...') && trimmedText.length > 3) {
+      const trimmedText = text.trim();
+      if (trimmedText.startsWith('...') && trimmedText.length > 3) {
         processedText = `<speak><break time="0.3s"/>${trimmedText.substring(3)}</speak>`;
       }
 
@@ -80,7 +81,17 @@ export default async function handler(req, res) {
       }
 
       const audioBuffer = await response.arrayBuffer();
-      const audioBase64 = Buffer.from(audioBuffer).toString('base64');
+      // Convert ArrayBuffer to base64 for edge runtime compatibility
+      const uint8Array = new Uint8Array(audioBuffer);
+      
+      // Handle large audio files by chunking the conversion
+      let binary = '';
+      const chunkSize = 8192;
+      for (let i = 0; i < uint8Array.length; i += chunkSize) {
+        const chunk = uint8Array.slice(i, i + chunkSize);
+        binary += String.fromCharCode(...chunk);
+      }
+      const audioBase64 = btoa(binary);
       
       return res.status(200).json({
         success: true,
