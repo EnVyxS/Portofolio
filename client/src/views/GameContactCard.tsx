@@ -140,25 +140,15 @@ const GameContactCard: React.FC = () => {
       {/* Main container with proper structure */}
       <div className={`content-wrapper ${hasActiveDialog ? 'dialog-active' : ''}`}>
         {/* Unified card component containing links */}
-        <motion.div
+        <div
           ref={cardRef}
           className="unified-card"
-          initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-          whileHover={{
-            boxShadow: "0 0 15px rgba(156, 136, 114, 0.4)", // Stronger glow
-            scale: 1.03, // Slightly larger grow effect
-            opacity: 0.8, // More opaque on hover for better visibility
-            borderColor: "rgba(156, 136, 114, 0.7)", // Highlight border
-          }}
-          transition={{ duration: 0.3 }}
         >
           {/* Orange accent corner for design element */}
           <div className="card-accent-corner"></div>
           
           {/* Social links section */}
-          <motion.div className="social-links" variants={itemVariants}>
+          <div className="social-links">
             {socialLinks.map((link) => (
               <SocialLink
                 key={link.id}
@@ -172,29 +162,23 @@ const GameContactCard: React.FC = () => {
                 hoverColor={link.hoverColor}
               />
             ))}
-          </motion.div>
+          </div>
           
           {/* Share Button beneath social links */}
-          <motion.div 
-            className="share-button-container"
-            variants={itemVariants}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 0.5 }}
-          >
+          <div className="share-button-container">
             <ShareButton 
               className="card-share-button"
               title="DIVA JUAN | Interactive Portfolio"
               text="Check out this immersive interactive portfolio by DIVA JUAN - an experience you won't forget!"
             />
-          </motion.div>
+          </div>
           
           {/* Card corner decorations for Dark Souls aesthetic */}
           <div className="card-corner top-left"></div>
           <div className="card-corner top-right"></div>
           <div className="card-corner bottom-left"></div>
           <div className="card-corner bottom-right"></div>
-        </motion.div>
+        </div>
       </div>
 
       <style>{`
