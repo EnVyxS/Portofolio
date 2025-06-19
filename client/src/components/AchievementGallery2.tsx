@@ -319,9 +319,26 @@ const AchievementGallery: React.FC = () => {
           >
             {renderAchievementIcon(achievement)}
             <div className="achievement-name">
-              {isUnlocked(achievement)
-                ? AchievementTitles[achievement]
-                : MYSTERIOUS_TITLE}
+              {(() => {
+                if (!isUnlocked(achievement)) {
+                  return MYSTERIOUS_TITLE;
+                }
+                
+                // Jika achievement substitusi, gunakan title yang sesuai
+                let titleToUse = achievement;
+                
+                // Jika listener digantikan dengan againstWill, gunakan title againstWill
+                if (achievement === 'listener' && unlockedAchievements.includes('againstWill' as AchievementType)) {
+                  titleToUse = 'againstWill' as AchievementType;
+                }
+                
+                // Jika patience digantikan dengan tillDeath, gunakan title tillDeath
+                if (achievement === 'patience' && unlockedAchievements.includes('tillDeath' as AchievementType)) {
+                  titleToUse = 'tillDeath' as AchievementType;
+                }
+                
+                return AchievementTitles[titleToUse];
+              })()}
             </div>
             
             {/* Tooltip untuk kriteria unlocking */}
@@ -334,9 +351,26 @@ const AchievementGallery: React.FC = () => {
               >
                 <div className="tooltip-title">How to unlock:</div>
                 <div className="tooltip-content">
-                  {isUnlocked(achievement) 
-                    ? AchievementCriteria[achievement]
-                    : "This achievement is still locked. Continue exploring!"}
+                  {(() => {
+                    if (!isUnlocked(achievement)) {
+                      return "This achievement is still locked. Continue exploring!";
+                    }
+                    
+                    // Jika achievement substitusi, gunakan criteria yang sesuai
+                    let criteriaToUse = achievement;
+                    
+                    // Jika listener digantikan dengan againstWill, gunakan criteria againstWill
+                    if (achievement === 'listener' && unlockedAchievements.includes('againstWill' as AchievementType)) {
+                      criteriaToUse = 'againstWill' as AchievementType;
+                    }
+                    
+                    // Jika patience digantikan dengan tillDeath, gunakan criteria tillDeath
+                    if (achievement === 'patience' && unlockedAchievements.includes('tillDeath' as AchievementType)) {
+                      criteriaToUse = 'tillDeath' as AchievementType;
+                    }
+                    
+                    return AchievementCriteria[criteriaToUse];
+                  })()}
                 </div>
                 <div className="tooltip-arrow"></div>
               </motion.div>
