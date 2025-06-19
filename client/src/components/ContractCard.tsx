@@ -22,8 +22,8 @@ export const CONTRACT_RESPONSES = [
 ];
 
 // Import sounds
-import swipeSoundSrc from "@assets/Screen swipe sound effect (mp3cut.net).m4a";
-import footstepSoundSrc from "@assets/footsteps sound effect - walking sound effect - copyright free sound effects (mp3cut.net) (1).m4a";
+import swipeSoundSrc from "@assets/screen-swipe-sound.m4a";
+import footstepSoundSrc from "@assets/footsteps-sound.m4a";
 
 // Import gambar sertifikat dari original assets
 // Ini adalah file asli yang akan kita gunakan karena path optimized mungkin tidak bekerja
