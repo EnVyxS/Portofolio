@@ -2,7 +2,7 @@ import DialogController from "./dialogController";
 import HoverDialogController from "./hoverDialogController";
 import AchievementController from "./achievementController";
 import ElevenLabsService from "../services/elevenlabsService";
-import { getReturnDialog } from "../models/dialogModel";
+import { getReturnDialog, getExtendedReturnDialog } from "../models/dialogModel";
 
 // Dialog yang akan ditampilkan pada timeout tertentu
 export const IDLE_DIALOGS = {
@@ -37,6 +37,7 @@ export const TIMEOUT_DURATIONS = {
   SECOND_WARNING: 5 * 60 * 1000, // 5 menit
   FINAL_WARNING: 9 * 60 * 1000, // 9 menit
   THROW_USER: 10 * 60 * 1000, // 10 menit
+  EXTENDED_RETURN_ULTIMATUM: 2 * 60 * 1000, // 2 menit untuk ultimatum setelah return dialog
   // Timer hover dihapus karena sudah ada alternatif trigger via hover counting
 };
 
@@ -87,6 +88,7 @@ class IdleTimeoutController {
   private secondWarningTimer: NodeJS.Timeout | null = null;
   private finalWarningTimer: NodeJS.Timeout | null = null;
   private throwUserTimer: NodeJS.Timeout | null = null;
+  private extendedReturnTimer: NodeJS.Timeout | null = null;
 
   // Timer hover dihapus - menggunakan hover counting sebagai gantinya
 
@@ -113,6 +115,8 @@ class IdleTimeoutController {
   // New tracking variables for the updated requirements
   private hasBeenThrown: boolean = false;
   private userHasBeenReturn: boolean = false;
+  private hasShownExtendedReturnDialog: boolean = false;
+  private lastDialogWasReturn: boolean = false;
 
   // Callback untuk aksi eksternal
   private throwUserCallback: (() => void) | null = null;
@@ -607,6 +611,11 @@ class IdleTimeoutController {
       this.throwUserTimer = null;
     }
 
+    if (this.extendedReturnTimer) {
+      clearTimeout(this.extendedReturnTimer);
+      this.extendedReturnTimer = null;
+    }
+
     if (this.checkInterval) {
       clearInterval(this.checkInterval);
       this.checkInterval = null;
@@ -650,6 +659,14 @@ class IdleTimeoutController {
   // Handler untuk interaksi user
   public handleUserInteraction(): void {
     this.lastInteractionTime = Date.now();
+    
+    // Cancel Extended Return Timer if user interacts before it triggers
+    if (this.extendedReturnTimer && this.lastDialogWasReturn) {
+      console.log("[IdleTimeoutController] User interacted - canceling Extended Return Dialog timer");
+      clearTimeout(this.extendedReturnTimer);
+      this.extendedReturnTimer = null;
+      this.lastDialogWasReturn = false;
+    }
     
     // TIDAK me-reset timer start time untuk gerakan mouse biasa
     
@@ -1349,6 +1366,57 @@ class IdleTimeoutController {
     }
   }
 
+  // Method to start Extended Return Dialog timer (2 minutes)
+  private startExtendedReturnTimer(): void {
+    // Clear any existing extended return timer
+    if (this.extendedReturnTimer) {
+      clearTimeout(this.extendedReturnTimer);
+      this.extendedReturnTimer = null;
+    }
+
+    console.log("[IdleTimeoutController] Starting Extended Return Dialog timer (2 minutes)");
+    
+    this.extendedReturnTimer = setTimeout(() => {
+      this.showExtendedReturnDialog();
+    }, TIMEOUT_DURATIONS.EXTENDED_RETURN_ULTIMATUM);
+  }
+
+  // Method to show Extended Return Dialog with ultimatum
+  private async showExtendedReturnDialog(): Promise<void> {
+    if (this.hasShownExtendedReturnDialog) {
+      console.log("[IdleTimeoutController] Extended Return Dialog already shown, skipping");
+      return;
+    }
+
+    // Check if last dialog was return dialog
+    if (!this.lastDialogWasReturn) {
+      console.log("[IdleTimeoutController] Last dialog was not RETURN_DIALOG, skipping Extended Return Dialog");
+      return;
+    }
+
+    console.log("[IdleTimeoutController] Triggering Extended Return Dialog after 2 minutes");
+    
+    // Mark as shown
+    this.hasShownExtendedReturnDialog = true;
+    
+    // Get achievement status
+    const achievementController = AchievementController.getInstance();
+    const hasNightmare = achievementController.hasAchievement('nightmare');
+    const hasEscape = achievementController.hasAchievement('escape');
+    
+    // Get appropriate extended return dialog
+    const extendedDialog = getExtendedReturnDialog(hasNightmare, hasEscape);
+    
+    console.log("[IdleTimeoutController] Showing Extended Return Dialog:", extendedDialog.text);
+    console.log("[IdleTimeoutController] User achievement status - Nightmare:", hasNightmare, "Escape:", hasEscape);
+    
+    // Show the extended dialog
+    this.showIdleWarning(extendedDialog.text);
+    
+    // Reset the last dialog flag
+    this.lastDialogWasReturn = false;
+  }
+
   // Method to handle RETURN_DIALOG logic when user clicks APPROACH HIM after meeting conditions
   public handleApproachAfterThrown(): boolean {
     // Check if RETURN_DIALOG conditions are met
@@ -1357,6 +1425,7 @@ class IdleTimeoutController {
     if (shouldTrigger && !this.userHasBeenReturn) {
       // Set the return flag
       this.userHasBeenReturn = true;
+      this.lastDialogWasReturn = true;
       
       console.log("[IdleTimeoutController] Triggering RETURN_DIALOG - conditions met and user returned");
       
@@ -1372,6 +1441,9 @@ class IdleTimeoutController {
       const returnDialog = getReturnDialog();
       this.showIdleWarning(returnDialog.text);
       console.log("[IdleTimeoutController] Using random RETURN_DIALOG variation:", returnDialog.text);
+      
+      // Start timer for Extended Return Dialog (2 minutes)
+      this.startExtendedReturnTimer();
       
       // Unlock the return achievement
       try {

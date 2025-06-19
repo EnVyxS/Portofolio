@@ -31,6 +31,24 @@ const RETURN_DIALOG_VARIATIONS = [
   "Didn't think you'd crawl back so soon. But here we are."
 ];
 
+// Extended return dialog variations for users with nightmare/escape achievements (experienced)
+const RETURN_DIALOG_EXTENSIONS_EXPERIENCED = [
+  "You've got two minutes. Or I'll beat you again.",
+  "Same deal. Two minutes. Mess it up again, I'll finish what I started.",
+  "You've had worse. Two minutes, then we go again.",
+  "Two minutes. Last time you didn't listen. Your call.",
+  "Two minutes. Or I'll remind you what happened last time."
+];
+
+// Extended return dialog variations for users without achievements (first time)
+const RETURN_DIALOG_EXTENSIONS_FIRST_TIME = [
+  "You've got two minutes. Then I beat you.",
+  "Take two minutes. Waste them, and I'll beat the crap out of you.",
+  "Two minutes. Use them well... or I won't be gentle.",
+  "I'm giving you two minutes. Don't make me regret it.",
+  "Two minutes. No more warnings."
+];
+
 // Fungsi untuk mendapatkan RETURN_DIALOG dengan variasi random
 export const getReturnDialog = (): Dialog => {
   const randomIndex = Math.floor(Math.random() * RETURN_DIALOG_VARIATIONS.length);
@@ -39,6 +57,22 @@ export const getReturnDialog = (): Dialog => {
   return {
     id: 1001,
     character: "DIVA JUAN NUR TAQARRUB",
+    text: selectedText,
+    voiceId: "dBynzNhvSFj0l1D7I9yV",
+    persistent: true
+  };
+};
+
+// Fungsi untuk mendapatkan Extended Return Dialog berdasarkan achievement status
+export const getExtendedReturnDialog = (hasNightmare: boolean, hasEscape: boolean): Dialog => {
+  const isExperienced = hasNightmare || hasEscape;
+  const variations = isExperienced ? RETURN_DIALOG_EXTENSIONS_EXPERIENCED : RETURN_DIALOG_EXTENSIONS_FIRST_TIME;
+  const randomIndex = Math.floor(Math.random() * variations.length);
+  const selectedText = variations[randomIndex];
+  
+  return {
+    id: 1002,
+    character: "DIVA JUAN NUR TAQARRUB", 
     text: selectedText,
     voiceId: "dBynzNhvSFj0l1D7I9yV",
     persistent: true

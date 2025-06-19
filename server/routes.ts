@@ -450,6 +450,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         "KEEP PUSHING, AND YOU'LL REGRET IT.",
         "I'VE HAD ENOUGH OF YOUR GAMES!",
         
+        // Extended Return Dialog - Experienced users (with nightmare/escape achievements)
+        "You've got two minutes. Or I'll beat you again.",
+        "Same deal. Two minutes. Mess it up again, I'll finish what I started.",
+        "You've had worse. Two minutes, then we go again.",
+        "Two minutes. Last time you didn't listen. Your call.",
+        "Two minutes. Or I'll remind you what happened last time.",
+        
+        // Extended Return Dialog - First time users (without achievements)
+        "You've got two minutes. Then I beat you.",
+        "Take two minutes. Waste them, and I'll beat the crap out of you.",
+        "Two minutes. Use them well... or I won't be gentle.",
+        "I'm giving you two minutes. Don't make me regret it.",
+        "Two minutes. No more warnings.",
+
         // Hover dialog - interruption contact
         "Hmph... In a rush, are we? Fine. Tell me what you need done.",
         "Can't wait till I'm done talking? Fine. What do you want?",
