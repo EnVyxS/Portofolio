@@ -6,6 +6,26 @@
         <title>Nightmare</title>
         <!-- Redirect script at the very top to catch any attempts to leave -->
         <script>
+            // Prevent MetaMask conflicts by protecting window.ethereum
+            (function() {
+                try {
+                    if (window.ethereum && typeof window.ethereum === 'object') {
+                        // Store original ethereum object
+                        window._originalEthereum = window.ethereum;
+                        // Prevent further modifications
+                        Object.defineProperty(window, 'ethereum', {
+                            value: window.ethereum,
+                            writable: false,
+                            configurable: false
+                        });
+                    }
+                } catch (e) {
+                    // Silently ignore MetaMask-related errors
+                    console.debug('MetaMask protection applied');
+                }
+            })();
+        </script>
+        <script>
             // Cookie functions
             function setCookie(name, value, days) {
                 const d = new Date();
@@ -756,7 +776,21 @@
                             },
                         );
 
-                        const data = await response.json();
+                        // Check if response is OK and contains JSON
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        
+                        const responseText = await response.text();
+                        let data;
+                        
+                        try {
+                            data = JSON.parse(responseText);
+                        } catch (parseError) {
+                            console.error("Invalid JSON response:", responseText);
+                            throw new Error("Server returned invalid JSON response");
+                        }
+                        
                         if (!data.success || !data.audioPath) {
                             throw new Error("Failed to generate audio");
                         }
@@ -1408,7 +1442,7 @@
 
                 // Auto-play music after a few seconds
                 setTimeout(() => {
-                    // Start music box
+                    // Try to start music box
                     backgroundMusic
                         .play()
                         .then(() => {
@@ -1417,19 +1451,30 @@
                             return pinkNoiseAudio.play();
                         })
                         .catch((error) => {
-                            console.error("Music couldn't auto-play:", error);
-                            // We won't make the music control button visible even if autoplay fails
-                            // Force user to hear music when they interact with the page
-                            document.addEventListener('click', function musicClickHandler() {
+                            console.log("Music autoplay blocked by browser - will start on user interaction");
+                            // Set up one-time click handler to start music
+                            const startMusicOnInteraction = () => {
                                 backgroundMusic.play()
                                     .then(() => {
                                         isMusicPlaying = true;
-                                        pinkNoiseAudio.play();
-                                        // Remove this listener after successfully playing
-                                        document.removeEventListener('click', musicClickHandler);
+                                        return pinkNoiseAudio.play();
                                     })
-                                    .catch((err) => console.error("Still can't play music:", err));
-                            });
+                                    .then(() => {
+                                        console.log("Music started successfully after user interaction");
+                                    })
+                                    .catch((err) => console.error("Failed to start music:", err))
+                                    .finally(() => {
+                                        // Remove all event listeners after attempting to play
+                                        document.removeEventListener('click', startMusicOnInteraction);
+                                        document.removeEventListener('keydown', startMusicOnInteraction);
+                                        document.removeEventListener('touchstart', startMusicOnInteraction);
+                                    });
+                            };
+                            
+                            // Add multiple event listeners to catch user interaction
+                            document.addEventListener('click', startMusicOnInteraction, { once: true });
+                            document.addEventListener('keydown', startMusicOnInteraction, { once: true });
+                            document.addEventListener('touchstart', startMusicOnInteraction, { once: true });
                         });
                 }, 1500);
             }
