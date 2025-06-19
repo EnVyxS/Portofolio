@@ -71,17 +71,45 @@ const AchievementGallery: React.FC = () => {
     }
   }, []);
 
-  // Mengecek apakah achievement sudah di-unlock
+  // Mengecek apakah achievement sudah di-unlock (termasuk substitusi)
   const isUnlocked = (type: AchievementType): boolean => {
-    return unlockedAchievements.includes(type);
+    // Cek achievement langsung
+    if (unlockedAchievements.includes(type)) {
+      return true;
+    }
+    
+    // Cek substitusi: jika punya againstWill, anggap listener sudah unlock
+    if (type === 'listener' && unlockedAchievements.includes('againstWill' as AchievementType)) {
+      return true;
+    }
+    
+    // Cek substitusi: jika punya tillDeath, anggap patience sudah unlock  
+    if (type === 'patience' && unlockedAchievements.includes('tillDeath' as AchievementType)) {
+      return true;
+    }
+    
+    return false;
   };
 
   // Render ikon achievement - yang terbuka atau misterius
   const renderAchievementIcon = (type: AchievementType) => {
     if (isUnlocked(type)) {
+      // Jika achievement substitusi, gunakan icon yang sesuai
+      let iconToUse = type;
+      
+      // Jika listener digantikan dengan againstWill, gunakan icon againstWill
+      if (type === 'listener' && unlockedAchievements.includes('againstWill' as AchievementType)) {
+        iconToUse = 'againstWill' as AchievementType;
+      }
+      
+      // Jika patience digantikan dengan tillDeath, gunakan icon tillDeath
+      if (type === 'patience' && unlockedAchievements.includes('tillDeath' as AchievementType)) {
+        iconToUse = 'tillDeath' as AchievementType;
+      }
+      
       return (
         <div className="achievement-icon-container unlocked">
-          {AchievementIcons[type]}
+          {AchievementIcons[iconToUse]}
         </div>
       );
     } else {
@@ -147,30 +175,43 @@ const AchievementGallery: React.FC = () => {
   const renderAchievementDetail = () => {
     if (!selectedAchievement) return null;
 
-    const isUnlocked = unlockedAchievements.includes(selectedAchievement);
+    const isUnlockedStatus = isUnlocked(selectedAchievement);
+    
+    // Tentukan achievement mana yang akan ditampilkan (original atau substitusi)
+    let achievementToShow = selectedAchievement;
+    
+    // Jika listener digantikan dengan againstWill, tampilkan againstWill
+    if (selectedAchievement === 'listener' && unlockedAchievements.includes('againstWill' as AchievementType)) {
+      achievementToShow = 'againstWill' as AchievementType;
+    }
+    
+    // Jika patience digantikan dengan tillDeath, tampilkan tillDeath
+    if (selectedAchievement === 'patience' && unlockedAchievements.includes('tillDeath' as AchievementType)) {
+      achievementToShow = 'tillDeath' as AchievementType;
+    }
 
     return (
       <motion.div
-        className={`achievement-detail ${isUnlocked ? "unlocked" : "mysterious"}`}
+        className={`achievement-detail ${isUnlockedStatus ? "unlocked" : "mysterious"}`}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
         <h3 className="text-amber-100 text-sm font-semibold mb-1">
-          {isUnlocked
-            ? AchievementTitles[selectedAchievement]
+          {isUnlockedStatus
+            ? AchievementTitles[achievementToShow]
             : MYSTERIOUS_TITLE}
         </h3>
         <p className="text-amber-300/70 text-xs mb-2">
-          {isUnlocked
-            ? AchievementDescriptions[selectedAchievement]
+          {isUnlockedStatus
+            ? AchievementDescriptions[achievementToShow]
             : MYSTERIOUS_DESCRIPTION}
         </p>
         
-        {isUnlocked && (
+        {isUnlockedStatus && (
           <div className="achievement-criteria">
             <div className="criteria-title">How to unlock:</div>
-            <div className="criteria-content">{AchievementCriteria[selectedAchievement]}</div>
+            <div className="criteria-content">{AchievementCriteria[achievementToShow]}</div>
           </div>
         )}
       </motion.div>
