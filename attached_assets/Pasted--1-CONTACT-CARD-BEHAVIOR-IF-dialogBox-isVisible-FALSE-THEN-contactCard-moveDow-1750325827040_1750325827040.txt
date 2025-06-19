@@ -1,0 +1,62 @@
+// === 1. CONTACT CARD BEHAVIOR ===
+IF dialogBox.isVisible() == FALSE THEN
+    contactCard.moveDown()
+ELSE
+    contactCard.resetPosition()
+ENDIF
+
+// === 2. DIALOG EXCEPTION (AUTO, NO NEXT/SKIP/WAIT) ===
+EXCEPTION_DIALOGS = [
+    "WARNING_1", "WARNING_2", "WARNING_3", "FINAL_WARNING",
+    "RETURN_DIALOG", "EXCESSIVE_HOVER_WARNING",
+    "PUNCH_USER", "THROW_USER"
+]
+
+FOR EACH dialog IN EXCEPTION_DIALOGS:
+    dialog.setAutoPlay(TRUE)
+    dialog.hideNextButton()
+    dialog.hideSkipButton()
+    dialog.removeWaitForUserInput()
+ENDFOR
+
+// === 3. CONTRACT BEHAVIOR ===
+IF user.opens("contract") THEN
+    PAUSE_TIMER()  // optional for you to handle
+    IF user.has("Dream Escapist") OR user.has("Digital Odyssey") OR
+       user.wasEventTriggered("PUNCH_USER") OR user.wasEventTriggered("THROW_USER") THEN
+        SKIP_CONTRACT_DIALOG()
+    ELSE
+        SHOW_CONTRACT_DIALOG()
+    ENDIF
+ENDIF
+
+IF user.closes("contract") THEN
+    RESET_TIMER()  // optional for you to handle
+ENDIF
+
+// === 4. HOVER_AFTER_RESET DIALOG ===
+IF session.firstHoverAfterNightmare == TRUE THEN
+    SHOW_DIALOG("HOVER_AFTER_RESET")
+    session.firstHoverAfterNightmare = FALSE
+ENDIF
+
+// === 5. EXTENDED RETURN_DIALOG ===
+IF lastDialog == "RETURN_DIALOG" THEN
+    IF user.has("Nightmare") OR user.has("Dream Escapist") THEN
+        SAY(randomChoice([
+            "You’ve got two minutes. Or I’ll beat you again.",
+            "Same deal. Two minutes. Mess it up again, I’ll finish what I started.",
+            "You’ve had worse. Two minutes, then we go again.",
+            "Two minutes. Last time you didn’t listen. Your call.",
+            "Two minutes. Or I’ll remind you what happened last time."
+        ]))
+    ELSE
+        SAY(randomChoice([
+            "You’ve got two minutes. Then I beat you.",
+            "Take two minutes. Waste them, and I’ll beat the crap out of you.",
+            "Two minutes. Use them well... or I won’t be gentle.",
+            "I’m giving you two minutes. Don’t make me regret it.",
+            "Two minutes. No more warnings."
+        ]))
+    ENDIF
+ENDIF
