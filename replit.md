@@ -111,6 +111,7 @@ This is an interactive portfolio application built as a Dark Souls-inspired char
 - June 16, 2025. Added easter egg reward system - when all 12 achievements are collected, a special reward button appears that redirects to Rick Astley's "Never Gonna Give You Up" as a Rick Roll surprise
 - June 16, 2025. Added 21 variations for RETURN_DIALOG to make the character's responses more diverse when user returns after being thrown out
 - June 16, 2025. Fixed Time Gizer achievement exploit - removed auto-completion logic that automatically granted "patience" achievement to users who reached final stages without waiting for FINAL_WARNING. Achievement now only unlocks through legitimate 9-minute idle timeout.
+- June 19, 2025. Implemented dynamic achievement substitution system - "Against Your Will" achievement automatically replaces "Patient Listener" when user accesses achievement gallery with required conditions (Digital Odyssey + Escapist + Challenge Accepted + Undeterred Seeker + 10 total achievements). Easter egg reward system now provides different YouTube tracks based on achievement combinations.
 
 ## User Preferences
 

@@ -49,7 +49,11 @@ const AchievementGallery: React.FC = () => {
   // Load achievement saat komponen dimuat
   useEffect(() => {
     const achievementController = AchievementController.getInstance();
-    // Load achievement yang sudah terbuka
+    
+    // Perform automatic achievement substitution when accessing achievement gallery
+    achievementController.performAchievementSubstitution('achievement_gallery_access');
+    
+    // Load achievement yang sudah terbuka (setelah substitusi)
     const unlocked = achievementController.getUnlockedAchievements();
     setUnlockedAchievements(unlocked);
 
@@ -212,17 +216,9 @@ const AchievementGallery: React.FC = () => {
               // Get achievement controller instance
               const controller = AchievementController.getInstance();
               
-              // Perform achievement substitution sebelum determine reward
-              controller.performAchievementSubstitution('achievement_click');
-              
               // Get dynamic reward berdasarkan kondisi user
               const reward = controller.getEasterEggReward();
               window.open(reward.url, '_blank');
-              
-              // Refresh the page to update UI with new achievement
-              setTimeout(() => {
-                window.location.reload();
-              }, 100);
             }}
           >
             <span className="reward-text">

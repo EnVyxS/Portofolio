@@ -218,7 +218,8 @@ class AchievementController {
     
     // Skenario 2: 10 achievements, missing Patient Listener, Time Gazer, Till Death Do Us Part
     else if (kondisi1 && kondisi2 && achievementCount === 10 && 
-             !this.hasAnyAchievement(['listener', 'patience'])) {
+             !this.hasAnyAchievement(['listener', 'patience']) &&
+             (triggerContext === 'achievement_gallery_access' || triggerContext === 'achievement_click')) {
       
       console.log('Force unlocking Against Your Will, replacing Patient Listener');
       // Replace Patient Listener with Against Your Will
