@@ -1,13 +1,9 @@
-node_modules
-.env.local
-.env
-server
-dist/index.js
-backup_assets
-attached_assets/*.pdf
-attached_assets/*.m4a
-attached_assets/*.mp3
-public/attached_assets
+# Ignore files that might cause deployment issues
+backup_assets/
+scripts/
+public/optimized_assets/
+**/*.cache
+.vite/
+dist/
+node_modules/.cache/
 *.log
-.replit
-replit.nix

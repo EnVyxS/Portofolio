@@ -1,7 +1,9 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "buildCommand": "rm -rf dist/ node_modules/.vite/ .vite/ && npm run build",
   "outputDirectory": "dist/public",
+  "cleanUrls": true,
+  "trailingSlash": false,
   "rewrites": [
     {
       "source": "/api/(.*)",
