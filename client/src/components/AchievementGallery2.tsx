@@ -30,7 +30,7 @@ const AchievementGallery: React.FC = () => {
   // State untuk hover tooltip
   const [hoveredAchievement, setHoveredAchievement] = useState<AchievementType | null>(null);
 
-  // Daftar semua achievement yang mungkin (termasuk substitusi)
+  // Daftar semua achievement yang mungkin (base achievements only, substitutions happen dynamically)
   const allAchievements: AchievementType[] = [
     "approach",
     "contract",
@@ -39,13 +39,11 @@ const AchievementGallery: React.FC = () => {
     "anger",
     "nightmare",
     "listener",
-    "patience",
+    "patience", 
     "return",
     "hover",
     "escape",
     "social",
-    "tillDeath",
-    "againstWill",
   ];
 
   // Load achievement saat komponen dimuat
@@ -64,6 +62,12 @@ const AchievementGallery: React.FC = () => {
     
     if (hasAllAchievements) {
       setShowEasterEgg(true);
+    }
+
+    // Force refresh jika terjadi perubahan achievement count
+    const currentCount = unlocked.length;
+    if (currentCount !== 10 && currentCount !== 11 && currentCount !== 12) {
+      setTimeout(() => window.location.reload(), 1000);
     }
   }, []);
 
@@ -231,6 +235,19 @@ const AchievementGallery: React.FC = () => {
               })()}
             </span>
             <div className="reward-sparkles">✨</div>
+          </motion.button>
+          
+          {/* Temporary Reset Button for fixing current state */}
+          <motion.button
+            className="reward-button"
+            style={{ marginTop: '10px', backgroundColor: 'rgba(255, 0, 0, 0.8)' }}
+            onClick={() => {
+              const controller = AchievementController.getInstance();
+              controller.resetToCorrectState();
+              setTimeout(() => window.location.reload(), 500);
+            }}
+          >
+            <span className="reward-text">🔄 RESET TO CORRECT STATE</span>
           </motion.button>
         </motion.div>
       )}

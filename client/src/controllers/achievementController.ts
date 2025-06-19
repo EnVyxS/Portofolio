@@ -202,6 +202,26 @@ class AchievementController {
     return achievementTypes.some(type => this.hasAchievement(type));
   }
 
+  // Reset achievements to clean state (for fixing the current 12+ achievement issue)
+  public resetToCorrectState(): void {
+    // Keep only the base 10 achievements that user currently has legitimately
+    const correctBaseAchievements: AchievementType[] = [
+      'approach', 'contract', 'document', 'social', 'anger', 'success', 
+      'nightmare', 'escape', 'return', 'hover'
+    ];
+    
+    this.unlockedAchievements.clear();
+    this.notifiedAchievements.clear();
+    
+    correctBaseAchievements.forEach(achievement => {
+      this.unlockedAchievements.add(achievement);
+    });
+    
+    this.saveAchievements();
+    this.saveNotifiedAchievements();
+    console.log('Reset achievements to correct state: 10 base achievements');
+  }
+
   // Sistem substitusi achievement berdasarkan kondisi
   public performAchievementSubstitution(triggerContext: string = ''): void {
     const kondisi1 = this.checkCondition1();
@@ -210,37 +230,40 @@ class AchievementController {
 
     console.log(`Achievement substitution check - Kondisi1: ${kondisi1}, Kondisi2: ${kondisi2}, Count: ${achievementCount}, Context: ${triggerContext}`);
 
-    // Skenario 1: 11 achievements, only missing Time Gazer, auto substitute with Till Death Do Us Part
-    if (kondisi1 && kondisi2 && achievementCount === 11 && 
-        !this.hasAchievement('patience') && !this.hasAchievement('tillDeath') &&
+    // Fix current state if user has more than 12 achievements
+    if (achievementCount > 12) {
+      console.log('Detected achievement count > 12, resetting to correct state');
+      this.resetToCorrectState();
+      return; // Exit and let user refresh
+    }
+
+    // Skenario: User memenuhi kondisi untuk substitusi achievement (only if count is exactly 10)
+    if (kondisi1 && kondisi2 && achievementCount === 10 && 
         (triggerContext === 'achievement_gallery_access' || triggerContext === 'achievement_click')) {
       
-      console.log('Substituting Time Gazer with Till Death Do Us Part');
-      // Remove Time Gazer and add Till Death Do Us Part
-      this.unlockedAchievements.delete('patience');
-      this.unlockedAchievements.add('tillDeath' as AchievementType);
-      this.saveAchievements();
-      
-      // Trigger callback untuk refresh UI jika ada
-      if (this.achievementCallback) {
-        this.achievementCallback('tillDeath' as AchievementType);
+      // Add Against Your Will (since user doesn't have listener or patience yet)
+      if (!this.hasAchievement('againstWill') && !this.hasAchievement('listener')) {
+        console.log('Adding Against Your Will achievement');
+        this.unlockedAchievements.add('againstWill' as AchievementType);
+        this.saveAchievements();
+        
+        if (this.achievementCallback) {
+          this.achievementCallback('againstWill' as AchievementType);
+        }
       }
     }
     
-    // Skenario 2: 10 achievements, missing Patient Listener, Time Gazer, Till Death Do Us Part
-    else if (kondisi1 && kondisi2 && achievementCount === 10 && 
-             !this.hasAnyAchievement(['listener', 'patience']) &&
-             (triggerContext === 'achievement_gallery_access' || triggerContext === 'achievement_click')) {
+    // Second phase: if user now has 11 achievements, add Till Death Do Us Part
+    if (kondisi1 && kondisi2 && this.getAchievementCount() === 11 && 
+        this.hasAchievement('againstWill') && !this.hasAchievement('tillDeath') &&
+        !this.hasAchievement('patience')) {
       
-      console.log('Force unlocking Against Your Will, replacing Patient Listener');
-      // Replace Patient Listener with Against Your Will
-      this.unlockedAchievements.delete('listener');
-      this.unlockedAchievements.add('againstWill' as AchievementType);
+      console.log('Adding Till Death Do Us Part achievement');
+      this.unlockedAchievements.add('tillDeath' as AchievementType);
       this.saveAchievements();
       
-      // Trigger callback untuk refresh UI jika ada
       if (this.achievementCallback) {
-        this.achievementCallback('againstWill' as AchievementType);
+        this.achievementCallback('tillDeath' as AchievementType);
       }
     }
   }
