@@ -248,9 +248,7 @@ const GameContactCard: React.FC = () => {
         }
         
         .content-wrapper.dialog-active .unified-card {
-          transform: scale(0.8); /* Scale down when dialog is active */
-          opacity: 0.45; /* Reduce opacity when dialog is active */
-          filter: blur(0.5px); /* Subtle blur effect when dialog is active */
+          /* Social links tidak bergerak saat dialog aktif - efek visual dihapus */
         }
 
         /* Unified card that contains all elements */
