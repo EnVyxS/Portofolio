@@ -4,3 +4,22 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# Environment files
+.env.local
+.env.production
+.env.staging
+
+# API Keys and secrets
+*.key
+secrets.json
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock

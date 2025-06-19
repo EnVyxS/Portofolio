@@ -12,7 +12,7 @@ const ElevenLabsSetup: React.FC<ElevenLabsSetupProps> = ({ onClose }) => {
   // Auto-initialize with API key from environment variables or predefined key
   useEffect(() => {
     const initializeWithAPIKey = () => {
-      // Menggunakan ElevenLabs API key dari environment variable
+      // Menggunakan ElevenLabs API key dari environment variable (.env file)
       // Jika tidak tersedia, jalankan dengan mode "using_local_audio"
       const envApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
       

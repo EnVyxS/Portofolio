@@ -30,10 +30,11 @@ try {
     }
   }
   
-  // Hard-code API key to make sure it's available
-  if (!process.env.ELEVENLABS_API_KEY) {
-    process.env.ELEVENLABS_API_KEY = 'sk_4b8b0d124618ba1dc624db8081859a5ab3684b0304c1b27e';
-    log('Using hardcoded ElevenLabs API key');
+  // Check if ElevenLabs API key is available from .env file
+  if (process.env.ELEVENLABS_API_KEY && process.env.ELEVENLABS_API_KEY.trim() !== '') {
+    log('ElevenLabs API key loaded from .env file');
+  } else {
+    log('No ElevenLabs API key found in .env file, text-to-speech will be disabled');
   }
 } catch (error) {
   console.error('Error loading .env file:', error);
