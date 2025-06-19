@@ -117,6 +117,7 @@ class IdleTimeoutController {
   private userHasBeenReturn: boolean = false;
   private hasShownExtendedReturnDialog: boolean = false;
   private lastDialogWasReturn: boolean = false;
+  private isExtendedReturnSequenceActive: boolean = false;
 
   // Callback untuk aksi eksternal
   private throwUserCallback: (() => void) | null = null;
@@ -313,6 +314,15 @@ class IdleTimeoutController {
 
   // Metode untuk mendapatkan waktu tersisa pada timer saat ini (untuk UI timer)
   public getRemainingTime(): { timeRemaining: number, totalDuration: number, type: string } {
+    // Hide timer during Extended Return sequence
+    if (this.isExtendedReturnSequenceActive) {
+      return { 
+        timeRemaining: 0, 
+        totalDuration: 0,
+        type: "Extended Return Dialog Active" 
+      };
+    }
+    
     const now = Date.now();
     const timeSinceStart = now - this.timerStartTime;
     
@@ -662,9 +672,10 @@ class IdleTimeoutController {
     
     // Cancel Extended Return Timer (ultimatum timer) if user interacts
     if (this.extendedReturnTimer) {
-      console.log("[IdleTimeoutController] User interacted - canceling ultimatum timer");
+      console.log("[IdleTimeoutController] User interacted - canceling ultimatum timer and resetting Extended Return sequence");
       clearTimeout(this.extendedReturnTimer);
       this.extendedReturnTimer = null;
+      this.isExtendedReturnSequenceActive = false;
       // Don't reset lastDialogWasReturn here as it might be needed elsewhere
     }
     
@@ -1430,9 +1441,6 @@ class IdleTimeoutController {
   private startUltimatumTimer(): void {
     console.log("[IdleTimeoutController] Starting ultimatum timer - user has 2 minutes or gets punched");
     
-    // Clear any existing timers first
-    this.clearAllIdleTimers();
-    
     // Start the 2-minute ultimatum timer
     this.extendedReturnTimer = setTimeout(() => {
       this.executeUltimatum();
@@ -1442,6 +1450,9 @@ class IdleTimeoutController {
   // Method to execute ultimatum - punch the user
   private executeUltimatum(): void {
     console.log("[IdleTimeoutController] Ultimatum timer expired - executing punishment");
+    
+    // Reset Extended Return sequence flag
+    this.isExtendedReturnSequenceActive = false;
     
     // Show punch dialog and execute punch
     this.hasBeenPunched = true;
@@ -1467,6 +1478,12 @@ class IdleTimeoutController {
       this.lastDialogWasReturn = true;
       
       console.log("[IdleTimeoutController] Triggering RETURN_DIALOG - conditions met and user returned");
+      
+      // Clear all existing timers first
+      this.clearAllIdleTimers();
+      
+      // Activate Extended Return sequence flag
+      this.isExtendedReturnSequenceActive = true;
       
       // Disable both controllers before showing RETURN_DIALOG
       this.disableControllers();
