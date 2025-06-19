@@ -1,23 +1,23 @@
-# Netlify Deployment Instructions
+# Netlify Deployment Fix
 
-## Quick Deploy to Netlify
+## The "Page not found" error occurs because of routing configuration. Here's the fix:
 
-### Option 1: Drag & Drop (Easiest)
+### Option 1: Manual Deploy (Fastest Fix)
 
-1. **Download Project**
+1. **Download Project Files**
    - Download this Replit workspace as ZIP
    - Extract to your computer
 
-2. **Build Locally**
+2. **Build the Project**
    ```bash
    npm install
    npm run build
    ```
 
-3. **Deploy to Netlify**
+3. **Deploy Correctly to Netlify**
    - Go to [netlify.com](https://netlify.com)
-   - Drag the `dist/public` folder to Netlify's deploy area
-   - Your site will be live instantly!
+   - Drag ONLY the `dist/public` folder (not the whole project)
+   - Make sure the `_redirects` file is included in the folder
 
 ### Option 2: GitHub + Netlify (Recommended)
 
