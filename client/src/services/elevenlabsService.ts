@@ -134,7 +134,11 @@ class ElevenLabsService {
       console.log("Generating speech for exact text:", text);
       
       // Gunakan endpoint server untuk generate speech
-      const response = await fetch('/api/elevenlabs/text-to-speech', {
+      const apiUrl = process.env.NODE_ENV === 'production' 
+        ? '/api/elevenlabs?action=text-to-speech' 
+        : '/api/elevenlabs/text-to-speech';
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -157,12 +161,21 @@ class ElevenLabsService {
       const result = await response.json();
       
       if (result.success) {
-        // Jika berhasil, ambil file audio dari path yang diberikan
-        const audioResponse = await fetch(result.audioPath);
-        if (audioResponse.ok) {
-          const audioBlob = await audioResponse.blob();
+        // Handle both file path and base64 data URL
+        if (result.audioPath.startsWith('data:audio/')) {
+          // Base64 data URL from serverless function
+          const response = await fetch(result.audioPath);
+          const audioBlob = await response.blob();
           this.audioCache[cacheKey] = audioBlob;
           return audioBlob;
+        } else {
+          // File path from cached audio
+          const audioResponse = await fetch(result.audioPath);
+          if (audioResponse.ok) {
+            const audioBlob = await audioResponse.blob();
+            this.audioCache[cacheKey] = audioBlob;
+            return audioBlob;
+          }
         }
       }
       

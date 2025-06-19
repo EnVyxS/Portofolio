@@ -1,0 +1,13 @@
+node_modules
+.env.local
+.env
+server
+dist/index.js
+backup_assets
+attached_assets/*.pdf
+attached_assets/*.m4a
+attached_assets/*.mp3
+public/attached_assets
+*.log
+.replit
+replit.nix
