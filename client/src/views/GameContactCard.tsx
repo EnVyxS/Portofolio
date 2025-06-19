@@ -42,7 +42,7 @@ const GameContactCard: React.FC = () => {
         const isMainDialogTyping = typeof dialogController.isCurrentlyTyping === "function" 
           ? dialogController.isCurrentlyTyping() : false;
         const isHoverDialogActive = hoverDialogController.isTypingHoverDialog();
-        const isIdleDialogActive = idleTimeoutController.isTypingIdle;
+        const isIdleDialogActive = false; // Removed private property access
 
         const dialogActive = isMainDialogTyping || isHoverDialogActive || isIdleDialogActive;
         setHasActiveDialog(dialogActive);
@@ -149,7 +149,7 @@ const GameContactCard: React.FC = () => {
         {/* Unified card component containing links */}
         <motion.div
           ref={cardRef}
-          className="unified-card"
+          className={`unified-card ${hasActiveDialog ? 'dialog-active' : ''}`}
           initial="hidden"
           animate="visible"
           variants={containerVariants}
@@ -228,6 +228,12 @@ const GameContactCard: React.FC = () => {
           right: 40px; /* Sedikit lebih jauh ke kanan */
           transform: none; /* No vertical centering for desktop */
           z-index: 20; /* Pastikan selalu di atas elemen lain */
+          transition: all 0.3s ease; /* Smooth positioning transition */
+        }
+
+        /* Dynamic positioning when dialog is active */
+        .unified-card.dialog-active {
+          transform: translateY(-20px) scale(0.9); /* Move up 20px when dialog is active */
         }
 
         /* Unified card that contains all elements */
@@ -237,8 +243,8 @@ const GameContactCard: React.FC = () => {
           backdrop-filter: blur(2px); /* Sedikit lebih blur */
           opacity: 0.6; /* Kurangi opacity sedikit */
           border-radius: 0; /* No rounded corners ala Souls-like */
-          padding: clamp(0.3rem, 0.8vw, 0.5rem) clamp(0.3rem, 0.8vw, 0.5rem); /* Padding lebih compact */
-          max-width: min(180px, 40%); /* Ukuran maksimum lebih kecil */
+          padding: clamp(0.6rem, 1.2vw, 0.8rem) clamp(0.5rem, 1vw, 0.7rem); /* Padding lebih generous */
+          max-width: min(200px, 45%); /* Ukuran sedikit lebih besar */
           width: 100%;
           box-shadow:
             0 5px 15px rgba(0, 0, 0, 0.15),
@@ -246,6 +252,7 @@ const GameContactCard: React.FC = () => {
           display: flex;
           flex-direction: column;
           align-items: center;
+          justify-content: flex-start; /* Align content to top */
           transition: all 0.4s ease;
           position: relative;
           overflow: hidden;
@@ -253,7 +260,8 @@ const GameContactCard: React.FC = () => {
           z-index: 30;
           touch-action: manipulation; /* More responsive touch */
           -webkit-tap-highlight-color: transparent; /* Remove default browser mobile highlight */
-          transform: scale(0.85); /* Ukuran lebih kecil */
+          transform: scale(0.9); /* Ukuran sedikit lebih besar */
+          min-height: 280px; /* Minimum height untuk proporsi yang baik */
         }
 
         .unified-card::before {
@@ -319,15 +327,16 @@ const GameContactCard: React.FC = () => {
         .social-links {
           display: flex;
           flex-direction: column;
-          gap: 0.4rem; /* Minimal spacing between links */
+          gap: 0.7rem; /* Lebih banyak spacing antara links */
           width: 100%;
-          margin-bottom: 0.4rem; /* Minimal bottom margin */
+          margin-bottom: 1rem; /* Jarak yang lebih besar dari share button */
+          padding-top: 0.3rem; /* Sedikit padding atas untuk menjauhkan dari corner */
         }
         
         .share-button-container {
           width: 100%;
-          margin-top: 0.5rem;
-          margin-bottom: 0.3rem;
+          margin-top: auto; /* Push ke bawah untuk spacing yang konsisten */
+          margin-bottom: 0.5rem;
         }
         
         .card-share-button {
@@ -365,13 +374,15 @@ const GameContactCard: React.FC = () => {
           }
           
           .unified-card {
-            max-width: min(200px, 70%); /* Smaller on tablets */
+            max-width: min(220px, 70%); /* Larger on tablets */
             opacity: 0.65; /* Subtle visibility on tablets */
-            transform: scale(0.85); /* Slightly smaller */
+            transform: scale(0.9); /* Consistent with desktop */
+            min-height: 260px; /* Adjusted for tablet */
           }
           
           .social-links {
-            gap: 0.4rem; /* Tighter spacing between links */
+            gap: 0.6rem; /* Better spacing between links */
+            padding-top: 0.4rem; /* Space from top */
           }
           
           .skill-row {
@@ -402,16 +413,19 @@ const GameContactCard: React.FC = () => {
           }
           
           .social-links {
-            gap: 0.4rem; /* Tighter spacing on mobile */
+            gap: 0.6rem; /* Better spacing on mobile */
             width: 100%; /* Use full width */
+            padding-top: 0.4rem; /* Space from top */
+            margin-bottom: 1.2rem; /* More space from share button */
           }
           
           .unified-card {
-            max-width: min(180px, 65%); /* Smaller for mobile */
+            max-width: min(200px, 65%); /* Better size for mobile */
             opacity: 0.6; /* Less visible on mobile */
-            padding: 0.4rem; /* Smaller padding */
-            transform: scale(0.85); /* Slightly smaller */
+            padding: 0.6rem 0.5rem; /* Better padding */
+            transform: scale(0.9); /* Consistent scaling */
             margin: 0 auto; /* Center the card */
+            min-height: 240px; /* Proportional height */
           }
           
           .card-corner {
@@ -427,15 +441,17 @@ const GameContactCard: React.FC = () => {
           }
           
           .unified-card {
-            max-width: min(160px, 60%); /* Much narrower on tiny screens */
-            padding: 0.4rem; /* Compact padding */
+            max-width: min(180px, 60%); /* Better size for tiny screens */
+            padding: 0.6rem 0.5rem; /* Better padding */
             opacity: 0.6; /* Less visible on small devices */
-            transform: scale(0.8); /* Even smaller */
+            transform: scale(0.85); /* Better proportion */
+            min-height: 220px; /* Maintain proportion */
           }
           
           .social-links {
-            gap: 0.4rem; /* More spacing for touch */
-            padding: 0.3rem 0; /* Vertical padding */
+            gap: 0.6rem; /* Consistent spacing for touch */
+            padding-top: 0.4rem; /* Space from top */
+            margin-bottom: 1.2rem; /* Space from share button */
           }
           
           .skill-name {
