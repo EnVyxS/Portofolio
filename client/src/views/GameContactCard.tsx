@@ -278,7 +278,7 @@ const GameContactCard: React.FC = () => {
           touch-action: manipulation; /* More responsive touch */
           -webkit-tap-highlight-color: transparent; /* Remove default browser mobile highlight */
           transform: scale(0.9); /* Ukuran sedikit lebih besar */
-          min-height: 380px; /* Tinggi diperbesar untuk lebih banyak ruang */
+          min-height: 300px; /* Minimum height untuk proporsi yang baik */
         }
 
         .unified-card::before {
@@ -344,17 +344,17 @@ const GameContactCard: React.FC = () => {
         .social-links {
           display: flex;
           flex-direction: column;
-          gap: 0.8rem; /* Jarak yang konsisten antar links */
+          gap: 0.5rem; /* Perfect spacing between links */
           width: 100%;
           flex: 1; /* Take available space */
-          justify-content: center; /* Center vertical alignment untuk distribusi yang lebih baik */
-          padding: 1.2rem 0; /* Padding yang cukup untuk ruang napas */
-          transform: translateY(-10px); /* Hanya naik 10px untuk posisi yang lebih natural */
+          justify-content: space-evenly; /* Evenly distribute social links */
+          padding: 0.3rem 0; /* Minimal padding for optimal use of space */
+          transform: translateY(-30px); /* Naik lebih tinggi agar posisi lebih ke atas */
         }
         
         .share-button-container {
           width: 100%;
-          margin-top: 1rem; /* Tambah jarak dari social links */
+          margin-top: 0; /* Remove auto margin */
           flex-shrink: 0; /* Prevent shrinking */
         }
         
