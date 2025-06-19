@@ -51,6 +51,15 @@ const ShareButton: React.FC<ShareButtonProps> = ({
     }
   };
   
+  // Enhanced backdrop click handler
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    // Make sure the click is on the backdrop, not propagated from modal content
+    if (e.target === e.currentTarget) {
+      console.log('Backdrop clicked, closing modal');
+      closeModal();
+    }
+  };
+  
   // Fungsi untuk membagikan menggunakan Web Share API
   const handleShare = async () => {
     // Coba gunakan Web Share API jika tersedia
@@ -151,7 +160,8 @@ const ShareButton: React.FC<ShareButtonProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={closeModal}
+            onClick={handleBackdropClick}
+            onTouchEnd={handleBackdropClick}
           >
             <motion.div 
               className="share-modal"
@@ -299,6 +309,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
           padding: 20px;
           backdrop-filter: blur(3px);
           cursor: pointer;
+          touch-action: none;
         }
         
         .share-modal {
@@ -451,6 +462,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
           .share-modal-backdrop {
             align-items: flex-end;
             padding: 0;
+            background: rgba(0, 0, 0, 0.8);
           }
           
           .share-modal {
@@ -478,8 +490,21 @@ const ShareButton: React.FC<ShareButtonProps> = ({
             transform: translateX(-50%);
             width: 40px;
             height: 4px;
-            background: rgba(255, 215, 0, 0.3);
+            background: rgba(255, 215, 0, 0.5);
             border-radius: 2px;
+            cursor: grab;
+          }
+          
+          .share-modal-header::after {
+            content: 'Tap outside or drag down to close';
+            position: absolute;
+            top: -32px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+            white-space: nowrap;
+            pointer-events: none;
           }
           
           .share-modal-header h3 {
