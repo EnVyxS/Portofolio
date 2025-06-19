@@ -34,12 +34,8 @@ const GameContactCard: React.FC = () => {
   useEffect(() => {
     const checkDialogVisibility = () => {
       try {
-        const dialogController = DialogController.getInstance();
-        const hoverDialogController = HoverDialogController.getInstance();
-
-        // Check if main dialog is active
-        const isMainDialogActive = dialogController.isMainDialogActive();
-        const isHoverDialogActive = hoverDialogController.isTypingHoverDialog();
+        // Check global dialog flag set by DialogBox component
+        const globalDialogFlag = (window as any).__dialogBoxVisible;
         
         // Check if dialog box elements are visible in DOM
         const dialogBoxElements = document.querySelectorAll('.dialog-box-container');
@@ -48,10 +44,18 @@ const GameContactCard: React.FC = () => {
           const computedStyle = window.getComputedStyle(htmlElement);
           return computedStyle.display !== 'none' && 
                  computedStyle.visibility !== 'hidden' && 
-                 computedStyle.opacity !== '0';
+                 computedStyle.opacity !== '0' &&
+                 htmlElement.offsetHeight > 0;
         });
 
-        const dialogVisible = isMainDialogActive || isHoverDialogActive || hasVisibleDialogBox;
+        // Also check for any dialog with text content
+        const dialogBoxTextElements = document.querySelectorAll('.dialog-text');
+        const hasDialogWithText = Array.from(dialogBoxTextElements).some(element => {
+          const textContent = element.textContent?.trim();
+          return textContent && textContent.length > 0;
+        });
+
+        const dialogVisible = globalDialogFlag || hasVisibleDialogBox || hasDialogWithText;
         setHasActiveDialog(dialogVisible);
       } catch (error) {
         console.error("Error checking dialog visibility:", error);
@@ -62,8 +66,8 @@ const GameContactCard: React.FC = () => {
     // Check immediately
     checkDialogVisibility();
 
-    // Set up interval to check dialog visibility
-    const interval = setInterval(checkDialogVisibility, 300);
+    // Set up interval to check dialog visibility more frequently
+    const interval = setInterval(checkDialogVisibility, 150);
 
     return () => clearInterval(interval);
   }, []);
@@ -244,8 +248,9 @@ const GameContactCard: React.FC = () => {
         }
         
         .content-wrapper.dialog-active .unified-card {
-          transform: scale(0.85); /* Scale down when dialog is active */
-          opacity: 0.5; /* Reduce opacity when dialog is active */
+          transform: scale(0.8); /* Scale down when dialog is active */
+          opacity: 0.45; /* Reduce opacity when dialog is active */
+          filter: blur(0.5px); /* Subtle blur effect when dialog is active */
         }
 
         /* Unified card that contains all elements */
@@ -255,7 +260,7 @@ const GameContactCard: React.FC = () => {
           backdrop-filter: blur(2px); /* Sedikit lebih blur */
           opacity: 0.6; /* Kurangi opacity sedikit */
           border-radius: 0; /* No rounded corners ala Souls-like */
-          padding: clamp(0.6rem, 1.2vw, 0.8rem) clamp(0.5rem, 1vw, 0.7rem); /* Padding lebih generous */
+          padding: 0.8rem 0.6rem; /* Consistent padding */
           max-width: min(200px, 45%); /* Ukuran sedikit lebih besar */
           width: 100%;
           box-shadow:
@@ -264,7 +269,7 @@ const GameContactCard: React.FC = () => {
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: flex-start; /* Align content to top */
+          justify-content: space-between; /* Distribute space evenly */
           transition: all 0.4s ease;
           position: relative;
           overflow: hidden;
@@ -273,7 +278,7 @@ const GameContactCard: React.FC = () => {
           touch-action: manipulation; /* More responsive touch */
           -webkit-tap-highlight-color: transparent; /* Remove default browser mobile highlight */
           transform: scale(0.9); /* Ukuran sedikit lebih besar */
-          min-height: 280px; /* Minimum height untuk proporsi yang baik */
+          min-height: 300px; /* Minimum height untuk proporsi yang baik */
         }
 
         .unified-card::before {
@@ -339,16 +344,17 @@ const GameContactCard: React.FC = () => {
         .social-links {
           display: flex;
           flex-direction: column;
-          gap: 0.7rem; /* Lebih banyak spacing antara links */
+          gap: 0.6rem; /* Optimized spacing between links */
           width: 100%;
-          margin-bottom: 1rem; /* Jarak yang lebih besar dari share button */
-          padding-top: 0.3rem; /* Sedikit padding atas untuk menjauhkan dari corner */
+          flex: 1; /* Take available space */
+          justify-content: center; /* Center social links in available space */
+          padding: 0.5rem 0; /* Vertical padding for better distribution */
         }
         
         .share-button-container {
           width: 100%;
-          margin-top: auto; /* Push ke bawah untuk spacing yang konsisten */
-          margin-bottom: 0.5rem;
+          margin-top: 0; /* Remove auto margin */
+          flex-shrink: 0; /* Prevent shrinking */
         }
         
         .card-share-button {
@@ -390,8 +396,9 @@ const GameContactCard: React.FC = () => {
           }
           
           .content-wrapper.dialog-active .unified-card {
-            transform: scale(0.8); /* Scale down on tablets when dialog is active */
-            opacity: 0.45; /* Reduce opacity on tablets */
+            transform: scale(0.75); /* Scale down on tablets when dialog is active */
+            opacity: 0.4; /* Reduce opacity on tablets */
+            filter: blur(0.5px); /* Subtle blur effect */
           }
           
           .unified-card {
@@ -504,8 +511,9 @@ const GameContactCard: React.FC = () => {
           }
           
           .content-wrapper.dialog-active .unified-card {
-            transform: scale(0.7); /* Scale down more in landscape mode */
-            opacity: 0.4; /* Lower opacity in landscape */
+            transform: scale(0.65); /* Scale down more in landscape mode */
+            opacity: 0.35; /* Lower opacity in landscape */
+            filter: blur(0.5px); /* Subtle blur effect */
           }
 
           .unified-card {
