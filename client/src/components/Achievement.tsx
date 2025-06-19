@@ -222,7 +222,9 @@ const Achievement: React.FC<AchievementProps> = ({ type, onComplete }) => {
         achievementSoundRef.current = new Audio('/assets/sounds/souls-item.mp3');
         if (achievementSoundRef.current) {
           achievementSoundRef.current.volume = 0.8;
-          achievementSoundRef.current.play().catch(e => console.log("Couldn't play achievement sound:", e));
+          achievementSoundRef.current.play().catch(e => {
+            // Silently handle audio playback failure
+          });
         }
       }
     } catch (e) {

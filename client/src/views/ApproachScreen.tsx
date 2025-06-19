@@ -94,15 +94,22 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
                       if (bonfireSoundRef.current) {
                         bonfireSoundRef.current.currentTime = 0;
                         bonfireSoundRef.current.volume = 0.9; // Meningkatkan dari 0.4 menjadi 0.9 untuk mobile
-                        bonfireSoundRef.current.play().catch(e => console.log("Couldn't play bonfire sound:", e));
+                        bonfireSoundRef.current.play().catch(e => {
+                          // Silently handle audio playback failure
+                        });
                       }
                     }, 300);
                   })
-                  .catch(e => console.log("Couldn't play item sound:", e));
+                  .catch(e => {
+                    // Silently handle audio playback failure
+                  });
               }
             }, 200);
           })
-          .catch(e => console.log("Couldn't play menu sound:", e));
+          .catch(e => {
+            // Silently handle audio playback failure without logging
+            // This prevents console spam on mobile/restricted audio devices
+          });
       }
     } catch (error) {
       console.log("Error playing souls sounds:", error);
@@ -144,11 +151,13 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
         const playFootsteps = () => {
           footstepsSoundRef.current?.play()
             .catch(e => {
-              console.log("Couldn't play footsteps, retrying:", e);
+              // Silently handle footsteps playback failure
               // Retry once after a short delay
               setTimeout(() => {
                 footstepsSoundRef.current?.play()
-                  .catch(e2 => console.log("Failed to play footsteps after retry:", e2));
+                  .catch(e2 => {
+                    // Silently handle footsteps retry failure
+                  });
               }, 100);
             });
         };
@@ -437,7 +446,10 @@ const ApproachScreen: React.FC<ApproachScreenProps> = ({ onApproach }) => {
           onMouseEnter={() => {
             if (!isClicked && hoverSoundRef.current) {
               hoverSoundRef.current.currentTime = 0;
-              hoverSoundRef.current.play().catch(e => console.log("Couldn't play hover sound:", e));
+              hoverSoundRef.current.play().catch(e => {
+                // Silently handle audio playback failure without logging
+                // This prevents console spam on mobile/restricted audio devices
+              });
             }
             setIsHovered(true);
           }}

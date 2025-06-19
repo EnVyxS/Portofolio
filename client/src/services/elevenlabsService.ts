@@ -166,7 +166,7 @@ class ElevenLabsService {
         }
       }
       
-      console.error("Failed to get audio blob");
+      // Silently handle audio blob failure
       return null;
     } catch (error) {
       console.error("Error in generateSpeech:", error);

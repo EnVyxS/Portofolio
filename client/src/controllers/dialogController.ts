@@ -299,7 +299,7 @@ class DialogController {
     try {
       return this.elevenlabsService.isCurrentlyPlaying();
     } catch (e) {
-      console.error("Error checking if audio is processing:", e);
+      // Silently handle audio processing check error
       return false;
     }
   }
@@ -491,7 +491,7 @@ class DialogController {
                       }
                     })
                     .catch(e => {
-                      console.error("[DialogController] Retry audio playback failed with error:", e);
+                      // Silently handle retry audio failure
                     });
                 }
               }, 500);
@@ -500,7 +500,7 @@ class DialogController {
             }
           })
           .catch(e => {
-            console.error("[DialogController] Error starting audio playback:", e);
+            // Silently handle audio playback start error
           });
       } else {
         console.log("[DialogController] Audio is muted, skipping voice synthesis for return dialog");
