@@ -134,7 +134,7 @@ class IdleTimeoutController {
   private timerStartTime: number = Date.now();
   
   // Timer aktif saat ini (untuk menampilkan jenis timer yang sedang berjalan)
-  private currentActiveTimer: "idle" | "hover" | null = null;
+  private currentActiveTimer: "idle" | "hover" | "ultimatum" | null = null;
 
   // Typing system properties (matching hoverDialogController and dialogController)
   private typingSpeed: number = 50; // ms per character
@@ -360,6 +360,13 @@ class IdleTimeoutController {
           type: "Throw"
         };
       }
+    } else if (this.currentActiveTimer === "ultimatum") {
+      // Jika timer ultimatum aktif, tampilkan waktu tersisa untuk ultimatum
+      result = {
+        timeRemaining: Math.max(0, TIMEOUT_DURATIONS.EXTENDED_RETURN_ULTIMATUM - timeSinceStart),
+        totalDuration: TIMEOUT_DURATIONS.EXTENDED_RETURN_ULTIMATUM,
+        type: "Ultimatum"
+      };
     }
     // Timer hover sudah dihapus - menggunakan hover counting sebagai gantinya
     
@@ -435,6 +442,20 @@ class IdleTimeoutController {
     const now = Date.now();
     this.timerStartTime = now;
 
+    // Check if user should get ultimatum timer directly instead of gradual warnings
+    if (this.shouldUseUltimatumTimer()) {
+      console.log('[IdleTimeoutController] User qualifies for direct ultimatum timer - skipping gradual warnings');
+      this.currentActiveTimer = "ultimatum";
+      
+      // Start ultimatum timer directly
+      this.extendedReturnTimer = setTimeout(() => {
+        this.executeUltimatum();
+      }, TIMEOUT_DURATIONS.EXTENDED_RETURN_ULTIMATUM);
+      
+      console.log('[IdleTimeoutController] Direct ultimatum timer started - 2 minutes until punishment');
+      return;
+    }
+
     // Start monitoring interval untuk check timer state secara real-time
     this.checkInterval = setInterval(() => {
       this.checkTimerState();
@@ -443,10 +464,46 @@ class IdleTimeoutController {
     console.log('[IdleTimeoutController] Real-time timer monitoring started');
   }
 
+  // Method to check if user should get ultimatum timer directly
+  private shouldUseUltimatumTimer(): boolean {
+    try {
+      const achievementController = AchievementController.getInstance();
+      
+      // Get achievements
+      const hasDigitalOdyssey = achievementController.hasAchievement('nightmare'); // This is digital odyssey
+      const hasEscapist = achievementController.hasAchievement('escape'); // This is dream escapist
+      
+      // Condition 1: User has been thrown or punched before
+      const hasBeenThrownOrPunched = this.hasBeenThrown || this.hasBeenPunched;
+      
+      // Condition 2: User has digital odyssey achievement (nightmare)
+      const hasDigitalOdysseyAchievement = hasDigitalOdyssey;
+      
+      // Condition 3: User has dream escapist achievement (escape)
+      const hasDreamEscapistAchievement = hasEscapist;
+      
+      const shouldUse = hasBeenThrownOrPunched || hasDigitalOdysseyAchievement || hasDreamEscapistAchievement;
+      
+      console.log("[IdleTimeoutController] Ultimatum timer check:", {
+        hasBeenThrown: this.hasBeenThrown,
+        hasBeenPunched: this.hasBeenPunched,
+        hasBeenThrownOrPunched,
+        hasDigitalOdyssey: hasDigitalOdysseyAchievement,
+        hasEscapist: hasDreamEscapistAchievement,
+        shouldUseUltimatum: shouldUse
+      });
+      
+      return shouldUse;
+    } catch (error) {
+      console.error("[IdleTimeoutController] Error checking ultimatum timer conditions:", error);
+      return false;
+    }
+  }
+
   // Method untuk mengecek state timer dan trigger warnings secara real-time
   private checkTimerState(): void {
     try {
-      if (!this.timerStartTime || this.currentActiveTimer !== "idle") {
+      if (!this.timerStartTime || (this.currentActiveTimer !== "idle" && this.currentActiveTimer !== "ultimatum")) {
         return;
       }
 
@@ -458,8 +515,14 @@ class IdleTimeoutController {
           first: this.hasShownFirstWarning,
           second: this.hasShownSecondWarning,
           final: this.hasShownFinalWarning,
-          thrown: this.hasBeenThrown
+          thrown: this.hasBeenThrown,
+          timerType: this.currentActiveTimer
         });
+      }
+
+      // Skip normal warnings if in ultimatum mode
+      if (this.currentActiveTimer === "ultimatum") {
+        return;
       }
 
       // First warning check - trigger tepat saat elapsed >= 120000ms
@@ -676,6 +739,10 @@ class IdleTimeoutController {
       clearTimeout(this.extendedReturnTimer);
       this.extendedReturnTimer = null;
       this.isExtendedReturnSequenceActive = false;
+      // Reset timer type if it was ultimatum
+      if (this.currentActiveTimer === "ultimatum") {
+        this.currentActiveTimer = null;
+      }
       // Don't reset lastDialogWasReturn here as it might be needed elsewhere
     }
     
@@ -1453,6 +1520,9 @@ class IdleTimeoutController {
     
     // Reset Extended Return sequence flag
     this.isExtendedReturnSequenceActive = false;
+    
+    // Reset timer type
+    this.currentActiveTimer = null;
     
     // Show punch dialog and execute punch
     this.hasBeenPunched = true;
