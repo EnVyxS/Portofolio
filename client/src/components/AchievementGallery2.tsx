@@ -209,11 +209,29 @@ const AchievementGallery: React.FC = () => {
             whileHover={{ scale: 1.05, rotate: 1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => {
-              // Rick Roll Easter Egg - redirect ke Never Gonna Give You Up
-              window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
+              // Get achievement controller instance
+              const controller = AchievementController.getInstance();
+              
+              // Perform achievement substitution sebelum determine reward
+              controller.performAchievementSubstitution('achievement_click');
+              
+              // Get dynamic reward berdasarkan kondisi user
+              const reward = controller.getEasterEggReward();
+              window.open(reward.url, '_blank');
+              
+              // Refresh the page to update UI with new achievement
+              setTimeout(() => {
+                window.location.reload();
+              }, 100);
             }}
           >
-            <span className="reward-text">🎁 CLAIM YOUR REWARD</span>
+            <span className="reward-text">
+              {(() => {
+                const controller = AchievementController.getInstance();
+                const reward = controller.getEasterEggReward();
+                return reward.title;
+              })()}
+            </span>
             <div className="reward-sparkles">✨</div>
           </motion.button>
         </motion.div>

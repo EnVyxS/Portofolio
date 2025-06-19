@@ -166,6 +166,108 @@ class AchievementController {
     return allAchievementTypes.every(type => this.unlockedAchievements.has(type));
   }
 
+  // Mengecek kondisi flags untuk sistem substitusi achievement
+  private checkCondition1(): boolean {
+    // hasDigitalOdyssey AND hasEscapist
+    return this.hasAchievement('nightmare') && this.hasAchievement('escape');
+  }
+
+  private checkCondition2(): boolean {
+    // (hasBeenThrown OR hasBeenPunched) AND userHasBeenReturn
+    return this.hasAchievement('anger') && this.hasAchievement('return');
+  }
+
+  // Menghitung jumlah achievement yang dimiliki user
+  public getAchievementCount(): number {
+    return this.unlockedAchievements.size;
+  }
+
+  // Mengecek apakah user memiliki semua achievement dalam array
+  public hasAllSpecificAchievements(achievementTypes: AchievementType[]): boolean {
+    return achievementTypes.every(type => this.hasAchievement(type));
+  }
+
+  // Mengecek apakah user memiliki salah satu achievement dalam array
+  public hasAnyAchievement(achievementTypes: AchievementType[]): boolean {
+    return achievementTypes.some(type => this.hasAchievement(type));
+  }
+
+  // Sistem substitusi achievement berdasarkan kondisi
+  public performAchievementSubstitution(triggerContext: string = ''): void {
+    const kondisi1 = this.checkCondition1();
+    const kondisi2 = this.checkCondition2();
+    const achievementCount = this.getAchievementCount();
+
+    console.log(`Achievement substitution check - Kondisi1: ${kondisi1}, Kondisi2: ${kondisi2}, Count: ${achievementCount}, Context: ${triggerContext}`);
+
+    // Skenario 1: 11 achievements, only missing Time Gazer, user clicked Achievement button
+    if (kondisi1 && kondisi2 && achievementCount === 11 && 
+        !this.hasAchievement('patience') && triggerContext === 'achievement_click') {
+      
+      console.log('Substituting Time Gazer with Till Death Do Us Part');
+      // Remove Time Gazer and add Till Death Do Us Part
+      this.unlockedAchievements.delete('patience');
+      this.unlockedAchievements.add('tillDeath' as AchievementType);
+      this.saveAchievements();
+      
+      // Trigger callback untuk refresh UI jika ada
+      if (this.achievementCallback) {
+        this.achievementCallback('tillDeath' as AchievementType);
+      }
+    }
+    
+    // Skenario 2: 10 achievements, missing Patient Listener, Time Gazer, Till Death Do Us Part
+    else if (kondisi1 && kondisi2 && achievementCount === 10 && 
+             !this.hasAnyAchievement(['listener', 'patience'])) {
+      
+      console.log('Force unlocking Against Your Will, replacing Patient Listener');
+      // Replace Patient Listener with Against Your Will
+      this.unlockedAchievements.delete('listener');
+      this.unlockedAchievements.add('againstWill' as AchievementType);
+      this.saveAchievements();
+      
+      // Trigger callback untuk refresh UI jika ada
+      if (this.achievementCallback) {
+        this.achievementCallback('againstWill' as AchievementType);
+      }
+    }
+  }
+
+  // Menentukan reward track berdasarkan achievement yang dimiliki
+  public getEasterEggReward(): { url: string; title: string } {
+    const hasTillDeath = this.hasAchievement('tillDeath' as AchievementType);
+    const hasAgainstWill = this.hasAchievement('againstWill' as AchievementType);
+
+    // Jika kedua achievement baru dimiliki
+    if (hasTillDeath && hasAgainstWill) {
+      return {
+        url: 'https://www.youtube.com/watch?v=L397TWLwrUU', // System of a Down - B.Y.O.B.
+        title: '🎵 SYSTEM OF A DOWN - B.Y.O.B.'
+      };
+    }
+    // Jika hanya Against Your Will
+    else if (hasAgainstWill && !hasTillDeath) {
+      return {
+        url: 'https://www.youtube.com/watch?v=sX_Jj3PlFaQ', // My Chemical Romance - Cancer
+        title: '🎵 MY CHEMICAL ROMANCE - CANCER'
+      };
+    }
+    // Jika hanya Till Death Do Us Part
+    else if (hasTillDeath && !hasAgainstWill) {
+      return {
+        url: 'https://www.youtube.com/watch?v=KVjBCT2Lc94', // Avenged Sevenfold - A Little Piece of Heaven
+        title: '🎵 AVENGED SEVENFOLD - A LITTLE PIECE OF HEAVEN'
+      };
+    }
+    // Default Rick Roll
+    else {
+      return {
+        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', // Rick Roll
+        title: '🎁 CLAIM YOUR REWARD'
+      };
+    }
+  }
+
   // Reset semua achievements (untuk testing)
   public resetAchievements(): void {
     this.unlockedAchievements.clear();

@@ -13,7 +13,9 @@ export type AchievementType =
   | 'return'      // Setelah reset, user menekan APPROACH HIM lagi (RETURN_DIALOG)
   | 'hover'       // Setelah reset, user melakukan hover (HOVER_AFTER_RESET)
   | 'escape'      // Berhasil keluar dari dream.html
-  | 'social';     // Membagikan portfolio ke media sosial
+  | 'social'      // Membagikan portfolio ke media sosial
+  | 'tillDeath'   // Achievement substitusi untuk Time Gazer
+  | 'againstWill';// Achievement substitusi untuk Patient Listener
 
 // Icon SVG untuk setiap jenis achievement
 export const AchievementIcons: Record<AchievementType, React.ReactNode> = {
@@ -130,6 +132,21 @@ export const AchievementIcons: Record<AchievementType, React.ReactNode> = {
       <path d="M7 18l2-2M17 18l-2-2" stroke="#FFC107" strokeWidth="0.75" strokeLinecap="round" />
     </svg>
   ),
+  tillDeath: (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" 
+        stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
+      <path d="M12 8v8M8 12h8" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  againstWill: (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" 
+        stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3" />
+      <path d="M12 22V12" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M8 10l8-4M8 14l8-4" stroke="#FFC107" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
   social: (
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="18" cy="5" r="3" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
@@ -158,7 +175,9 @@ export const AchievementTitles: Record<AchievementType, string> = {
   return: 'UNDETERRED SEEKER',
   hover: 'CURIOUS OBSERVER',
   escape: 'DREAM ESCAPIST',
-  social: 'SOCIAL CONNECTOR'
+  social: 'SOCIAL CONNECTOR',
+  tillDeath: 'TILL DEATH DO US PART',
+  againstWill: 'AGAINST YOUR WILL'
 };
 
 // Deskripsi achievement
@@ -174,7 +193,9 @@ export const AchievementDescriptions: Record<AchievementType, string> = {
   return: 'Despite challenges, you returned to continue exploring.',
   hover: 'You\'ve shown curiosity in exploring interactive elements.',
   escape: 'You\'ve found your way out of the dream world and returned to reality.',
-  social: 'You\'ve shared this interactive experience with your network.'
+  social: 'You\'ve shared this interactive experience with your network.',
+  tillDeath: 'You\'ve unlocked a special bond that transcends digital boundaries.',
+  againstWill: 'You\'ve been compelled by forces beyond your control to continue.'
 };
 
 // Kriteria untuk mendapatkan achievement
@@ -190,5 +211,7 @@ export const AchievementCriteria: Record<AchievementType, string> = {
   return: 'Come back after being thrown out of the conversation.',
   hover: 'After meeting special conditions, hover over contract or social elements to trigger a dialogue, then receive this achievement.',
   escape: 'Find and click the "WAKE UP" button to escape from the nightmare.',
-  social: 'Share the portfolio on social media using the share button.'
+  social: 'Share the portfolio on social media using the share button.',
+  tillDeath: 'A special achievement that replaces Time Gazer under certain conditions.',
+  againstWill: 'A special achievement that replaces Patient Listener under certain conditions.'
 };
