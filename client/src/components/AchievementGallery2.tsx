@@ -64,11 +64,9 @@ const AchievementGallery: React.FC = () => {
       setShowEasterEgg(true);
     }
 
-    // Force refresh jika terjadi perubahan achievement count
+    // Log achievement count for debugging
     const currentCount = unlocked.length;
-    if (currentCount !== 10 && currentCount !== 11 && currentCount !== 12) {
-      setTimeout(() => window.location.reload(), 1000);
-    }
+    console.log(`[AchievementGallery2] Current achievement count: ${currentCount}`);
   }, []);
 
   // Mengecek apakah achievement sudah di-unlock (termasuk substitusi)
