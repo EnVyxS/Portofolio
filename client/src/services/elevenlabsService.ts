@@ -134,7 +134,9 @@ class ElevenLabsService {
       console.log("Generating speech for exact text:", text);
       
       // Gunakan endpoint server untuk generate speech
-      const apiUrl = process.env.NODE_ENV === 'production' 
+      const apiUrl = (window.location.hostname.includes('vercel.app') || 
+                     window.location.hostname.includes('netlify.app') || 
+                     process.env.NODE_ENV === 'production') 
         ? '/api/elevenlabs?action=text-to-speech' 
         : '/api/elevenlabs/text-to-speech';
       
