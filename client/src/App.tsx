@@ -18,7 +18,7 @@ import AchievementDisplay from "./components/AchievementDisplay";
 import AchievementController from "./controllers/achievementController";
 import IdleTimer from "./components/IdleTimer";
 
-// Cookie functions for nightmare trap
+// Browser state management for interactive features
 function getCookie(name: string) {
   const cname = name + "=";
   const decodedCookie = decodeURIComponent(document.cookie);
