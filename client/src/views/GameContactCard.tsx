@@ -248,7 +248,9 @@ const GameContactCard: React.FC = () => {
         }
         
         .content-wrapper.dialog-active .unified-card {
-          /* Social links tidak bergerak saat dialog aktif - efek visual dihapus */
+          transform: scale(0.75); /* Mengecil saat dialog aktif */
+          opacity: 0.4; /* Lebih transparan saat dialog aktif */
+          filter: blur(0.5px); /* Sedikit blur saat dialog aktif */
         }
 
         /* Unified card that contains all elements */
@@ -391,12 +393,12 @@ const GameContactCard: React.FC = () => {
           }
           
           .content-wrapper.dialog-active {
-            top: 60px; /* Naik ke posisi normal saat dialog aktif */
+            top: 40px; /* Naik lebih tinggi saat dialog aktif di tablet */
           }
           
           .content-wrapper.dialog-active .unified-card {
-            transform: scale(0.75); /* Scale down on tablets when dialog is active */
-            opacity: 0.4; /* Reduce opacity on tablets */
+            transform: scale(0.7); /* Mengecil lebih banyak saat dialog aktif di tablet */
+            opacity: 0.35; /* Lebih transparan saat dialog aktif */
             filter: blur(0.5px); /* Subtle blur effect */
           }
           
@@ -405,6 +407,7 @@ const GameContactCard: React.FC = () => {
             opacity: 0.65; /* Subtle visibility on tablets */
             transform: scale(0.9); /* Consistent with desktop */
             min-height: 260px; /* Adjusted for tablet */
+            transition: all 0.4s ease; /* Smooth transitions untuk tablet */
           }
           
           .social-links {
@@ -436,7 +439,18 @@ const GameContactCard: React.FC = () => {
             align-items: center; /* Center horizontally */
             z-index: 20; /* Higher z-index to ensure visibility */
             transform: none; /* No transform */
-            padding-bottom: 100px; /* Push up slightly from center */
+            padding-bottom: 150px; /* Push up more from center - posisi default naik */
+          }
+          
+          /* Dynamic positioning and scaling when dialog is active on mobile */
+          .content-wrapper.dialog-active {
+            padding-bottom: 200px; /* Naik lebih tinggi saat dialog aktif */
+          }
+          
+          .content-wrapper.dialog-active .unified-card {
+            transform: scale(0.7); /* Mengecil lebih banyak di mobile saat dialog aktif */
+            opacity: 0.35; /* Lebih transparan di mobile saat dialog aktif */
+            filter: blur(0.5px); /* Sedikit blur saat dialog aktif */
           }
           
           .social-links {
@@ -453,6 +467,7 @@ const GameContactCard: React.FC = () => {
             transform: scale(0.9); /* Consistent scaling */
             margin: 0 auto; /* Center the card */
             min-height: 240px; /* Proportional height */
+            transition: all 0.4s ease; /* Smooth transitions untuk mobile */
           }
           
           .card-corner {
@@ -464,7 +479,17 @@ const GameContactCard: React.FC = () => {
         /* Extra small devices */
         @media (max-width: 480px) {
           .content-wrapper {
-            padding-bottom: 120px; /* Push up more from center */
+            padding-bottom: 170px; /* Push up more from center - posisi default naik */
+          }
+          
+          .content-wrapper.dialog-active {
+            padding-bottom: 220px; /* Naik lebih tinggi saat dialog aktif */
+          }
+          
+          .content-wrapper.dialog-active .unified-card {
+            transform: scale(0.65); /* Mengecil lebih banyak di extra small saat dialog aktif */
+            opacity: 0.3; /* Lebih transparan di extra small saat dialog aktif */
+            filter: blur(0.5px); /* Sedikit blur saat dialog aktif */
           }
           
           .unified-card {
@@ -473,6 +498,7 @@ const GameContactCard: React.FC = () => {
             opacity: 0.6; /* Less visible on small devices */
             transform: scale(0.85); /* Better proportion */
             min-height: 220px; /* Maintain proportion */
+            transition: all 0.4s ease; /* Smooth transitions untuk extra small */
           }
           
           .social-links {
