@@ -230,55 +230,53 @@ const GameContactCard: React.FC = () => {
         .content-wrapper {
           display: flex;
           flex-direction: column;
-          align-items: flex-end;
+          align-items: flex-end; /* Align to the right */
           width: 100%;
-          max-width: 320px;
+          max-width: 500px;
           margin: 0;
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          transform: none;
-          z-index: 20;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          position: absolute;
+          top: 90px; /* Default position turun 60px (30px + 60px = 90px) */
+          right: 40px; /* Sedikit lebih jauh ke kanan */
+          transform: none; /* No vertical centering for desktop */
+          z-index: 20; /* Pastikan selalu di atas elemen lain */
+          transition: all 0.3s ease; /* Smooth positioning transition */
         }
 
         /* Dynamic positioning and scaling when dialog is active */
         .content-wrapper.dialog-active {
-          top: 10px;
-          right: 10px;
-          transform: scale(0.8);
+          top: 30px; /* Naik ke posisi normal saat dialog aktif */
         }
         
         .content-wrapper.dialog-active .unified-card {
-          transform: scale(0.9);
-          opacity: 0.6;
-          filter: blur(0.3px);
+          /* Social links tidak bergerak saat dialog aktif - efek visual dihapus */
         }
 
         /* Unified card that contains all elements */
         .unified-card {
-          background: rgba(20, 16, 14, 0.85);
-          border: 1px solid rgba(150, 130, 100, 0.6);
-          backdrop-filter: blur(3px);
-          opacity: 0.9;
-          border-radius: 4px;
-          padding: 1rem 0.8rem;
+          background: rgba(20, 16, 14, 0.5); /* Lebih gelap dan lebih terlihat */
+          border: 1px solid rgba(150, 130, 100, 0.4); /* Border emas lebih terlihat */
+          backdrop-filter: blur(2px); /* Sedikit lebih blur */
+          opacity: 0.6; /* Kurangi opacity sedikit */
+          border-radius: 0; /* No rounded corners ala Souls-like */
+          padding: 0.8rem 0.6rem; /* Consistent padding */
+          max-width: min(200px, 45%); /* Ukuran sedikit lebih besar */
           width: 100%;
-          max-width: 280px;
           box-shadow:
-            0 8px 32px rgba(0, 0, 0, 0.3),
-            0 0 16px rgba(150, 130, 100, 0.2);
+            0 5px 15px rgba(0, 0, 0, 0.15),
+            0 0 12px rgba(150, 130, 100, 0.15); /* Shadow emas pudar */
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: space-between;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          justify-content: space-between; /* Distribute space evenly */
+          transition: all 0.4s ease;
           position: relative;
           overflow: hidden;
+          margin: 0 auto;
           z-index: 30;
-          touch-action: manipulation;
-          -webkit-tap-highlight-color: transparent;
-          min-height: 320px;
+          touch-action: manipulation; /* More responsive touch */
+          -webkit-tap-highlight-color: transparent; /* Remove default browser mobile highlight */
+          transform: scale(0.9); /* Ukuran sedikit lebih besar */
+          min-height: 300px; /* Minimum height untuk proporsi yang baik */
         }
 
         .unified-card::before {
@@ -393,12 +391,12 @@ const GameContactCard: React.FC = () => {
           }
           
           .content-wrapper.dialog-active {
-            top: 40px; /* Naik lebih tinggi saat dialog aktif di tablet */
+            top: 60px; /* Naik ke posisi normal saat dialog aktif */
           }
           
           .content-wrapper.dialog-active .unified-card {
-            transform: scale(0.7); /* Mengecil lebih banyak saat dialog aktif di tablet */
-            opacity: 0.35; /* Lebih transparan saat dialog aktif */
+            transform: scale(0.75); /* Scale down on tablets when dialog is active */
+            opacity: 0.4; /* Reduce opacity on tablets */
             filter: blur(0.5px); /* Subtle blur effect */
           }
           
@@ -407,7 +405,6 @@ const GameContactCard: React.FC = () => {
             opacity: 0.65; /* Subtle visibility on tablets */
             transform: scale(0.9); /* Consistent with desktop */
             min-height: 260px; /* Adjusted for tablet */
-            transition: all 0.4s ease; /* Smooth transitions untuk tablet */
           }
           
           .social-links {
@@ -424,58 +421,22 @@ const GameContactCard: React.FC = () => {
           }
         }
 
-        /* Tablet devices */
-        @media (max-width: 1024px) and (min-width: 769px) {
+        /* Mobile devices (center alignment) */
+        @media (max-width: 640px) {
           .content-wrapper {
-            top: 15px;
-            right: 15px;
-            max-width: 260px;
-          }
-          
-          .content-wrapper.dialog-active {
-            top: 10px;
-            right: 10px;
-            transform: scale(0.9);
-          }
-          
-          .content-wrapper.dialog-active .unified-card {
-            transform: scale(0.95);
-            opacity: 0.8;
-          }
-          
-          .unified-card {
-            max-width: 240px;
-            min-height: 280px;
-            padding: 0.9rem 0.7rem;
-          }
-        }
-
-        /* Mobile devices */
-        @media (max-width: 768px) {
-          .content-wrapper {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            right: auto;
-            transform: translate(-50%, -60%);
-            width: 90vw;
-            max-width: 300px;
-            height: auto;
+            top: 0; /* Reset top position */
+            right: 0; /* Reset right position */
+            left: 0; /* Set left to 0 for center alignment */
+            height: 100vh; /* Full height of viewport */
+            margin: 0 auto; /* Center horizontally */
+            width: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 25;
-          }
-          
-          .content-wrapper.dialog-active {
-            top: 30%;
-            transform: translate(-50%, -50%) scale(0.85);
-          }
-          
-          .content-wrapper.dialog-active .unified-card {
-            transform: scale(0.9);
-            opacity: 0.7;
+            justify-content: center; /* Center vertically */
+            align-items: center; /* Center horizontally */
+            z-index: 20; /* Higher z-index to ensure visibility */
+            transform: none; /* No transform */
+            padding-bottom: 100px; /* Push up slightly from center */
           }
           
           .social-links {
@@ -486,11 +447,12 @@ const GameContactCard: React.FC = () => {
           }
           
           .unified-card {
-            max-width: 100%;
-            width: 100%;
-            padding: 1rem 0.8rem;
-            margin: 0;
-            min-height: 280px;
+            max-width: min(200px, 65%); /* Better size for mobile */
+            opacity: 0.6; /* Less visible on mobile */
+            padding: 0.6rem 0.5rem; /* Better padding */
+            transform: scale(0.9); /* Consistent scaling */
+            margin: 0 auto; /* Center the card */
+            min-height: 240px; /* Proportional height */
           }
           
           .card-corner {
@@ -502,19 +464,15 @@ const GameContactCard: React.FC = () => {
         /* Extra small devices */
         @media (max-width: 480px) {
           .content-wrapper {
-            top: 45%;
-            width: 95vw;
-            max-width: 280px;
-          }
-          
-          .content-wrapper.dialog-active {
-            top: 25%;
-            transform: translate(-50%, -50%) scale(0.8);
+            padding-bottom: 120px; /* Push up more from center */
           }
           
           .unified-card {
-            padding: 0.8rem 0.6rem;
-            min-height: 260px;
+            max-width: min(180px, 60%); /* Better size for tiny screens */
+            padding: 0.6rem 0.5rem; /* Better padding */
+            opacity: 0.6; /* Less visible on small devices */
+            transform: scale(0.85); /* Better proportion */
+            min-height: 220px; /* Maintain proportion */
           }
           
           .social-links {
@@ -539,36 +497,44 @@ const GameContactCard: React.FC = () => {
         /* Landscape mode on mobile devices */
         @media (max-height: 500px) and (orientation: landscape) {
           .content-wrapper {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            left: auto;
-            transform: none;
-            width: auto;
-            max-width: 200px;
-            height: auto;
-            align-items: flex-end;
-            justify-content: flex-start;
+            top: 70px; /* Default position turun 60px (10px + 60px = 70px) */
+            right: 10px; /* Menempel di sisi kanan */
+            height: auto; /* Reset height */
+            transform: none; /* No transform */
+            align-items: flex-end; /* Align to right */
+            justify-content: flex-start; /* Align to top */
           }
           
           .content-wrapper.dialog-active {
-            top: 5px;
-            right: 5px;
-            transform: scale(0.9);
+            top: 10px; /* Naik ke posisi normal saat dialog aktif */
+          }
+          
+          .content-wrapper.dialog-active .unified-card {
+            transform: scale(0.65); /* Scale down more in landscape mode */
+            opacity: 0.35; /* Lower opacity in landscape */
+            filter: blur(0.5px); /* Subtle blur effect */
           }
 
           .unified-card {
-            padding: 0.5rem 0.4rem;
-            max-width: 180px;
-            min-height: 200px;
+            padding: 0.3rem; /* Padding lebih kecil */
+            max-width: 140px; /* Jauh lebih kecil di landscape */
+            opacity: 0.5; /* Lebih transparan di landscape */
+            transform: scale(0.75); /* Ukuran lebih kecil */
           }
 
           .social-links {
-            gap: 0.3rem;
+            gap: 0.2rem; /* Jarak sangat minimal di landscape */
           }
           
-          .card-corner {
-            display: none;
+          /* Hide decorative elements in landscape to save space */
+          .card-accent-corner, .card-corner {
+            display: none; /* Sembunyikan semua elemen dekoratif */
+          }
+          
+          .skill-level {
+            height: 2px;
+            margin-top: 1px;
+            margin-bottom: 1px;
           }
         }
       `}</style>
